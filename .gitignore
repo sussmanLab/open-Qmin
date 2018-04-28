@@ -1,5 +1,6 @@
 *.swp
 *.o
+*.a
 *.gch
 *.out
 *_store
@@ -9,3 +10,7 @@ CMakeCache*
 CMakeFiles/*
 Makefile
 cmake_install.cmake
+**/CMakeCache*
+**/CMakeFiles/*
+**/Makefile
+**/cmake_install.cmake
