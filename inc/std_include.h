@@ -2,10 +2,19 @@
 #define STDINCLUDE
 
 /*! \file std_include.h
-a file of convenience, carrying all kinds of (often unneeded) standard header files
-It does also define Dscalars as either floats or doubles, depending on
+a file to be included all the time... carries with it things DMS often uses
+Crucially, it also defines Dscalars as either floats or doubles, depending on
 how the program is compiled
 */
+
+#ifdef NVCC
+#define HOSTDEVICE __host__ __device__ inline
+#else
+#define HOSTDEVICE inline __attribute__((always_inline))
+#endif
+
+#define THRESHOLD 1e-18
+#define EPSILON 1e-18
 
 #include <cmath>
 #include <algorithm>
@@ -25,30 +34,45 @@ how the program is compiled
 #include <stdexcept>
 #include <cassert>
 
-//HOSTDEVICE here is just an inliner... more important when mixing in CUDA code, where
-//it might mean something different
-#define HOSTDEVICE inline __attribute__((always_inline))
-
 using namespace std;
+
+#include <cuda_runtime.h>
+#include "vector_types.h"
+#include "vector_functions.h"
 
 #define PI 3.14159265358979323846
 
-typedef double Dscalar;
+//decide whether to compute everything in floating point or double precision
+#ifndef SCALARFLOAT
+//double variables types
+#define Dscalar double
+#define Dscalar2 double2
+#define Dscalar3 double3
+#define Dscalar4 double4
+//the netcdf variable type
+#define ncDscalar ncDouble
+//the cuda RNG
+#define cur_norm curand_normal_double
+//trig and special funtions
+#define Cos cos
+#define Sin sin
+#define Floor floor
+#define Ceil ceil
 
-//Dscalar2's, like CUDA double2's, have an x and y accessible part
-struct Dscalar2
-    {
-    Dscalar x;
-    Dscalar y;
-    };
+#else
+//floats
 
-struct Dscalar4
-    {
-    Dscalar x;
-    Dscalar y;
-    Dscalar z;
-    Dscalar w;
-    };
+#define Dscalar float
+#define Dscalar2 float2
+#define Dscalar3 float3
+#define Dscalar4 float4
+#define ncDscalar ncFloat
+#define cur_norm curand_normal
+#define Cos cosf
+#define Sin sinf
+#define Floor floorf
+#define Ceil ceilf
+#endif
 
 //!Less than operator for Dscalars just sorts by the x-coordinate
 HOSTDEVICE bool operator<(const Dscalar2 &a, const Dscalar2 &b)
@@ -71,7 +95,6 @@ HOSTDEVICE Dscalar2 make_Dscalar2(Dscalar x, Dscalar y)
     return ans;
     }
 
-
 //!component-wise addition of two Dscalar2s
 HOSTDEVICE Dscalar2 operator+(const Dscalar2 &a, const Dscalar2 &b)
     {
@@ -90,22 +113,40 @@ HOSTDEVICE Dscalar2 operator*(const Dscalar &a, const Dscalar2 &b)
     return make_Dscalar2(a*b.x,a*b.y);
     }
 
+//!return a Dscalar3 from three Dscalars
+HOSTDEVICE Dscalar3 make_Dscalar3(Dscalar x, Dscalar y,Dscalar z)
+    {
+    Dscalar3 ans;
+    ans.x =x;
+    ans.y=y;
+    ans.z =z;
+    return ans;
+    }
+
 //!return a Dscalar4 from four Dscalars
-HOSTDEVICE Dscalar4 make_Dscalar4(Dscalar x, Dscalar y, Dscalar z, Dscalar w)
+HOSTDEVICE Dscalar4 make_Dscalar4(Dscalar x, Dscalar y,Dscalar z, Dscalar w)
     {
     Dscalar4 ans;
     ans.x =x;
     ans.y=y;
-    ans.z=z;
+    ans.z =z;
     ans.w=w;
     return ans;
     }
 
-//!print a Dscalar2 to screen
-HOSTDEVICE void printDscalar2(Dscalar2 a)
+//!Handle errors in kernel calls...returns file and line numbers if cudaSuccess doesn't pan out
+static void HandleError(cudaError_t err, const char *file, int line)
     {
-    printf("%f\t%f\n",a.x,a.y);
-    };
+    //as an additional debugging check, if always synchronize cuda threads after every kernel call
+    #ifdef CUDATHREADSYNC
+    cudaThreadSynchronize();
+    #endif
+    if (err != cudaSuccess)
+        {
+        printf("\nError: %s in file %s at line %d\n",cudaGetErrorString(err),file,line);
+        throw std::exception();
+        }
+    }
 
 //!A utility function for checking if a file exists
 inline bool fileExists(const std::string& name)
@@ -114,7 +155,10 @@ inline bool fileExists(const std::string& name)
     return f.good();
     }
 
+//A macro to wrap cuda calls
+#define HANDLE_ERROR(err) (HandleError( err, __FILE__,__LINE__ ))
 //spot-checking of code for debugging
 #define DEBUGCODEHELPER printf("\nReached: file %s at line %d\n",__FILE__,__LINE__);
 
+#undef HOSTDEVICE
 #endif

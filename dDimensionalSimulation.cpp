@@ -5,7 +5,6 @@
 
 //we'll use TCLAP as our command line parser 
 #include <tclap/CmdLine.h>
-#include "noiseSource.h"
 using namespace std;
 using namespace TCLAP; 
 
@@ -29,10 +28,8 @@ int main(int argc, char*argv[])
     cmd.parse( argc, argv );
 
     int programSwitch = programSwitchArg.getValue();
-    noiseSource noise;
     cout << programSwitch << "    " <<dim +2 << endl;
     cout << programSwitch << "    " <<DIMENSION +2 << endl;
-    cout << noise.getRealUniform(-1.0,10.2) <<endl;
 
 //The end of the tclap try
 	} catch (ArgException &e)  // catch any exceptions
