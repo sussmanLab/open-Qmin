@@ -46,9 +46,6 @@ using namespace std;
 #ifndef SCALARFLOAT
 //double variables types
 #define Dscalar double
-#define Dscalar2 double2
-#define Dscalar3 double3
-#define Dscalar4 double4
 //the netcdf variable type
 #define ncDscalar ncDouble
 //the cuda RNG
@@ -61,11 +58,7 @@ using namespace std;
 
 #else
 //floats
-
 #define Dscalar float
-#define Dscalar2 float2
-#define Dscalar3 float3
-#define Dscalar4 float4
 #define ncDscalar ncFloat
 #define cur_norm curand_normal
 #define Cos cosf
@@ -74,65 +67,111 @@ using namespace std;
 #define Ceil ceilf
 #endif
 
-//!Less than operator for Dscalars just sorts by the x-coordinate
-HOSTDEVICE bool operator<(const Dscalar2 &a, const Dscalar2 &b)
+//!dVec is an array whose length matches the dimension of the system
+class dVec
     {
-    return a.x<b.x;
+    public:
+        HOSTDEVICE dVec(){};
+        HOSTDEVICE dVec(const Dscalar value)
+            {
+            for (int dd = 0; dd < DIMENSION; ++dd)
+                x[dd] = value;
+            };
+        HOSTDEVICE dVec(const dVec &other)
+            {
+            for (int dd = 0; dd < DIMENSION; ++dd)
+                x[dd] = other.x[dd];
+            };
+
+        Dscalar x[DIMENSION];
+
+        //mutating operators
+        dVec& operator=(const dVec &other)
+            {
+            for (int dd = 0; dd < DIMENSION; ++dd)
+                this->x[dd] = other.x[dd];
+            return *this;
+            }
+        dVec& operator-=(const dVec &other)
+            {
+            for (int dd = 0; dd < DIMENSION; ++dd)
+                this->x[dd] -= other.x[dd];
+            return *this;
+            }
+        dVec& operator+=(const dVec &other)
+            {
+            for (int dd = 0; dd < DIMENSION; ++dd)
+                this->x[dd] += other.x[dd];
+            return *this;
+            }
+    };
+
+//!Less than operator for dVecs just sorts by the x-coordinate
+HOSTDEVICE bool operator<(const dVec &a, const dVec &b)
+    {
+    return a.x[0]<b.x[0];
     }
 
-//!Equality operator tests for.... equality of both elements
-HOSTDEVICE bool operator==(const Dscalar2 &a, const Dscalar2 &b)
+//!Equality operator tests for.... equality of all elements
+HOSTDEVICE bool operator==(const dVec &a, const dVec &b)
     {
-    return (a.x==b.x &&a.y==b.y);
+    for (int dd = 0; dd <DIMENSION; ++dd)
+        if(a.x[dd]!= b.x[dd]) return false;
+    return true;
     }
 
-//!return a Dscalar2 from two Dscalars
-HOSTDEVICE Dscalar2 make_Dscalar2(Dscalar x, Dscalar y)
+//!return a dVec with all elements equal to one number
+HOSTDEVICE dVec make_dVec(Dscalar value)
     {
-    Dscalar2 ans;
-    ans.x =x;
-    ans.y=y;
+    dVec ans;
+    for (int dd = 0; dd < DIMENSION; ++dd)
+        ans.x[dd] = value;
     return ans;
     }
 
-//!component-wise addition of two Dscalar2s
-HOSTDEVICE Dscalar2 operator+(const Dscalar2 &a, const Dscalar2 &b)
+//!component-wise addition of two dVecs
+HOSTDEVICE dVec operator+(const dVec &a, const dVec &b)
     {
-    return make_Dscalar2(a.x+b.x,a.y+b.y);
-    }
-
-//!component-wise subtraction of two Dscalar2s
-HOSTDEVICE Dscalar2 operator-(const Dscalar2 &a, const Dscalar2 &b)
-    {
-    return make_Dscalar2(a.x-b.x,a.y-b.y);
-    }
-
-//!multiplication of Dscalar2 by Dscalar
-HOSTDEVICE Dscalar2 operator*(const Dscalar &a, const Dscalar2 &b)
-    {
-    return make_Dscalar2(a*b.x,a*b.y);
-    }
-
-//!return a Dscalar3 from three Dscalars
-HOSTDEVICE Dscalar3 make_Dscalar3(Dscalar x, Dscalar y,Dscalar z)
-    {
-    Dscalar3 ans;
-    ans.x =x;
-    ans.y=y;
-    ans.z =z;
+    dVec ans;
+    for (int dd = 0; dd < DIMENSION; ++dd)
+        ans.x[dd] = a.x[dd]+b.x[dd];
     return ans;
     }
 
-//!return a Dscalar4 from four Dscalars
-HOSTDEVICE Dscalar4 make_Dscalar4(Dscalar x, Dscalar y,Dscalar z, Dscalar w)
+//!component-wise subtraction of two dVecs
+HOSTDEVICE dVec operator-(const dVec &a, const dVec &b)
     {
-    Dscalar4 ans;
-    ans.x =x;
-    ans.y=y;
-    ans.z =z;
-    ans.w=w;
+    dVec ans;
+    for (int dd = 0; dd < DIMENSION; ++dd)
+        ans.x[dd] = a.x[dd]-b.x[dd];
     return ans;
     }
+
+//!component-wise multiplication of two dVecs
+HOSTDEVICE dVec operator*(const dVec &a, const dVec &b)
+    {
+    dVec ans;
+    for (int dd = 0; dd < DIMENSION; ++dd)
+        ans.x[dd] = a.x[dd]*b.x[dd];
+    return ans;
+    }
+
+//!multiplication of dVec by Dscalar
+HOSTDEVICE dVec operator*(const Dscalar &a, const dVec &b)
+    {
+    dVec ans;
+    for (int dd = 0; dd < DIMENSION; ++dd)
+        ans.x[dd] = a*b.x[dd];
+    return ans;
+    }
+
+//!print a dVec to screen
+inline __attribute__((always_inline)) void printdVec(dVec a)
+    {
+    for (int dd = 0; dd < DIMENSION; ++dd)
+        cout << a.x[dd] <<"\t";
+    cout << endl;
+    };
 
 //!Handle errors in kernel calls...returns file and line numbers if cudaSuccess doesn't pan out
 static void HandleError(cudaError_t err, const char *file, int line)

@@ -30,6 +30,19 @@ int main(int argc, char*argv[])
     int programSwitch = programSwitchArg.getValue();
     cout << programSwitch << "    " <<dim +2 << endl;
     cout << programSwitch << "    " <<DIMENSION +2 << endl;
+   
+    dVec tester;
+    dVec dArrayZero = make_dVec(0.0);
+    dVec dArrayOne(1.0);
+    for (int dd = 0; dd < DIMENSION; ++dd)
+        {
+        tester.x[dd] = dd;
+        };
+    dArrayZero += tester;
+    dArrayZero += tester;
+    printdVec(dArrayZero);
+    dArrayZero = dArrayOne + tester;
+    printdVec(dArrayZero);
 
 //The end of the tclap try
 	} catch (ArgException &e)  // catch any exceptions
