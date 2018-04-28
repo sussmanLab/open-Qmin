@@ -1,0 +1,11 @@
+*.swp
+*.o
+*.gch
+*.out
+*_store
+*.dsym
+*.sh
+CMakeCache*
+CMakeFiles/*
+Makefile
+cmake_install.cmake
