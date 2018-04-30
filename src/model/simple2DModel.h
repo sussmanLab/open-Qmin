@@ -3,6 +3,7 @@
 
 #include "std_include.h"
 #include "gpuarray.h"
+#include "periodicBoundaryConditions.h"
 #include "functions.h"
 /*! \file simple2DModel.h
  * \brief defines an interface for models that compute forces
@@ -14,7 +15,7 @@ This provides an interface, guaranteeing that SimpleModel S will provide access 
 S.setGPU();
 S.getNumberOfParticles();
 S.computeForces();
-S.moveDegreesOfFreedom();
+S.moveParticles();
 S.returnForces();
 S.returnPositions();
 S.returnVelocities();
@@ -35,7 +36,7 @@ class simple2DModel
         //!get the number of degrees of freedom, defaulting to the number of cells
         virtual int getNumberOfParticles(){return N;};
         //!move the degrees of freedom
-        virtual void moveDegreesOfFreedom(GPUArray<dVec> &displacements,scalar scale = 1.) = 0;
+        virtual void moveParticles(GPUArray<dVec> &displacements,scalar scale = 1.);
         //!do everything necessary to compute forces in the current model
         virtual void computeForces() = 0;
         //!do everything necessary to perform a Hilbert sort
@@ -65,7 +66,7 @@ class simple2DModel
         GPUArray<scalar> masses;
 
         //!The space in which the particles live
-//        BoxPtr Box;
+        BoxPtr Box;
         
 
         //!Whether the GPU should be used to compute anything

@@ -29,3 +29,22 @@ void simple2DModel::initializeSimple2DModel(int n)
     fillGPUArrayWithVector(ones,masses);
     };
 
+/*!
+ * move particles on either CPU or gpu
+*/
+void simple2DModel::moveParticles(GPUArray<dVec> &displacement, scalar scale)
+    {
+    if(!useGPU)
+        {//cpu branch
+        ArrayHandle<dVec> h_disp(displacement, access_location::host,access_mode::read);
+        ArrayHandle<dVec> h_pos(positions);
+        for(int pp = 0; pp < N; ++pp)
+            {
+            h_pos.data[pp] += scale*h_disp.data[pp];
+            Box->putInBoxReal(h_pos.data[pp]);
+            }
+        }
+    else
+        {//gpu branch
+        };
+    };
