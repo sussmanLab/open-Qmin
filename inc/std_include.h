@@ -3,7 +3,7 @@
 
 /*! \file std_include.h
 a file to be included all the time... carries with it things DMS often uses
-Crucially, it also defines Dscalars as either floats or doubles, depending on
+Crucially, it also defines scalars as either floats or doubles, depending on
 how the program is compiled
 */
 
@@ -45,9 +45,9 @@ using namespace std;
 //decide whether to compute everything in floating point or double precision
 #ifndef SCALARFLOAT
 //double variables types
-#define Dscalar double
+#define scalar double
 //the netcdf variable type
-#define ncDscalar ncDouble
+#define ncscalar ncDouble
 //the cuda RNG
 #define cur_norm curand_normal_double
 //trig and special funtions
@@ -58,8 +58,8 @@ using namespace std;
 
 #else
 //floats
-#define Dscalar float
-#define ncDscalar ncFloat
+#define scalar float
+#define ncscalar ncFloat
 #define cur_norm curand_normal
 #define Cos cosf
 #define Sin sinf
@@ -72,7 +72,7 @@ class dVec
     {
     public:
         HOSTDEVICE dVec(){};
-        HOSTDEVICE dVec(const Dscalar value)
+        HOSTDEVICE dVec(const scalar value)
             {
             for (int dd = 0; dd < DIMENSION; ++dd)
                 x[dd] = value;
@@ -83,7 +83,7 @@ class dVec
                 x[dd] = other.x[dd];
             };
 
-        Dscalar x[DIMENSION];
+        scalar x[DIMENSION];
 
         //mutating operators
         dVec& operator=(const dVec &other)
@@ -121,7 +121,7 @@ HOSTDEVICE bool operator==(const dVec &a, const dVec &b)
     }
 
 //!return a dVec with all elements equal to one number
-HOSTDEVICE dVec make_dVec(Dscalar value)
+HOSTDEVICE dVec make_dVec(scalar value)
     {
     dVec ans;
     for (int dd = 0; dd < DIMENSION; ++dd)
@@ -156,8 +156,8 @@ HOSTDEVICE dVec operator*(const dVec &a, const dVec &b)
     return ans;
     }
 
-//!multiplication of dVec by Dscalar
-HOSTDEVICE dVec operator*(const Dscalar &a, const dVec &b)
+//!multiplication of dVec by scalar
+HOSTDEVICE dVec operator*(const scalar &a, const dVec &b)
     {
     dVec ans;
     for (int dd = 0; dd < DIMENSION; ++dd)

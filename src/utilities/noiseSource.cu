@@ -1,5 +1,3 @@
-#define ENABLE_CUDA
-
 #include <cuda_runtime.h>
 #include "curand_kernel.h"
 #include "noiseSource.cuh"
@@ -23,7 +21,6 @@ __global__ void initialize_RNG_array_kernel(curandState *state, int N,int Timest
     unsigned int idx = blockIdx.x*blockDim.x + threadIdx.x;
     if (idx >=N)
         return;
-
     curand_init(GlobalSeed,idx,Timestep,&state[idx]);
     return;
     };
