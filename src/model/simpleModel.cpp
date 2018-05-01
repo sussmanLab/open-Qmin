@@ -31,6 +31,16 @@ void simpleModel::initializeSimpleModel(int n)
     fillGPUArrayWithVector(ones,masses);
     };
 
+void simpleModel::setParticlePositionsRandomly(noiseSource &noise)
+    {
+    dVec bDims;
+    Box->getBoxDims(bDims);
+    ArrayHandle<dVec> pos(positions);
+    for(int pp = 0; pp < N; ++pp)
+        for (int dd = 0; dd <DIMENSION; ++dd)
+            pos.data[pp].x[dd] = noise.getRealUniform(0.0,bDims.x[dd]);
+    };
+
 /*!
  * move particles on either CPU or gpu
 */

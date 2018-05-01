@@ -19,4 +19,4 @@ include_directories(inc ${CUDA_INCLUDE_DIRS} src src/utilities src/simulation sr
 link_directories(${CUDA_LIBRARY_DIRS})
 
 add_executable(simulationExecutable.out dDimensionalSimulation.cpp)
-target_link_libraries(simulationExecutable.out utility force updater simulation model ${CUDA_LIBRARIES})
+target_link_libraries(simulationExecutable.out force updater simulation model utility ${CUDA_LIBRARIES})

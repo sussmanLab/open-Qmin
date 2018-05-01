@@ -5,6 +5,8 @@
 #include "gpuarray.h"
 #include "periodicBoundaryConditions.h"
 #include "functions.h"
+#include "noiseSource.h"
+
 /*! \file simpleModel.h
  * \brief defines an interface for models that compute forces
  */
@@ -38,7 +40,10 @@ class simpleModel
         //!move the degrees of freedom
         virtual void moveParticles(GPUArray<dVec> &displacements,scalar scale = 1.);
         //!do everything unusual to compute additional forces... by default, sets forces to zero
-        virtual void computeForces(bool zeroOutForces=true);
+        virtual void computeForces(bool zeroOutForces=false);
+
+        void setParticlePositionsRandomly(noiseSource &noise);
+
         //!do everything necessary to perform a Hilbert sort
         virtual void spatialSorting(){};
 

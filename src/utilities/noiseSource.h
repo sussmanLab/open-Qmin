@@ -19,9 +19,9 @@ class noiseSource
     {
     public:
         //!base constructor
-        noiseSource()
+        noiseSource(bool rep = false)
             {
-            Reproducible = false;
+            Reproducible = rep;
             mt19937 Gener(13377);
         #ifndef DEBUGFLAGUP
             mt19937 GenerRd(rd());

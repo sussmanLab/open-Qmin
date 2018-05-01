@@ -8,6 +8,7 @@
 #include "simulation.h"
 #include "simpleModel.h"
 #include "baseUpdater.h"
+#include "noiseSource.h"
 
 
 using namespace std;
@@ -51,6 +52,24 @@ int main(int argc, char*argv[])
     shared_ptr<Simulation> sim = make_shared<Simulation>();
     sim->setConfiguration(Configuration);
     sim->setBox(PBC);
+
+    //after the simulation box has been set, we can set particle positions
+    noiseSource noise(true);
+    Configuration->setParticlePositionsRandomly(noise);
+
+    {
+    ArrayHandle<dVec> pos(Configuration->returnPositions());
+    for (int pp = 0; pp < N; ++pp)
+        printdVec(pos.data[pp]);
+    }
+    cout << endl << endl;
+    sim->moveParticles(Configuration->returnPositions());
+    {
+    ArrayHandle<dVec> pos(Configuration->returnPositions());
+    for (int pp = 0; pp < N; ++pp)
+        printdVec(pos.data[pp]);
+    }
+
     sim->addUpdater(upd,Configuration);
     sim->performTimestep();
 
