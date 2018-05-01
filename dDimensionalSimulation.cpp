@@ -8,6 +8,7 @@
 #include "simulation.h"
 #include "simpleModel.h"
 #include "baseUpdater.h"
+#include "energyMinimizerFIRE.h"
 #include "noiseSource.h"
 
 
@@ -48,6 +49,7 @@ int main(int argc, char*argv[])
     shared_ptr<simpleModel> Configuration = make_shared<simpleModel>(N);
     shared_ptr<periodicBoundaryConditions> PBC = make_shared<periodicBoundaryConditions>(L);
     shared_ptr<updater> upd = make_shared<updater>(1);
+    shared_ptr<energyMinimizerFIRE> fire = make_shared<energyMinimizerFIRE>(Configuration);
 
     shared_ptr<Simulation> sim = make_shared<Simulation>();
     sim->setConfiguration(Configuration);
@@ -56,7 +58,7 @@ int main(int argc, char*argv[])
     //after the simulation box has been set, we can set particle positions
     noiseSource noise(true);
     Configuration->setParticlePositionsRandomly(noise);
-
+/*
     {
     ArrayHandle<dVec> pos(Configuration->returnPositions());
     for (int pp = 0; pp < N; ++pp)
@@ -69,8 +71,8 @@ int main(int argc, char*argv[])
     for (int pp = 0; pp < N; ++pp)
         printdVec(pos.data[pp]);
     }
-
-    sim->addUpdater(upd,Configuration);
+*/
+    sim->addUpdater(fire,Configuration);
     sim->performTimestep();
 
     dVec tester;

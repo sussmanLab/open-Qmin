@@ -165,6 +165,15 @@ HOSTDEVICE dVec operator*(const scalar &a, const dVec &b)
     return ans;
     }
 
+//!multiplication of dVec by scalar
+HOSTDEVICE dVec operator*(const dVec &b, const scalar &a)
+    {
+    dVec ans;
+    for (int dd = 0; dd < DIMENSION; ++dd)
+        ans.x[dd] = a*b.x[dd];
+    return ans;
+    }
+
 //!print a dVec to screen
 inline __attribute__((always_inline)) void printdVec(dVec a)
     {

@@ -24,7 +24,7 @@ class updater
         //! The fundamental function that a controlling Simulation can call
         virtual void Update(int timestep)
             {
-            if(Period >0 && (timestep+Phase) % Period == 0)
+            if(Period < 0 || (Period >0 && (timestep+Phase) % Period == 0))
                 performUpdate();
             };
         //! The function which performs the update
