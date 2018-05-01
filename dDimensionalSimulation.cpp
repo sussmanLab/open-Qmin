@@ -7,6 +7,7 @@
 #include "periodicBoundaryConditions.h"
 #include "simulation.h"
 #include "simpleModel.h"
+#include "baseUpdater.h"
 
 
 using namespace std;
@@ -44,23 +45,14 @@ int main(int argc, char*argv[])
     int dim =DIMENSION;
     cout << "running a simulation in "<<dim << " dimensions" << endl;
     shared_ptr<simpleModel> Configuration = make_shared<simpleModel>(N);
-    dVec blah;
-    Configuration->Box->getBoxDims(blah);
-    printdVec(blah);
-
-
     shared_ptr<periodicBoundaryConditions> PBC = make_shared<periodicBoundaryConditions>(L);
-
+    shared_ptr<updater> upd = make_shared<updater>(1);
 
     shared_ptr<Simulation> sim = make_shared<Simulation>();
     sim->setConfiguration(Configuration);
-    shared_ptr<periodicBoundaryConditions> PBC2 = make_shared<periodicBoundaryConditions>(2.0*L);
     sim->setBox(PBC);
-    Configuration->Box->getBoxDims(blah);
-    printdVec(blah);
-    sim->setBox(PBC2);
-    Configuration->Box->getBoxDims(blah);
-    printdVec(blah);
+    sim->addUpdater(upd,Configuration);
+    sim->performTimestep();
 
     dVec tester;
     dVec dArrayZero = make_dVec(0.0);

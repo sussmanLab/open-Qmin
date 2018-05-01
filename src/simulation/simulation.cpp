@@ -2,15 +2,6 @@
 /*! \file simulation.cpp */
 
 /*!
-Initialize all of the shared points, set default values of things
-*/
-Simulation::Simulation(): integerTimestep(0), Time(0.),integrationTimestep(0.01),spatialSortThisStep(false),
-sortPeriod(-1)
-    {
-    Box = make_shared<periodicBoundaryConditions>();
-    };
-
-/*!
 Add a pointer to the list of updaters, and give that updater a reference to the
 model...
 */
@@ -31,16 +22,6 @@ void Simulation::addForce(ForcePtr _force, ConfigPtr _config)
     forceComputers.push_back(_force);
     };
 
-/*!
-Set a new Box for the simulation...This is the function that should be called to propagate a change
-in the box dimensions throughout the simulation...
-*/
-void Simulation::setBox(BoxPtr _box)
-    {
-    dVec bDims;
-    _box->getBoxDims(bDims);
-    Box->setBoxDims(bDims);
-    };
 
 /*!
 Set a pointer to the configuration
@@ -49,16 +30,6 @@ void Simulation::setConfiguration(ConfigPtr _config)
     {
     configuration = _config;
     Box = _config->Box;
-    };
-
-/*!
-\post the cell configuration and e.o.m. timestep is set to the input value
-*/
-void Simulation::setCurrentTime(scalar _cTime)
-    {
-    Time = _cTime;
-    //auto Conf = cellConfiguration.lock();
-    //Conf->setTime(Time);
     };
 
 /*!
@@ -115,6 +86,7 @@ Calls all force computers, and evaluate the self force calculation if the model 
 */
 void Simulation::computeForces()
     {
+    cout << "computing forces!" << endl;
     auto Conf = configuration.lock();
     if(Conf->selfForceCompute)
         Conf->computeForces(true);

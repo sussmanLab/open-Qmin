@@ -3,9 +3,7 @@
 
 #include "std_include.h"
 #include "simpleModel.h"
-
-//forward declare simulation class
-class Simulation;
+#include "basicSimulation.h"
 
 /*! \file baseForce.h */
 //!A base class for implementing force calculations
@@ -25,9 +23,9 @@ class force
         virtual void setForceParameters(vector<scalar> &params);
 
         //! A pointer to the governing simulation
-        shared_ptr<Simulation> sim;
+        shared_ptr<basicSimulation> sim;
         //!set the simulation
-        void setSimulation(shared_ptr<Simulation> _sim){sim=_sim;};
+        void setSimulation(shared_ptr<basicSimulation> _sim){sim=_sim;};
 
         //! virtual function to allow the model to be a derived class
         virtual void setModel(shared_ptr<simpleModel> _model){model=_model;};

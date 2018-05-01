@@ -3,9 +3,8 @@
 
 #include "std_include.h"
 #include "simpleModel.h"
+#include "basicSimulation.h"
 
-//forward declare simulation class
-class Simulation;
 /*! \file baseUpdater.h */
 //!A base class for implementing simple updaters
 /*!
@@ -31,9 +30,9 @@ class updater
         //! The function which performs the update
         virtual void performUpdate();
         //! A pointer to the governing simulation
-        shared_ptr<Simulation> sim;
+        shared_ptr<basicSimulation> sim;
         //!set the simulation
-        void setSimulation(shared_ptr<Simulation> _sim){sim=_sim;};
+        void setSimulation(shared_ptr<basicSimulation> _sim){sim=_sim;};
 
         //! A pointer to a simpleModel that the updater acts on
         shared_ptr<simpleModel> model;
