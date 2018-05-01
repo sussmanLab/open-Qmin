@@ -117,9 +117,14 @@ HOSTDEVICE dVec operator*(const dVec &b, const scalar &a)
 //!print a dVec to screen
 inline __attribute__((always_inline)) void printdVec(dVec a)
     {
+    cout <<"{";
     for (int dd = 0; dd < DIMENSION; ++dd)
-        cout << a.x[dd] <<"\t";
-    cout << endl;
+        if(dd != DIMENSION-1)
+            cout << a.x[dd] <<", ";
+        else
+            cout << a.x[dd];
+
+    cout << "}" << endl;
     };
 
 //!simpleBond carries two integers and two scalars

@@ -86,7 +86,6 @@ Calls all force computers, and evaluate the self force calculation if the model 
 */
 void Simulation::computeForces()
     {
-    cout << "computing forces!" << endl;
     auto Conf = configuration.lock();
     if(Conf->selfForceCompute)
         Conf->computeForces(true);

@@ -1,6 +1,11 @@
 #include "baseForce.h"
 /*! \file baseForce.cpp */
 
+force::force()
+    {
+    useGPU = false;
+    };
+
 void force::setForceParameters(vector<scalar> &params)
     {
     };

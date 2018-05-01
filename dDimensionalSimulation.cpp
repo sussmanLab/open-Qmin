@@ -10,6 +10,7 @@
 #include "baseUpdater.h"
 #include "energyMinimizerFIRE.h"
 #include "noiseSource.h"
+#include "harmonicBond.h"
 
 
 using namespace std;
@@ -51,7 +52,14 @@ int main(int argc, char*argv[])
     shared_ptr<updater> upd = make_shared<updater>(1);
     shared_ptr<energyMinimizerFIRE> fire = make_shared<energyMinimizerFIRE>(Configuration);
 
-    shared_ptr<harmonicBond> bonds = make_shared<harmonicBonds>();
+    shared_ptr<harmonicBond> bonds = make_shared<harmonicBond>();
+    vector<simpleBond> blist;
+    simpleBond testBond(0,1,1.7,1.0);
+    blist.push_back(testBond);
+    testBond.setBondIndices(5,6);
+    testBond.setRestLength(1.2);
+    blist.push_back(testBond);
+    bonds->setBondList(blist);
 
     shared_ptr<Simulation> sim = make_shared<Simulation>();
     sim->setConfiguration(Configuration);
@@ -61,12 +69,6 @@ int main(int argc, char*argv[])
     noiseSource noise(true);
     Configuration->setParticlePositionsRandomly(noise);
 /*
-    {
-    ArrayHandle<dVec> pos(Configuration->returnPositions());
-    for (int pp = 0; pp < N; ++pp)
-        printdVec(pos.data[pp]);
-    }
-    cout << endl << endl;
     sim->moveParticles(Configuration->returnPositions());
     {
     ArrayHandle<dVec> pos(Configuration->returnPositions());
@@ -74,23 +76,22 @@ int main(int argc, char*argv[])
         printdVec(pos.data[pp]);
     }
 */
-    sim->addForceComputer(bonds,Configuration);
+    {
+    ArrayHandle<dVec> pos(Configuration->returnPositions());
+    for (int pp = 0; pp < N; ++pp)
+        printdVec(pos.data[pp]);
+    }
+
+    cout << endl << endl;
+    sim->addForce(bonds,Configuration);
     sim->addUpdater(fire,Configuration);
     sim->performTimestep();
 
-    dVec tester;
-    dVec dArrayZero = make_dVec(0.0);
-    dVec dArrayOne(1.0);
-    for (int dd = 0; dd < DIMENSION; ++dd)
-        {
-        tester.x[dd] = dd;
-        };
-    dArrayZero += tester;
-    dArrayZero += tester;
-    printdVec(dArrayZero);
-    dArrayZero = dArrayOne + tester;
-    printdVec(dArrayZero);
-    cout << dot(dArrayZero,dArrayZero) << "    " << norm(dArrayZero) << endl;
+    {
+    ArrayHandle<dVec> pos(Configuration->returnPositions());
+    for (int pp = 0; pp < N; ++pp)
+        printdVec(pos.data[pp]);
+    }
 
 
 //
