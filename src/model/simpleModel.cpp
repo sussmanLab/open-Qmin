@@ -1,22 +1,24 @@
-#include "simple2DModel.h"
-/*! \file simple2DModel.cpp" */
+#include "simpleModel.h"
+/*! \file simpleModel.cpp" */
 
 /*!
  * Set the size of basic data structures...
 */
-simple2DModel::simple2DModel(int n, bool _useGPU) :
+simpleModel::simpleModel(int n, bool _useGPU) :
     N(n), useGPU(_useGPU)
     {
     cout << "initializing a model with "<< N << " particles" << endl;
-    initializeSimple2DModel(n);
+    initializeSimpleModel(n);
+    Box = make_shared<periodicBoundaryConditions>(pow(N,1.0/DIMENSION));
     };
 
 /*!
  * actually set the array sizes. positions, velocities, forces are zero
  * masses are set to unity
 */
-void simple2DModel::initializeSimple2DModel(int n)
+void simpleModel::initializeSimpleModel(int n)
     {
+    selfForceCompute = false;
     positions.resize(n);
     velocities.resize(n);
     forces.resize(n);
@@ -32,7 +34,7 @@ void simple2DModel::initializeSimple2DModel(int n)
 /*!
  * move particles on either CPU or gpu
 */
-void simple2DModel::moveParticles(GPUArray<dVec> &displacement, scalar scale)
+void simpleModel::moveParticles(GPUArray<dVec> &displacement, scalar scale)
     {
     if(!useGPU)
         {//cpu branch
@@ -46,5 +48,27 @@ void simple2DModel::moveParticles(GPUArray<dVec> &displacement, scalar scale)
         }
     else
         {//gpu branch
+            UNWRITTENCODE("moveParticles on the GPU");
+        };
+    };
+
+/*!
+ *
+*/
+void simpleModel::computeForces(bool zeroOutForces)
+    {
+    if(zeroOutForces)
+        {
+        if(!useGPU)
+            {//cpu branch
+            ArrayHandle<dVec> h_f(forces);
+            dVec dArrayZero(0.0);
+            for(int pp = 0; pp <N;++pp)
+                h_f.data[pp] = dArrayZero;
+            }
+        else
+            {
+                UNWRITTENCODE("zero out forces on GPU");
+            };
         };
     };

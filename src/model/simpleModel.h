@@ -5,7 +5,7 @@
 #include "gpuarray.h"
 #include "periodicBoundaryConditions.h"
 #include "functions.h"
-/*! \file simple2DModel.h
+/*! \file simpleModel.h
  * \brief defines an interface for models that compute forces
  */
 
@@ -23,13 +23,13 @@ S.returnMasses();
 S.spatialSorting();
 S.returnAdditionalData();
 */
-class simple2DModel
+class simpleModel
     {
     public:
         //!The base constructor requires the number of particles
-        simple2DModel(int n, bool _useGPU = false);
+        simpleModel(int n, bool _useGPU = false);
         //!initialize the size of the basic data structure arrays
-        void initializeSimple2DModel(int n);
+        void initializeSimpleModel(int n);
 
         //!Enforce GPU operation
         virtual void setGPU(bool _useGPU){useGPU = _useGPU;};
@@ -37,8 +37,8 @@ class simple2DModel
         virtual int getNumberOfParticles(){return N;};
         //!move the degrees of freedom
         virtual void moveParticles(GPUArray<dVec> &displacements,scalar scale = 1.);
-        //!do everything necessary to compute forces in the current model
-        virtual void computeForces() = 0;
+        //!do everything unusual to compute additional forces... by default, sets forces to zero
+        virtual void computeForces(bool zeroOutForces=true);
         //!do everything necessary to perform a Hilbert sort
         virtual void spatialSorting(){};
 
@@ -51,7 +51,11 @@ class simple2DModel
         //!return a reference to the GPUArray of the current velocities
         virtual GPUArray<dVec> & returnVelocities(){return velocities;};
 
-        //void setBox(BoxPtr Box);
+        //!Does this model have a special force it needs to compute itself?
+        bool selfForceCompute;
+
+        //!The space in which the particles live
+        BoxPtr Box;
 
     protected:
         //!The number of particles
@@ -65,12 +69,10 @@ class simple2DModel
         //!particle masses
         GPUArray<scalar> masses;
 
-        //!The space in which the particles live
-        BoxPtr Box;
-        
-
         //!Whether the GPU should be used to compute anything
         bool useGPU;
 
     };
+typedef shared_ptr<simpleModel> ConfigPtr;
+typedef weak_ptr<simpleModel> WeakConfigPtr;
 #endif

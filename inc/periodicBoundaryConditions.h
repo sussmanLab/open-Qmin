@@ -30,8 +30,10 @@ struct periodicBoundaryConditions
         //!Get the inverse of the box transformation matrix
         HOSTDEVICE void getBoxInvDims(dVec &iBoxDims){iBoxDims = inverseBoxDimensions;};
 
-        //!Set the box to some new rectangular specification
+        //!Set the box to some new hypercube
         HOSTDEVICE void setHyperCubic(scalar sideLength);
+        //!Set the box to some new rectangular specification
+        HOSTDEVICE void setBoxDims(dVec &bDims);
 
         //! Take a point in the unit square and find its position in the box
         HOSTDEVICE void Transform(const dVec &p1, dVec &pans);
@@ -66,6 +68,16 @@ void periodicBoundaryConditions::setHyperCubic(scalar sideLength)
         boxDimensions.x[dd] = sideLength;
         halfBoxDimensions.x[dd] = 0.5*sideLength;
         inverseBoxDimensions.x[dd] = 1.0/sideLength;
+        };
+    };
+
+void periodicBoundaryConditions::setBoxDims(dVec &bDims)
+    {
+    for (int dd = 0; dd < DIMENSION; ++dd)
+        {
+        boxDimensions.x[dd] = bDims.x[dd];;
+        halfBoxDimensions.x[dd] = 0.5*bDims.x[dd];
+        inverseBoxDimensions.x[dd] = 1.0/bDims.x[dd];
         };
     };
 

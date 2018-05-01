@@ -15,8 +15,8 @@ message("cuda root is " ${CUDA_INCLUDE_DIRS})
 
 add_subdirectory(src)
 
-include_directories(inc ${CUDA_INCLUDE_DIRS} src src/utilities)
+include_directories(inc ${CUDA_INCLUDE_DIRS} src src/utilities src/simulation src/model src/forces src/updaters)
 link_directories(${CUDA_LIBRARY_DIRS})
 
 add_executable(simulationExecutable.out dDimensionalSimulation.cpp)
-target_link_libraries(simulationExecutable.out utility model ${CUDA_LIBRARIES})
+target_link_libraries(simulationExecutable.out utility force updater simulation model ${CUDA_LIBRARIES})

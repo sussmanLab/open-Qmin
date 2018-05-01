@@ -1,12 +1,14 @@
-#include "std_include.h" // std library includes, definition of scalar, etc.. has a "using namespace std" in it.
-//#include "Matrix.h"//for when I might need 2x2 matrix manipulations
-//#include "box.h"//plausible helpful for dealing with periodic boundary conditions in 2D
-//#include "functions.h" // where a lot of the work happens
+#include "std_include.h" // std library includes, definition of scalar, etc.. has a "using namespace std" in it, because I'm lazy
 
 //we'll use TCLAP as our command line parser
 #include <tclap/CmdLine.h>
 #include "functions.h"
 #include "gpuarray.h"
+#include "periodicBoundaryConditions.h"
+#include "simulation.h"
+#include "simpleModel.h"
+
+
 using namespace std;
 using namespace TCLAP;
 
@@ -17,9 +19,6 @@ representation of the extremal interfaces for each point in time
 */
 int main(int argc, char*argv[])
 {
-    int dim =DIMENSION;
-    cout << "running a simulation in "<<dim << " dimensions" << endl;
-
     // wrap tclap in a try block
     try
     {
@@ -29,14 +28,39 @@ int main(int argc, char*argv[])
     //ValueArg<T> variableName("shortflag","longFlag","description",required or not, default value,description of the type",CmdLine object to add to
     ValueArg<int> programSwitchArg("z","programSwitch","an integer controlling program branch",false,0,"int",cmd);
     ValueArg<int> gpuSwitchArg("g","USEGPU","an integer controlling which gpu to use... g < 0 uses the cpu",false,-1,"int",cmd);
+    ValueArg<int> nSwitchArg("n","Number","number of particles in the simulation",false,100,"int",cmd);
+    ValueArg<scalar> lengthSwitchArg("l","sideLength","size of simulation domain",false,10.0,"double",cmd);
     //parse the arguments
     cmd.parse( argc, argv );
 
     int programSwitch = programSwitchArg.getValue();
+    int N = nSwitchArg.getValue();
+    scalar L = lengthSwitchArg.getValue();
     int gpuSwitch = gpuSwitchArg.getValue();
     bool GPU = false;
     if(gpuSwitch >=0)
         GPU = chooseGPU(gpuSwitch);
+
+    int dim =DIMENSION;
+    cout << "running a simulation in "<<dim << " dimensions" << endl;
+    shared_ptr<simpleModel> Configuration = make_shared<simpleModel>(N);
+    dVec blah;
+    Configuration->Box->getBoxDims(blah);
+    printdVec(blah);
+
+
+    shared_ptr<periodicBoundaryConditions> PBC = make_shared<periodicBoundaryConditions>(L);
+
+
+    shared_ptr<Simulation> sim = make_shared<Simulation>();
+    sim->setConfiguration(Configuration);
+    shared_ptr<periodicBoundaryConditions> PBC2 = make_shared<periodicBoundaryConditions>(2.0*L);
+    sim->setBox(PBC);
+    Configuration->Box->getBoxDims(blah);
+    printdVec(blah);
+    sim->setBox(PBC2);
+    Configuration->Box->getBoxDims(blah);
+    printdVec(blah);
 
     dVec tester;
     dVec dArrayZero = make_dVec(0.0);
