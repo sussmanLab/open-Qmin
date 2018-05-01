@@ -51,6 +51,8 @@ int main(int argc, char*argv[])
     shared_ptr<updater> upd = make_shared<updater>(1);
     shared_ptr<energyMinimizerFIRE> fire = make_shared<energyMinimizerFIRE>(Configuration);
 
+    shared_ptr<harmonicBond> bonds = make_shared<harmonicBonds>();
+
     shared_ptr<Simulation> sim = make_shared<Simulation>();
     sim->setConfiguration(Configuration);
     sim->setBox(PBC);
@@ -72,6 +74,7 @@ int main(int argc, char*argv[])
         printdVec(pos.data[pp]);
     }
 */
+    sim->addForceComputer(bonds,Configuration);
     sim->addUpdater(fire,Configuration);
     sim->performTimestep();
 
