@@ -54,6 +54,8 @@ int main(int argc, char*argv[])
     shared_ptr<periodicBoundaryConditions> PBC = make_shared<periodicBoundaryConditions>(L);
     shared_ptr<updater> upd = make_shared<updater>(1);
     shared_ptr<energyMinimizerFIRE> fire = make_shared<energyMinimizerFIRE>(Configuration);
+    fire->setFIREParameters(0.02,0.99,0.1,1.1,0.95,.9,4,1e-12);
+    fire->setMaximumIterations(1000);
 
     shared_ptr<harmonicBond> bonds = make_shared<harmonicBond>();
     vector<simpleBond> blist;

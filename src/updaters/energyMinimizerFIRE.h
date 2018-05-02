@@ -29,6 +29,9 @@ class energyMinimizerFIRE : public updater
         //!Set a bunch of default initialization parameters (if the State is available to determine the size of vectors)
         void initializeFromModel();
 
+        //!Set a lot of parameters!
+        void setFIREParameters(scalar deltaT, scalar alphaStart, scalar deltaTMax, scalar deltaTInc, scalar deltaTDec, scalar alphaDec, int nMin, scalar forceCutoff);
+
         //!Set the maximum number of iterations before terminating (or set to -1 to ignore)
         void setMaximumIterations(int maxIt){maxIterations = maxIt;};
         //!Set the force cutoff

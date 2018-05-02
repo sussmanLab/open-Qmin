@@ -271,3 +271,17 @@ void energyMinimizerFIRE::minimize()
         };
         printf("step %i max force:%.3g \tpower: %.3g\t alpha %.3g\t dt %g \n",iterations,sqrt(forceMax),Power,alpha,deltaT);
     };
+
+
+void energyMinimizerFIRE::setFIREParameters(scalar deltaT, scalar alphaStart, scalar deltaTMax, scalar deltaTInc, scalar deltaTDec, scalar alphaDec, int nMin, scalar forceCutoff)
+    {
+    setDeltaT(deltaT);
+    setAlphaStart(alphaStart);
+    setDeltaTMax(deltaTMax);
+    setDeltaTInc(deltaTInc);
+    setDeltaTDec(deltaTDec);
+    setAlphaDec(alphaDec);
+    setNMin(nMin);
+    setForceCutoff(forceCutoff);
+    };
+
