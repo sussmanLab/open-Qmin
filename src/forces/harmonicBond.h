@@ -15,7 +15,7 @@ class harmonicBond : public force
         //!the call to compute forces, and store them in the referenced variable
         virtual void computeForces(GPUArray<dVec> &forces,bool zeroOutForce = true);
 
-        //!set the bond list by passing in a vector of simpleBonds
+        //!set the bond list by passing in a vector of simpleBonds (defined in structures.h)
         void setBondList(vector<simpleBond> &blist){bondList = blist;};
 
         vector<simpleBond> bondList;

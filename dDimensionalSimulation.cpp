@@ -11,6 +11,7 @@
 #include "energyMinimizerFIRE.h"
 #include "noiseSource.h"
 #include "harmonicBond.h"
+#include "harmonicAngle.h"
 
 
 using namespace std;
@@ -26,10 +27,12 @@ int main(int argc, char*argv[])
     // wrap tclap in a try block
     try
     {
+    //First, we set up a basic command line parser...
+    //      cmd("command description message", delimiter, version string)
+    CmdLine cmd("basic testing of dDimSim", ' ', "V0.1");
 
-    // cmd("command description message", delimiter, version string)
-    CmdLine cmd("interface parsing and analyzing", ' ', "V0.0");
-    //ValueArg<T> variableName("shortflag","longFlag","description",required or not, default value,description of the type",CmdLine object to add to
+    //define the various command line strings that can be passed in...
+    //ValueArg<T> variableName("shortflag","longFlag","description",required or not, default value,"value type",CmdLine object to add to
     ValueArg<int> programSwitchArg("z","programSwitch","an integer controlling program branch",false,0,"int",cmd);
     ValueArg<int> gpuSwitchArg("g","USEGPU","an integer controlling which gpu to use... g < 0 uses the cpu",false,-1,"int",cmd);
     ValueArg<int> nSwitchArg("n","Number","number of particles in the simulation",false,100,"int",cmd);
@@ -54,12 +57,21 @@ int main(int argc, char*argv[])
 
     shared_ptr<harmonicBond> bonds = make_shared<harmonicBond>();
     vector<simpleBond> blist;
-    simpleBond testBond(0,1,1.7,1.0);
+    simpleBond testBond(0,1,1.0,1.0);
     blist.push_back(testBond);
+    simpleBond testBond2(2,1,4.,1.0);
+    blist.push_back(testBond2);
     testBond.setBondIndices(5,6);
-    testBond.setRestLength(1.2);
+    testBond.setRestLength(1.02);
     blist.push_back(testBond);
     bonds->setBondList(blist);
+
+    shared_ptr<harmonicAngle> angles = make_shared<harmonicAngle>();
+    vector<simpleAngle> alist;
+    simpleAngle testAngle(0,1,2,PI/3.0,1.0);
+    alist.push_back(testAngle);
+    angles->setAngleList(alist);
+
 
     shared_ptr<Simulation> sim = make_shared<Simulation>();
     sim->setConfiguration(Configuration);
@@ -68,14 +80,8 @@ int main(int argc, char*argv[])
     //after the simulation box has been set, we can set particle positions
     noiseSource noise(true);
     Configuration->setParticlePositionsRandomly(noise);
-/*
-    sim->moveParticles(Configuration->returnPositions());
-    {
-    ArrayHandle<dVec> pos(Configuration->returnPositions());
-    for (int pp = 0; pp < N; ++pp)
-        printdVec(pos.data[pp]);
-    }
-*/
+
+    //for testing, print positions
     {
     ArrayHandle<dVec> pos(Configuration->returnPositions());
     for (int pp = 0; pp < N; ++pp)
@@ -84,14 +90,19 @@ int main(int argc, char*argv[])
 
     cout << endl << endl;
     sim->addForce(bonds,Configuration);
+    sim->addForce(angles,Configuration);
     sim->addUpdater(fire,Configuration);
+    clock_t t1 = clock();
     sim->performTimestep();
+    clock_t t2 = clock();
 
+    //how did FIRE do? check by hand
     {
     ArrayHandle<dVec> pos(Configuration->returnPositions());
     for (int pp = 0; pp < N; ++pp)
         printdVec(pos.data[pp]);
     }
+    cout << endl << "minimization took " << (t2-t1)/(scalar)CLOCKS_PER_SEC << endl;
 
 
 //

@@ -32,12 +32,9 @@ void harmonicBond::computeForceCPU(GPUArray<dVec> &forces, bool zeroOutForce)
         model->Box->minDist(pos.data[B.i],pos.data[B.j],disp);
         scalar sep = norm(disp);
         energy += 0.5*B.k*(sep-B.r0)*(sep-B.r0);
-
-        for (int dd = 0; dd < DIMENSION; ++dd)
-            {
-            f.data[B.i].x[dd] += B.k * disp.x[dd]*(B.r0-sep) / sep;
-            f.data[B.j].x[dd] += B.k * disp.x[dd]*(sep-B.r0) / sep;
-            };
+        dVec Fab = B.k*(B.r0-sep)*disp;
+        f.data[B.i] += Fab;
+        f.data[B.j] -= Fab;
         };
     };
 
