@@ -1,9 +1,12 @@
 # dDimensionalSimulation
 
-text text text...!
+Lorem ipsum... a repository that implements simulations in dimension that is specified
+at compilation time. Alter the dimension by setting the number in the root CMakeLists.txt
 
 # Basic compilation
 
-* cd into build/ directory. 
+see "INSTALLATION.md" for a few more details.
+
+* $ cd build/
 * $ cmake ..
 * $ make
