@@ -2,7 +2,8 @@
 #define structures
 
 /*! \file structures.h 
-defines dVec class
+defines dVec class (d-dimensional array of scalars)
+defines iVec class (d-dimensional array of unsigned ints)
 defines simpleBond class
 defines simpleAngle class
 */
@@ -127,6 +128,114 @@ inline __attribute__((always_inline)) void printdVec(dVec a)
 
     cout << "}" << endl;
     };
+
+
+//!iVec is an array of unsigned ints whose length matches the dimension of the system
+class iVec
+    {
+    public:
+        HOSTDEVICE iVec(){};
+        HOSTDEVICE iVec(const unsigned int value)
+            {
+            for (int dd = 0; dd < DIMENSION; ++dd)
+                x[dd] = value;
+            };
+        HOSTDEVICE iVec(const iVec &other)
+            {
+            for (int dd = 0; dd < DIMENSION; ++dd)
+                x[dd] = other.x[dd];
+            };
+
+        unsigned int x[DIMENSION];
+
+        //mutating operators
+        iVec& operator=(const iVec &other)
+            {
+            for (int dd = 0; dd < DIMENSION; ++dd)
+                this->x[dd] = other.x[dd];
+            return *this;
+            }
+        iVec& operator-=(const iVec &other)
+            {
+            for (int dd = 0; dd < DIMENSION; ++dd)
+                this->x[dd] -= other.x[dd];
+            return *this;
+            }
+        iVec& operator+=(const iVec &other)
+            {
+            for (int dd = 0; dd < DIMENSION; ++dd)
+                this->x[dd] += other.x[dd];
+            return *this;
+            }
+    };
+
+//!Less than operator for dVecs just sorts by the x-coordinate
+HOSTDEVICE bool operator<(const iVec &a, const iVec &b)
+    {
+    return a.x[0]<b.x[0];
+    }
+
+//!Equality operator tests for.... equality of all elements
+HOSTDEVICE bool operator==(const iVec &a, const iVec &b)
+    {
+    for (int dd = 0; dd <DIMENSION; ++dd)
+        if(a.x[dd]!= b.x[dd]) return false;
+    return true;
+    }
+
+//!return a iVec with all elements equal to one number
+HOSTDEVICE iVec make_dVec(unsigned int value)
+    {
+    iVec ans;
+    for (int dd = 0; dd < DIMENSION; ++dd)
+        ans.x[dd] = value;
+    return ans;
+    }
+
+//!component-wise addition of two iVecs
+HOSTDEVICE iVec operator+(const iVec &a, const iVec &b)
+    {
+    iVec ans;
+    for (int dd = 0; dd < DIMENSION; ++dd)
+        ans.x[dd] = a.x[dd]+b.x[dd];
+    return ans;
+    }
+
+//!component-wise subtraction of two iVecs
+HOSTDEVICE iVec operator-(const iVec &a, const iVec &b)
+    {
+    iVec ans;
+    for (int dd = 0; dd < DIMENSION; ++dd)
+        ans.x[dd] = a.x[dd]-b.x[dd];
+    return ans;
+    }
+
+//!component-wise multiplication of two iVecs
+HOSTDEVICE iVec operator*(const iVec &a, const iVec &b)
+    {
+    iVec ans;
+    for (int dd = 0; dd < DIMENSION; ++dd)
+        ans.x[dd] = a.x[dd]*b.x[dd];
+    return ans;
+    }
+
+//!multiplication of iVec by unsigned int
+HOSTDEVICE iVec operator*(const unsigned int &a, const iVec &b)
+    {
+    iVec ans;
+    for (int dd = 0; dd < DIMENSION; ++dd)
+        ans.x[dd] = a*b.x[dd];
+    return ans;
+    }
+
+//!multiplication of iVec by unsigned int
+HOSTDEVICE iVec operator*(const iVec &b, const unsigned int &a)
+    {
+    iVec ans;
+    for (int dd = 0; dd < DIMENSION; ++dd)
+        ans.x[dd] = a*b.x[dd];
+    return ans;
+    }
 
 //!simpleBond carries two integers and two scalars
 class simpleBond

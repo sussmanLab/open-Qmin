@@ -141,6 +141,15 @@ HOSTDEVICE scalar dot(const dVec &p1, const dVec &p2)
 
     return ans;
     };
+//!The dot product between d-Dimensional iVecs.
+HOSTDEVICE unsigned int dot(const iVec &p1, const iVec &p2)
+    {
+    unsigned int ans = 0;
+    for (int dd = 0; dd < DIMENSION; ++dd)
+        ans+=p1.x[dd]*p2.x[dd];
+
+    return ans;
+    };
 
 //!The norm of a d-Dimensional vector
 HOSTDEVICE scalar norm(const dVec &p)
