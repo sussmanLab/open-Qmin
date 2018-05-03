@@ -10,7 +10,7 @@
 #endif
 
 /*! \file periodicBoundaryConditions.h */
-//!A simple box defining an orthorhombic periodic domain
+//!A simple box defining a hypercubic periodic domain
 /*!
  * gives access to
 Box.setBoxDimensions(vector<scalar> dimensions);

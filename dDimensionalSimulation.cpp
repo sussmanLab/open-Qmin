@@ -13,6 +13,7 @@
 #include "harmonicBond.h"
 #include "harmonicAngle.h"
 
+#include "indexer.h"
 
 using namespace std;
 using namespace TCLAP;
@@ -106,6 +107,21 @@ int main(int argc, char*argv[])
     }
     cout << endl << "minimization took " << (t2-t1)/(scalar)CLOCKS_PER_SEC << endl;
 
+    IndexDD indexer(floor(L));
+
+    for (int i1 =0; i1 < floor(L); ++i1)
+        for (int i2 =0; i2 < floor(L); ++i2)
+            for (int i3 =0; i3 < floor(L); ++i3)
+                {
+                iVec tester;
+                tester.x[0] = i1;
+                tester.x[1] = i2;
+                tester.x[2] = i3;
+                int result = indexer(tester) ;
+                cout << tester.x[0] <<", "<< tester.x[1]<<", " << tester.x[2] <<" =   " << result << endl;
+                cout << indexer.inverseIndex(result).x[0] << ", " << indexer.inverseIndex(result).x[1]  << ", " << indexer.inverseIndex(result).x[2] << endl;
+                };
+    cout << indexer.getNumElements() << "total elements" << endl;
 
 //
 //The end of the tclap try

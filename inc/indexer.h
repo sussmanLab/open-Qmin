@@ -1,5 +1,5 @@
-#ifndef INDEXER
-#define INDEXER
+#ifndef INDEXER_H
+#define INDEXER_H
 /*
 This file is based on part of the HOOMD-blue project, released under the BSD 3-Clause License:
 
@@ -102,6 +102,20 @@ class IndexDD
             {
             return dot(i,intermediateSizes);
             };
+
+        //!What iVec would correspond to a given unsigned int IndexDD(iVec)
+        HOSTDEVICE iVec inverseIndex(int i)
+            {
+            iVec ans;
+            int z0 = i;
+            for (int dd = 0; dd < DIMENSION; ++dd)
+                {
+                ans.x[dd] = z0 % sizes.x[dd];
+                z0 = (z0 - ans.x[dd])/sizes.x[dd];
+                };
+            return ans;
+            };
+
         //!Return the number of elements that the indexer can index
         HOSTDEVICE unsigned int getNumElements() const
             {

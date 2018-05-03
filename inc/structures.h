@@ -1,5 +1,5 @@
-#ifndef structures
-#define structures
+#ifndef structures_H
+#define structures_H
 
 /*! \file structures.h 
 defines dVec class (d-dimensional array of scalars)

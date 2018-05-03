@@ -141,6 +141,16 @@ HOSTDEVICE scalar dot(const dVec &p1, const dVec &p2)
 
     return ans;
     };
+
+//! an integer to the dth power... the slow way
+HOSTDEVICE int idPow(int i)
+    {
+    int ans = i;
+    for (int dd = 1; dd < DIMENSION; ++dd)
+        ans *= i;
+    return ans;
+    };
+
 //!The dot product between d-Dimensional iVecs.
 HOSTDEVICE unsigned int dot(const iVec &p1, const iVec &p2)
     {

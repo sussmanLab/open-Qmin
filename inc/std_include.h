@@ -1,5 +1,5 @@
-#ifndef STDINCLUDE
-#define STDINCLUDE
+#ifndef STDINCLUDE_H
+#define STDINCLUDE_H
 
 /*! \file std_include.h
 a file to be included all the time... carries with it things DMS often uses
