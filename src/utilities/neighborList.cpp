@@ -14,6 +14,7 @@ neighborList::neighborList(scalar range, BoxPtr _box)
  */
 void neighborList::computeCPU(GPUArray<dVec> &points)
     {
+    cellList->computeCellList(points);
     };
 
 /*!
@@ -21,5 +22,7 @@ void neighborList::computeCPU(GPUArray<dVec> &points)
  */
 void neighborList::computeGPU(GPUArray<dVec> &points)
     {
+    cellList->computeCellList(points);
+    UNWRITTENCODE("gpu neighbor list stuff");
     };
 

@@ -20,11 +20,16 @@ class neighborList
             };
 
         //!Enforce GPU operation
-        virtual void setGPU(bool _useGPU=true){useGPU = _useGPU;};
+        virtual void setGPU(bool _useGPU=true){
+            useGPU = _useGPU;
+            cellList->setGPU(useGPU);
+            };
         //!whether the updater does its work on the GPU or not
         bool useGPU;
         //!The Box used to compute periodic distances
         BoxPtr Box;
+
+        void setBox(BoxPtr _bx){Box=_bx;};
 
         //!indexes the neighbors of each particle
         Index2D neighborIndexer;
