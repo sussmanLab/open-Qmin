@@ -49,9 +49,7 @@ void hyperrectangularCellList::setGridSize(scalar a)
 
     cellIndexer = IndexDD(gridCellsPerSide);
 
-    //estimate Nmax
-    if(2*totalCells > Nmax)
-        Nmax = 2*totalCells;
+    Nmax = 1;
     resetCellSizesCPU();
     };
 
@@ -142,44 +140,14 @@ void hyperrectangularCellList::getCellNeighbors(int cellIndex, int width, std::v
 
     cellNeighbors.clear();
     cellNeighbors.reserve(idPow(w));
-    /*
-    for (int ii = -w; ii <=w; ++ii)
-        for (int jj = -w; jj <=w; ++jj)
-            {
-            int cx = (cellix+jj)%xsize;
-            if (cx <0) cx+=xsize;
-            int cy = (celliy+ii)%ysize;
-            if (cy <0) cy+=ysize;
-            cellNeighbors.push_back(cellIndexer(cx,cy));
-            };
-            */
-    };
+    iVec min(-w);
+    iVec max(w);
+    iVec it(-w);it.x[0]-=1;
+    while(iVecIterate(it,min,max))
+        {
 
-/*!
-\param cellIndex the base cell index to find the neighbors of
-\param width the distance (in cells) to search
-\param cellNeighbors a vector of all cell indices that are neighbors of cellIndex
-This method returns a square outline of neighbors (the neighbor shell) rather than all neighbors
-within a set distance
- */
-void hyperrectangularCellList::getCellShellNeighbors(int cellIndex, int width, std::vector<int> &cellNeighbors)
-    {
-        /*
-    int w = min(width,xsize);
-    int cellix = cellIndex%xsize;
-    int celliy = (cellIndex - cellix)/xsize;
-    cellNeighbors.clear();
-    for (int ii = -w; ii <=w; ++ii)
-        for (int jj = -w; jj <=w; ++jj)
-            if(ii ==-w ||ii == w ||jj ==-w ||jj==w)
-                {
-                int cx = (cellix+jj)%xsize;
-                if (cx <0) cx+=xsize;
-                int cy = (celliy+ii)%ysize;
-                if (cy <0) cy+=ysize;
-                cellNeighbors.push_back(cellIndexer(cx,cy));
-                };
-                */
+        cellNeighbors.push_back(cellIndexer(modularAddition(cellIndexVec,it,gridCellsPerSide)));
+        };
     };
 
 /*!
@@ -187,15 +155,18 @@ void hyperrectangularCellList::getCellShellNeighbors(int cellIndex, int width, s
  */
 void hyperrectangularCellList::computeCPU(GPUArray<dVec> &points)
     {
-        /*
     //will loop through particles and put them in cells...
     //if there are more than Nmax particles in any cell, will need to recompute.
     bool recompute = true;
     ArrayHandle<dVec> h_pt(points,access_location::host,access_mode::read);
-    int ibin, jbin;
-    int nmax = Nmax;
-    int computations = 0;
+    iVec bin;
     int Np = points.getNumElements();
+    if(Nmax == 1)
+        {
+        Nmax = ceil(Np/totalCells);
+        };
+    int nmax = Nmax;
+    computations = 0;
     while (recompute)
         {
         //reset particles per cell, reset cellListIndexer, resize particleIndices
@@ -206,16 +177,16 @@ void hyperrectangularCellList::computeCPU(GPUArray<dVec> &points)
 
         for (int nn = 0; nn < Np; ++nn)
             {
-            if (recompute) continue;
-            ibin = floor(h_pt.data[nn].x/boxsize);
-            jbin = floor(h_pt.data[nn].y/boxsize);
+            //get the correct cell of the current particle
+            for (int dd = 0; dd < DIMENSION; ++dd)
+                bin.x[dd] = floor(h_pt.data[nn].x[dd] / gridCellSizes.x[dd]);
 
-            int bin = cellIndexer(ibin,jbin);
-            int offset = h_elementsPerCell.data[bin];
+            int binIndex = cellIndexer(bin);
+            int offset = h_elementsPerCell.data[binIndex];
             if (offset < Nmax)
                 {
-                int clpos = cellListIndexer(offset,bin);
-                h_idx.data[cellListIndexer(offset,bin)]=nn;
+                int clpos = cellListIndexer(offset,binIndex);
+                h_idx.data[cellListIndexer(offset,binIndex)]=nn;
                 }
             else
                 {
@@ -223,12 +194,11 @@ void hyperrectangularCellList::computeCPU(GPUArray<dVec> &points)
                 Nmax=nmax;
                 recompute=true;
                 };
-            h_elementsPerCell.data[bin]++;
+            h_elementsPerCell.data[binIndex]++;
             };
         computations++;
         };
     cellListIndexer = Index2D(Nmax,totalCells);
-    */
     };
 
 

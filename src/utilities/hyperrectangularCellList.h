@@ -36,10 +36,11 @@ class hyperrectangularCellList
         //!Return the index of the cell that contains the given point
         int positionToCellIndex(const dVec &pos);
 
+        //!return the iVec corresponding to a cell index
+        iVec indexToiVec(const int cellIndex){return cellIndexer.inverseIndex(cellIndex);};
+
         //! given a target cell and a width, get all cell indices that sit in the surrounding square
         void getCellNeighbors(int cellIndex, int width, vector<int> &cellNeighbors);
-        //! given a target cell and a width, get all cell indices that sit on the requested shell
-        void getCellShellNeighbors(int cellIndex, int width, vector<int> &cellNeighbors);
 
         //!Initialization and helper without using the GPU
         void resetCellSizesCPU();
@@ -82,6 +83,9 @@ class hyperrectangularCellList
 
         //!Enforce GPU operation
         virtual void setGPU(bool _useGPU=true){useGPU = _useGPU;};
+
+        //!A reporter index of how hard it was to compute the cell list
+        int computations;
     protected:
         //!first index is Nmax, second is whether to recompute
         GPUArray<int> assist;
@@ -91,15 +95,6 @@ class hyperrectangularCellList
         //!The size of each cell (e.g., each cell is a small hyperrectangle of these dimensions
         dVec gridCellSizes;
 
-        /*
-        //! The linear size of each grid cell
-        scalar boxsize;
-        //!The number of bins in the x-direction
-        int xsize;
-        //!the number of bins in the y-direction
-        int ysize;
-        //!xsize*ysize
-        */
         int totalCells;
         //! the maximum number of particles found in any bin
         int Nmax;

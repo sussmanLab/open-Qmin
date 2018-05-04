@@ -67,6 +67,7 @@ using namespace std;
 #define Ceil ceilf
 #endif
 
+#include "dDimensionalVectorTypes.h"
 #include "structures.h"
 
 //!Handle errors in kernel calls...returns file and line numbers if cudaSuccess doesn't pan out

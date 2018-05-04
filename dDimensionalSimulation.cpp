@@ -14,6 +14,7 @@
 #include "harmonicAngle.h"
 
 #include "indexer.h"
+#include "hyperrectangularCellList.h"
 
 using namespace std;
 using namespace TCLAP;
@@ -58,6 +59,8 @@ int main(int argc, char*argv[])
     fire->setFIREParameters(0.02,0.99,0.1,1.1,0.95,.9,4,1e-12);
     fire->setMaximumIterations(1000);
 
+    shared_ptr<hyperrectangularCellList> cellList = make_shared<hyperrectangularCellList>(1.5,PBC);
+
     shared_ptr<harmonicBond> bonds = make_shared<harmonicBond>();
     vector<simpleBond> blist;
     simpleBond testBond(0,1,1.0,1.0);
@@ -84,12 +87,14 @@ int main(int argc, char*argv[])
     noiseSource noise(true);
     Configuration->setParticlePositionsRandomly(noise);
 
+    /*
     //for testing, print positions
     {
     ArrayHandle<dVec> pos(Configuration->returnPositions());
     for (int pp = 0; pp < N; ++pp)
         printdVec(pos.data[pp]);
     }
+    */
 
     cout << endl << endl;
     sim->addForce(bonds,Configuration);
@@ -99,14 +104,62 @@ int main(int argc, char*argv[])
     sim->performTimestep();
     clock_t t2 = clock();
 
+    /*
     //how did FIRE do? check by hand
     {
     ArrayHandle<dVec> pos(Configuration->returnPositions());
     for (int pp = 0; pp < N; ++pp)
         printdVec(pos.data[pp]);
     }
+    */
     cout << endl << "minimization took " << (t2-t1)/(scalar)CLOCKS_PER_SEC << endl;
+    t1 = clock();
+    cellList->computeCellList(Configuration->returnPositions());
+    t2 = clock();
+    cout << endl << "cellList took " << (t2-t1)/(scalar)CLOCKS_PER_SEC << " and iterated through the computation " << cellList->computations << " times" <<endl;
+    t1 = clock();
+    cellList->computeCellList(Configuration->returnPositions());
+    t2 = clock();
+    cout << endl << "cellList took " << (t2-t1)/(scalar)CLOCKS_PER_SEC << " and iterated through the computation " << cellList->computations << " times" <<endl;
 
+    ArrayHandle<dVec> p(Configuration->returnPositions());
+    dVec target = p.data[727];
+    printdVec(target);
+    int cell = cellList->positionToCellIndex(target);
+    ArrayHandle<unsigned int> particlesPerCell(cellList->elementsPerCell);
+    ArrayHandle<int> indices(cellList->particleIndices);
+    int neighs = particlesPerCell.data[cell];
+    for (int nn = 0; nn < particlesPerCell.data[cell]; ++nn)
+        {
+        cout << "cell entry " << nn+1 << " out of "<< neighs << ": " << indices.data[cellList->cellListIndexer(nn,cell)] << endl;
+        printdVec(p.data[indices.data[cellList->cellListIndexer(nn,cell)]]);
+        };
+
+    /*
+    int cell;
+    dVec bDims;
+    PBC->getBoxDims(bDims);
+    cell = cellList->positionToCellIndex(bDims);
+    vector<int> cellNeighs;
+    cellList->getCellNeighbors(cell,2,cellNeighs);
+    for (int cc = 0; cc < cellNeighs.size(); ++cc)
+        {
+        iVec cellSet = cellList->indexToiVec(cellNeighs[cc]);
+        cout <<cc<< ":  " << cellNeighs[cc] << endl;
+        printiVec(cellSet);
+        };
+
+    bDims = 0.5*bDims;
+    cell = cellList->positionToCellIndex(bDims);
+    cellList->getCellNeighbors(cell,1,cellNeighs);
+    for (int cc = 0; cc < cellNeighs.size(); ++cc)
+        {
+        iVec cellSet = cellList->indexToiVec(cellNeighs[cc]);
+        cout <<cc<< ":  " << cellNeighs[cc] << endl;
+        printiVec(cellSet);
+        };
+        */
+/*
     IndexDD indexer(floor(L));
 
     for (int i1 =0; i1 < floor(L); ++i1)
@@ -122,6 +175,14 @@ int main(int argc, char*argv[])
                 cout << indexer.inverseIndex(result).x[0] << ", " << indexer.inverseIndex(result).x[1]  << ", " << indexer.inverseIndex(result).x[2] << endl;
                 };
     cout << indexer.getNumElements() << "total elements" << endl;
+*/
+    /*
+    iVec it(-1);it.x[0]-=1;
+    iVec min(-1);
+    iVec max(1);max.x[2]+=3;
+    while(iVecIterate(it,min,max))
+            printiVec(it);
+    */
 
 //
 //The end of the tclap try
