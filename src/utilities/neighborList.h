@@ -39,6 +39,9 @@ class neighborList
         //!An array containing the indices of neighbors of each particle. So, neighborIndices[neighborIndexer(nn,pp)] gives the index of the nth particle in the neighborhood of particle pp
         GPUArray<int> particleIndices;
 
+        //!An internal counter
+        int computations;
+
     protected:
         //!The cell list that will help out
         shared_ptr<hyperrectangularCellList> cellList;
@@ -51,6 +54,10 @@ class neighborList
         void computeCPU(GPUArray<dVec> &points);
         //! the maximum number of particles found in any neighborhood
         int Nmax;
+        //!Initialization and helper without using the GPU
+        void resetNeighborsCPU(int size);
+        //!Initialization and helper
+        void resetNeighborsGPU(int size);
     };
 
 #endif

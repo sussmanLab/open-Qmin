@@ -15,6 +15,7 @@
 
 #include "indexer.h"
 #include "hyperrectangularCellList.h"
+#include "neighborList.h"
 
 using namespace std;
 using namespace TCLAP;
@@ -136,6 +137,30 @@ int main(int argc, char*argv[])
         printdVec(p.data[indices.data[cellList->cellListIndexer(nn,cell)]]);
         };
 
+    shared_ptr<neighborList> neighList = make_shared<neighborList>(1.5,PBC);
+    t1 = clock();
+    neighList->computeNeighborLists(Configuration->returnPositions());
+    t2 = clock();
+    cout << endl << "neighList took " << (t2-t1)/(scalar)CLOCKS_PER_SEC << " and iterated through the computation " << neighList->computations << " times" <<endl;
+    t1 = clock();
+    neighList->computeNeighborLists(Configuration->returnPositions());
+    t2 = clock();
+    cout << endl << "neighList took " << (t2-t1)/(scalar)CLOCKS_PER_SEC << " and iterated through the computation " << neighList->computations << " times" <<endl;
+
+    ArrayHandle<unsigned int> hnpp(neighList->neighborsPerParticle);
+    ArrayHandle<int> hn(neighList->particleIndices);
+    /*
+    for (int ii = 0; ii < N; ++ii)
+        {
+        int neigh = hnpp.data[ii];
+        cout << "particle "<<ii<<"'s neighbors: ";
+        for (int nn = 0; nn < neigh; ++nn)
+            {
+            cout << hn.data[neighList->neighborIndexer(nn,ii)] <<", ";
+            };
+        cout << endl;
+        };
+        */
     /*
     int cell;
     dVec bDims;

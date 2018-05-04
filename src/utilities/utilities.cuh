@@ -13,6 +13,14 @@ A file providing an interface to the relevant cuda calls for some simple GPU arr
  * \brief CUDA kernels and callers for the utilities base
  */
 
+//!convenience function to zero out an array on the GPU
+bool gpu_zero_array(int *arr,
+                    int N
+                    );
+//!convenience function to zero out an array on the GPU
+bool gpu_zero_array(unsigned int *arr,
+                    int      N
+                    );
 //!A trivial reduction of an array by one thread in serial. Think before you use this.
 bool gpu_serial_reduction(
                     scalar *array,

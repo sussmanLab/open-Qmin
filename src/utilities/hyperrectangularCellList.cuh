@@ -27,14 +27,6 @@ bool gpu_compute_cell_list(dVec *d_pt,
                                   Index2D &cli,
                                   int *d_assist
                                   );
-//!convenience function to zero out an array on the GPU
-bool gpu_zero_array(int *arr,
-                    int N
-                    );
-//!convenience function to zero out an array on the GPU
-bool gpu_zero_array(unsigned int *arr,
-                    int      N
-                    );
 
 /** @} */ //end of group declaration
 

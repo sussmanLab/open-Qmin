@@ -1,5 +1,6 @@
 #include "hyperrectangularCellList.h"
 #include "hyperrectangularCellList.cuh"
+#include "utilities.cuh"
 #include "cuda_runtime.h"
 
 /*! \file hyperrectangularCellList.cpp */
@@ -12,7 +13,7 @@
 hyperrectangularCellList::hyperrectangularCellList(scalar a, BoxPtr _box)
     {
     useGPU = false;
-    Nmax = 0;
+    Nmax = 2;
     Box = _box;
     setGridSize(a);
     }
@@ -38,8 +39,8 @@ void hyperrectangularCellList::setGridSize(scalar a)
     elementsPerCell.resize(totalCells); //number of elements in each cell...initialize to zero
 
     cellIndexer = IndexDD(gridCellsPerSide);
-
-    Nmax = 1;
+    Nmax = 2;
+    cellListIndexer = Index2D(Nmax,totalCells);
     resetCellSizesCPU();
     };
 
@@ -145,19 +146,18 @@ void hyperrectangularCellList::computeCPU(GPUArray<dVec> &points)
     //will loop through particles and put them in cells...
     //if there are more than Nmax particles in any cell, will need to recompute.
     bool recompute = true;
+    bool reset = false;
     ArrayHandle<dVec> h_pt(points,access_location::host,access_mode::read);
     iVec bin;
     int Np = points.getNumElements();
-    if(Nmax == 1)
-        {
-        Nmax = ceil(Np/totalCells);
-        };
+    resetCellSizesCPU();
     int nmax = Nmax;
     computations = 0;
     while (recompute)
         {
         //reset particles per cell, reset cellListIndexer, resize particleIndices
-        resetCellSizesCPU();
+        if(reset) resetCellSizesCPU();
+        {
         ArrayHandle<unsigned int> h_elementsPerCell(elementsPerCell,access_location::host,access_mode::readwrite);
         ArrayHandle<int> h_idx(particleIndices,access_location::host,access_mode::readwrite);
         recompute=false;
@@ -170,20 +170,22 @@ void hyperrectangularCellList::computeCPU(GPUArray<dVec> &points)
 
             int binIndex = cellIndexer(bin);
             int offset = h_elementsPerCell.data[binIndex];
-            if (offset < Nmax)
+            if (offset < Nmax && !recompute)
                 {
                 int clpos = cellListIndexer(offset,binIndex);
-                h_idx.data[cellListIndexer(offset,binIndex)]=nn;
+                h_idx.data[clpos]=nn;
                 }
             else
                 {
                 nmax = max(Nmax,offset+1);
                 Nmax=nmax;
                 recompute=true;
+                reset=true;
                 };
             h_elementsPerCell.data[binIndex]++;
             };
         computations++;
+        };
         };
     cellListIndexer = Index2D(Nmax,totalCells);
     };
@@ -196,9 +198,9 @@ void hyperrectangularCellList::computeGPU(GPUArray<dVec> &points)
     {
     bool recompute = true;
     int Np = points.getNumElements();
-    if(Nmax == 1)
+    if(Nmax <2)
         {
-        Nmax = ceil(Np/totalCells);
+        Nmax = 2;
         };
 
     while (recompute)
