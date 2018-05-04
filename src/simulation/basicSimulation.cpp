@@ -16,9 +16,9 @@ in the box dimensions throughout the simulation...
 */
 void basicSimulation::setBox(BoxPtr _box)
     {
-    dVec bDims;
-    _box->getBoxDims(bDims);
-    Box->setBoxDims(bDims);
+    Box = _box;
+    auto Conf = configuration.lock();
+    Conf->Box=Box;
     };
 
 /*!

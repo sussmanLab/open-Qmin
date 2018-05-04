@@ -30,8 +30,6 @@ class Simulation : public basicSimulation, public enable_shared_from_this<Simula
 
         //!return a shared pointer to this Simulation
         shared_ptr<Simulation> getPointer(){ return shared_from_this();};
-        //!The configuration of particles
-        WeakConfigPtr configuration;
 //
         //! A vector of updaters that the simulation will loop through
         vector<WeakUpdaterPtr> updaters;

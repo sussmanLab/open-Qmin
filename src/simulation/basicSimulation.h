@@ -5,6 +5,7 @@
 
 #include "gpuarray.h"
 #include "periodicBoundaryConditions.h"
+#include "simpleModel.h"
 
 class basicSimulation
     {
@@ -19,6 +20,8 @@ class basicSimulation
         //!This changes the contents of the Box pointed to by Box to match that of _box
         void setBox(BoxPtr _box);
 
+        //!The configuration of particles
+        WeakConfigPtr configuration;
         //!The domain of the simulation
         BoxPtr Box;
         //! An integer that keeps track of how often performTimestep has been called

@@ -13,20 +13,9 @@ hyperrectangularCellList::hyperrectangularCellList(scalar a, BoxPtr _box)
     {
     useGPU = false;
     Nmax = 0;
-    Box = make_shared<periodicBoundaryConditions>();
-    setBox(_box);
+    Box = _box;
     setGridSize(a);
     }
-
-/*!
-\param bx the box defining the periodic unit cell
- */
-void hyperrectangularCellList::setBox(BoxPtr _box)
-    {
-    dVec bDims;
-    _box->getBoxDims(bDims);
-    Box->setBoxDims(bDims);
-    };
 
 /*!
 \param a the approximate side length of all of the cells.
@@ -40,8 +29,8 @@ void hyperrectangularCellList::setGridSize(scalar a)
     totalCells = 1;
     for (int dd = 0; dd < DIMENSION; ++dd)
         {
-        gridCellsPerSide.x[dd] = (unsigned int)floor(bDims.x[dd]);
-        if(gridCellsPerSide.x[dd]%2==1) gridCellsPerSide.x[dd]+=1;
+        gridCellsPerSide.x[dd] = (unsigned int)floor(bDims.x[dd]/a);
+        if(gridCellsPerSide.x[dd]%2==1) gridCellsPerSide.x[dd]-=1;
         totalCells *= gridCellsPerSide.x[dd];
         gridCellSizes = bDims.x[dd]/gridCellsPerSide.x[dd];
         };

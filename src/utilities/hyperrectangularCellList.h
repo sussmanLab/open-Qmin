@@ -23,7 +23,7 @@ class hyperrectangularCellList
         hyperrectangularCellList(scalar a, BoxPtr _box);
 
         //!Set the BoxPtr to point to an existing one
-        void setBox(BoxPtr bx);
+        void setBox(BoxPtr bx){Box=bx;};
         //!call setGridSize if the particles and box already set, as this doubles as a general initialization of data structures
         void setGridSize(scalar a);
         //!Get an upper bound on the maximum number of particles in a given bucket

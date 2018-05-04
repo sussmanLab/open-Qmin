@@ -5,4 +5,5 @@ cuda_add_library(utility
     utilities.cu 
     hyperrectangularCellList.cpp
     hyperrectangularCellList.cu
+    neighborList.cpp
     )

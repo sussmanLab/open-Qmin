@@ -59,7 +59,7 @@ int main(int argc, char*argv[])
     fire->setFIREParameters(0.02,0.99,0.1,1.1,0.95,.9,4,1e-12);
     fire->setMaximumIterations(1000);
 
-    shared_ptr<hyperrectangularCellList> cellList = make_shared<hyperrectangularCellList>(1.5,PBC);
+    shared_ptr<hyperrectangularCellList> cellList = make_shared<hyperrectangularCellList>(1.,PBC);
 
     shared_ptr<harmonicBond> bonds = make_shared<harmonicBond>();
     vector<simpleBond> blist;
