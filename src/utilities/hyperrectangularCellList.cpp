@@ -1,4 +1,5 @@
 #include "hyperrectangularCellList.h"
+#include "hyperrectangularCellList.cuh"
 #include "cuda_runtime.h"
 
 /*! \file hyperrectangularCellList.cpp */
@@ -90,8 +91,6 @@ all on the GPU so that arrays don't need to be copied back to the host
 */
 void hyperrectangularCellList::resetCellSizes()
     {
-    UNWRITTENCODE("resetCellSizes on GPU");
-    /*
     //set all cell sizes to zero
     if(elementsPerCell.getNumElements() != totalCells)
         elementsPerCell.resize(totalCells);
@@ -113,7 +112,6 @@ void hyperrectangularCellList::resetCellSizes()
     ArrayHandle<int> h_assist(assist,access_location::host,access_mode::overwrite);
     h_assist.data[0]=Nmax;
     h_assist.data[1] = 0;
-    */
     };
 
 /*!
@@ -208,10 +206,11 @@ void hyperrectangularCellList::computeCPU(GPUArray<dVec> &points)
 void hyperrectangularCellList::computeGPU(GPUArray<dVec> &points)
     {
     bool recompute = true;
-    UNWRITTENCODE("hyperrectangularCellList");
-    /*
     int Np = points.getNumElements();
-    resetCellSizes();
+    if(Nmax == 1)
+        {
+        Nmax = ceil(Np/totalCells);
+        };
 
     while (recompute)
         {
@@ -234,14 +233,13 @@ void hyperrectangularCellList::computeGPU(GPUArray<dVec> &points)
                           d_idx.data,       //cell list
                           Np,               //number of particles
                           Nmax,             //maximum particles per cell
-                          xsize,            //number of cells in x direction
-                          ysize,            // ""     ""      "" y directions
-                          boxsize,          //size of each grid cell
-                          (*Box),
+                          gridCellsPerSide, //number of cells in each direction
+                          gridCellSizes,    //size of cells in each direction
+                          Box,
                           cellIndexer,
                           cellListIndexer,
                           d_assist.data
-                          );               //the box
+                          );
             }
         //get cell list arrays
         recompute = false;
@@ -264,5 +262,4 @@ void hyperrectangularCellList::computeGPU(GPUArray<dVec> &points)
             };
         };
     cellListIndexer = Index2D(Nmax,totalCells);
-    */
     };

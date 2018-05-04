@@ -3,7 +3,7 @@
 
 #include "std_include.h"
 
-#ifdef NVCC
+#ifdef ENABLE_CUDA
 #define HOSTDEVICE __host__ __device__ inline
 #else
 #define HOSTDEVICE inline __attribute__((always_inline))
@@ -26,9 +26,11 @@ struct periodicBoundaryConditions
         HOSTDEVICE periodicBoundaryConditions(scalar sideLength){setHyperCubic(sideLength);};
 
         //!Get the dimensions of the box
-        HOSTDEVICE void getBoxDims(dVec &boxDims){boxDims = boxDimensions;};
+        HOSTDEVICE void getBoxDims(dVec &boxDims)
+            {for (int dd =0; dd < DIMENSION; ++dd) boxDims.x[dd] = boxDimensions.x[dd];};
         //!Get the inverse of the box transformation matrix
-        HOSTDEVICE void getBoxInvDims(dVec &iBoxDims){iBoxDims = inverseBoxDimensions;};
+        HOSTDEVICE void getBoxInvDims(dVec &iBoxDims)
+            {for (int dd =0; dd < DIMENSION; ++dd) iBoxDims.x[dd] = inverseBoxDimensions.x[dd];};
 
         //!Set the box to some new hypercube
         HOSTDEVICE void setHyperCubic(scalar sideLength);
@@ -112,9 +114,9 @@ void periodicBoundaryConditions::putInBoxReal(dVec &p1)
 
 void periodicBoundaryConditions::minDist(const dVec &p1, const dVec &p2, dVec &pans)
     {
-    pans = p1 - p2;
     for (int dd = 0; dd< DIMENSION; ++dd)
         {
+        pans.x[dd] = p1.x[dd]-p2.x[dd];
         while(pans.x[dd] < halfBoxDimensions.x[dd]) pans.x[dd] += boxDimensions.x[dd];
         while(pans.x[dd] > halfBoxDimensions.x[dd]) pans.x[dd] -= boxDimensions.x[dd];
         };
@@ -123,7 +125,8 @@ void periodicBoundaryConditions::minDist(const dVec &p1, const dVec &p2, dVec &p
 
 void periodicBoundaryConditions::move(dVec &p1, const dVec &disp)
     {//assume real space entries. Moves p1 by disp, and puts it back in box
-    p1+=disp;
+    for (int dd = 0; dd < DIMENSION; ++dd)
+        p1.x[dd] += disp.x[dd];
     putInBoxReal(p1);
     };
 

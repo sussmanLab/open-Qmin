@@ -113,6 +113,7 @@ int main(int argc, char*argv[])
     }
     */
     cout << endl << "minimization took " << (t2-t1)/(scalar)CLOCKS_PER_SEC << endl;
+    if(gpuSwitch >=0) cellList->setGPU(true);
     t1 = clock();
     cellList->computeCellList(Configuration->returnPositions());
     t2 = clock();
@@ -123,7 +124,7 @@ int main(int argc, char*argv[])
     cout << endl << "cellList took " << (t2-t1)/(scalar)CLOCKS_PER_SEC << " and iterated through the computation " << cellList->computations << " times" <<endl;
 
     ArrayHandle<dVec> p(Configuration->returnPositions());
-    dVec target = p.data[727];
+    dVec target = p.data[0];
     printdVec(target);
     int cell = cellList->positionToCellIndex(target);
     ArrayHandle<unsigned int> particlesPerCell(cellList->elementsPerCell);
