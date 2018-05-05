@@ -42,6 +42,8 @@ class neighborList
         //!An internal counter
         int computations;
 
+        //!maximum range that neighbors need to be kept at
+        scalar maxRange;
     protected:
         //!The cell list that will help out
         shared_ptr<hyperrectangularCellList> cellList;

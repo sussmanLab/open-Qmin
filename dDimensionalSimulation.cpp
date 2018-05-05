@@ -123,7 +123,7 @@ int main(int argc, char*argv[])
     cellList->computeCellList(Configuration->returnPositions());
     t2 = clock();
     cout << endl << "cellList took " << (t2-t1)/(scalar)CLOCKS_PER_SEC << " and iterated through the computation " << cellList->computations << " times" <<endl;
-
+/*
     ArrayHandle<dVec> p(Configuration->returnPositions());
     dVec target = p.data[0];
     printdVec(target);
@@ -136,8 +136,12 @@ int main(int argc, char*argv[])
         cout << "cell entry " << nn+1 << " out of "<< neighs << ": " << indices.data[cellList->cellListIndexer(nn,cell)] << endl;
         printdVec(p.data[indices.data[cellList->cellListIndexer(nn,cell)]]);
         };
+    ArrayHandle<dVec> p(Configuration->returnPositions());
+    for (int pp = 0; pp < N; ++pp)
+        printf("{%f,%f,%f},",p.data[pp].x[0],p.data[pp].x[1],p.data[pp].x[2]);
+*/
 
-    shared_ptr<neighborList> neighList = make_shared<neighborList>(1.5,PBC);
+    shared_ptr<neighborList> neighList = make_shared<neighborList>(1.,PBC);
     t1 = clock();
     neighList->computeNeighborLists(Configuration->returnPositions());
     t2 = clock();
@@ -147,9 +151,9 @@ int main(int argc, char*argv[])
     t2 = clock();
     cout << endl << "neighList took " << (t2-t1)/(scalar)CLOCKS_PER_SEC << " and iterated through the computation " << neighList->computations << " times" <<endl;
 
+/*
     ArrayHandle<unsigned int> hnpp(neighList->neighborsPerParticle);
     ArrayHandle<int> hn(neighList->particleIndices);
-    /*
     for (int ii = 0; ii < N; ++ii)
         {
         int neigh = hnpp.data[ii];

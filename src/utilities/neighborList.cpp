@@ -9,6 +9,7 @@ neighborList::neighborList(scalar range, BoxPtr _box)
     Box = _box;
     cellList = make_shared<hyperrectangularCellList>(range,Box);
     Nmax = 3;
+    maxRange = range;
     };
 
 void neighborList::resetNeighborsGPU(int size)
@@ -92,6 +93,9 @@ void neighborList::computeCPU(GPUArray<dVec> &points)
                     {
                     int neighborIndex = indices.data[cellList->cellListIndexer(p1,currentCell)];
                     if (neighborIndex == pp) continue;
+                    dVec disp;
+                    Box->minDist(target,h_pt.data[neighborIndex],disp);
+                    if(norm(disp)>=maxRange) continue;
                     int offset = h_npp.data[pp];
                     if(offset < Nmax && !recompute)
                         {
@@ -100,7 +104,8 @@ void neighborList::computeCPU(GPUArray<dVec> &points)
                         }
                     else
                         {
-                        Nmax+=1;
+                        nmax=max(nmax,offset+1);
+                        Nmax=nmax;
                         recompute = true;
                         };
                     h_npp.data[pp] += 1;
@@ -109,6 +114,7 @@ void neighborList::computeCPU(GPUArray<dVec> &points)
             };
         };
         neighborIndexer = Index2D(Nmax,Np);
+        printf("neighIndexer size %i\t %i\t %i\n", neighborIndexer.getNumElements(),Nmax,Np);
     };
 
 /*!
