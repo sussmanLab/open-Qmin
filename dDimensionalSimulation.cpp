@@ -12,7 +12,7 @@
 #include "noiseSource.h"
 #include "harmonicBond.h"
 #include "harmonicAngle.h"
-
+#include "harmonicRepulsion.h"
 #include "indexer.h"
 #include "hyperrectangularCellList.h"
 #include "neighborList.h"
@@ -97,9 +97,14 @@ int main(int argc, char*argv[])
     }
     */
 
+    shared_ptr<neighborList> neighList = make_shared<neighborList>(1.,PBC);
+    shared_ptr<harmonicRepulsion> softSpheres = make_shared<harmonicRepulsion>();
+    softSpheres->setNeighborList(neighList);
+
     cout << endl << endl;
     sim->addForce(bonds,Configuration);
     sim->addForce(angles,Configuration);
+    sim->addForce(softSpheres,Configuration);
     sim->addUpdater(fire,Configuration);
     clock_t t1 = clock();
     sim->performTimestep();
@@ -114,6 +119,8 @@ int main(int argc, char*argv[])
     }
     */
     cout << endl << "minimization took " << (t2-t1)/(scalar)CLOCKS_PER_SEC << endl;
+
+    /*
     if(gpuSwitch >=0) cellList->setGPU(true);
     t1 = clock();
     cellList->computeCellList(Configuration->returnPositions());
@@ -123,6 +130,7 @@ int main(int argc, char*argv[])
     cellList->computeCellList(Configuration->returnPositions());
     t2 = clock();
     cout << endl << "cellList took " << (t2-t1)/(scalar)CLOCKS_PER_SEC << " and iterated through the computation " << cellList->computations << " times" <<endl;
+    */
 /*
     ArrayHandle<dVec> p(Configuration->returnPositions());
     dVec target = p.data[0];
@@ -140,8 +148,7 @@ int main(int argc, char*argv[])
     for (int pp = 0; pp < N; ++pp)
         printf("{%f,%f,%f},",p.data[pp].x[0],p.data[pp].x[1],p.data[pp].x[2]);
 */
-
-    shared_ptr<neighborList> neighList = make_shared<neighborList>(1.,PBC);
+/*
     t1 = clock();
     neighList->computeNeighborLists(Configuration->returnPositions());
     t2 = clock();
@@ -164,6 +171,7 @@ int main(int argc, char*argv[])
             };
     t2 = clock();
     cout << endl << "neighList by hand took " << (t2-t1)/(scalar)CLOCKS_PER_SEC << " and iterated through the computation " << " times" <<endl;
+    */
 /*
     ArrayHandle<unsigned int> hnpp(neighList->neighborsPerParticle);
     ArrayHandle<int> hn(neighList->particleIndices);

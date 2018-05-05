@@ -22,8 +22,6 @@ class harmonicAngle : public force
 
         virtual void computeForceCPU(GPUArray<dVec> &forces,bool zeroOutForce = true);
         virtual void computeForceGPU(GPUArray<dVec> &forces,bool zeroOutForce = true);
-
-        scalar energy;
     };
 
 #endif

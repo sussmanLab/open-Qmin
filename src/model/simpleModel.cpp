@@ -23,12 +23,15 @@ void simpleModel::initializeSimpleModel(int n)
     velocities.resize(n);
     forces.resize(n);
     masses.resize(n);
+    radii.resize(n);
     vector<dVec> zeroes(N,make_dVec(0.0));
     vector<scalar> ones(N,1.0);
+    vector<scalar> halves(N,.5);
     fillGPUArrayWithVector(zeroes,positions);
     fillGPUArrayWithVector(zeroes,velocities);
     fillGPUArrayWithVector(zeroes,forces);
     fillGPUArrayWithVector(ones,masses);
+    fillGPUArrayWithVector(halves,radii);
     };
 
 void simpleModel::setParticlePositionsRandomly(noiseSource &noise)

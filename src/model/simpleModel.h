@@ -21,6 +21,7 @@ S.moveParticles();
 S.returnForces();
 S.returnPositions();
 S.returnVelocities();
+S.returnRadii();
 S.returnMasses();
 S.spatialSorting();
 S.returnAdditionalData();
@@ -51,6 +52,8 @@ class simpleModel
         virtual GPUArray<dVec> & returnPositions(){return positions;};
         //!return a reference to the GPUArray of the current forces
         virtual GPUArray<dVec> & returnForces(){return forces;};
+        //!return a reference to the GPUArray of the particle radii
+        virtual GPUArray<scalar> & returnRadii(){return radii;};
         //!return a reference to the GPUArray of the masses
         virtual GPUArray<scalar> & returnMasses(){return masses;};
         //!return a reference to the GPUArray of the current velocities
@@ -71,6 +74,8 @@ class simpleModel
         GPUArray<dVec> velocities;
         //!Forces on particles
         GPUArray<dVec> forces;
+        //!particle radii
+        GPUArray<scalar> radii;
         //!particle masses
         GPUArray<scalar> masses;
 

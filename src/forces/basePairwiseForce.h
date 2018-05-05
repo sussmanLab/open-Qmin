@@ -1,0 +1,23 @@
+#ifndef basePairwiseForce_H
+#define basePairwiseForce_H
+
+#include "baseForce.h"
+/*! \file basePairwiseForce.h */
+/*!
+by default pairwise forces will only compute half of the interactions (if for p1 < p2), and assume f_{p1,p2}= - f_{p2,p1}
+*/
+class basePairwiseForce : public force
+    {
+    public:
+        //!the call to compute forces, and store them in the referenced variable
+        virtual void computeForces(GPUArray<dVec> &forces,bool zeroOutForce = true);
+        virtual void computeForceGPU(GPUArray<dVec> &forces,bool zeroOutForce = true);
+        virtual void computeForceCPU(GPUArray<dVec> &forces,bool zeroOutForce = true);
+
+        virtual void computePairwiseForce(dVec &relativeDistance, vector<scalar> &parameters, dVec &f){printf("in base pairwiseForce...why?\n");};
+
+        virtual void getParametersForParticlePair(int index1, int index2, vector<scalar> &parameters){};
+
+        vector<scalar> params;
+    };
+#endif

@@ -154,7 +154,6 @@ void neighborList::computeCPU(GPUArray<dVec> &points)
             };
         };
         neighborIndexer = Index2D(Nmax,Np);
-        printf("neighIndexer size %i\t %i\t %i\n", neighborIndexer.getNumElements(),Nmax,Np);
     };
 
 /*!

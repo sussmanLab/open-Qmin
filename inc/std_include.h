@@ -7,7 +7,7 @@ Crucially, it also defines scalars as either floats or doubles, depending on
 how the program is compiled
 */
 
-#ifdef ENABLE_CUDA
+#ifdef NVCC
 #define HOSTDEVICE __host__ __device__ inline
 #else
 #define HOSTDEVICE inline __attribute__((always_inline))

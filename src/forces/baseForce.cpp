@@ -4,6 +4,7 @@
 force::force()
     {
     useGPU = false;
+    useNeighborList = true;
     };
 
 void force::setForceParameters(vector<scalar> &params)

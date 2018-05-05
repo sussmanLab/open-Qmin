@@ -4,6 +4,7 @@
 #include "std_include.h"
 #include "simpleModel.h"
 #include "basicSimulation.h"
+#include "neighborList.h"
 
 /*! \file baseForce.h */
 //!A base class for implementing force calculations
@@ -37,6 +38,16 @@ class force
         //!whether the updater does its work on the GPU or not
         bool useGPU;
 
+        //!Forces might update the total energy associated with them
+        scalar energy;
+        //!does the force get an assist from a neighbor list?
+        bool useNeighborList;
+
+        //!a pointer to a neighbor list the force might use
+        shared_ptr<neighborList> neighbors;
+
+        //!tell the force to use a neighbor list
+        void setNeighborList(shared_ptr<neighborList> _neighbor){neighbors = _neighbor;useNeighborList = true;};
     };
 
 typedef shared_ptr<force> ForcePtr;
