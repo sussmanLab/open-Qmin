@@ -151,6 +151,19 @@ int main(int argc, char*argv[])
     t2 = clock();
     cout << endl << "neighList took " << (t2-t1)/(scalar)CLOCKS_PER_SEC << " and iterated through the computation " << neighList->computations << " times" <<endl;
 
+
+    t1 = clock();
+    ArrayHandle<dVec> p(Configuration->returnPositions());
+    for (int pp = 0; pp < N-1; ++pp)
+        for (int p2=pp+1;p2 < N;++p2)
+            {
+            dVec disp;
+            PBC->minDist(p.data[pp],p.data[p2],disp);
+            scalar d= norm(disp);
+            scalar r= d*d*d*d-d*d*d;
+            };
+    t2 = clock();
+    cout << endl << "neighList by hand took " << (t2-t1)/(scalar)CLOCKS_PER_SEC << " and iterated through the computation " << " times" <<endl;
 /*
     ArrayHandle<unsigned int> hnpp(neighList->neighborsPerParticle);
     ArrayHandle<int> hn(neighList->particleIndices);

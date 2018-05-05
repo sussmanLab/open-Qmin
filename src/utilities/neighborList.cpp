@@ -6,6 +6,7 @@
 neighborList::neighborList(scalar range, BoxPtr _box)
     {
     useGPU = false;
+    saveDistanceData = true;
     Box = _box;
     cellList = make_shared<hyperrectangularCellList>(range,Box);
     Nmax = 3;
@@ -21,9 +22,24 @@ void neighborList::resetNeighborsGPU(int size)
     
     neighborIndexer = Index2D(Nmax,size);
     if(particleIndices.getNumElements() != neighborIndexer.getNumElements())
+        {
         particleIndices.resize(neighborIndexer.getNumElements());
+        if(saveDistanceData)
+            {
+            neighborVectors.resize(neighborIndexer.getNumElements());
+            neighborDistances.resize(neighborIndexer.getNumElements());
+            };
+        };
 
     ArrayHandle<int> d_idx(particleIndices,access_location::device,access_mode::overwrite);
+    gpu_zero_array(d_idx.data,size);
+    if(saveDistanceData)
+        {
+        ArrayHandle<dVec> d_vec(neighborVectors,access_location::device,access_mode::overwrite);
+        ArrayHandle<scalar> d_dist(neighborDistances,access_location::device,access_mode::overwrite);
+        gpu_zero_array(d_vec.data,size);
+        gpu_zero_array(d_dist.data,size);
+        };
 
     if(assist.getNumElements()!= 2)
         assist.resize(2);
@@ -42,11 +58,27 @@ void neighborList::resetNeighborsCPU(int size)
     
     neighborIndexer = Index2D(Nmax,size);
     if(particleIndices.getNumElements() != neighborIndexer.getNumElements())
+        {
         particleIndices.resize(neighborIndexer.getNumElements());
+        if(saveDistanceData)
+            {
+            neighborVectors.resize(neighborIndexer.getNumElements());
+            neighborDistances.resize(neighborIndexer.getNumElements());
+            };
+        };
 
     ArrayHandle<int> h_idx(particleIndices,access_location::host,access_mode::overwrite);
+    ArrayHandle<dVec> h_vec(neighborVectors,access_location::host,access_mode::overwrite);
+        ArrayHandle<scalar> h_dist(neighborDistances,access_location::host,access_mode::overwrite);
     for (int i = 0; i < neighborIndexer.getNumElements(); ++i)
+        {
         h_idx.data[i]=0;
+        if(saveDistanceData)
+            {
+            h_vec.data[i] = make_dVec(0.);
+            h_dist.data[i] = 0.;
+            };
+        };
 
     if(assist.getNumElements()!= 2)
         assist.resize(2);
@@ -78,6 +110,8 @@ void neighborList::computeCPU(GPUArray<dVec> &points)
         resetNeighborsCPU(Np);
         ArrayHandle<unsigned int> h_npp(neighborsPerParticle);
         ArrayHandle<int> h_idx(particleIndices);
+        ArrayHandle<dVec> h_vec(neighborVectors);
+        ArrayHandle<scalar> h_dist(neighborDistances);
         recompute = false;
         vector<int> cellsToScan;
         for (int pp = 0; pp < Np; ++pp)
@@ -95,12 +129,18 @@ void neighborList::computeCPU(GPUArray<dVec> &points)
                     if (neighborIndex == pp) continue;
                     dVec disp;
                     Box->minDist(target,h_pt.data[neighborIndex],disp);
-                    if(norm(disp)>=maxRange) continue;
+                    scalar dist = norm(disp);
+                    if(dist>=maxRange) continue;
                     int offset = h_npp.data[pp];
                     if(offset < Nmax && !recompute)
                         {
                         int nlpos = neighborIndexer(offset,pp);
                         h_idx.data[nlpos] = neighborIndex;
+                        if(saveDistanceData)
+                            {
+                            h_vec.data[nlpos] = disp;
+                            h_dist.data[nlpos] = dist;
+                            }
                         }
                     else
                         {

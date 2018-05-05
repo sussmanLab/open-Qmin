@@ -1,3 +1,4 @@
+#define ENABLE_CUDA
 #include "utilities.cuh"
 
 /*! \file utilities.cu
@@ -84,6 +85,34 @@ __global__ void gpu_parallel_block_reduction2_kernel(scalar *input, scalar *outp
 /*!
   A function of convenience...zero out an array on the device
   */
+__global__ void gpu_zero_array_kernel(dVec *arr,
+                                              int N)
+    {
+    // read in the particle that belongs to this thread
+    unsigned int idx = blockDim.x * blockIdx.x + threadIdx.x;
+    if (idx >= N)
+        return;
+    for (int dd = 0; dd < DIMENSION; ++dd)
+        arr[idx].x[dd] = 0.0;
+    return;
+    };
+/*!
+  A function of convenience...zero out an array on the device
+  */
+__global__ void gpu_zero_array_kernel(scalar *arr,
+                                              int N)
+    {
+    // read in the particle that belongs to this thread
+    unsigned int idx = blockDim.x * blockIdx.x + threadIdx.x;
+    if (idx >= N)
+        return;
+
+    arr[idx] = 0.;
+    return;
+    };
+/*!
+  A function of convenience...zero out an array on the device
+  */
 __global__ void gpu_zero_array_kernel(unsigned int *arr,
                                               int N)
     {
@@ -115,6 +144,22 @@ __global__ void gpu_zero_array_kernel(int *arr,
 //Kernel callers
 ///
 
+bool gpu_zero_array(dVec *arr,
+                    int N
+                    )
+    {
+    //optimize block size later
+    unsigned int block_size = 128;
+    if (N < 128) block_size = 16;
+    unsigned int nblocks  = N/block_size + 1;
+
+    gpu_zero_array_kernel<<<nblocks, block_size>>>(arr,
+                                                    N
+                                                    );
+    HANDLE_ERROR(cudaGetLastError());
+    return cudaSuccess;
+    }
+
 bool gpu_zero_array(unsigned int *arr,
                     int N
                     )
@@ -131,6 +176,20 @@ bool gpu_zero_array(unsigned int *arr,
     return cudaSuccess;
     }
 
+bool gpu_zero_array(scalar *arr,
+                    int N
+                    )
+    {
+    unsigned int block_size = 128;
+    if (N < 128) block_size = 16;
+    unsigned int nblocks  = N/block_size + 1;
+
+    gpu_zero_array_kernel<<<nblocks, block_size>>>(arr,
+                                                    N
+                                                    );
+    HANDLE_ERROR(cudaGetLastError());
+    return cudaSuccess;
+    }
 bool gpu_zero_array(int *arr,
                     int N
                     )

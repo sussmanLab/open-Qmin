@@ -36,8 +36,12 @@ class neighborList
 
         //! An array containing the number of elements in each neighborhood
         GPUArray<unsigned int> neighborsPerParticle;
-        //!An array containing the indices of neighbors of each particle. So, neighborIndices[neighborIndexer(nn,pp)] gives the index of the nth particle in the neighborhood of particle pp
+        //!An array containing the indices of neighbors of each particle. So, partilceIndices[neighborIndexer(nn,pp)] gives the index of the nth particle in the neighborhood of particle pp
         GPUArray<int> particleIndices;
+        //!An array saving the displacement data associated with each neighbor pair. distances[neighborIndexer(nn,pp)]
+        GPUArray<dVec> neighborVectors;
+        //!An array saving the distance data associated with each neighbor pair. distances[neighborIndexer(nn,pp)]
+        GPUArray<scalar> neighborDistances;
 
         //!An internal counter
         int computations;
@@ -48,6 +52,8 @@ class neighborList
         //!The cell list that will help out
         shared_ptr<hyperrectangularCellList> cellList;
 
+        //!Save the displacement and distances associated with neihgbors?
+        bool saveDistanceData;
         //!first index is Nmax, second is whether to recompute
         GPUArray<int> assist;
         //! compute via GPU
