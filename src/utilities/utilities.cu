@@ -91,6 +91,8 @@ __global__ void gpu_zero_array_kernel(dVec *arr,
     unsigned int idx = blockDim.x * blockIdx.x + threadIdx.x;
     if (idx >= N)
         return;
+    dVec temp = make_dVec(0.0);
+    arr[idx] = temp;
     for (int dd = 0; dd < DIMENSION; ++dd)
         arr[idx].x[dd] = 0.0;
     return;

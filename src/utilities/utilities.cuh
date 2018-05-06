@@ -1,8 +1,8 @@
 #ifndef utilities_CUH__
 #define utilities_CUH__
 
-#include "std_include.h"
 #include <cuda_runtime.h>
+#include "std_include.h"
 /*!
  \file utilities.cuh
 A file providing an interface to the relevant cuda calls for some simple GPU array manipulations

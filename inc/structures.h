@@ -6,6 +6,11 @@ defines simpleBond class
 defines simpleAngle class
 */
 
+#ifdef NVCC
+#define HOSTDEVICE __host__ __device__ inline
+#else
+#define HOSTDEVICE inline __attribute__((always_inline))
+#endif
 //!simpleBond carries two integers and two scalars
 class simpleBond
     {
@@ -55,4 +60,5 @@ class simpleDihedral
         HOSTDEVICE void setRestLength(scalar _d0){d0=_d0;};
     };
 
+#undef HOSTDEVICE
 #endif

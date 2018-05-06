@@ -1,3 +1,4 @@
+#define ENABLE_CUDA
 #include "hyperrectangularCellList.cuh"
 #include "indexer.h"
 #include "periodicBoundaryConditions.h"

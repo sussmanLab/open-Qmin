@@ -5,6 +5,11 @@ defines dVec class (d-dimensional array of scalars)
 defines iVec class (d-dimensional array of ints)
 */
 
+#ifdef NVCC
+#define HOSTDEVICE __host__ __device__ inline
+#else
+#define HOSTDEVICE inline __attribute__((always_inline))
+#endif
 //!dVec is an array whose length matches the dimension of the system
 class dVec
     {
@@ -24,19 +29,19 @@ class dVec
         scalar x[DIMENSION];
 
         //mutating operators
-        dVec& operator=(const dVec &other)
+        HOSTDEVICE dVec& operator=(const dVec &other)
             {
             for (int dd = 0; dd < DIMENSION; ++dd)
                 this->x[dd] = other.x[dd];
             return *this;
             }
-        dVec& operator-=(const dVec &other)
+        HOSTDEVICE dVec& operator-=(const dVec &other)
             {
             for (int dd = 0; dd < DIMENSION; ++dd)
                 this->x[dd] -= other.x[dd];
             return *this;
             }
-        dVec& operator+=(const dVec &other)
+        HOSTDEVICE dVec& operator+=(const dVec &other)
             {
             for (int dd = 0; dd < DIMENSION; ++dd)
                 this->x[dd] += other.x[dd];
@@ -272,4 +277,5 @@ HOSTDEVICE bool iVecIterate(iVec &it, const iVec &min, const iVec &max)
             };
         return true;
     };
+#undef HOSTDEVICE
 #endif

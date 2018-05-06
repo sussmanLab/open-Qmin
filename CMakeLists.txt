@@ -18,13 +18,21 @@ add_subdirectory(src)
 include_directories(inc ${CUDA_INCLUDE_DIRS} src src/utilities src/simulation src/model src/forces src/updaters)
 link_directories(${CUDA_LIBRARY_DIRS})
 
-
+set(myLibs 
+    force 
+    updater 
+    simulation 
+    model 
+    utility 
+    utilityGPU 
+    )
+message("libraries = " ${myLibs})
 
 add_executable(simulationExecutable.out dDimensionalSimulation.cpp)
-target_link_libraries(simulationExecutable.out force updater simulation model utility ${CUDA_LIBRARIES})
+target_link_libraries(simulationExecutable.out ${myLibs} ${CUDA_LIBRARIES})
 
 #add_executable(otherExecutable.out fixedTopologyInteractions.cpp)
-#target_link_libraries(otherExecutable.out force updater simulation model utility ${CUDA_LIBRARIES})
+#target_link_libraries(otherExecutable.out ${myLibs} ${CUDA_LIBRARIES})
 
 
 #file(GLOB appSrcs RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.cpp)
