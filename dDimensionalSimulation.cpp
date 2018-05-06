@@ -57,8 +57,8 @@ int main(int argc, char*argv[])
     shared_ptr<periodicBoundaryConditions> PBC = make_shared<periodicBoundaryConditions>(L);
     shared_ptr<updater> upd = make_shared<updater>(1);
     shared_ptr<energyMinimizerFIRE> fire = make_shared<energyMinimizerFIRE>(Configuration);
-    fire->setFIREParameters(0.02,0.99,0.1,1.1,0.95,.9,4,1e-12);
-    fire->setMaximumIterations(1000);
+    fire->setFIREParameters(0.05,0.99,0.1,1.1,0.95,.9,4,1e-12);
+    fire->setMaximumIterations(40000);
 
     shared_ptr<hyperrectangularCellList> cellList = make_shared<hyperrectangularCellList>(1.,PBC);
 
@@ -100,10 +100,12 @@ int main(int argc, char*argv[])
     shared_ptr<neighborList> neighList = make_shared<neighborList>(1.,PBC);
     shared_ptr<harmonicRepulsion> softSpheres = make_shared<harmonicRepulsion>();
     softSpheres->setNeighborList(neighList);
+    vector<scalar> stiffnessParameters(1,1.0);
+    softSpheres->setForceParameters(stiffnessParameters);
 
     cout << endl << endl;
-    sim->addForce(bonds,Configuration);
-    sim->addForce(angles,Configuration);
+    //sim->addForce(bonds,Configuration);
+    //sim->addForce(angles,Configuration);
     sim->addForce(softSpheres,Configuration);
     sim->addUpdater(fire,Configuration);
     clock_t t1 = clock();
@@ -144,9 +146,11 @@ int main(int argc, char*argv[])
         cout << "cell entry " << nn+1 << " out of "<< neighs << ": " << indices.data[cellList->cellListIndexer(nn,cell)] << endl;
         printdVec(p.data[indices.data[cellList->cellListIndexer(nn,cell)]]);
         };
+    {
     ArrayHandle<dVec> p(Configuration->returnPositions());
     for (int pp = 0; pp < N; ++pp)
         printf("{%f,%f,%f},",p.data[pp].x[0],p.data[pp].x[1],p.data[pp].x[2]);
+    };
 */
 /*
     t1 = clock();

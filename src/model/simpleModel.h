@@ -23,6 +23,7 @@ S.returnPositions();
 S.returnVelocities();
 S.returnRadii();
 S.returnMasses();
+S.returnTypes();
 S.spatialSorting();
 S.returnAdditionalData();
 */
@@ -54,6 +55,8 @@ class simpleModel
         virtual GPUArray<dVec> & returnForces(){return forces;};
         //!return a reference to the GPUArray of the particle radii
         virtual GPUArray<scalar> & returnRadii(){return radii;};
+        //!return a reference to the GPUArray of the integer types
+        virtual GPUArray<int> & returnTypes(){return types;};
         //!return a reference to the GPUArray of the masses
         virtual GPUArray<scalar> & returnMasses(){return masses;};
         //!return a reference to the GPUArray of the current velocities
@@ -78,6 +81,8 @@ class simpleModel
         GPUArray<scalar> radii;
         //!particle masses
         GPUArray<scalar> masses;
+        //!particle types
+        GPUArray<int> types;
 
         //!Whether the GPU should be used to compute anything
         bool useGPU;

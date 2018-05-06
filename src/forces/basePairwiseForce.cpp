@@ -43,8 +43,8 @@ void basePairwiseForce::computeForceCPU(GPUArray<dVec> &forces, bool zeroOutForc
             if(p2 < p1) continue;
             relativeDistance = h_nv.data[nidx];
 
-            getParametersForParticlePair(p1,p2,params);
-            computePairwiseForce(relativeDistance,params,f);
+            getParametersForParticlePair(p1,p2,pairParameters);
+            computePairwiseForce(relativeDistance,pairParameters,f);
             h_force.data[p1] += f;
             h_force.data[p2] -= f;
             };

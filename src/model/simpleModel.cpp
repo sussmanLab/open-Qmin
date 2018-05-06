@@ -18,15 +18,19 @@ simpleModel::simpleModel(int n, bool _useGPU) :
 */
 void simpleModel::initializeSimpleModel(int n)
     {
+    N=n;
     selfForceCompute = false;
     positions.resize(n);
     velocities.resize(n);
     forces.resize(n);
     masses.resize(n);
     radii.resize(n);
+    types.resize(n);
     vector<dVec> zeroes(N,make_dVec(0.0));
     vector<scalar> ones(N,1.0);
     vector<scalar> halves(N,.5);
+    vector<int> units(N,0);
+    fillGPUArrayWithVector(units,types);
     fillGPUArrayWithVector(zeroes,positions);
     fillGPUArrayWithVector(zeroes,velocities);
     fillGPUArrayWithVector(zeroes,forces);

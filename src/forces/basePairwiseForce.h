@@ -2,6 +2,7 @@
 #define basePairwiseForce_H
 
 #include "baseForce.h"
+#include "indexer.h"
 /*! \file basePairwiseForce.h */
 /*!
 by default pairwise forces will only compute half of the interactions (if for p1 < p2), and assume f_{p1,p2}= - f_{p2,p1}
@@ -18,6 +19,13 @@ class basePairwiseForce : public force
 
         virtual void getParametersForParticlePair(int index1, int index2, vector<scalar> &parameters){};
 
-        vector<scalar> params;
+        //!a vector of parameters that can be set... 
+        GPUArray<scalar> parameters;
+        //!a small vector that gets passed around when actually calculating the forces
+        vector<scalar> pairParameters; 
+        //! the number of different types the force knows about
+        int nTypes;
+        //!an indexer for accessing type-based parameters
+        Index2D particleTypeIndexer;
     };
 #endif
