@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.0)
-project(dDimensionalSimulation)
+project(dDimensionalSimulations)
 
 add_definitions(-DDIMENSION=3)
 
@@ -23,13 +23,14 @@ link_directories(${CUDA_LIBRARY_DIRS})
 add_executable(simulationExecutable.out dDimensionalSimulation.cpp)
 target_link_libraries(simulationExecutable.out force updater simulation model utility ${CUDA_LIBRARIES})
 
+#add_executable(otherExecutable.out fixedTopologyInteractions.cpp)
+#target_link_libraries(otherExecutable.out force updater simulation model utility ${CUDA_LIBRARIES})
 
-#file(GLOB appSrcs RELATIVE *.cpp)
+
+#file(GLOB appSrcs RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.cpp)
 #foreach(testSourceFile ${appSrcs})
 #    string( REPLACE ".cpp" ".out" testname ${testSourceFile})
-#    string(REPLACE ".cpp"
-#                   ".out" outFile
-#                    ${file})
-#    add_executable( ${testname} ${testsourcefile} )
+#    message("evaluating " ${testSourceFile} " " ${testname})
+#    add_executable(${testname} ${CMAKE_CURRENT_SOURCE_DIR}${testsourcefile} )
 #    target_link_libraries( ${testname} force updater simulation model utility ${CUDA_LIBRARIES} )
 #endforeach( testSourceFile ${appSrcs} )
