@@ -219,7 +219,7 @@ void hyperrectangularCellList::computeGPU(GPUArray<dVec> &points)
             ArrayHandle<int> d_assist(assist,access_location::device,access_mode::readwrite);
 
             //call the gpu function
-            gpu_compute_cell_list(d_pt.data,        //particle positions...broken
+            gpu_compute_cell_list(d_pt.data,        //particle positions...
                           d_elementsPerCell.data,//particles per cell
                           d_idx.data,       //cell list
                           Np,               //number of particles

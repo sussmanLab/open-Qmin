@@ -1,5 +1,5 @@
-#ifndef __GPUCELL_CUH__
-#define __GPUCELL_CUH__
+#ifndef __hyperRectangularCELL_CUH__
+#define __hyperRectangularCELL_CUH__
 
 #include "std_include.h"
 #include <cuda_runtime.h>
@@ -9,9 +9,9 @@
 /*! \file hyperrectangularCellList.cuh
 */
 
-/** @defgroup cellListGPUKernels cellListGPU Kernels
+/** @defgroup utilityKernels utility Kernels
  * @{
- * \brief CUDA kernels and callers for the cellListGPU class
+ * \brief CUDA kernels and callers for the utilities base
  */
 
 //!Find the set indices of points in every cell bucket in the grid

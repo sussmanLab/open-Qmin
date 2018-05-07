@@ -1,6 +1,6 @@
 #include "neighborList.h"
 #include "utilities.cuh"
-//#include "neighborList.h"
+#include "neighborList.cuh"
 /*! \file neighborList.cpp */
 
 neighborList::neighborList(scalar range, BoxPtr _box)
@@ -162,6 +162,50 @@ void neighborList::computeCPU(GPUArray<dVec> &points)
 void neighborList::computeGPU(GPUArray<dVec> &points)
     {
     cellList->computeCellList(points);
-    UNWRITTENCODE("gpu neighbor list stuff");
+    ArrayHandle<unsigned int> particlesPerCell(cellList->elementsPerCell,access_location::device,access_mode::read);
+    ArrayHandle<int> indices(cellList->particleIndices,access_location::device,access_mode::read);
+    bool recompute = true;
+    int Np = points.getNumElements();
+    ArrayHandle<dVec> d_pt(points,access_location::device,access_mode::read);
+    int nmax = Nmax;
+    while(recompute)
+        {
+        resetNeighborsGPU(Np);
+        {//scope
+        ArrayHandle<unsigned int> d_npp(neighborsPerParticle,access_location::device,access_mode::readwrite);
+        ArrayHandle<int> d_idx(particleIndices,access_location::device,access_mode::readwrite);
+        ArrayHandle<dVec> d_vec(neighborVectors,access_location::device,access_mode::readwrite);
+        ArrayHandle<int> d_assist(assist,access_location::device,access_mode::readwrite);
+        //!call gpu function
+        gpu_compute_neighbor_list(d_idx.data,
+                                  d_npp.data,
+                                  d_vec.data,
+                                  particlesPerCell.data,
+                                  indices.data,
+                                  d_pt.data,
+                                  d_assist.data,
+                                  *(Box),
+                                  neighborIndexer,
+                                  cellList->cellListIndexer,
+                                  cellList->cellIndexer,
+                                  cellList->getBinsPerSide(),
+                                  cellList->getCellSize(),
+                                  maxRange,
+                                  nmax,
+                                  Np);
+        }//scope
+        {
+        ArrayHandle<int> h_assist(assist);
+        if(h_assist.data[1] == 1)
+            {
+            Nmax = h_assist.data[0];
+            nmax = Nmax;
+            h_assist.data[1] =0;
+            recompute = true;
+            }
+        else
+            recompute = false;
+        };
+        };
     };
 

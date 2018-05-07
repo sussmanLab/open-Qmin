@@ -20,4 +20,3 @@ bool gpu_update_velocity_FIRE(dVec *d_velocity,
 
 /** @} */ //end of group declaration
 #endif
-

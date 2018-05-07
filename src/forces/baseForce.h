@@ -34,7 +34,12 @@ class force
         //! A pointer to a simpleModel that the updater acts on
         shared_ptr<simpleModel> model;
         //!Enforce GPU operation
-        virtual void setGPU(bool _useGPU=true){useGPU = _useGPU;};
+        virtual void setGPU(bool _useGPU=true)
+            {
+            useGPU = _useGPU;
+            if(useNeighborList)
+                    neighbors->setGPU(_useGPU);
+            };
         //!whether the updater does its work on the GPU or not
         bool useGPU;
 

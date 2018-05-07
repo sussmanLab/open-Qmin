@@ -1,11 +1,10 @@
-#define ENABLE_CUDA
 #include "hyperrectangularCellList.cuh"
 #include "indexer.h"
 #include "periodicBoundaryConditions.h"
 /*! \file hyperrectangularCellList.cu */
 
 /*!
-    \addtogroup cellListGPUKernels
+    \addtogroup utilityKernels
     @{
 */
 
@@ -19,7 +18,6 @@ __global__ void gpu_compute_cell_list_kernel(dVec *d_pt,
                                               unsigned int Nmax,
                                               iVec gridCellsPerSide,
                                               dVec gridCellSizes,
-                                              BoxPtr Box,
                                               IndexDD cellIndexer,
                                               Index2D cellListIndexer,
                                               int *d_assist
@@ -75,7 +73,6 @@ bool gpu_compute_cell_list(dVec *d_pt,
                                                           nmax,
                                                           gridCellsPerSide,
                                                           gridCellSizes,
-                                                          Box,
                                                           ci,
                                                           cli,
                                                           d_assist

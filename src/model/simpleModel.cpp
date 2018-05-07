@@ -1,4 +1,6 @@
 #include "simpleModel.h"
+#include "utilities.cuh"
+#include "simpleModel.cuh"
 /*! \file simpleModel.cpp" */
 
 /*!
@@ -103,7 +105,9 @@ void simpleModel::moveParticles(GPUArray<dVec> &displacement, scalar scale)
         }
     else
         {//gpu branch
-            UNWRITTENCODE("moveParticles on the GPU");
+        ArrayHandle<dVec> d_disp(displacement,access_location::device,access_mode::readwrite);
+        ArrayHandle<dVec> d_pos(positions,access_location::device,access_mode::readwrite);
+        gpu_move_particles(d_pos.data,d_disp.data,*(Box),scale,N);
         };
     };
 
@@ -123,7 +127,8 @@ void simpleModel::computeForces(bool zeroOutForces)
             }
         else
             {
-                UNWRITTENCODE("zero out forces on GPU");
+                ArrayHandle<dVec> d_f(forces);
+                gpu_zero_array(d_f.data,N);
             };
         };
     };

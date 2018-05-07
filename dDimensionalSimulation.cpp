@@ -79,7 +79,13 @@ int main(int argc, char*argv[])
     sim->addUpdater(fire,Configuration);
 
     if(gpuSwitch >=0)
-        softSpheres->setGPU();
+        {
+        sim->setCPUOperation(false);
+//        Configuration->setGPU();
+//        softSpheres->setGPU();
+//        fire->setGPU();
+//        neighList->setGPU();
+        };
 
     clock_t t1 = clock();
     sim->performTimestep();

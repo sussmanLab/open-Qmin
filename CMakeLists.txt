@@ -27,6 +27,7 @@ set(myLibs
     updaterGPU 
     simulation
     model 
+    modelGPU 
     utility 
     utilityGPU 
     )

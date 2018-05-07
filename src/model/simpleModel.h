@@ -36,7 +36,7 @@ class simpleModel
         void initializeSimpleModel(int n);
 
         //!Enforce GPU operation
-        virtual void setGPU(bool _useGPU){useGPU = _useGPU;};
+        virtual void setGPU(bool _useGPU=true){useGPU = _useGPU;};
         //!get the number of degrees of freedom, defaulting to the number of cells
         virtual int getNumberOfParticles(){return N;};
         //!move the degrees of freedom

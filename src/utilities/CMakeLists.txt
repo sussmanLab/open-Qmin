@@ -12,4 +12,5 @@ cuda_add_library(utilityGPU
     noiseSource.cu 
     utilities.cu 
     hyperrectangularCellList.cu
+    neighborList.cu
     )
