@@ -2,6 +2,8 @@
 
 //we'll use TCLAP as our command line parser
 #include <tclap/CmdLine.h>
+#include "cuda_profiler_api.h"
+
 #include "functions.h"
 #include "gpuarray.h"
 #include "periodicBoundaryConditions.h"
@@ -89,9 +91,11 @@ int main(int argc, char*argv[])
 //        neighList->setGPU();
         };
 
+    cudaProfilerStart();
     clock_t t1 = clock();
     sim->performTimestep();
     clock_t t2 = clock();
+    cudaProfilerStop();
 
     /*
     //how did FIRE do? check by hand

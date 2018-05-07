@@ -15,7 +15,7 @@ class basePairwiseForce : public force
         virtual void computeForceGPU(GPUArray<dVec> &forces,bool zeroOutForce = true);
         virtual void computeForceCPU(GPUArray<dVec> &forces,bool zeroOutForce = true);
 
-        virtual void computePairwiseForce(dVec &relativeDistance, vector<scalar> &parameters, dVec &f){printf("in base pairwiseForce...why?\n");};
+        virtual void computePairwiseForce(dVec &relativeDistance, scalar distance,vector<scalar> &parameters, dVec &f){printf("in base pairwiseForce...why?\n");};
 
         virtual void getParametersForParticlePair(int index1, int index2, vector<scalar> &parameters){};
 

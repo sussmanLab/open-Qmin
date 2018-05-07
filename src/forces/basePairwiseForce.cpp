@@ -20,7 +20,7 @@ void basePairwiseForce::computeForceCPU(GPUArray<dVec> &forces, bool zeroOutForc
     {
     if(!useNeighborList)
         UNWRITTENCODE("pairwise forces without neighbor list not written yet");
-    
+
     ArrayHandle<dVec> h_force(forces);
     if(zeroOutForce)
         for(int pp = 0; pp < model->getNumberOfParticles(); ++pp)
@@ -30,7 +30,9 @@ void basePairwiseForce::computeForceCPU(GPUArray<dVec> &forces, bool zeroOutForc
     ArrayHandle<unsigned int> h_npp(neighbors->neighborsPerParticle);
     ArrayHandle<int> h_n(neighbors->particleIndices);
     ArrayHandle<dVec> h_nv(neighbors->neighborVectors);
+    ArrayHandle<scalar> h_nd(neighbors->neighborDistances);
     dVec relativeDistance;
+    scalar dnorm;
     dVec f;
     for (int p1 = 0; p1 < model->getNumberOfParticles();++p1)
         {
@@ -42,9 +44,10 @@ void basePairwiseForce::computeForceCPU(GPUArray<dVec> &forces, bool zeroOutForc
             int p2 = h_n.data[nidx];
             if(p2 < p1) continue;
             relativeDistance = h_nv.data[nidx];
+            dnorm = h_nd.data[nidx];
 
             getParametersForParticlePair(p1,p2,pairParameters);
-            computePairwiseForce(relativeDistance,pairParameters,f);
+            computePairwiseForce(relativeDistance,dnorm,pairParameters,f);
             h_force.data[p1] += f;
             h_force.data[p2] -= f;
             };

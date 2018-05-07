@@ -3,11 +3,22 @@
 
 #include "std_include.h"
 #include "indexer.h"
+#include "periodicBoundaryConditions.h"
 /*! \file harmonicRepulsion.cuh */
 /** @addtogroup forceKernels force Kernels
  * @{
  * \brief CUDA kernels and callers
  */
+
+//!calculate harmonic repulsive forces by looping over all pairs...
+bool gpu_harmonic_repulsion_allPairs(dVec *d_force,
+                                   dVec *d_pos,
+                                   int *particleType,
+                                   scalar *d_radii,
+                                   scalar *d_params,
+                                   Index2D particleTypeIndexer,
+                                   periodicBoundaryConditions &Box,
+                                   int N);
 
 //!calculate harmonic repulsive forces
 bool gpu_harmonic_repulsion_calculation(dVec *d_force,

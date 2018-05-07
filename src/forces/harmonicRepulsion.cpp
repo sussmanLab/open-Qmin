@@ -42,9 +42,8 @@ void harmonicRepulsion::getParametersForParticlePair(int index1, int index2, vec
     params[1] = (h_r.data[index1]+h_r.data[index2]);
     };
 
-void harmonicRepulsion::computePairwiseForce(dVec &relativeDistance, vector<scalar> &params, dVec &f)
+void harmonicRepulsion::computePairwiseForce(dVec &relativeDistance, scalar dnorm,vector<scalar> &params, dVec &f)
     {
-    scalar dnorm = norm(relativeDistance);
     //scalar delta = (1.0 - dnorm/params[1]);
     if(dnorm <= params[1])
         f=  params[0]*(1.0/params[1])*(1.0 - dnorm/params[1])*(1.0/dnorm)*relativeDistance;
@@ -52,25 +51,49 @@ void harmonicRepulsion::computePairwiseForce(dVec &relativeDistance, vector<scal
         f = make_dVec(0.0);
     };
 
-void harmonicRepulsion::computeForceGPU(GPUArray<dVec> &forces, bool zeroOutForce)
+void harmonicRepulsion::allPairsForceGPU(GPUArray<dVec> &forces, bool zeroOutForce)
     {
-    if(!useNeighborList)
-        UNWRITTENCODE("pairwise forces without neighbor list not written yet");
-
     ArrayHandle<dVec> d_force(forces,access_location::device,access_mode::readwrite);
     int N = model->getNumberOfParticles();
     if(zeroOutForce)
         gpu_zero_array(d_force.data,N);
 
-    neighbors->computeNeighborLists(model->returnPositions());
-    ArrayHandle<unsigned int> d_npp(neighbors->neighborsPerParticle,access_location::device,access_mode::read);
-    ArrayHandle<int> d_n(neighbors->particleIndices,access_location::device,access_mode::read);
-    ArrayHandle<dVec> d_nv(neighbors->neighborVectors,access_location::device,access_mode::read);
-
+    ArrayHandle<dVec> d_pos(model->returnPositions(),access_location::device,access_mode::read);
     ArrayHandle<int> particleType(model->returnTypes(),access_location::device,access_mode::read);
     ArrayHandle<scalar> d_params(parameters,access_location::device,access_mode::read);
     ArrayHandle<scalar> d_radii(model->returnRadii(),access_location::device,access_mode::read);
-    gpu_harmonic_repulsion_calculation(d_force.data,
+    gpu_harmonic_repulsion_allPairs(d_force.data,
+                                    d_pos.data,
+                                    particleType.data,
+                                    d_radii.data,
+                                    d_params.data,
+                                    particleTypeIndexer,
+                                    *(model->Box),
+                                    N);
+
+    };
+
+void harmonicRepulsion::computeForceGPU(GPUArray<dVec> &forces, bool zeroOutForce)
+    {
+    if(!useNeighborList)
+        allPairsForceGPU(forces,zeroOutForce);
+    else
+        {
+
+        ArrayHandle<dVec> d_force(forces,access_location::device,access_mode::readwrite);
+        int N = model->getNumberOfParticles();
+        if(zeroOutForce)
+            gpu_zero_array(d_force.data,N);
+
+        neighbors->computeNeighborLists(model->returnPositions());
+        ArrayHandle<unsigned int> d_npp(neighbors->neighborsPerParticle,access_location::device,access_mode::read);
+        ArrayHandle<int> d_n(neighbors->particleIndices,access_location::device,access_mode::read);
+        ArrayHandle<dVec> d_nv(neighbors->neighborVectors,access_location::device,access_mode::read);
+
+        ArrayHandle<int> particleType(model->returnTypes(),access_location::device,access_mode::read);
+        ArrayHandle<scalar> d_params(parameters,access_location::device,access_mode::read);
+        ArrayHandle<scalar> d_radii(model->returnRadii(),access_location::device,access_mode::read);
+        gpu_harmonic_repulsion_calculation(d_force.data,
                                        d_npp.data,
                                        d_n.data,
                                        d_nv.data,
@@ -80,4 +103,5 @@ void harmonicRepulsion::computeForceGPU(GPUArray<dVec> &forces, bool zeroOutForc
                                        neighbors->neighborIndexer,
                                        particleTypeIndexer,
                                        N);
+        };
     };

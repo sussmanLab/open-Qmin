@@ -13,13 +13,15 @@ class harmonicRepulsion : public basePairwiseForce
     {
         public:
             harmonicRepulsion(){pairParameters.resize(2);};
-        virtual void computePairwiseForce(dVec &relativeDistance, vector<scalar> &parameters, dVec &f);
+        virtual void computePairwiseForce(dVec &relativeDistance, scalar distance,vector<scalar> &parameters, dVec &f);
 
         virtual void getParametersForParticlePair(int index1, int index2, vector<scalar> &parameters);
 
         virtual void setForceParameters(vector<scalar> &params);
 
         virtual void computeForceGPU(GPUArray<dVec> &forces, bool zeroOutForce);
+
+        virtual void allPairsForceGPU(GPUArray<dVec> &forces, bool zeroOutForce);
 
     };
 
