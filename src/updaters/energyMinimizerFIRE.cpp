@@ -1,6 +1,6 @@
 #include "energyMinimizerFIRE.h"
-//#include "energyMinimizerFIRE.cuh"
-//#include "utilities.cuh"
+#include "energyMinimizerFIRE.cuh"
+#include "utilities.cuh"
 
 /*! \file energyMinimizerFIRE.cpp
  */
@@ -69,41 +69,38 @@ void energyMinimizerFIRE::fireStep()
  */
 void energyMinimizerFIRE::fireStepGPU()
     {
-    UNWRITTENCODE("fire step GPU");
-    /*
     Power = 0.0;
     forceMax = 0.0;
-    if(true)//scope for array handles
-        {
-        //ArrayHandle<dVec> d_f(force,access_location::device,access_mode::read);
-        ArrayHandle<dVec> d_f(model->returnForces(),access_location::device,access_mode::read);
-        ArrayHandle<dVec> d_v(velocity,access_location::device,access_mode::readwrite);
-        ArrayHandle<scalar> d_ff(forceDotForce,access_location::device,access_mode::readwrite);
-        ArrayHandle<scalar> d_fv(forceDotVelocity,access_location::device,access_mode::readwrite);
-        ArrayHandle<scalar> d_vv(velocityDotVelocity,access_location::device,access_mode::readwrite);
-        gpu_dot_dVec_vectors(d_f.data,d_f.data,d_ff.data,Ndof);
-        gpu_dot_dVec_vectors(d_f.data,d_v.data,d_fv.data,Ndof);
-        gpu_dot_dVec_vectors(d_v.data,d_v.data,d_vv.data,Ndof);
-        //parallel reduction
-        if (true)//scope for reduction arrays
-            {
-            ArrayHandle<scalar> d_intermediate(sumReductionIntermediate,access_location::device,access_mode::overwrite);
-            ArrayHandle<scalar> d_assist(sumReductions,access_location::device,access_mode::overwrite);
-            gpu_parallel_reduction(d_ff.data,d_intermediate.data,d_assist.data,0,Ndof);
-            gpu_parallel_reduction(d_fv.data,d_intermediate.data,d_assist.data,1,Ndof);
-            gpu_parallel_reduction(d_vv.data,d_intermediate.data,d_assist.data,2,Ndof);
-            };
-        ArrayHandle<scalar> h_assist(sumReductions,access_location::host,access_mode::read);
-        scalar forceNorm = h_assist.data[0];
-        Power = h_assist.data[1];
-        scalar velocityNorm = h_assist.data[2];
-        forceMax = forceNorm / (scalar)Ndof;
-        scalar scaling = 0.0;
-        if(forceNorm > 0.)
-            scaling = sqrt(velocityNorm/forceNorm);
-        gpu_update_velocity_FIRE(d_v.data,d_f.data,alpha,scaling,Ndof);
-        };
+    {//array handle scope
+    ArrayHandle<dVec> d_f(model->returnForces(),access_location::device,access_mode::read);
+    ArrayHandle<dVec> d_v(model->returnVelocities(),access_location::device,access_mode::readwrite);
+    ArrayHandle<scalar> d_ff(forceDotForce,access_location::device,access_mode::readwrite);
+    ArrayHandle<scalar> d_fv(forceDotVelocity,access_location::device,access_mode::readwrite);
+    ArrayHandle<scalar> d_vv(velocityDotVelocity,access_location::device,access_mode::readwrite);
+    gpu_dot_dVec_vectors(d_f.data,d_f.data,d_ff.data,Ndof);
+    gpu_dot_dVec_vectors(d_f.data,d_v.data,d_fv.data,Ndof);
+    gpu_dot_dVec_vectors(d_v.data,d_v.data,d_vv.data,Ndof);
 
+    //parallel reduction
+    {//scope for reduction arrays
+    ArrayHandle<scalar> d_intermediate(sumReductionIntermediate,access_location::device,access_mode::overwrite);
+    ArrayHandle<scalar> d_assist(sumReductions,access_location::device,access_mode::overwrite);
+    gpu_parallel_reduction(d_ff.data,d_intermediate.data,d_assist.data,0,Ndof);
+    gpu_parallel_reduction(d_fv.data,d_intermediate.data,d_assist.data,1,Ndof);
+    gpu_parallel_reduction(d_vv.data,d_intermediate.data,d_assist.data,2,Ndof);
+    };
+    ArrayHandle<scalar> h_assist(sumReductions,access_location::host,access_mode::read);
+    scalar forceNorm = h_assist.data[0];
+    Power = h_assist.data[1];
+    scalar velocityNorm = h_assist.data[2];
+    forceMax = forceNorm / (scalar)Ndof;
+    scalar scaling = 0.0;
+    if(forceNorm > 0.)
+        scaling = sqrt(velocityNorm/forceNorm);
+    gpu_update_velocity_FIRE(d_v.data,d_f.data,alpha,scaling,Ndof);
+    };//end handle scope
+
+    //check how the power is doing
     if (Power > 0)
         {
         if (NSinceNegativePower > NMin)
@@ -117,10 +114,9 @@ void energyMinimizerFIRE::fireStepGPU()
         {
         deltaT = deltaT*deltaTDec;
         alpha = alphaStart;
-        ArrayHandle<dVec> d_v(velocity,access_location::device,access_mode::overwrite);
-        gpu_zero_velocity(d_v.data,Ndof);
+        ArrayHandle<dVec> d_v(model->returnVelocities(),access_location::device,access_mode::overwrite);
+        gpu_zero_array(d_v.data,Ndof);
         };
-    */
     };
 
 /*!

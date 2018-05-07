@@ -1,4 +1,5 @@
 #include "utilities.cuh"
+#include "functions.h"
 
 /*! \file utilities.cu
   defines kernel callers and kernels for some simple GPU array calculations
@@ -141,9 +142,42 @@ __global__ void gpu_zero_array_kernel(int *arr,
     return;
     };
 
+/*!
+take two vectors of Dscalar2 and return a vector of Dscalars, where each entry is vec1[i].vec2[i]
+*/
+__global__ void gpu_dot_dVec_vectors_kernel(dVec *d_vec1, dVec *d_vec2, scalar *d_ans, int n)
+    {
+    // read in the index that belongs to this thread
+    unsigned int idx = blockDim.x * blockIdx.x + threadIdx.x;
+    if (idx >= n)
+        return;
+    d_ans[idx] = dot(d_vec1[idx],d_vec2[idx]);
+    };
+
 /////
 //Kernel callers
 ///
+
+/*!
+\param d_vec1 dVec input array
+\param d_vec2 dVec input array
+\param d_ans  scalar output array... d_ans[idx] = d_vec1[idx].d_vec2[idx]
+\param N      the length of the arrays
+\post d_ans = d_vec1.d_vec2
+*/
+bool gpu_dot_dVec_vectors(dVec *d_vec1, dVec *d_vec2, scalar *d_ans, int N)
+    {
+    unsigned int block_size = 128;
+    if (N < 128) block_size = 32;
+    unsigned int nblocks  = N/block_size + 1;
+    gpu_dot_dVec_vectors_kernel<<<nblocks,block_size>>>(
+                                                d_vec1,
+                                                d_vec2,
+                                                d_ans,
+                                                N);
+    HANDLE_ERROR(cudaGetLastError());
+    return cudaSuccess;
+    };
 
 bool gpu_zero_array(dVec *arr,
                     int N

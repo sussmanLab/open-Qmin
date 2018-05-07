@@ -75,4 +75,3 @@ bool gpu_displacement_velocity_verlet(dVec *d_displacement,
     };
 
 /** @} */ //end of group declaration
-

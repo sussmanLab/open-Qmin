@@ -29,6 +29,14 @@ bool gpu_zero_array(int *arr,
 bool gpu_zero_array(unsigned int *arr,
                     int      N
                     );
+
+
+//! (scalar) ans = (dVec) vec1 . vec2
+bool gpu_dot_dVec_vectors(dVec *d_vec1,
+                              dVec *d_vec2,
+                              scalar  *d_ans,
+                              int N);
+
 //!A trivial reduction of an array by one thread in serial. Think before you use this.
 bool gpu_serial_reduction(
                     scalar *array,
