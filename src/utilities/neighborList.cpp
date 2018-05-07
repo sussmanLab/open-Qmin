@@ -19,7 +19,7 @@ void neighborList::resetNeighborsGPU(int size)
         neighborsPerParticle.resize(size);
     ArrayHandle<unsigned int> d_npp(neighborsPerParticle,access_location::device,access_mode::overwrite);
     gpu_zero_array(d_npp.data,size);
-    
+
     neighborIndexer = Index2D(Nmax,size);
     if(particleIndices.getNumElements() != neighborIndexer.getNumElements())
         {
@@ -55,7 +55,7 @@ void neighborList::resetNeighborsCPU(int size)
     ArrayHandle<unsigned int> h_npp(neighborsPerParticle,access_location::host,access_mode::overwrite);
     for (int i = 0; i < size; ++i)
         h_npp.data[i] = 0;
-    
+
     neighborIndexer = Index2D(Nmax,size);
     if(particleIndices.getNumElements() != neighborIndexer.getNumElements())
         {

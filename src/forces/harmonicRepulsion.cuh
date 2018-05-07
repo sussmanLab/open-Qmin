@@ -1,0 +1,25 @@
+#ifndef harmonicRepulsion_CUH
+#define harmonicRepulsion_CUH
+
+#include "std_include.h"
+#include "indexer.h"
+/*! \file harmonicRepulsion.cuh */
+/** @addtogroup forceKernels force Kernels
+ * @{
+ * \brief CUDA kernels and callers
+ */
+
+//!calculate harmonic repulsive forces
+bool gpu_harmonic_repulsion_calculation(dVec *d_force,
+                                   unsigned int *d_neighborsPerParticle,
+                                   int *d_neighbors,
+                                   dVec *d_neighborVectors,
+                                   int *particleType,
+                                   scalar *d_radii,
+                                   scalar *d_params,
+                                   Index2D neighborIndexer,
+                                   Index2D particleTypeIndexer,
+                                   int N);
+
+/** @} */ //end of group declaration
+#endif

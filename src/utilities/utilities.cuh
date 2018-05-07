@@ -14,10 +14,6 @@ A file providing an interface to the relevant cuda calls for some simple GPU arr
  */
 
 //!convenience function to zero out an array on the GPU
-bool gpu_zero_array(dVec *arr,
-                    int N
-                    );
-//!convenience function to zero out an array on the GPU
 bool gpu_zero_array(scalar *arr,
                     int N
                     );
@@ -28,6 +24,10 @@ bool gpu_zero_array(int *arr,
 //!convenience function to zero out an array on the GPU
 bool gpu_zero_array(unsigned int *arr,
                     int      N
+                    );
+//!convenience function to zero out an array on the GPU
+bool gpu_zero_array(dVec *arr,
+                    int N
                     );
 
 

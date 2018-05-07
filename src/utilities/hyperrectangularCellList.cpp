@@ -247,9 +247,7 @@ void hyperrectangularCellList::computeGPU(GPUArray<dVec> &points)
                     if (Nmax%2 == 1 ) Nmax +=1;
                     recompute = true;
                     };
-
                 };
-
             };
         };
     cellListIndexer = Index2D(Nmax,totalCells);

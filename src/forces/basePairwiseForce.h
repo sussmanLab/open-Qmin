@@ -19,10 +19,10 @@ class basePairwiseForce : public force
 
         virtual void getParametersForParticlePair(int index1, int index2, vector<scalar> &parameters){};
 
-        //!a vector of parameters that can be set... 
+        //!a vector of parameters that can be set...
         GPUArray<scalar> parameters;
         //!a small vector that gets passed around when actually calculating the forces
-        vector<scalar> pairParameters; 
+        vector<scalar> pairParameters;
         //! the number of different types the force knows about
         int nTypes;
         //!an indexer for accessing type-based parameters

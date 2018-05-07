@@ -189,8 +189,10 @@ void energyMinimizerFIRE::minimize()
         iterations +=1;
         integrateEquationOfMotion();
         fireStep();
+        if(iterations%1000 == 999)
+            printf("step %i max force:%.3g \tpower: %.3g\t alpha %.3g\t dt %g \n",iterations,sqrt(forceMax),Power,alpha,deltaT);
         };
-        printf("step %i max force:%.3g \tpower: %.3g\t alpha %.3g\t dt %g \n",iterations,sqrt(forceMax),Power,alpha,deltaT);
+        printf("fire finished: step %i max force:%.3g \tpower: %.3g\t alpha %.3g\t dt %g \n",iterations,sqrt(forceMax),Power,alpha,deltaT);
     };
 
 

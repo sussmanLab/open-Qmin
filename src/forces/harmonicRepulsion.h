@@ -19,6 +19,8 @@ class harmonicRepulsion : public basePairwiseForce
 
         virtual void setForceParameters(vector<scalar> &params);
 
+        virtual void computeForcesGPU(GPUArray<dVec> &forces, bool zeroOutForce);
+
     };
 
 #endif
