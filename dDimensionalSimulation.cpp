@@ -78,6 +78,9 @@ int main(int argc, char*argv[])
     fire->setMaximumIterations(40000);
     sim->addUpdater(fire,Configuration);
 
+    if(gpuSwitch >=0)
+        softSpheres->setGPU();
+
     clock_t t1 = clock();
     sim->performTimestep();
     clock_t t2 = clock();

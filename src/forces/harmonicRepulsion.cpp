@@ -52,7 +52,7 @@ void harmonicRepulsion::computePairwiseForce(dVec &relativeDistance, vector<scal
         f = make_dVec(0.0);
     };
 
-void harmonicRepulsion::computeForcesGPU(GPUArray<dVec> &forces, bool zeroOutForce)
+void harmonicRepulsion::computeForceGPU(GPUArray<dVec> &forces, bool zeroOutForce)
     {
     if(!useNeighborList)
         UNWRITTENCODE("pairwise forces without neighbor list not written yet");
