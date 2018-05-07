@@ -4,7 +4,7 @@
 #include "functions.h"
 #include "gpuarray.h"
 #include "simpleModel.h"
-#include "baseUpdater.h"
+#include "velocityVerlet.h"
 
 
 /*! \file energyMinimizerFIRE.h */
@@ -17,7 +17,7 @@ to minimize. Each timestep, though, is a complete minimization (i.e. will run fo
 of iterations, or until a target tolerance has been acheived, or whatever stopping condition the user
 sets.
 */
-class energyMinimizerFIRE : public updater
+class energyMinimizerFIRE : public velocityVerlet
     {
     public:
         //!The basic constructor
@@ -25,7 +25,7 @@ class energyMinimizerFIRE : public updater
         //!The basic constructor that feeds in a target system to minimize
         energyMinimizerFIRE(shared_ptr<simpleModel> system);
         //!Sets a bunch of default parameters that do not depend on the number of degrees of freedom
-        void initializeParameters();
+        virtual void initializeParameters();
         //!Set a bunch of default initialization parameters (if the State is available to determine the size of vectors)
         void initializeFromModel();
 
@@ -51,13 +51,6 @@ class energyMinimizerFIRE : public updater
         //!Set the number of consecutive steps P must be non-negative before increasing delatT
         void setNMin(int nm){NMin = nm;};
 
-        //!an interface to call either the CPU or GPU velocity Verlet algorithm
-        void velocityVerlet();
-        //!Perform a velocity Verlet step on the CPU
-        void velocityVerletCPU();
-        //!Perform a velocity Verlet step on the GPU
-        void velocityVerletGPU();
-
         //!an interface to call either the CPU or GPU FIRE algorithm
         void fireStep();
         //!Perform a velocity Verlet step on the CPU
@@ -82,14 +75,10 @@ class energyMinimizerFIRE : public updater
         scalar forceMax;
         //!The cutoff value of the maximum force
         scalar forceCutoff;
-        //!The number of points, or cells, or particles
-        int N;
         //!The numer of consecutive time steps the power must be positive before increasing deltaT
         int NMin;
         //!The numer of consecutive time since the power has be negative
         int NSinceNegativePower;
-        //!The internal time step size
-        scalar deltaT;
         //!The minimum time step size
         scalar deltaTMin;
         //!The maximum time step size
@@ -106,8 +95,6 @@ class energyMinimizerFIRE : public updater
         scalar alphaStart;
         //!The fraction by which alpha can decrease
         scalar alphaDec;
-        //!an array of displacements
-        GPUArray<dVec> displacement;
 
         //!Utility array for computing force.velocity
         GPUArray<scalar> forceDotVelocity;

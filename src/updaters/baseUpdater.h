@@ -24,7 +24,7 @@ class updater
         //! The fundamental function that a controlling Simulation can call
         virtual void Update(int timestep)
             {
-            if(Period < 0 || (Period >0 && (timestep+Phase) % Period == 0))
+            if(Period <= 0 || (Period >0 && (timestep+Phase) % Period == 0))
                 performUpdate();
             };
         //! The function which performs the update
@@ -37,7 +37,14 @@ class updater
         //! A pointer to a simpleModel that the updater acts on
         shared_ptr<simpleModel> model;
         //! virtual function to allow the model to be a derived class
-        virtual void setModel(shared_ptr<simpleModel> _model){model=_model;};
+        virtual void setModel(shared_ptr<simpleModel> _model)
+            {
+            model=_model;
+            initializeFromModel();
+            };
+
+        //!by default, set Ndof
+        virtual void initializeFromModel(){Ndof = model->getNumberOfParticles();};
 
         //! set the period
         void setPeriod(int _p){Period = _p;};

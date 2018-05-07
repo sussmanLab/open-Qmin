@@ -21,6 +21,7 @@ link_directories(${CUDA_LIBRARY_DIRS})
 set(myLibs 
     force 
     updater 
+    updaterGPU
     simulation 
     model 
     utility 
