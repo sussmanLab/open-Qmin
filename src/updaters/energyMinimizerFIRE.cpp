@@ -93,7 +93,7 @@ void energyMinimizerFIRE::fireStepGPU()
     scalar forceNorm = h_assist.data[0];
     Power = h_assist.data[1];
     scalar velocityNorm = h_assist.data[2];
-    forceMax = forceNorm / (scalar)Ndof;
+    forceMax = sqrt(forceNorm) / (scalar)Ndof;
     scalar scaling = 0.0;
     if(forceNorm > 0.)
         scaling = sqrt(velocityNorm/forceNorm);
@@ -136,10 +136,11 @@ void energyMinimizerFIRE::fireStepCPU()
         {
         Power += dot(h_f.data[i],h_v.data[i]);
         scalar fdot = dot(h_f.data[i],h_f.data[i]);
-        if (fdot > forceMax) forceMax = fdot;
+//        if (fdot > forceMax) forceMax = fdot;
         forceNorm += fdot;
         velocityNorm += dot(h_v.data[i],h_v.data[i]);
         };
+    forceMax = sqrt(forceNorm) / (scalar)Ndof;
     scalar scaling = 0.0;
     if(forceNorm > 0.)
         scaling = sqrt(velocityNorm/forceNorm);
@@ -174,7 +175,8 @@ void energyMinimizerFIRE::fireStepCPU()
     };
 
 /*!
- * Perform a FIRE minimization step on the CPU
+ * Perform a FIRE minimization step on the CPU...attempts to get attain:
+ * (1/N)\sum_i|f_i|^2 < forceCutoff
  */
 void energyMinimizerFIRE::minimize()
     {
@@ -184,15 +186,15 @@ void energyMinimizerFIRE::minimize()
     //initialize the forces?
     sim->computeForces();
     forceMax = 110.0;
-    while( (iterations < maxIterations) && (sqrt(forceMax) > forceCutoff) )
+    while( (iterations < maxIterations) && (forceMax > forceCutoff) )
         {
         iterations +=1;
         integrateEquationOfMotion();
         fireStep();
         if(iterations%1000 == 999)
-            printf("step %i max force:%.3g \tpower: %.3g\t alpha %.3g\t dt %g \n",iterations,sqrt(forceMax),Power,alpha,deltaT);
+            printf("step %i max force:%.3g \tpower: %.3g\t alpha %.3g\t dt %g \n",iterations,forceMax,Power,alpha,deltaT);
         };
-        printf("fire finished: step %i max force:%.3g \tpower: %.3g\t alpha %.3g\t dt %g \n",iterations,sqrt(forceMax),Power,alpha,deltaT);
+        printf("fire finished: step %i max force:%.3g \tpower: %.3g\t alpha %.3g\t dt %g \n",iterations,forceMax,Power,alpha,deltaT);
     };
 
 
