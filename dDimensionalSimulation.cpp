@@ -38,12 +38,14 @@ int main(int argc, char*argv[])
     ValueArg<int> gpuSwitchArg("g","USEGPU","an integer controlling which gpu to use... g < 0 uses the cpu",false,-1,"int",cmd);
     ValueArg<int> nSwitchArg("n","Number","number of particles in the simulation",false,100,"int",cmd);
     ValueArg<scalar> lengthSwitchArg("l","sideLength","size of simulation domain",false,10.0,"double",cmd);
+    ValueArg<scalar> temperatureSwitchArg("t","temperature","temperature of simulation",false,.001,"double",cmd);
     //parse the arguments
     cmd.parse( argc, argv );
 
     int programSwitch = programSwitchArg.getValue();
     int N = nSwitchArg.getValue();
     scalar L = lengthSwitchArg.getValue();
+    scalar Temperature = temperatureSwitchArg.getValue();
     int gpuSwitch = gpuSwitchArg.getValue();
     bool GPU = false;
     if(gpuSwitch >=0)
@@ -61,6 +63,8 @@ int main(int argc, char*argv[])
     //after the simulation box has been set, we can set particle positions
     noiseSource noise(true);
     Configuration->setParticlePositionsRandomly(noise);
+    scalar ke = Configuration->setVelocitiesMaxwellBoltzmann(Temperature,noise);
+    printf("temperature input %f \t temperature calculated %f\n",Temperature,Configuration->computeInstantaneousTemperature());
 
     shared_ptr<neighborList> neighList = make_shared<neighborList>(1.,PBC);
     shared_ptr<harmonicRepulsion> softSpheres = make_shared<harmonicRepulsion>();

@@ -46,6 +46,12 @@ class simpleModel
 
         void setParticlePositionsRandomly(noiseSource &noise);
 
+        //!Set velocities via a temperature. The return value is the total kinetic energy
+        scalar setVelocitiesMaxwellBoltzmann(scalar T,noiseSource &noise);
+
+        //!compute the dimension-dependent instantaneous temperature
+        virtual scalar computeInstantaneousTemperature(bool fixedMomentum=true);
+
         //!do everything necessary to perform a Hilbert sort
         virtual void spatialSorting(){};
 
