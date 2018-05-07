@@ -37,6 +37,7 @@ int main(int argc, char*argv[])
     ValueArg<int> programSwitchArg("z","programSwitch","an integer controlling program branch",false,0,"int",cmd);
     ValueArg<int> gpuSwitchArg("g","USEGPU","an integer controlling which gpu to use... g < 0 uses the cpu",false,-1,"int",cmd);
     ValueArg<int> nSwitchArg("n","Number","number of particles in the simulation",false,100,"int",cmd);
+    ValueArg<int> maxIterationsSwitchArg("i","iterations","number of timestep iterations",false,100,"int",cmd);
     ValueArg<scalar> lengthSwitchArg("l","sideLength","size of simulation domain",false,10.0,"double",cmd);
     ValueArg<scalar> temperatureSwitchArg("t","temperature","temperature of simulation",false,.001,"double",cmd);
     //parse the arguments
@@ -44,6 +45,7 @@ int main(int argc, char*argv[])
 
     int programSwitch = programSwitchArg.getValue();
     int N = nSwitchArg.getValue();
+    int maximumIterations = maxIterationsSwitchArg.getValue();
     scalar L = lengthSwitchArg.getValue();
     scalar Temperature = temperatureSwitchArg.getValue();
     int gpuSwitch = gpuSwitchArg.getValue();
@@ -75,7 +77,7 @@ int main(int argc, char*argv[])
 
     shared_ptr<energyMinimizerFIRE> fire = make_shared<energyMinimizerFIRE>(Configuration);
     fire->setFIREParameters(0.05,0.99,0.1,1.1,0.95,.9,4,1e-12);
-    fire->setMaximumIterations(40000);
+    fire->setMaximumIterations(maximumIterations);
     sim->addUpdater(fire,Configuration);
 
     if(gpuSwitch >=0)

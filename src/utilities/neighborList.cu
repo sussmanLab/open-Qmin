@@ -59,7 +59,8 @@ __global__ void gpu_compute_neighbor_list_kernel(int *d_idx,
                 }
             else
                 {
-                atomicAdd(&(d_assist[0]),1);
+                //atomicAdd(&(d_assist[0]),1);
+                d_assist[0] += 1;
                 d_assist[1] = 1;
                 };
             d_npp[idx]+=1;
