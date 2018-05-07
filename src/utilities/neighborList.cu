@@ -6,7 +6,6 @@
     @{
 */
 
-
 __global__ void gpu_compute_neighbor_list_kernel(int *d_idx,
                                unsigned int *d_npp,
                                dVec *d_vec,
@@ -55,7 +54,7 @@ __global__ void gpu_compute_neighbor_list_kernel(int *d_idx,
                 {
                 int nlpos = neighborIndexer(offset,idx);
                 d_idx[nlpos] = neighborIndex;
-                d_vec[nlpos] = disp; 
+                d_vec[nlpos] = disp;
                 }
             else
                 {
@@ -64,13 +63,9 @@ __global__ void gpu_compute_neighbor_list_kernel(int *d_idx,
                 d_assist[1] = 1;
                 };
             d_npp[idx]+=1;
-
             };
         };
     };
-
-
-
 
 /*!
   compute neighbor list, one particle per thread
@@ -93,8 +88,8 @@ bool gpu_compute_neighbor_list(int *d_idx,
                                int Np)
     {
     //optimize block size later
-    unsigned int block_size = 128;
-    if (Np < 128) block_size = 16;
+    unsigned int block_size = 64;
+    if (Np < 64) block_size = 16;
     unsigned int nblocks  = Np/block_size + 1;
     gpu_compute_neighbor_list_kernel<<<nblocks, block_size>>>(d_idx,
             d_npp,

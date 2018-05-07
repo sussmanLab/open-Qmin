@@ -8,7 +8,7 @@ endif(${CMAKE_BUILD_TYPE} MATCHES "Debug")
 
 set(CMAKE_CC_FLAGS "${CMAKE_CC_FLAGS} ")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -std=c++11")
-set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -O3 -Wno-deprecated-gpu-targets")
+set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -Wno-deprecated-gpu-targets ")#-Xptxas -O3 -Xcompiler -O3")
 
 
 find_package(CUDA REQUIRED)
