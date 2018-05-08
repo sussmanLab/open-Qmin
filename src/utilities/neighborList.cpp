@@ -112,16 +112,16 @@ void neighborList::computeCPU(GPUArray<dVec> &points)
         ArrayHandle<int> h_idx(particleIndices);
         ArrayHandle<dVec> h_vec(neighborVectors);
         ArrayHandle<scalar> h_dist(neighborDistances);
+        ArrayHandle<int> h_adj(cellList->returnAdjacentCells());
         recompute = false;
         vector<int> cellsToScan;
         for (int pp = 0; pp < Np; ++pp)
             {
             dVec target = h_pt.data[pp];
             int cell = cellList->positionToCellIndex(target);
-            cellList->getCellNeighbors(cell,1,cellsToScan);
-            for (int cc = 0; cc < cellsToScan.size();++cc)
+            for (int cc = 0; cc < cellList->adjacentCellsPerCell;++cc)
                 {
-                int currentCell = cellsToScan[cc];
+                int currentCell = h_adj.data[cellList->adjacentCellIndexer(cc,cell)];
                 int particlesInBin =  particlesPerCell.data[currentCell];
                 for (int p1 = 0; p1 < particlesInBin; ++p1)
                     {
@@ -164,6 +164,8 @@ void neighborList::computeGPU(GPUArray<dVec> &points)
     cellList->computeCellList(points);
     ArrayHandle<unsigned int> particlesPerCell(cellList->elementsPerCell,access_location::device,access_mode::read);
     ArrayHandle<int> indices(cellList->particleIndices,access_location::device,access_mode::read);
+    ArrayHandle<int> d_adj(cellList->returnAdjacentCells(),access_location::device,access_mode::read);
+
     bool recompute = true;
     int Np = points.getNumElements();
     ArrayHandle<dVec> d_pt(points,access_location::device,access_mode::read);
@@ -184,10 +186,13 @@ void neighborList::computeGPU(GPUArray<dVec> &points)
                                   indices.data,
                                   d_pt.data,
                                   d_assist.data,
+                                  d_adj.data,
                                   *(Box),
                                   neighborIndexer,
                                   cellList->cellListIndexer,
                                   cellList->cellIndexer,
+                                  cellList->adjacentCellIndexer,
+                                  cellList->adjacentCellsPerCell,
                                   cellList->getBinsPerSide(),
                                   cellList->getCellSize(),
                                   maxRange,

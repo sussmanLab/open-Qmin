@@ -21,15 +21,19 @@ bool gpu_compute_neighbor_list(int *d_idx,
                                int *indices,
                                dVec *d_pt,
                                int *d_assist,
+                               int *d_adj,
                                periodicBoundaryConditions &Box,
                                Index2D neighborIndexer,
                                Index2D cellListIndexer,
                                IndexDD cellIndexer,
+                               Index2D adjacentCellIndexer,
+                               int adjacentCellsPerCell,
                                iVec gridCellsPerSide,
                                dVec gridCellSizes,
                                scalar maxRange,
                                int nmax,
-                               int Np);
+                               int Np,
+                               bool threadPerCell = true);
 
 /** @} */ //end of group declaration
 #endif
