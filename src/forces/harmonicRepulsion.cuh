@@ -18,7 +18,8 @@ bool gpu_harmonic_repulsion_allPairs(dVec *d_force,
                                    scalar *d_params,
                                    Index2D particleTypeIndexer,
                                    periodicBoundaryConditions &Box,
-                                   int N);
+                                   int N,
+                                   bool zeroForce);
 
 //!calculate harmonic repulsive forces
 bool gpu_harmonic_repulsion_calculation(dVec *d_force,
@@ -30,7 +31,8 @@ bool gpu_harmonic_repulsion_calculation(dVec *d_force,
                                    scalar *d_params,
                                    Index2D neighborIndexer,
                                    Index2D particleTypeIndexer,
-                                   int N);
+                                   int N,
+                                   bool zeroForce);
 
 /** @} */ //end of group declaration
 #endif

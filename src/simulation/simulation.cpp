@@ -122,7 +122,6 @@ void Simulation::performTimestep()
         {
         auto upd = updaters[u].lock();
         upd->Update(integerTimestep);
-        cout << "timestep " << integerTimestep << endl;
         };
 /*
     //spatially sort as necessary

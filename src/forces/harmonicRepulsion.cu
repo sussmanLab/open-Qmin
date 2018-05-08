@@ -8,7 +8,7 @@
 /*!
 calculate the force per particle given harmonic repulsions
 */
-__global__ void gpu_harmonic_repulsion_kernel(dVec *d_force,unsigned int *d_neighborsPerParticle,int *d_neighbors,dVec *d_neighborVectors,int *particleType,scalar *d_radii,scalar *d_params,Index2D neighborIndexer,Index2D particleTypeIndexer,int N)
+__global__ void gpu_harmonic_repulsion_kernel(dVec *d_force,unsigned int *d_neighborsPerParticle,int *d_neighbors,dVec *d_neighborVectors,int *particleType,scalar *d_radii,scalar *d_params,Index2D neighborIndexer,Index2D particleTypeIndexer,int N,bool zeroForce)
     {
     unsigned int idx = blockDim.x * blockIdx.x + threadIdx.x;
     if (idx >= N)
@@ -26,11 +26,14 @@ __global__ void gpu_harmonic_repulsion_kernel(dVec *d_force,unsigned int *d_neig
         //compute force
         scalar dnorm = norm(relativeDistance);
         if (dnorm <= sigma0)
-            d_force[idx] += K*(1.0/sigma0)*(1.0-dnorm/sigma0)*(1.0/dnorm)*relativeDistance;
+            if(zeroForce)
+                d_force[idx] = K*(1.0/sigma0)*(1.0-dnorm/sigma0)*(1.0/dnorm)*relativeDistance;
+            else
+                d_force[idx] += K*(1.0/sigma0)*(1.0-dnorm/sigma0)*(1.0/dnorm)*relativeDistance;
         };
     };
 
-__global__ void gpu_harmonic_repulsion_allPairs_kernel(dVec *d_force,dVec *d_pos,int *particleType, scalar *d_radii,scalar *d_params,Index2D particleTypeIndexer,periodicBoundaryConditions Box, int N)
+__global__ void gpu_harmonic_repulsion_allPairs_kernel(dVec *d_force,dVec *d_pos,int *particleType, scalar *d_radii,scalar *d_params,Index2D particleTypeIndexer,periodicBoundaryConditions Box, int N,bool zeroForce)
     {
     unsigned int idx = blockDim.x * blockIdx.x + threadIdx.x;
     if (idx >= N)
@@ -47,7 +50,10 @@ __global__ void gpu_harmonic_repulsion_allPairs_kernel(dVec *d_force,dVec *d_pos
         if(dnorm < sigma0)
             {
             scalar K = d_params[particleTypeIndexer(particleType[nn],particleType[idx])];
-            d_force[idx] += K*(1.0/sigma0)*(1.0-dnorm/sigma0)*(1.0/dnorm)*disp;
+            if(zeroForce)
+                d_force[idx] = K*(1.0/sigma0)*(1.0-dnorm/sigma0)*(1.0/dnorm)*disp;
+            else
+                d_force[idx] += K*(1.0/sigma0)*(1.0-dnorm/sigma0)*(1.0/dnorm)*disp;
             };
         };
     };
@@ -56,7 +62,7 @@ __global__ void gpu_harmonic_repulsion_allPairs_kernel(dVec *d_force,dVec *d_pos
 /*!
 Calculate harmonic repulsion forces, launching one thread per particle
 */
-bool gpu_harmonic_repulsion_calculation(dVec *d_force,unsigned int *d_neighborsPerParticle,int *d_neighbors,dVec *d_neighborVectors,int *particleType,scalar *d_radii,scalar *d_params,Index2D neighborIndexer,Index2D particleTypeIndexer,int N)
+bool gpu_harmonic_repulsion_calculation(dVec *d_force,unsigned int *d_neighborsPerParticle,int *d_neighbors,dVec *d_neighborVectors,int *particleType,scalar *d_radii,scalar *d_params,Index2D neighborIndexer,Index2D particleTypeIndexer,int N,bool zeroForce)
     {
     unsigned int block_size = 128;
     if (N < 128) block_size = 32;
@@ -70,14 +76,15 @@ bool gpu_harmonic_repulsion_calculation(dVec *d_force,unsigned int *d_neighborsP
            d_params,
            neighborIndexer,
            particleTypeIndexer,
-           N);
+           N,
+           zeroForce);
     HANDLE_ERROR(cudaGetLastError());
     return cudaSuccess;
     };
 /*!
 Calculate harmonic repulsion forces, launching one thread per particle, by brute force
 */
-bool gpu_harmonic_repulsion_allPairs(dVec *d_force,dVec *d_pos,int *particleType, scalar *d_radii,scalar *d_params,Index2D particleTypeIndexer,periodicBoundaryConditions &Box, int N)
+bool gpu_harmonic_repulsion_allPairs(dVec *d_force,dVec *d_pos,int *particleType, scalar *d_radii,scalar *d_params,Index2D particleTypeIndexer,periodicBoundaryConditions &Box, int N, bool zeroForce)
     {
     unsigned int block_size = 128;
     if (N < 128) block_size = 32;
@@ -89,7 +96,8 @@ bool gpu_harmonic_repulsion_allPairs(dVec *d_force,dVec *d_pos,int *particleType
        d_params,
        particleTypeIndexer,
        Box,
-       N);
+       N,
+       zeroForce);
     HANDLE_ERROR(cudaGetLastError());
     return cudaSuccess;
     };

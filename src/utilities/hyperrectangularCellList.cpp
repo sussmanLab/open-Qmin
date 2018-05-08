@@ -127,7 +127,7 @@ void hyperrectangularCellList::getCellNeighbors(int cellIndex, int width, std::v
     iVec cellIndexVec = cellIndexer.inverseIndex(cellIndex);
 
     cellNeighbors.clear();
-    cellNeighbors.reserve(idPow(w));
+    cellNeighbors.reserve(idPow(2*w+1));
     iVec min(-w);
     iVec max(w);
     iVec it(-w);it.x[0]-=1;
@@ -190,6 +190,31 @@ void hyperrectangularCellList::computeCPU(GPUArray<dVec> &points)
     cellListIndexer = Index2D(Nmax,totalCells);
     };
 
+/*!
+ */
+void hyperrectangularCellList::computeAdjacentCells(int width)
+    {
+    adjacentCellsPerCell = idPow(2*width+1);
+    if(adjacentCellsPerCell == adjacentCells.getNumElements()) return;
+
+    adjacentCells.resize(totalCells*adjacentCellsPerCell);
+    adjacentCellIndexer = Index2D(adjacentCellsPerCell,totalCells);
+    ArrayHandle<int> adj(adjacentCells);
+    iVec min(-width);
+    iVec max(width);
+    for (int cellIndex = 0; cellIndex < totalCells; ++cellIndex)
+        {
+        iVec cellIndexVec = cellIndexer.inverseIndex(cellIndex);
+        iVec it(-width);it.x[0]-=1;
+        int neigh = 0;
+        while(iVecIterate(it,min,max))
+            {
+            int location = adjacentCellIndexer(neigh,cellIndex);
+            adj.data[location] = cellIndexer(modularAddition(cellIndexVec,it,gridCellsPerSide));
+            neigh +=1;
+            };
+        };
+    };
 
 /*!
 \param points the set of points to assign to cells...on the GPU

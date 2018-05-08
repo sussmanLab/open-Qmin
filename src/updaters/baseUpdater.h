@@ -79,7 +79,7 @@ class updater
         int Ndof;
         //!whether the RNGs give reproducible results
         bool reproducible;
-        //! a possible time unit
+        //!The internal time step size
         scalar deltaT;
     };
 

@@ -12,8 +12,8 @@ set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -Wno-deprecated-gpu-targets ")#-Xptxas -
 
 
 find_package(CUDA REQUIRED)
-message("nvcc flags are  " ${CUDA_NVCC_FLAGS})
-message("cuda root is " ${CUDA_INCLUDE_DIRS})
+#message("nvcc flags are  " ${CUDA_NVCC_FLAGS})
+#message("cuda root is " ${CUDA_INCLUDE_DIRS})
 
 add_subdirectory(src)
 
@@ -31,7 +31,7 @@ set(myLibs
     utility 
     utilityGPU 
     )
-message("libraries = " ${myLibs})
+message("libraries = " "${myLibs}")
 
 add_executable(simulationExecutable.out dDimensionalSimulation.cpp)
 target_link_libraries(simulationExecutable.out ${myLibs} ${CUDA_LIBRARIES})

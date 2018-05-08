@@ -60,6 +60,7 @@ class hyperrectangularCellList
         //! compute the cell list of the gpuarry passed to it.
         void computeCellList(GPUArray<dVec> &points)
             {
+            computeAdjacentCells();
             if(useGPU)
                 computeGPU(points);
             else
@@ -86,9 +87,22 @@ class hyperrectangularCellList
 
         //!A reporter index of how hard it was to compute the cell list
         int computations;
+
+        //!return the list of adjacent cells
+        GPUArray<int> & returnAdjacentCells(){return adjacentCells;};
+        //!compute the adjacent cells up to a scale
+        void computeAdjacentCells(int width = 1);
+        //!the number of cells in the adjacency list for each cell
+        int adjacentCellsPerCell;
+        //! indexes the adjacent cells of each cell
+        Index2D adjacentCellIndexer;
+
     protected:
         //!first index is Nmax, second is whether to recompute
         GPUArray<int> assist;
+
+        //!an array that stores the list cell adjacent to every cell
+        GPUArray<int> adjacentCells;
 
         //!The number of bins in each of the different dimensions
         iVec gridCellsPerSide;

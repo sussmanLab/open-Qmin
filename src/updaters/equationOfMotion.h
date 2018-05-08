@@ -25,8 +25,6 @@ class equationOfMotion : public updater
             Ndof = model->getNumberOfParticles();
             displacement.resize(Ndof);
             };
-        //!The internal time step size
-        scalar deltaT;
         //!an array of displacements
         GPUArray<dVec> displacement;
     };
