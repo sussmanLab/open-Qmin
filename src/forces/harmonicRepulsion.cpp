@@ -80,7 +80,7 @@ void harmonicRepulsion::computeForceGPU(GPUArray<dVec> &forces, bool zeroOutForc
         {
 
         ArrayHandle<dVec> d_force(forces,access_location::device,access_mode::readwrite);
-    int N = model->getNumberOfParticles();
+        int N = model->getNumberOfParticles();
 
         neighbors->computeNeighborLists(model->returnPositions());
         ArrayHandle<unsigned int> d_npp(neighbors->neighborsPerParticle,access_location::device,access_mode::read);

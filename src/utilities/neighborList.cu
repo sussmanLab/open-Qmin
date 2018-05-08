@@ -42,7 +42,8 @@ __global__ void gpu_compute_neighbor_list_TPC_kernel(int *d_idx,
     for (int dd =0; dd < DIMENSION; ++dd)
         cellIndexVec.x[dd] = max(0,min((int)gridCellsPerSide.x[dd]-1,(int) floor(target.x[dd]/gridCellSizes.x[dd])));
     int cell = cellIndexer(cellIndexVec);
-    //iterate through neighboring cells
+
+    //iterate through the given cell
     int currentCell = d_adj[adjacentCellIndexer(cellIdx,cell)];
     int particlesInBin = particlesPerCell[currentCell];
     for(int p1 = 0; p1 < particlesInBin; ++p1)

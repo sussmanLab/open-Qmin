@@ -106,6 +106,19 @@ int main(int argc, char*argv[])
     }
     */
     cout << endl << "minimization took " << (t2-t1)/(scalar)CLOCKS_PER_SEC << endl;
+    neighList->computeNeighborLists(Configuration->returnPositions());
+    ArrayHandle<unsigned int> hnpp(neighList->neighborsPerParticle);
+    ArrayHandle<int> hn(neighList->particleIndices);
+    for (int ii = 0; ii < N; ++ii)
+        {
+        int neigh = hnpp.data[ii];
+        cout << "particle "<<ii<<"'s neighbors: ";
+        for (int nn = 0; nn < neigh; ++nn)
+            {
+            cout << hn.data[neighList->neighborIndexer(nn,ii)] <<", ";
+            };
+        cout << endl;
+        };
 
 //
 //The end of the tclap try
