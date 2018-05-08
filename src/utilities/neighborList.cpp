@@ -30,7 +30,7 @@ void neighborList::resetNeighborsGPU(int size)
             neighborDistances.resize(neighborIndexer.getNumElements());
             };
         };
-
+/*
     ArrayHandle<int> d_idx(particleIndices,access_location::device,access_mode::overwrite);
     gpu_zero_array(d_idx.data,size);
     if(saveDistanceData)
@@ -40,7 +40,7 @@ void neighborList::resetNeighborsGPU(int size)
         gpu_zero_array(d_vec.data,size);
         gpu_zero_array(d_dist.data,size);
         };
-
+*/
     if(assist.getNumElements()!= 2)
         assist.resize(2);
     ArrayHandle<int> h_assist(assist,access_location::host,access_mode::overwrite);

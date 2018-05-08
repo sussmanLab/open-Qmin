@@ -53,18 +53,18 @@ void Simulation::setIntegrationTimestep(scalar dt)
 void Simulation::setCPUOperation(bool setcpu)
     {
     auto Conf = configuration.lock();
-    Conf->setGPU(!setcpu);
     useGPU = !setcpu;
+    Conf->setGPU(useGPU);
 
     for (int u = 0; u < updaters.size(); ++u)
         {
         auto upd = updaters[u].lock();
-        upd->setGPU(!setcpu);
+        upd->setGPU(useGPU);
         };
     for (int f = 0; f < forceComputers.size(); ++f)
         {
         auto frc = forceComputers[f].lock();
-        frc->setGPU(!setcpu);
+        frc->setGPU(useGPU);
         };
     };
 

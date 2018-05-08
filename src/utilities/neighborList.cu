@@ -190,7 +190,7 @@ bool gpu_compute_neighbor_list(int *d_idx,
     else
         {
         //optimize block size later
-        unsigned int max_block = 512;
+        unsigned int max_block = 128;
         unsigned int block_size = max_block;
         if (Np*adjacentCellsPerCell < max_block) block_size = 16;
         unsigned int nblocks  = (adjacentCellsPerCell*Np)/block_size + 1;

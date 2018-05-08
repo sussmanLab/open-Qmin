@@ -15,6 +15,8 @@ __global__ void gpu_harmonic_repulsion_kernel(dVec *d_force,unsigned int *d_neig
         return;
 
     int neighs = d_neighborsPerParticle[idx];
+    if(zeroForce)
+        d_force[idx] = make_dVec(0.0);
     for (int nn = 0; nn < neighs; ++nn)
         {
         int nIdx = neighborIndexer(nn,idx);
@@ -26,10 +28,7 @@ __global__ void gpu_harmonic_repulsion_kernel(dVec *d_force,unsigned int *d_neig
         //compute force
         scalar dnorm = norm(relativeDistance);
         if (dnorm <= sigma0)
-            if(zeroForce)
-                d_force[idx] = K*(1.0/sigma0)*(1.0-dnorm/sigma0)*(1.0/dnorm)*relativeDistance;
-            else
-                d_force[idx] += K*(1.0/sigma0)*(1.0-dnorm/sigma0)*(1.0/dnorm)*relativeDistance;
+            d_force[idx] += K*(1.0/sigma0)*(1.0-dnorm/sigma0)*(1.0/dnorm)*relativeDistance;
         };
     };
 
@@ -41,6 +40,8 @@ __global__ void gpu_harmonic_repulsion_allPairs_kernel(dVec *d_force,dVec *d_pos
     dVec disp;
     scalar dnorm;
     scalar r1 = d_radii[idx];
+    if(zeroForce)
+        d_force[idx] = make_dVec(0.0);
     for (int nn = 0; nn < N; ++nn)
         {
         if(nn == idx) continue;
@@ -50,9 +51,6 @@ __global__ void gpu_harmonic_repulsion_allPairs_kernel(dVec *d_force,dVec *d_pos
         if(dnorm < sigma0)
             {
             scalar K = d_params[particleTypeIndexer(particleType[nn],particleType[idx])];
-            if(zeroForce)
-                d_force[idx] = K*(1.0/sigma0)*(1.0-dnorm/sigma0)*(1.0/dnorm)*disp;
-            else
                 d_force[idx] += K*(1.0/sigma0)*(1.0-dnorm/sigma0)*(1.0/dnorm)*disp;
             };
         };

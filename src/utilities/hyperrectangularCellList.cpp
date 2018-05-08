@@ -92,10 +92,10 @@ void hyperrectangularCellList::resetCellSizes()
     cellListIndexer = Index2D(Nmax,totalCells);
     if(particleIndices.getNumElements() != cellListIndexer.getNumElements())
         particleIndices.resize(cellListIndexer.getNumElements());
-
+/*
     ArrayHandle<int> d_idx(particleIndices,access_location::device,access_mode::overwrite);
     gpu_zero_array(d_idx.data,(int) cellListIndexer.getNumElements());
-
+*/
 
     if(assist.getNumElements()!= 2)
         assist.resize(2);

@@ -11,7 +11,6 @@
 #include "simpleModel.h"
 #include "baseUpdater.h"
 #include "energyMinimizerFIRE.h"
-#include "velocityVerlet.h"
 #include "noiseSource.h"
 #include "harmonicRepulsion.h"
 #include "indexer.h"
@@ -78,11 +77,10 @@ int main(int argc, char*argv[])
     softSpheres->setForceParameters(stiffnessParameters);
     sim->addForce(softSpheres,Configuration);
 
-    neighList->cellList->computeAdjacentCells();
-
-    shared_ptr<velocityVerlet> nve = make_shared<velocityVerlet>();
-    nve->setDeltaT(0.002);
-    sim->addUpdater(nve,Configuration);
+    shared_ptr<energyMinimizerFIRE> fire = make_shared<energyMinimizerFIRE>(Configuration);
+    fire->setFIREParameters(0.05,0.99,0.1,1.1,0.95,.9,4,1e-12);
+    fire->setMaximumIterations(maximumIterations);
+    sim->addUpdater(fire,Configuration);
 
     if(gpuSwitch >=0)
         {
@@ -93,11 +91,9 @@ int main(int argc, char*argv[])
 //        neighList->setGPU();
         };
 
-
     cudaProfilerStart();
     clock_t t1 = clock();
-    for (int timestep = 0; timestep < maximumIterations; ++timestep)
-        sim->performTimestep();
+    sim->performTimestep();
     clock_t t2 = clock();
     cudaProfilerStop();
 
@@ -109,23 +105,22 @@ int main(int argc, char*argv[])
         printdVec(pos.data[pp]);
     }
     */
-    cout << endl << "simulations took " << (t2-t1)/(scalar)CLOCKS_PER_SEC << endl;
-
-    t1 = clock();
+    cout << endl << "minimization took " << (t2-t1)/(scalar)CLOCKS_PER_SEC << endl;
+    /*
     neighList->computeNeighborLists(Configuration->returnPositions());
-    t2 = clock();
-    scalar ntime = (t2-t1)/(scalar)CLOCKS_PER_SEC;
-    cout << endl << "nlists take " << ntime << endl;
-    t1 = clock();
-    softSpheres->computeForces(Configuration->returnForces());
-    t2 = clock();
-    scalar ftime = (t2-t1)/(scalar)CLOCKS_PER_SEC - ntime;
-    cout << endl << "forces take " << ftime << endl;
-    t1 = clock();
-    nve->performUpdate();
-    t2 = clock();
-    scalar stime = (t2-t1)/(scalar)CLOCKS_PER_SEC - ntime - ftime;
-    cout << endl << "timestep takes" << stime << endl;
+    ArrayHandle<unsigned int> hnpp(neighList->neighborsPerParticle);
+    ArrayHandle<int> hn(neighList->particleIndices);
+    for (int ii = 0; ii < N; ++ii)
+        {
+        int neigh = hnpp.data[ii];
+        cout << "particle "<<ii<<"'s neighbors: ";
+        for (int nn = 0; nn < neigh; ++nn)
+            {
+            cout << hn.data[neighList->neighborIndexer(nn,ii)] <<", ";
+            };
+        cout << endl;
+        };
+*/
 //
 //The end of the tclap try
 //
