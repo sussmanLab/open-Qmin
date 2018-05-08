@@ -44,7 +44,8 @@ void harmonicRepulsion::getParametersForParticlePair(int index1, int index2, vec
 
 void harmonicRepulsion::computePairwiseForce(dVec &relativeDistance, scalar dnorm,vector<scalar> &params, dVec &f)
     {
-    //scalar delta = (1.0 - dnorm/params[1]);
+    scalar delta = (1.0 - dnorm/params[1]);
+    energy += params[0]*delta*delta;
     if(dnorm <= params[1])
         f=  params[0]*(1.0/params[1])*(1.0 - dnorm/params[1])*(1.0/dnorm)*relativeDistance;
     else

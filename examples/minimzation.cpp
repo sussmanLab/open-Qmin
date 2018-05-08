@@ -106,6 +106,9 @@ int main(int argc, char*argv[])
     }
     */
     cout << endl << "minimization took " << (t2-t1)/(scalar)CLOCKS_PER_SEC << endl;
+    sim->setCPUOperation(true);
+    scalar E = sim->computePotentialEnergy();
+    printf("simulation potential energy at %f\n",E);
     /*
     neighList->computeNeighborLists(Configuration->returnPositions());
     ArrayHandle<unsigned int> hnpp(neighList->neighborsPerParticle);

@@ -48,6 +48,9 @@ class Simulation : public basicSimulation, public enable_shared_from_this<Simula
         //!Clear out the vector of updaters
         void clearUpdaters(){updaters.clear();};
 
+        //!compute the potential energy associated with all of the forces
+        virtual scalar computePotentialEnergy();
+
 /*
         //!A neighbor list assisting the simulation
         cellListGPU *cellList;;

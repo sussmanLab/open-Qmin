@@ -34,6 +34,7 @@ void basePairwiseForce::computeForceCPU(GPUArray<dVec> &forces, bool zeroOutForc
     dVec relativeDistance;
     scalar dnorm;
     dVec f;
+    energy = 0.0;
     for (int p1 = 0; p1 < model->getNumberOfParticles();++p1)
         {
         int neigh = h_npp.data[p1];

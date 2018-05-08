@@ -107,6 +107,17 @@ void Simulation::moveParticles(GPUArray<dVec> &displacements)
     Conf->moveParticles(displacements);
     };
 
+scalar Simulation::computePotentialEnergy()
+    {
+    scalar PE = 0.0;
+    for (int f = 0; f < forceComputers.size(); ++f)
+        {
+        auto frc = forceComputers[f].lock();
+        PE += frc->computeEnergy();
+        };
+    return PE;
+    };
+
 /*!
 Call all relevant functions to advance the system one time step; every sortPeriod also call the
 spatial sorting routine.

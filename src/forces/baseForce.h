@@ -31,6 +31,9 @@ class force
         //! virtual function to allow the model to be a derived class
         virtual void setModel(shared_ptr<simpleModel> _model){model=_model;};
 
+        //!compute the energy associated with this force
+        virtual scalar computeEnergy(){return 0.;};
+
         //! A pointer to a simpleModel that the updater acts on
         shared_ptr<simpleModel> model;
         //!Enforce GPU operation

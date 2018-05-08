@@ -14,6 +14,13 @@ class basePairwiseForce : public force
         virtual void computeForces(GPUArray<dVec> &forces,bool zeroOutForce = true);
         virtual void computeForceGPU(GPUArray<dVec> &forces,bool zeroOutForce = true);
         virtual void computeForceCPU(GPUArray<dVec> &forces,bool zeroOutForce = true);
+        
+        virtual scalar computeEnergy()
+                {
+                GPUArray<dVec> f; f.resize(model->getNumberOfParticles());
+                computeForceCPU(f,true);
+                return energy;
+                };
 
         virtual void computePairwiseForce(dVec &relativeDistance, scalar distance,vector<scalar> &parameters, dVec &f){printf("in base pairwiseForce...why?\n");};
 
