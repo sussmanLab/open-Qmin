@@ -46,6 +46,9 @@ using namespace std;
 #ifndef SCALARFLOAT
 //double variables types
 #define scalar double
+#define scalar2 double2
+#define scalar3 double3
+#define scalar4 double4
 //the netcdf variable type
 #define ncscalar ncDouble
 //the cuda RNG
@@ -59,6 +62,9 @@ using namespace std;
 #else
 //floats
 #define scalar float
+#define scalar2 float2
+#define scalar3 float3
+#define scalar4 float4
 #define ncscalar ncFloat
 #define cur_norm curand_normal
 #define Cos cosf

@@ -12,6 +12,7 @@
 #include "baseUpdater.h"
 #include "energyMinimizerFIRE.h"
 #include "velocityVerlet.h"
+#include "noseHooverNVT.h"
 #include "noiseSource.h"
 #include "harmonicRepulsion.h"
 #include "indexer.h"
@@ -80,9 +81,9 @@ int main(int argc, char*argv[])
 
     neighList->cellList->computeAdjacentCells();
 
-    shared_ptr<velocityVerlet> nve = make_shared<velocityVerlet>();
-    nve->setDeltaT(0.002);
-    sim->addUpdater(nve,Configuration);
+    shared_ptr<noseHooverNVT> nvt = make_shared<noseHooverNVT>(Configuration,Temperature);
+    nvt->setDeltaT(0.002);
+    sim->addUpdater(nvt,Configuration);
 
     if(gpuSwitch >=0)
         {
@@ -97,7 +98,11 @@ int main(int argc, char*argv[])
     cudaProfilerStart();
     clock_t t1 = clock();
     for (int timestep = 0; timestep < maximumIterations; ++timestep)
+        {
         sim->performTimestep();
+        if(timestep%100 == 0)
+            printf("timestep %i: target T = %f\t instantaneous T = %f\n",timestep,Temperature,Configuration->computeInstantaneousTemperature());
+        };
     clock_t t2 = clock();
     cudaProfilerStop();
 

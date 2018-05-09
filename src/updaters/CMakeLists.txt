@@ -3,9 +3,10 @@ if(${CMAKE_BUILD_TYPE} MATCHES "Debug")
 endif(${CMAKE_BUILD_TYPE} MATCHES "Debug")
 
 include_directories(${CMAKE_SOURCE_DIR}/inc ${CUDA_INCLUDE_DIRS} ../simulation)
-add_library(updater 
-    baseUpdater.cpp 
+add_library(updater
+    baseUpdater.cpp
     velocityVerlet.cpp
+    noseHooverNVT.cpp
     energyMinimizerFIRE.cpp
     )
 cuda_add_library(updaterGPU

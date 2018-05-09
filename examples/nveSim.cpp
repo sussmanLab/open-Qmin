@@ -101,6 +101,7 @@ int main(int argc, char*argv[])
     clock_t t2 = clock();
     cudaProfilerStop();
 
+    sim->setCPUOperation(true);
     scalar E = sim->computePotentialEnergy();
     printf("simulation potential energy at %f\n",E);
     /*
@@ -112,7 +113,7 @@ int main(int argc, char*argv[])
     }
     */
     cout << endl << "simulations took " << (t2-t1)/(scalar)CLOCKS_PER_SEC << endl;
-
+/*
     t1 = clock();
     neighList->computeNeighborLists(Configuration->returnPositions());
     t2 = clock();
@@ -128,6 +129,9 @@ int main(int argc, char*argv[])
     t2 = clock();
     scalar stime = (t2-t1)/(scalar)CLOCKS_PER_SEC - ntime - ftime;
     cout << endl << "timestep takes" << stime << endl;
+
+*/
+
 //
 //The end of the tclap try
 //

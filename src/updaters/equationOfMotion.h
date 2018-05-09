@@ -11,6 +11,8 @@ class equationOfMotion : public updater
 
         virtual void integrateEquationOfMotion()
             {
+            if (model->getNumberOfParticles() != Ndof)
+                initializeFromModel();
             if (useGPU)
                 integrateEOMGPU();
             else
