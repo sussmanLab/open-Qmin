@@ -114,6 +114,8 @@ int main(int argc, char*argv[])
 //        neighList->setGPU();
         };
 
+    for (int timestep = 0; timestep < maximumIterations; ++timestep)
+        sim->performTimestep();
 
     cudaProfilerStart();
     clock_t t1 = clock();
