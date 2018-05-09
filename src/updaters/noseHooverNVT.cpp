@@ -1,5 +1,6 @@
 #include "noseHooverNVT.h"
-//#include "noseHooverNVT.cuh"
+#include "utilities.cuh"
+#include "velocityVerlet.cuh"
 /*! \file noseHooverNVT.cpp */
 
 noseHooverNVT::noseHooverNVT(shared_ptr<simpleModel> system,scalar _Temperature, int _nChain)
@@ -40,7 +41,7 @@ void noseHooverNVT::setT(scalar _t)
     h_bv.data[0].w = DIMENSION*(Ndof-DIMENSION)*temperature;
     for(int ii = 1; ii < Nchain+1; ++ii)
         h_bv.data[ii].w = temperature;
-    
+
     ArrayHandle<scalar> kes(kineticEnergyScaleFactor);
     kes.data[0] = h_bv.data[0].w;
     kes.data[1] = 1.0;
@@ -62,7 +63,7 @@ void noseHooverNVT::integrateEOMCPU()
     }//end array handle
 
     propagatePositionsVelocites();
-    
+
     //repeat chain propagation and velocity scaling
     {//array handle
     propagateChain();
@@ -114,7 +115,7 @@ void::noseHooverNVT::propagateChain()
     scalar dt8 = 0.125*deltaT;
     scalar dt4 = 0.25*deltaT;
     scalar dt2 = 0.5*deltaT;
-    
+
     //first quarter time step
     //partially update bath velocities and accelerations (quarter-timestep), from Nchain to 0
     ArrayHandle<scalar4> bath(bathVariables);
@@ -163,6 +164,58 @@ void::noseHooverNVT::propagateChain()
 
 void noseHooverNVT::integrateEOMGPU()
     {
-    UNWRITTENCODE("nh nvt gpu");
+    //The kernel calling scheme. To avoid ridiculous numbers of brackets for array handle scoping,
+    //we'll define helper functions
+
+    //for now, let's update the chain variables on the CPU... profile later
+    propagateChain(); // use data structure that holds [KE,s], update both.
+    rescaleVelocitiesGPU(); //use the velocity vector and the [KE,s] data structure. Note that KE is already scaled by s^2 in the above step
+    propagatePositionsVelocitiesGPU();
+    calculateKineticEnergyGPU(); //get the kinetic energy into the [KE,s] data structure
+    propagateChain();
+    rescaleVelocitiesGPU();
     };
 
+void noseHooverNVT::rescaleVelocitiesGPU()
+    {
+    ArrayHandle<dVec> d_v(model->returnVelocities(),access_location::device,access_mode::readwrite);
+    ArrayHandle<scalar> h_kes(kineticEnergyScaleFactor,access_location::host,access_mode::read);
+    gpu_dVec_times_scalar(d_v.data,h_kes.data[1],Ndof);
+    };
+
+void noseHooverNVT::propagatePositionsVelocitiesGPU()
+    {
+    scalar deltaT2 = 0.5*deltaT;
+    //first, move particles according to velocities
+    model->moveParticles(model->returnVelocities(),deltaT2);
+    sim->computeForces();
+
+    //the second half of the time step first updates the velocites then moves particles again
+    {
+    ArrayHandle<dVec> d_v(model->returnVelocities(),access_location::device,access_mode::readwrite);
+    ArrayHandle<dVec> d_f(model->returnForces(),access_location::device,access_mode::read);
+    ArrayHandle<scalar> d_m(model->returnMasses(),access_location::device,access_mode::read);
+    //the NH velocity update is the same as the velocity verlet but with a different effective timestep
+    gpu_update_velocity(d_v.data,d_f.data,d_m.data,deltaT*2.,Ndof);
+    };
+    //move particles according to velocities again
+    model->moveParticles(model->returnVelocities(),deltaT2);
+    };
+
+void noseHooverNVT::calculateKineticEnergyGPU()
+    {
+    {//array handle scope for keArray prep
+    ArrayHandle<dVec> d_v(model->returnVelocities(),access_location::device,access_mode::read);
+    ArrayHandle<scalar> d_m(model->returnMasses(),access_location::device,access_mode::read);
+    ArrayHandle<scalar> d_keArray(keArray,access_location::device,access_mode::overwrite);
+    gpu_scalar_times_dVec_squared(d_v.data,d_m.data,0.5,d_keArray.data,Ndof);
+    };//end scope
+
+    {//array handle scope for parallel reduction
+    ArrayHandle<scalar> d_keArray(keArray,access_location::device,access_mode::read);
+    ArrayHandle<scalar> d_kes(kineticEnergyScaleFactor,access_location::device,access_mode::readwrite);
+    ArrayHandle<scalar> d_keIntermediate(keIntermediateReduction,access_location::device,access_mode::overwrite);
+
+    gpu_parallel_reduction(d_keArray.data,d_keIntermediate.data,d_kes.data,0,Ndof);
+    }
+    };

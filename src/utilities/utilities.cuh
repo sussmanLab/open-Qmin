@@ -37,6 +37,22 @@ bool gpu_dot_dVec_vectors(dVec *d_vec1,
                               scalar  *d_ans,
                               int N);
 
+//! (dVec) input *= factor
+bool gpu_dVec_times_scalar(dVec *d_vec1,
+                              scalar factor,
+                              int N);
+//! (dVec) ans = input * factor
+bool gpu_dVec_times_scalar(dVec *d_vec1,
+                              scalar factor,
+                              dVec *d_ans,
+                              int N);
+//! ans = a*b[i]*c[i]^2r
+bool gpu_scalar_times_dVec_squared(dVec *d_vec1,
+                                   scalar *d_scalars,
+                                   scalar factor,
+                                   scalar *d_answer,
+                                   int N);
+
 //!A trivial reduction of an array by one thread in serial. Think before you use this.
 bool gpu_serial_reduction(
                     scalar *array,

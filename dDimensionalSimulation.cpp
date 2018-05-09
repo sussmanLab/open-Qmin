@@ -117,7 +117,7 @@ int main(int argc, char*argv[])
         printdVec(pos.data[pp]);
     }
     */
-    cout << endl << "simulations took " << (t2-t1)/(scalar)CLOCKS_PER_SEC << endl;
+    cout << endl << "simulations took " << (t2-t1)/(scalar)CLOCKS_PER_SEC/maximumIterations << " per time step" << endl;
 /*
     t1 = clock();
     neighList->computeNeighborLists(Configuration->returnPositions());

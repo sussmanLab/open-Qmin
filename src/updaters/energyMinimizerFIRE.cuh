@@ -7,7 +7,7 @@
 
 /** @addtogroup updaterKernels updater Kernels
  * @{
- * \brief CUDA kernels and callers 
+ * \brief CUDA kernels and callers
  */
 
 //!velocity = (1-a)velocity +a*scaling*force

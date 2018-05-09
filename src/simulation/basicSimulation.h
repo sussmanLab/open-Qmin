@@ -41,6 +41,9 @@ class basicSimulation
         //!reset the simulation clock counter
         virtual void setCurrentTimestep(int _cTime){integerTimestep =_cTime;};
 
+        //!for debugging...
+        virtual scalar computeKineticEnergy()=0;
+
     protected:
         //! Determines how frequently the spatial sorter be called...once per sortPeriod Timesteps. When sortPeriod < 0 no sorting occurs
         int sortPeriod;

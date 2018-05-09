@@ -143,7 +143,20 @@ __global__ void gpu_zero_array_kernel(int *arr,
     };
 
 /*!
-take two vectors of Dscalar2 and return a vector of Dscalars, where each entry is vec1[i].vec2[i]
+take a vector of dVecs, a vector of scalars, a factor, and return a vector where
+every entry is 
+factor*scalar[i]*(dVec[i])^2
+*/
+__global__ void gpu_scalar_times_dVec_squared_kernel(dVec *d_vec1, scalar *d_scalars, scalar factor, scalar *d_ans, int n)
+    {
+    // read in the index that belongs to this thread
+    unsigned int idx = blockDim.x * blockIdx.x + threadIdx.x;
+    if (idx >= n)
+        return;
+    d_ans[idx] = factor * d_scalars[idx]*dot(d_vec1[idx],d_vec1[idx]);
+    };
+/*!
+take two vectors of dVecs and return a vector of scalars, where each entry is vec1[i].vec2[i]
 */
 __global__ void gpu_dot_dVec_vectors_kernel(dVec *d_vec1, dVec *d_vec2, scalar *d_ans, int n)
     {
@@ -153,10 +166,79 @@ __global__ void gpu_dot_dVec_vectors_kernel(dVec *d_vec1, dVec *d_vec2, scalar *
         return;
     d_ans[idx] = dot(d_vec1[idx],d_vec2[idx]);
     };
+/*!
+  multiply every element of an array of dVecs by the same scalar
+  */
+__global__ void gpu_dVec_times_scalar_kernel(dVec *d_vec1,scalar factor, int n)
+    {
+    // read in the index that belongs to this thread
+    unsigned int idx = blockDim.x * blockIdx.x + threadIdx.x;
+    if (idx >= n)
+        return;
+    d_vec1[idx] = factor*d_vec1[idx];
+    };
+/*!
+  multiply every element of an array of dVecs by the same scalar
+  */
+__global__ void gpu_dVec_times_scalar_kernel(dVec *d_vec1,scalar factor, dVec *d_ans,int n)
+    {
+    // read in the index that belongs to this thread
+    unsigned int idx = blockDim.x * blockIdx.x + threadIdx.x;
+    if (idx >= n)
+        return;
+    d_ans[idx] = factor*d_vec1[idx];
+    };
 
 /////
 //Kernel callers
 ///
+
+/*!
+\param d_vec1 dVec input array
+\param factor scalar multiplication factor
+\param N      the length of the arrays
+\post d_vec1 *= factor for every element
+ */
+bool gpu_dVec_times_scalar(dVec *d_vec1, scalar factor, int N)
+    {
+    unsigned int block_size = 128;
+    if (N < 128) block_size = 32;
+    unsigned int nblocks  = N/block_size + 1;
+    gpu_dVec_times_scalar_kernel<<<nblocks,block_size>>>(
+                                                d_vec1,
+                                                factor,
+                                                N);
+    HANDLE_ERROR(cudaGetLastError());
+    return cudaSuccess;
+    };
+bool gpu_dVec_times_scalar(dVec *d_vec1, scalar factor, dVec *d_ans,int N)
+    {
+    unsigned int block_size = 128;
+    if (N < 128) block_size = 32;
+    unsigned int nblocks  = N/block_size + 1;
+    gpu_dVec_times_scalar_kernel<<<nblocks,block_size>>>(
+                                                d_vec1,
+                                                factor,
+                                                d_ans,
+                                                N);
+    HANDLE_ERROR(cudaGetLastError());
+    return cudaSuccess;
+    };
+
+bool gpu_scalar_times_dVec_squared(dVec *d_vec1, scalar *d_scalars, scalar factor, scalar *d_ans, int N)
+    {
+    unsigned int block_size = 128;
+    if (N < 128) block_size = 32;
+    unsigned int nblocks  = N/block_size + 1;
+    gpu_scalar_times_dVec_squared_kernel<<<nblocks,block_size>>>(
+                                                d_vec1,
+                                                d_scalars,
+                                                factor,
+                                                d_ans,
+                                                N);
+    HANDLE_ERROR(cudaGetLastError());
+    return cudaSuccess;
+    };
 
 /*!
 \param d_vec1 dVec input array
