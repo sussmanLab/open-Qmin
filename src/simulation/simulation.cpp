@@ -107,6 +107,12 @@ void Simulation::moveParticles(GPUArray<dVec> &displacements)
     Conf->moveParticles(displacements);
     };
 
+scalar Simulation::computeKineticEnergy()
+    {
+    auto Conf = configuration.lock();
+    return Conf->computeKineticEnergy();
+    }
+
 scalar Simulation::computePotentialEnergy()
     {
     scalar PE = 0.0;

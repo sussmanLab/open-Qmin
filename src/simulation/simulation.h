@@ -50,6 +50,13 @@ class Simulation : public basicSimulation, public enable_shared_from_this<Simula
 
         //!compute the potential energy associated with all of the forces
         virtual scalar computePotentialEnergy();
+        //!compute the kinetic energy
+        virtual scalar computeKineticEnergy();
+        //!compute the total energy
+        virtual scalar computeEnergy()
+            {
+            return computeKineticEnergy() + computePotentialEnergy();
+            };
 
 /*
         //!A neighbor list assisting the simulation

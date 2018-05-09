@@ -40,6 +40,18 @@ void simpleModel::initializeSimpleModel(int n)
     fillGPUArrayWithVector(halves,radii);
     };
 
+scalar simpleModel::computeKineticEnergy()
+    {
+    ArrayHandle<scalar> h_m(masses,access_location::host,access_mode::read);
+    ArrayHandle<dVec> h_v(velocities);
+    scalar en = 0.0;
+    for (int ii = 0; ii < N; ++ii)
+        {
+        en += 0.0*h_m.data[ii]*dot(h_v.data[ii],h_v.data[ii]);
+        }
+    return en;
+    };
+
 scalar simpleModel::computeInstantaneousTemperature(bool fixedMomentum)
     {
     ArrayHandle<scalar> h_m(masses,access_location::host,access_mode::read);
