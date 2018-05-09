@@ -8,13 +8,13 @@
 /*!
 update the velocity in a velocity Verlet step
 */
-__global__ void gpu_update_velocity_kernel(dVec *d_velocity, dVec *d_force, scalar deltaT, int n)
+__global__ void gpu_update_velocity_kernel(dVec *d_velocity, dVec *d_force, scalar *d_mass,scalar deltaT, int n)
     {
     // read in the index that belongs to this thread
     unsigned int idx = blockDim.x * blockIdx.x + threadIdx.x;
     if (idx >= n)
         return;
-    d_velocity[idx] += 0.5*deltaT*d_force[idx];
+    d_velocity[idx] += (0.5/d_mass[idx])*deltaT*d_force[idx];
     };
 
 /*!
@@ -37,7 +37,7 @@ __global__ void gpu_displacement_vv_kernel(dVec *d_displacement, dVec *d_velocit
 \param N      the length of the arrays
 \post v = v + 0.5*deltaT*force
 */
-bool gpu_update_velocity(dVec *d_velocity, dVec *d_force, scalar deltaT, int N)
+bool gpu_update_velocity(dVec *d_velocity, dVec *d_force, scalar *d_mass,scalar deltaT, int N)
     {
     unsigned int block_size = 128;
     if (N < 128) block_size = 32;
@@ -45,6 +45,7 @@ bool gpu_update_velocity(dVec *d_velocity, dVec *d_force, scalar deltaT, int N)
     gpu_update_velocity_kernel<<<nblocks,block_size>>>(
                                                 d_velocity,
                                                 d_force,
+                                                d_mass,
                                                 deltaT,
                                                 N);
     HANDLE_ERROR(cudaGetLastError());

@@ -13,6 +13,7 @@
 //!velocity = velocity +0.5*deltaT*force
 bool gpu_update_velocity(dVec *d_velocity,
                       dVec *d_force,
+                      scalar *d_mass,
                       scalar deltaT,
                       int N
                       );
