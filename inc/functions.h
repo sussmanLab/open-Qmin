@@ -18,7 +18,6 @@
  \brief Utility functions that can be called from host or device
  */
 
-
 //!remove duplicate elements from a vector, preserving the order, using sets
 template<typename T>
 inline __attribute__((always_inline)) void removeDuplicateVectorElements(vector<T> &data)

@@ -22,6 +22,17 @@
 using namespace std;
 using namespace TCLAP;
 
+scalar sphereVolume(scalar radius, int dimension)
+    {
+    if(dimension == 1)
+        return 2*radius;
+    else
+        if(dimension == 2)
+            return PI*radius*radius;
+        else
+            return (2.*PI*radius*radius)/((scalar) dimension)*sphereVolume(radius,dimension-2);
+    };
+
 /*!
 command line parameters help identify a data directory and a filename... the output is a text file
 (in the data/ directory rooted here) containing easy-to-read fourier transforms of the height-map
@@ -44,6 +55,7 @@ int main(int argc, char*argv[])
     ValueArg<int> maxIterationsSwitchArg("i","iterations","number of timestep iterations",false,100,"int",cmd);
     ValueArg<scalar> lengthSwitchArg("l","sideLength","size of simulation domain",false,10.0,"double",cmd);
     ValueArg<scalar> temperatureSwitchArg("t","temperature","temperature of simulation",false,.001,"double",cmd);
+    ValueArg<scalar> phiSwitchArg("p","phi","volume fraction",false,-1.0,"double",cmd);
     //parse the arguments
     cmd.parse( argc, argv );
 
@@ -52,13 +64,21 @@ int main(int argc, char*argv[])
     int maximumIterations = maxIterationsSwitchArg.getValue();
     scalar L = lengthSwitchArg.getValue();
     scalar Temperature = temperatureSwitchArg.getValue();
+    scalar phi = phiSwitchArg.getValue();
     int gpuSwitch = gpuSwitchArg.getValue();
     bool GPU = false;
     if(gpuSwitch >=0)
         GPU = chooseGPU(gpuSwitch);
 
+    if(phi >0)
+        {
+        L = pow(N*sphereVolume(.5,DIMENSION) / phi,(1.0/(scalar) DIMENSION));
+        }
+    else
+        phi = N*sphereVolume(.5,DIMENSION) / pow(L,(scalar)DIMENSION);
+
     int dim =DIMENSION;
-    cout << "running a simulation in "<<dim << " dimensions" << endl;
+    cout << "running a simulation in "<<dim << " dimensions with box sizes" << L << endl;
     shared_ptr<simpleModel> Configuration = make_shared<simpleModel>(N);
     shared_ptr<periodicBoundaryConditions> PBC = make_shared<periodicBoundaryConditions>(L);
 
@@ -117,7 +137,15 @@ int main(int argc, char*argv[])
         printdVec(pos.data[pp]);
     }
     */
-    cout << endl << "simulations took " << (t2-t1)/(scalar)CLOCKS_PER_SEC/maximumIterations << " per time step" << endl;
+    scalar timeTaken = (t2-t1)/(scalar)CLOCKS_PER_SEC/maximumIterations;
+    cout << endl << "simulations took " << timeTaken << " per time step" << endl;
+
+    ofstream ofs;
+    char dataname[256];
+    sprintf(dataname,"../data/timing_Phi%f_d%i_g%i.txt",phi,DIMENSION,gpuSwitch);
+    ofs.open(dataname,ofstream::app);
+    ofs << N <<"\t" << timeTaken << "\n";
+    ofs.close();
 /*
     t1 = clock();
     neighList->computeNeighborLists(Configuration->returnPositions());
