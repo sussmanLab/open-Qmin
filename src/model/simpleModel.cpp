@@ -47,7 +47,7 @@ scalar simpleModel::computeKineticEnergy()
     scalar en = 0.0;
     for (int ii = 0; ii < N; ++ii)
         {
-        en += 0.0*h_m.data[ii]*dot(h_v.data[ii],h_v.data[ii]);
+        en += 0.5*h_m.data[ii]*dot(h_v.data[ii],h_v.data[ii]);
         }
     return en;
     };
