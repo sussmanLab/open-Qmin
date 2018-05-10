@@ -152,7 +152,7 @@ int main(int argc, char*argv[])
     sim->addForce(lj,Configuration);
 
     shared_ptr<noseHooverNVT> nvt = make_shared<noseHooverNVT>(Configuration,Temperature);
-    nvt->setDeltaT(1e-10);
+    nvt->setDeltaT(1e-8);
     sim->addUpdater(nvt,Configuration);
 
     if(gpuSwitch >=0)
@@ -166,8 +166,15 @@ int main(int argc, char*argv[])
 cout << "simulation set-up finished" << endl;cout.flush();
     cudaProfilerStart();
     clock_t t1 = clock();
+
+    scalar dt=-9;
     for (int timestep = 0; timestep < maximumIterations; ++timestep)
         {
+        if(timestep %1000 ==0 && dt < -3)
+            {
+            dt += 1;
+            nvt->setDeltaT(pow(10,dt));
+            }
         sim->performTimestep();
         if(timestep%100 == 0)
             printf("timestep %i: target T = %f\t instantaneous T = %g\t PE = %g\n",timestep,Temperature,Configuration->computeInstantaneousTemperature(),sim->computePotentialEnergy());
