@@ -11,7 +11,7 @@ must be of the form 0, 1, 2, ...n. The input vector should be laid out as:
 params[0] = k_{0,0}
 params[1] = k_{0,1}
 params[n] = k_{0,n}
-params[n+1] = k_{1,0} (physically, this better be the same as g_{0,1})
+params[n+1] = k_{1,0} (physically, this better be the same as k_{0,1})
 params[n+2] = k_{1,1}
 ...
 params[n^2-1] = k_{n,n}

@@ -124,17 +124,35 @@ int main(int argc, char*argv[])
     scalar ke = Configuration->setVelocitiesMaxwellBoltzmann(Temperature,noise);
     printf("temperature input %f \t temperature calculated %f\n",Temperature,Configuration->computeInstantaneousTemperature());
 
-    shared_ptr<neighborList> neighList = make_shared<neighborList>(1.,PBC);
+    shared_ptr<neighborList> neighList = make_shared<neighborList>(2.5,PBC);
+    neighList->cellList->computeAdjacentCells();
+    /*
+     //monodisperse harmonic spheres
     shared_ptr<harmonicRepulsion> softSpheres = make_shared<harmonicRepulsion>();
     softSpheres->setNeighborList(neighList);
     vector<scalar> stiffnessParameters(1,1.0);
     softSpheres->setForceParameters(stiffnessParameters);
     sim->addForce(softSpheres,Configuration);
-
-    neighList->cellList->computeAdjacentCells();
+    */
+    //kob-anderson 80:20 mixture
+    {
+    ArrayHandle<int> h_t(Configuration->returnTypes());
+    for (int ii = 0; ii < N; ++ii)
+        if(ii < 0.8*N)
+            h_t.data[ii] = 0;
+        else
+            h_t.data[ii] = 1;
+    }
+    shared_ptr<lennardJones6_12> lj = make_shared<lennardJones6_12>();
+    lj->setNeighborList(neighList);
+    vector<scalar> ljParams(8);
+    ljParams[0]=1.0;ljParams[1]=1.5;ljParams[2]=1.5;ljParams[3]=0.5;
+    ljParams[4]=1.0;ljParams[5]=0.8;ljParams[6]=0.8;ljParams[7]=0.88;
+    lj->setForceParameters(ljParams);
+    sim->addForce(lj,Configuration);
 
     shared_ptr<noseHooverNVT> nvt = make_shared<noseHooverNVT>(Configuration,Temperature);
-    nvt->setDeltaT(0.002);
+    nvt->setDeltaT(1e-10);
     sim->addUpdater(nvt,Configuration);
 
     if(gpuSwitch >=0)
@@ -152,7 +170,7 @@ cout << "simulation set-up finished" << endl;cout.flush();
         {
         sim->performTimestep();
         if(timestep%100 == 0)
-            printf("timestep %i: target T = %f\t instantaneous T = %f\n",timestep,Temperature,Configuration->computeInstantaneousTemperature());
+            printf("timestep %i: target T = %f\t instantaneous T = %g\t PE = %g\n",timestep,Temperature,Configuration->computeInstantaneousTemperature(),sim->computePotentialEnergy());
         };
     clock_t t2 = clock();
     cudaProfilerStop();

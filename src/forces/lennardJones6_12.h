@@ -13,17 +13,21 @@ epsilon = sets the energy scale
 
 a flag can be set to compute the shift-and-truncated version
 by default, the maximum range is assumed to be 2.5
+
+...by default (since KA is so popular) we'll assume non-additive radii are important
 */
 class lennardJones6_12 : public basePairwiseForce
     {
         public:
-            lennardJones6_12(){pairParameters.resize(2);};
-/*
-           virtual void computePairwiseForce(dVec &relativeDistance, scalar distance,vector<scalar> &parameters, dVec &f);
-
-            virtual void getParametersForParticlePair(int index1, int index2, vector<scalar> &parameters);
+            lennardJones6_12(){pairParameters.resize(2);shiftAndCut = false; rc = 2.5;};
 
             virtual void setForceParameters(vector<scalar> &params);
+            virtual void getParametersForParticlePair(int index1, int index2, vector<scalar> &parameters);
+
+           virtual void computePairwiseForce(dVec &relativeDistance, scalar distance,vector<scalar> &parameters, dVec &f);
+/*
+
+
 
             virtual void computeForceGPU(GPUArray<dVec> &forces, bool zeroOutForce);
 
@@ -31,6 +35,8 @@ class lennardJones6_12 : public basePairwiseForce
 */
             bool shiftAndCut;
             scalar rc;
+            GPUArray<scalar> epsilonParameters;
+            GPUArray<scalar> sigmaParameters;
     };
 
 #endif

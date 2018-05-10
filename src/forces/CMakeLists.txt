@@ -7,6 +7,7 @@ add_library(force
     baseForce.cpp
     basePairwiseForce.cpp
     harmonicRepulsion.cpp
+    lennardJones6_12.cpp
     harmonicBond.cpp
     harmonicAngle.cpp
     )
