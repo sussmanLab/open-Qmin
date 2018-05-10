@@ -9,7 +9,7 @@ neighborList::neighborList(scalar range, BoxPtr _box)
     saveDistanceData = true;
     Box = _box;
     cellList = make_shared<hyperrectangularCellList>(range,Box);
-    Nmax = 2;
+    Nmax = 4;
     maxRange = range;
     };
 

@@ -44,6 +44,7 @@ class simpleModel
         //!do everything unusual to compute additional forces... by default, sets forces to zero
         virtual void computeForces(bool zeroOutForces=false);
 
+        void setParticlePositions(GPUArray<dVec> &newPositions);
         void setParticlePositionsRandomly(noiseSource &noise);
 
         //!Set velocities via a temperature. The return value is the total kinetic energy

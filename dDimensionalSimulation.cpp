@@ -15,9 +15,11 @@
 #include "noseHooverNVT.h"
 #include "noiseSource.h"
 #include "harmonicRepulsion.h"
+#include "lennardJones6_12.h"
 #include "indexer.h"
 #include "hyperrectangularCellList.h"
 #include "neighborList.h"
+#include "poissonDiskSampling.h"
 
 using namespace std;
 using namespace TCLAP;
@@ -55,7 +57,10 @@ int main(int argc, char*argv[])
     ValueArg<int> maxIterationsSwitchArg("i","iterations","number of timestep iterations",false,100,"int",cmd);
     ValueArg<scalar> lengthSwitchArg("l","sideLength","size of simulation domain",false,10.0,"double",cmd);
     ValueArg<scalar> temperatureSwitchArg("t","temperature","temperature of simulation",false,.001,"double",cmd);
+
+    //allow setting of system size by either volume fraction or density (assuming N has been set)
     ValueArg<scalar> phiSwitchArg("p","phi","volume fraction",false,-1.0,"double",cmd);
+    ValueArg<scalar> rhoSwitchArg("r","rho","density",false,-1.0,"double",cmd);
     //parse the arguments
     cmd.parse( argc, argv );
 
@@ -65,6 +70,8 @@ int main(int argc, char*argv[])
     scalar L = lengthSwitchArg.getValue();
     scalar Temperature = temperatureSwitchArg.getValue();
     scalar phi = phiSwitchArg.getValue();
+    scalar rho = rhoSwitchArg.getValue();
+
     int gpuSwitch = gpuSwitchArg.getValue();
     bool GPU = false;
     if(gpuSwitch >=0)
@@ -73,12 +80,23 @@ int main(int argc, char*argv[])
     if(phi >0)
         {
         L = pow(N*sphereVolume(.5,DIMENSION) / phi,(1.0/(scalar) DIMENSION));
+        rho = N/pow(L,(scalar)DIMENSION);
         }
     else
         phi = N*sphereVolume(.5,DIMENSION) / pow(L,(scalar)DIMENSION);
 
+    if(rho >0)
+        {
+        L = pow(((scalar)N/rho),(1.0/(scalar) DIMENSION));
+        phi = rho * sphereVolume(.5,DIMENSION);
+        }
+    else
+        rho = N/pow(L,(scalar)DIMENSION);
+
+
     int dim =DIMENSION;
-    cout << "running a simulation in "<<dim << " dimensions with box sizes" << L << endl;
+    cout << "running a simulation in "<<dim << " dimensions with box sizes " << L << endl;
+    cout << "density = " << rho << "\tvolume fracation = "<<phi<<endl;
     shared_ptr<simpleModel> Configuration = make_shared<simpleModel>(N);
     shared_ptr<periodicBoundaryConditions> PBC = make_shared<periodicBoundaryConditions>(L);
 
@@ -88,6 +106,12 @@ int main(int argc, char*argv[])
 
     //after the simulation box has been set, we can set particle positions
     noiseSource noise(true);
+    vector<dVec> poissonPoints;
+    scalar rad = 0.5;
+    poissonDiskSampling(N,.5,poissonPoints,noise,PBC);
+    for (int ii = 0; ii <poissonPoints.size(); ++ii)
+        printdVec(poissonPoints[ii]);
+
     Configuration->setParticlePositionsRandomly(noise);
     scalar ke = Configuration->setVelocitiesMaxwellBoltzmann(Temperature,noise);
     printf("temperature input %f \t temperature calculated %f\n",Temperature,Configuration->computeInstantaneousTemperature());
