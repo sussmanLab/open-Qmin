@@ -113,10 +113,7 @@ int main(int argc, char*argv[])
 //        fire->setGPU();
 //        neighList->setGPU();
         };
-
-    for (int timestep = 0; timestep < maximumIterations; ++timestep)
-        sim->performTimestep();
-
+cout << "simulation set-up finished" << endl;cout.flush();
     cudaProfilerStart();
     clock_t t1 = clock();
     for (int timestep = 0; timestep < maximumIterations; ++timestep)

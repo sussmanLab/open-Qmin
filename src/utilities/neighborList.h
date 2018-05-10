@@ -14,9 +14,13 @@ class neighborList
         void computeNeighborLists(GPUArray<dVec> &points)
             {
             if(useGPU)
+                {
                 computeGPU(points);
+                }
             else
+                {
                 computeCPU(points);
+                }
             };
 
         //!Enforce GPU operation

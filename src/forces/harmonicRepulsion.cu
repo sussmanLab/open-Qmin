@@ -14,12 +14,15 @@ __global__ void gpu_harmonic_repulsion_kernel(dVec *d_force,unsigned int *d_neig
     if (idx >= N)
         return;
 
+//printf("Idx %i\t",idx);
     int neighs = d_neighborsPerParticle[idx];
+//printf("neighs = %i\n",neighs);
     if(zeroForce)
         d_force[idx] = make_dVec(0.0);
     for (int nn = 0; nn < neighs; ++nn)
         {
         int nIdx = neighborIndexer(nn,idx);
+//printf("nIdx %i\t",nIdx);
         int p2 = d_neighbors[nIdx];
         dVec relativeDistance = d_neighborVectors[nIdx];
         //get parameters
