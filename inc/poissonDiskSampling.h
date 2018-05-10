@@ -28,7 +28,8 @@ poissonDiskSampling::poissonDiskSampling(int pts,scalar radius, vector<dVec> &sa
     vector<int> activeList;
     dVec max;
     Box->getBoxDims(max);
-    dVec min(0.0);
+    dVec min(.5);
+    max = max-min;
 
 
     //set up the "accelearation grid"... the grid cell size specifies something that can fit one entry
@@ -51,6 +52,16 @@ poissonDiskSampling::poissonDiskSampling(int pts,scalar radius, vector<dVec> &sa
     accel[k] = 0;
 
     //The main loop
+    for(int jj = 0; jj <2*pts-1; ++jj)
+    {
+    if(sample.size() >=pts) break;
+    for(int ii = 0; ii < sample.size(); ++ii)
+        {
+        activeList.push_back(ii);
+        dVec xTemp = sample[ii];
+        int kTemp = nDimArrayIndex(dimensions,(1/gridDx)*(xTemp-min));
+        accel[kTemp] = ii;
+        };
     while(!activeList.empty() && sample.size() < pts)
         {
         int r = noise.getInt(0,activeList.size()-0.0001f);
@@ -61,16 +72,23 @@ poissonDiskSampling::poissonDiskSampling(int pts,scalar radius, vector<dVec> &sa
             {
             sample_annulus_point(radius,sample[cur],x,noise);
             Box->putInBoxReal(x);
+            bool skip = false;
+            for (int dd = 0; dd < DIMENSION; ++dd)
+                {
+                if(x.x[dd] < gridDx*0.5|| x.x[dd] > max.x[dd]-gridDx*0.5)
+                skip = true;
+                };
+            if(skip) continue;
             //test if there is already a close sample to this point
             for (int dd = 0; dd < DIMENSION; ++dd)
                 {
                 int thisMin = (int)((x.x[dd]-radius-min.x[dd])/gridDx);
-                if(thisMin < 0) thisMin += dimensions.x[dd];
-                if(thisMin >= (int) dimensions.x[dd]) thisMin -= dimensions.x[dd];
+                if(thisMin < 0) thisMin = 0;
+                if(thisMin >= (int) dimensions.x[dd]) thisMin = dimensions.x[dd]-1;
                 jmin.x[dd] = thisMin;
                 int thisMax = (int)((x.x[dd]+radius-min.x[dd])/gridDx);
-                if(thisMax < 0) thisMax += dimensions.x[dd];
-                if(thisMax >= (int) dimensions.x[dd]) thisMax -= dimensions.x[dd];
+                if(thisMax < 0) thisMax =0;
+                if(thisMax >= (int) dimensions.x[dd]) thisMax = dimensions.x[dd]-1;
                 jmax.x[dd] = thisMax;
                 if(jmax.x[dd] < jmin.x[dd])
                     {
@@ -108,6 +126,7 @@ poissonDiskSampling::poissonDiskSampling(int pts,scalar radius, vector<dVec> &sa
             activeList.push_back(q);
             k = nDimArrayIndex(dimensions,(1/gridDx)*(x-min));
             accel[k] = (int)q;
+            break;
             }
         else
             {
@@ -115,7 +134,7 @@ poissonDiskSampling::poissonDiskSampling(int pts,scalar radius, vector<dVec> &sa
             activeList.pop_back();
             };
         };
-    cout << "size of list " << sample.size() << endl;
+    };
     };
 
 /*!

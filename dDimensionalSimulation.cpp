@@ -104,15 +104,23 @@ int main(int argc, char*argv[])
     sim->setConfiguration(Configuration);
     sim->setBox(PBC);
 
-    //after the simulation box has been set, we can set particle positions
+    //after the simulation box has been set, we can set particle positions...do so via poisson disk sampling?
     noiseSource noise(true);
     vector<dVec> poissonPoints;
-    scalar rad = 0.5;
-    poissonDiskSampling(N,.5,poissonPoints,noise,PBC);
-    for (int ii = 0; ii <poissonPoints.size(); ++ii)
-        printdVec(poissonPoints[ii]);
+    scalar diameter = .75;
+    clock_t tt1=clock();
+    int loopCount = 0;
+    while(poissonPoints.size() != N)
+        {
+        poissonDiskSampling(N,diameter,poissonPoints,noise,PBC);
+        loopCount +=1;
+         diameter *= 0.95;
+        }
+    clock_t tt2=clock();
+    scalar seedingTimeTaken = (tt2-tt1)/(scalar)CLOCKS_PER_SEC;
+    cout << "disk sampling took "<< loopCount << " diameter attempts and took " << seedingTimeTaken << " total seconds" <<endl;
 
-    Configuration->setParticlePositionsRandomly(noise);
+    Configuration->setParticlePositions(poissonPoints);
     scalar ke = Configuration->setVelocitiesMaxwellBoltzmann(Temperature,noise);
     printf("temperature input %f \t temperature calculated %f\n",Temperature,Configuration->computeInstantaneousTemperature());
 

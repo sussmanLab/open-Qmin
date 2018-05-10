@@ -67,6 +67,17 @@ scalar simpleModel::computeInstantaneousTemperature(bool fixedMomentum)
         return en /(N*DIMENSION);
     };
 
+void simpleModel::setParticlePositions(vector<dVec> &newPositions)
+    {
+    if(N !=newPositions.size())
+        initializeSimpleModel(newPositions.size());
+    ArrayHandle<dVec> p(positions);
+    for (int pp = 0;pp < N; ++pp)
+        {
+        p.data[pp] = newPositions[pp];
+        Box->putInBoxReal(p.data[pp]);
+        };
+    };
 void simpleModel::setParticlePositions(GPUArray<dVec> &newPositions)
     {
     if(N !=newPositions.getNumElements())
