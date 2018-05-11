@@ -53,6 +53,4 @@ void basePairwiseForce::computeForceCPU(GPUArray<dVec> &forces, bool zeroOutForc
             h_force.data[p2] -= f;
             };
         };
-
     };
-

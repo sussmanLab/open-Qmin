@@ -167,13 +167,15 @@ cout << "simulation set-up finished" << endl;cout.flush();
     cudaProfilerStart();
     clock_t t1 = clock();
 
-    scalar dt=-9;
+    scalar dt=-12;
     for (int timestep = 0; timestep < maximumIterations; ++timestep)
         {
-        if(timestep %1000 ==0 && dt < -3)
+        if(timestep %500 ==0 && dt < -3)
             {
             dt += 1;
-            nvt->setDeltaT(pow(10,dt));
+            scalar newdt = pow(10,dt);
+            nvt->setDeltaT(newdt);
+            cout << "setting new timestep size of " <<newdt << endl;
             }
         sim->performTimestep();
         if(timestep%100 == 0)

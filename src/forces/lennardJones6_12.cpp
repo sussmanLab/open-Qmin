@@ -1,11 +1,7 @@
 #include "lennardJones6_12.h"
-//#include "lennardJones6_12.cuh"
+#include "lennardJones6_12.cuh"
 #include "utilities.cuh"
 /*! \file lennardJones6_12.cpp */
-/*!
-Force defined by....
-*/
-
 
 
 /*!
@@ -73,3 +69,81 @@ void lennardJones6_12::computePairwiseForce(dVec &relativeDistance, scalar dnorm
             f = make_dVec(0.0);
         };
     };
+
+void lennardJones6_12::computeForceGPU(GPUArray<dVec> &forces, bool zeroOutForce)
+    {
+    neighbors->computeNeighborLists(model->returnPositions());
+
+    if(shiftAndCut)
+        UNWRITTENCODE("gpu shift and cut LJ potential");
+
+    ArrayHandle<dVec> d_force(forces,access_location::device,access_mode::readwrite);
+    int N = model->getNumberOfParticles();
+
+    ArrayHandle<unsigned int> d_npp(neighbors->neighborsPerParticle,access_location::device,access_mode::read);
+    ArrayHandle<int> d_n(neighbors->particleIndices,access_location::device,access_mode::read);
+    ArrayHandle<dVec> d_nv(neighbors->neighborVectors,access_location::device,access_mode::read);
+
+    ArrayHandle<int> particleType(model->returnTypes(),access_location::device,access_mode::read);
+    ArrayHandle<scalar> d_epsilon(epsilonParameters,access_location::device,access_mode::read);
+    ArrayHandle<scalar> d_sigma(sigmaParameters,access_location::device,access_mode::read);
+
+        gpu_lennardJones6_12_calculation(d_force.data,
+                                       d_npp.data,
+                                       d_n.data,
+                                       d_nv.data,
+                                       particleType.data,
+                                       d_epsilon.data,
+                                       d_sigma.data,
+                                       neighbors->neighborIndexer,
+                                       particleTypeIndexer,
+                                       rc,
+                                       N,
+                                       zeroOutForce);
+    }
+
+scalar lennardJones6_12::computeEnergyGPU()
+    {
+    if(shiftAndCut)
+        UNWRITTENCODE("gpu shift and cut LJ potential");
+
+    neighbors->computeNeighborLists(model->returnPositions());
+    int N = model->getNumberOfParticles();
+    if(energyPerParticle.getNumElements() != N)
+        {
+        energyPerParticle.resize(N);
+        energyIntermediateReduction.resize(N);
+        energyReduction.resize(1);
+        }
+
+    {//scope for "energy per particle" calculation 
+    ArrayHandle<scalar> d_energy(energyPerParticle,access_location::device,access_mode::overwrite);
+    ArrayHandle<unsigned int> d_npp(neighbors->neighborsPerParticle,access_location::device,access_mode::read);
+    ArrayHandle<int> d_n(neighbors->particleIndices,access_location::device,access_mode::read);
+    ArrayHandle<dVec> d_nv(neighbors->neighborVectors,access_location::device,access_mode::read);
+    ArrayHandle<int> particleType(model->returnTypes(),access_location::device,access_mode::read);
+    ArrayHandle<scalar> d_epsilon(epsilonParameters,access_location::device,access_mode::read);
+    ArrayHandle<scalar> d_sigma(sigmaParameters,access_location::device,access_mode::read);
+
+        gpu_lennardJones6_12_energy(d_energy.data,
+                                       d_npp.data,
+                                       d_n.data,
+                                       d_nv.data,
+                                       particleType.data,
+                                       d_epsilon.data,
+                                       d_sigma.data,
+                                       neighbors->neighborIndexer,
+                                       particleTypeIndexer,
+                                       rc,
+                                       N);
+    };//scope of energy per particle
+    {//scope for parallel reduction
+    ArrayHandle<scalar> d_energy(energyPerParticle,access_location::device,access_mode::read);
+    ArrayHandle<scalar> d_intermediate(energyIntermediateReduction,access_location::device,access_mode::overwrite);
+    ArrayHandle<scalar> d_ans(energyReduction,access_location::device,access_mode::overwrite);
+    gpu_parallel_reduction(d_energy.data,d_intermediate.data,d_ans.data,0,N);
+    };
+    ArrayHandle<scalar> h_ans(energyReduction);
+    return h_ans.data[0];
+    }
+

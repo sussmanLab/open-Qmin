@@ -1,5 +1,5 @@
 #include "harmonicRepulsion.cuh"
-/*! \file energyMinimizerFIRE.cu 
+/*! \file harmonicRepulsion.cu 
 
 \addtogroup forceKernels
 @{

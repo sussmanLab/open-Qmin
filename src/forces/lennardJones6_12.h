@@ -24,19 +24,18 @@ class lennardJones6_12 : public basePairwiseForce
             virtual void setForceParameters(vector<scalar> &params);
             virtual void getParametersForParticlePair(int index1, int index2, vector<scalar> &parameters);
 
-           virtual void computePairwiseForce(dVec &relativeDistance, scalar distance,vector<scalar> &parameters, dVec &f);
-/*
-
-
+            virtual void computePairwiseForce(dVec &relativeDistance, scalar distance,vector<scalar> &parameters, dVec &f);
 
             virtual void computeForceGPU(GPUArray<dVec> &forces, bool zeroOutForce);
 
-            virtual void allPairsForceGPU(GPUArray<dVec> &forces, bool zeroOutForce);
-*/
+            virtual scalar computeEnergyGPU();
             bool shiftAndCut;
             scalar rc;
             GPUArray<scalar> epsilonParameters;
             GPUArray<scalar> sigmaParameters;
+            //!A structure for performing partial reductions on the gpu
+            GPUArray<scalar> energyIntermediateReduction;
+            GPUArray<scalar> energyReduction;
     };
 
 #endif

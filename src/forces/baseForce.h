@@ -48,6 +48,8 @@ class force
 
         //!Forces might update the total energy associated with them
         scalar energy;
+        //!on the gpu, this is per particle and then a reduction can be called
+        GPUArray<scalar> energyPerParticle;
         //!does the force get an assist from a neighbor list?
         bool useNeighborList;
 

@@ -12,5 +12,6 @@ add_library(force
     harmonicAngle.cpp
     )
 cuda_add_library(forceGPU
+    lennardJones6_12.cu
     harmonicRepulsion.cu
     )
