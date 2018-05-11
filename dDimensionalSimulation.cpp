@@ -170,7 +170,7 @@ cout << "simulation set-up finished" << endl;cout.flush();
     scalar dt=-12;
     for (int timestep = 0; timestep < maximumIterations; ++timestep)
         {
-        if(timestep %500 ==0 && dt < -3)
+        if(timestep %1000 ==0 && dt < -3)
             {
             dt += 1;
             scalar newdt = pow(10,dt);
@@ -179,7 +179,7 @@ cout << "simulation set-up finished" << endl;cout.flush();
             }
         sim->performTimestep();
         if(timestep%100 == 0)
-            printf("timestep %i: target T = %f\t instantaneous T = %g\t PE = %g\n",timestep,Temperature,Configuration->computeInstantaneousTemperature(),sim->computePotentialEnergy());
+            printf("timestep %i: target T = %f\t instantaneous T = %g\t PE = %g\t nlist max = %i\n",timestep,Temperature,Configuration->computeInstantaneousTemperature(),sim->computePotentialEnergy(),neighList->Nmax);
         };
     clock_t t2 = clock();
     cudaProfilerStop();

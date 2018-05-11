@@ -54,6 +54,8 @@ class neighborList
         scalar maxRange;
         //!The cell list that will help out
         shared_ptr<hyperrectangularCellList> cellList;
+        //! the maximum number of particles found in any neighborhood
+        int Nmax;
     protected:
 
         //!Save the displacement and distances associated with neihgbors?
@@ -64,8 +66,6 @@ class neighborList
         void computeGPU(GPUArray<dVec> &points);
         //! compute via CPU
         void computeCPU(GPUArray<dVec> &points);
-        //! the maximum number of particles found in any neighborhood
-        int Nmax;
         //!Initialization and helper without using the GPU
         void resetNeighborsCPU(int size);
         //!Initialization and helper
