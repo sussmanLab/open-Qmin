@@ -37,6 +37,8 @@ class noseHooverNVT : public equationOfMotion
         //!A structure for performing partial reductions on the gpu
         GPUArray<scalar> keIntermediateReduction;
 
+        //!partially update bath (chain) positions and velocities... on the gpu!
+        void propagateChainGPU();
         //!multiply the velocities by the KE scale factor on the GPU
         void rescaleVelocitiesGPU();
         //!update the positions and velocities of particles on the GPU

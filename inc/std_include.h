@@ -39,6 +39,7 @@ using namespace std;
 #include <cuda_runtime.h>
 #include "vector_types.h"
 #include "vector_functions.h"
+#include "nvToolsExt.h"
 
 #define PI 3.14159265358979323846
 
@@ -80,9 +81,9 @@ using namespace std;
 static void HandleError(cudaError_t err, const char *file, int line)
     {
     //as an additional debugging check, if always synchronize cuda threads after every kernel call
-    #ifdef CUDATHREADSYNC
+//    #ifdef CUDATHREADSYNC
     cudaThreadSynchronize();
-    #endif
+//    #endif
     if (err != cudaSuccess)
         {
         printf("\nError: %s in file %s at line %d\n",cudaGetErrorString(err),file,line);
@@ -103,6 +104,23 @@ inline bool fileExists(const std::string& name)
     ifstream f(name.c_str());
     return f.good();
     }
+
+static void nvtxProfPush(const char *message)
+    {
+    #ifdef DEBUGFLAGUP
+    nvtxRangePushA(message);
+    #endif
+    };
+
+static void nvtxProfPop()
+    {
+    #ifdef DEBUGFLAGUP
+    nvtxRangePop();
+    #endif
+    };
+
+#define NVTXPUSH(message) (nvtxProfPush(message))
+#define NVTXPOP(message) (nvtxProfPop())
 
 //A macro to wrap cuda calls
 #define HANDLE_ERROR(err) (HandleError( err, __FILE__,__LINE__ ))

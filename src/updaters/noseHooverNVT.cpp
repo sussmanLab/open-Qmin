@@ -1,4 +1,5 @@
 #include "noseHooverNVT.h"
+#include "noseHooverNVT.cuh"
 #include "utilities.cuh"
 #include "velocityVerlet.cuh"
 /*! \file noseHooverNVT.cpp */
@@ -110,7 +111,19 @@ void noseHooverNVT::propagatePositionsVelocites()
     model->moveParticles(displacement);
     };
 
-void::noseHooverNVT::propagateChain()
+void noseHooverNVT::propagateChainGPU()
+    {
+    ArrayHandle<scalar> d_kes(kineticEnergyScaleFactor,access_location::device,access_mode::readwrite);
+    ArrayHandle<scalar4> d_bath(bathVariables,access_location::device,access_mode::readwrite);
+    gpu_propagate_noseHoover_chain(d_kes.data,
+                                   d_bath.data,
+                                   deltaT,
+                                   temperature,
+                                   Nchain,
+                                   Ndof);
+    };
+
+void noseHooverNVT::propagateChain()
     {
     ArrayHandle<scalar> h_kes(kineticEnergyScaleFactor);
     scalar dt8 = 0.125*deltaT;
@@ -169,11 +182,13 @@ void noseHooverNVT::integrateEOMGPU()
     //we'll define helper functions
 
     //for now, let's update the chain variables on the CPU... profile later
-    propagateChain(); // use data structure that holds [KE,s], update both.
+//    propagateChain(); // use data structure that holds [KE,s], update both.
+    propagateChainGPU();
     rescaleVelocitiesGPU(); //use the velocity vector and the [KE,s] data structure. Note that KE is already scaled by s^2 in the above step
     propagatePositionsVelocitiesGPU();
     calculateKineticEnergyGPU(); //get the kinetic energy into the [KE,s] data structure
-    propagateChain();
+    propagateChainGPU();
+    //propagateChain();
     rescaleVelocitiesGPU();
     };
 

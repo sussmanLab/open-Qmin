@@ -12,4 +12,5 @@ add_library(updater
 cuda_add_library(updaterGPU
     velocityVerlet.cu
     energyMinimizerFIRE.cu
+    noseHooverNVT.cu
     )
