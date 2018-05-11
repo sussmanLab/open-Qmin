@@ -164,16 +164,10 @@ int main(int argc, char*argv[])
 //        fire->setGPU();
 //        neighList->setGPU();
         };
+sim->performTimestep();
 cout << "simulation set-up finished" << endl;cout.flush();
 
-sim->performTimestep();
-cudaProfilerStart();
-sim->performTimestep();
-sim->performTimestep();
-cudaProfilerStop();
-
     clock_t t1 = clock();
-/*
     cudaProfilerStart();
 
     scalar dt=-12;
@@ -191,7 +185,6 @@ cudaProfilerStop();
             printf("timestep %i: target T = %f\t instantaneous T = %g\t PE = %g\t nlist max = %i\n",timestep,Temperature,Configuration->computeInstantaneousTemperature(),sim->computePotentialEnergy(),neighList->Nmax);
         };
     cudaProfilerStop();
-*/
     clock_t t2 = clock();
     sim->setCPUOperation(true);
     scalar E = sim->computePotentialEnergy();

@@ -183,13 +183,31 @@ void noseHooverNVT::integrateEOMGPU()
 
     //for now, let's update the chain variables on the CPU... profile later
 //    propagateChain(); // use data structure that holds [KE,s], update both.
+NVTXPUSH("chain prop 1");
     propagateChainGPU();
+NVTXPOP();
+
+NVTXPUSH("rescale vel 1");
     rescaleVelocitiesGPU(); //use the velocity vector and the [KE,s] data structure. Note that KE is already scaled by s^2 in the above step
+NVTXPOP();
+
+NVTXPUSH("pos Vel prop");
     propagatePositionsVelocitiesGPU();
+NVTXPOP();
+
+NVTXPUSH("KE calc");
     calculateKineticEnergyGPU(); //get the kinetic energy into the [KE,s] data structure
+NVTXPOP();
+
+NVTXPUSH("chain prop 2");
     propagateChainGPU();
+NVTXPOP();
+
     //propagateChain();
+NVTXPUSH("rescale vel 2");
     rescaleVelocitiesGPU();
+NVTXPOP();
+
     };
 
 void noseHooverNVT::rescaleVelocitiesGPU()
@@ -203,10 +221,15 @@ void noseHooverNVT::propagatePositionsVelocitiesGPU()
     {
     scalar deltaT2 = 0.5*deltaT;
     //first, move particles according to velocities
+NVTXPUSH("move particles1");
     model->moveParticles(model->returnVelocities(),deltaT2);
+NVTXPOP();
+NVTXPUSH("computeForces");
     sim->computeForces();
+NVTXPOP();
 
     //the second half of the time step first updates the velocites then moves particles again
+NVTXPUSH("update velocity");
     {
     ArrayHandle<dVec> d_v(model->returnVelocities(),access_location::device,access_mode::readwrite);
     ArrayHandle<dVec> d_f(model->returnForces(),access_location::device,access_mode::read);
@@ -214,8 +237,11 @@ void noseHooverNVT::propagatePositionsVelocitiesGPU()
     //the NH velocity update is the same as the velocity verlet but with a different effective timestep
     gpu_update_velocity(d_v.data,d_f.data,d_m.data,deltaT*2.,Ndof);
     };
+NVTXPOP();
     //move particles according to velocities again
+NVTXPUSH("move particles2");
     model->moveParticles(model->returnVelocities(),deltaT2);
+NVTXPOP();
     };
 
 void noseHooverNVT::calculateKineticEnergyGPU()

@@ -42,6 +42,7 @@ void hyperrectangularCellList::setGridSize(scalar a)
     Nmax = 2;
     cellListIndexer = Index2D(Nmax,totalCells);
     resetCellSizesCPU();
+    adjCellsComputed = false;
     };
 
 /*!
@@ -81,6 +82,7 @@ all on the GPU so that arrays don't need to be copied back to the host
 */
 void hyperrectangularCellList::resetCellSizes()
     {
+NVTXPUSH("cell list resetting");
     //set all cell sizes to zero
     if(elementsPerCell.getNumElements() != totalCells)
         elementsPerCell.resize(totalCells);
@@ -92,16 +94,13 @@ void hyperrectangularCellList::resetCellSizes()
     cellListIndexer = Index2D(Nmax,totalCells);
     if(particleIndices.getNumElements() != cellListIndexer.getNumElements())
         particleIndices.resize(cellListIndexer.getNumElements());
-/*
-    ArrayHandle<int> d_idx(particleIndices,access_location::device,access_mode::overwrite);
-    gpu_zero_array(d_idx.data,(int) cellListIndexer.getNumElements());
-*/
 
     if(assist.getNumElements()!= 2)
         assist.resize(2);
     ArrayHandle<int> h_assist(assist,access_location::host,access_mode::overwrite);
     h_assist.data[0]=Nmax;
     h_assist.data[1] = 0;
+NVTXPOP();
     };
 
 /*!
@@ -214,6 +213,7 @@ void hyperrectangularCellList::computeAdjacentCells(int width)
             neigh +=1;
             };
         };
+    adjCellsComputed = true;
     };
 
 /*!
@@ -259,6 +259,7 @@ void hyperrectangularCellList::computeGPU(GPUArray<dVec> &points)
             }
         //get cell list arrays
         recompute = false;
+NVTXPUSH("cell list thing");
         if (true)
             {
             ArrayHandle<unsigned int> h_elementsPerCell(elementsPerCell,access_location::host,access_mode::read);
@@ -274,6 +275,7 @@ void hyperrectangularCellList::computeGPU(GPUArray<dVec> &points)
                     };
                 };
             };
+NVTXPOP();
         };
     cellListIndexer = Index2D(Nmax,totalCells);
     };

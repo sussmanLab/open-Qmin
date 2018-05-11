@@ -60,7 +60,8 @@ class hyperrectangularCellList
         //! compute the cell list of the gpuarry passed to it.
         void computeCellList(GPUArray<dVec> &points)
             {
-            computeAdjacentCells();
+            if(!adjCellsComputed)
+                computeAdjacentCells();
             if(useGPU)
                 computeGPU(points);
             else
@@ -116,6 +117,9 @@ class hyperrectangularCellList
         BoxPtr Box;
         //!whether the updater does its work on the GPU or not
         bool useGPU;
+
+        //!have we already computed the adjacent cell lists?
+        bool adjCellsComputed;
     };
 
 #endif

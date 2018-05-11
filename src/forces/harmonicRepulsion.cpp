@@ -86,8 +86,11 @@ void harmonicRepulsion::computeForceGPU(GPUArray<dVec> &forces, bool zeroOutForc
         allPairsForceGPU(forces,zeroOutForce);
     else
         {
+NVTXPUSH("compute neighbor list");
         neighbors->computeNeighborLists(model->returnPositions());
+NVTXPOP();
 
+NVTXPUSH("compute harmonic repulsion");
         ArrayHandle<dVec> d_force(forces,access_location::device,access_mode::readwrite);
         int N = model->getNumberOfParticles();
 
@@ -118,5 +121,6 @@ void harmonicRepulsion::computeForceGPU(GPUArray<dVec> &forces, bool zeroOutForc
                                        particleTypeIndexer,
                                        N,
                                        zeroOutForce);
+NVTXPOP();
         };
     };

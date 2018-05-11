@@ -1,5 +1,4 @@
 #include "simulation.h"
-#include "nvToolsExt.h"
 /*! \file simulation.cpp */
 
 /*!
@@ -134,13 +133,12 @@ void Simulation::performTimestep()
     {
     integerTimestep += 1;
     Time += integrationTimestep;
+
     //perform any updates, one of which should probably be an EOM
     for (int u = 0; u < updaters.size(); ++u)
         {
         auto upd = updaters[u].lock();
-        NVTXPUSH("updater 1");
         upd->Update(integerTimestep);
-        NVTXPOP();
         };
 /*
     //spatially sort as necessary

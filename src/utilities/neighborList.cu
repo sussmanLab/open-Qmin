@@ -46,11 +46,11 @@ __global__ void gpu_compute_neighbor_list_TPC_kernel(int *d_idx,
     //iterate through the given cell
     int currentCell = d_adj[adjacentCellIndexer(cellIdx,cell)];
     int particlesInBin = particlesPerCell[currentCell];
+    dVec disp;
     for(int p1 = 0; p1 < particlesInBin; ++p1)
         {
         int neighborIndex = indices[cellListIndexer(p1,currentCell)];
         if (neighborIndex == particleIdx) continue;
-        dVec disp;
         Box.minDist(target,d_pt[neighborIndex],disp);
         if(norm(disp)>=maxRange) continue;
         int offset = atomicAdd(&(d_npp[particleIdx]),1);

@@ -10,11 +10,11 @@ find_package(CUDA REQUIRED)
 
 if(${CMAKE_BUILD_TYPE} MATCHES "Debug")
     add_definitions(-DDEBUGFLAGUP)
-    #    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lnvToolsExt")
-    #set(CMAKE_CC_FLAGS "${CMAKE_CC_FLAGS} -lnvToolsExt")
+    set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -g -lineinfo -Xptxas --generate-line-info")
 endif(${CMAKE_BUILD_TYPE} MATCHES "Debug")
 
 message("cxx flags = " "${CMAKE_CXX_FLAGS}")
+message("nvcc flags = " "${CUDA_NVCC_FLAGS}")
 message("lib dir = " "${CUDA_LIBRARY_DIRS}")
 message("culibs = " "${CUDA_LIBRARIES}")
 #message("nvcc flags are  " ${CUDA_NVCC_FLAGS})
