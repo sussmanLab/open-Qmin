@@ -12,7 +12,7 @@ U(\delta) = 0.5*k*\delta^2, where
 class harmonicRepulsion : public basePairwiseForce
     {
         public:
-            harmonicRepulsion(){pairParameters.resize(2);};
+            harmonicRepulsion(){pairParameters.resize(2);monodisperse = false;};
         virtual void computePairwiseForce(dVec &relativeDistance, scalar distance,vector<scalar> &parameters, dVec &f);
 
         virtual void getParametersForParticlePair(int index1, int index2, vector<scalar> &parameters);
@@ -23,6 +23,9 @@ class harmonicRepulsion : public basePairwiseForce
 
         virtual void allPairsForceGPU(GPUArray<dVec> &forces, bool zeroOutForce);
 
+        void setMonodisperse(){monodisperse = true;};
+
+        bool monodisperse;
     };
 
 #endif

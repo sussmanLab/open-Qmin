@@ -14,15 +14,12 @@ __global__ void gpu_harmonic_repulsion_kernel(dVec *d_force,unsigned int *d_neig
     if (idx >= N)
         return;
 
-//printf("Idx %i\t",idx);
     int neighs = d_neighborsPerParticle[idx];
-//printf("neighs = %i\n",neighs);
     if(zeroForce)
         d_force[idx] = make_dVec(0.0);
     for (int nn = 0; nn < neighs; ++nn)
         {
         int nIdx = neighborIndexer(nn,idx);
-//printf("nIdx %i\t",nIdx);
         int p2 = d_neighbors[nIdx];
         dVec relativeDistance = d_neighborVectors[nIdx];
         //get parameters
@@ -34,6 +31,27 @@ __global__ void gpu_harmonic_repulsion_kernel(dVec *d_force,unsigned int *d_neig
             d_force[idx] += K*(1.0/sigma0)*(1.0-dnorm/sigma0)*(1.0/dnorm)*relativeDistance;
         };
     };
+
+__global__ void gpu_harmonic_repulsion_monodisperse_kernel(dVec *d_force,unsigned int *d_neighborsPerParticle,int *d_neighbors,dVec *d_neighborVectors,Index2D neighborIndexer,int N,bool zeroForce)
+    {
+    unsigned int idx = blockDim.x * blockIdx.x + threadIdx.x;
+    if (idx >= N)
+        return;
+
+    int neighs = d_neighborsPerParticle[idx];
+    if(zeroForce)
+        d_force[idx] = make_dVec(0.0);
+    for (int nn = 0; nn < neighs; ++nn)
+        {
+        int nIdx = neighborIndexer(nn,idx);
+        dVec relativeDistance = d_neighborVectors[nIdx];
+        //compute force
+        scalar dnorm = norm(relativeDistance);
+        if (dnorm <= 1.0)
+            d_force[idx] += 1.0*(1.0-dnorm)*(1.0/dnorm)*relativeDistance;
+        };
+    };
+
 
 __global__ void gpu_harmonic_repulsion_allPairs_kernel(dVec *d_force,dVec *d_pos,int *particleType, scalar *d_radii,scalar *d_params,Index2D particleTypeIndexer,periodicBoundaryConditions Box, int N,bool zeroForce)
     {
@@ -60,6 +78,24 @@ __global__ void gpu_harmonic_repulsion_allPairs_kernel(dVec *d_force,dVec *d_pos
     };
 
 
+/*!
+Calculate harmonic repulsion forces, launching one thread per particle
+*/
+bool gpu_harmonic_repulsion_monodisperse_calculation(dVec *d_force,unsigned int *d_neighborsPerParticle,int *d_neighbors,dVec *d_neighborVectors,Index2D neighborIndexer,int N,bool zeroForce)
+    {
+    unsigned int block_size = 128;
+    if (N < 128) block_size = 32;
+    unsigned int nblocks  = N/block_size + 1;
+    gpu_harmonic_repulsion_monodisperse_kernel<<<nblocks,block_size>>>(d_force,
+           d_neighborsPerParticle,
+           d_neighbors,
+           d_neighborVectors,
+           neighborIndexer,
+           N,
+           zeroForce);
+    HANDLE_ERROR(cudaGetLastError());
+    return cudaSuccess;
+    };
 /*!
 Calculate harmonic repulsion forces, launching one thread per particle
 */

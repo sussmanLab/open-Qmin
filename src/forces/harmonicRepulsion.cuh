@@ -33,6 +33,14 @@ bool gpu_harmonic_repulsion_calculation(dVec *d_force,
                                    Index2D particleTypeIndexer,
                                    int N,
                                    bool zeroForce);
+//!calculate harmonic repulsive forces assuming monodisperse systems
+bool gpu_harmonic_repulsion_monodisperse_calculation(dVec *d_force,
+                                   unsigned int *d_neighborsPerParticle,
+                                   int *d_neighbors,
+                                   dVec *d_neighborVectors,
+                                   Index2D neighborIndexer,
+                                   int N,
+                                   bool zeroForce);
 
 /** @} */ //end of group declaration
 #endif

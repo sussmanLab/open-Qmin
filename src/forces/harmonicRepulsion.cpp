@@ -18,6 +18,7 @@ params[n^2-1] = k_{n,n}
 */
 void harmonicRepulsion::setForceParameters(vector<scalar> &params)
     {
+    if (monodisperse) return;
     parameters.resize(params.size());
     nTypes = sqrt(params.size());
     particleTypeIndexer = Index2D(nTypes);
@@ -35,6 +36,12 @@ Need to get the type-type stiffness and the sum of radii
 */
 void harmonicRepulsion::getParametersForParticlePair(int index1, int index2, vector<scalar> &params)
     {
+    if(monodisperse)
+        {
+        params[0]=1.0;
+        params[1]=1.0;
+        return;
+        };
     ArrayHandle<int> particleType(model->returnTypes());
     ArrayHandle<scalar> h_p(parameters);
     ArrayHandle<scalar> h_r(model->returnRadii());
@@ -91,7 +98,16 @@ void harmonicRepulsion::computeForceGPU(GPUArray<dVec> &forces, bool zeroOutForc
         ArrayHandle<int> particleType(model->returnTypes(),access_location::device,access_mode::read);
         ArrayHandle<scalar> d_params(parameters,access_location::device,access_mode::read);
         ArrayHandle<scalar> d_radii(model->returnRadii(),access_location::device,access_mode::read);
-        gpu_harmonic_repulsion_calculation(d_force.data,
+        if(monodisperse)
+            gpu_harmonic_repulsion_monodisperse_calculation(d_force.data,
+                                       d_npp.data,
+                                       d_n.data,
+                                       d_nv.data,
+                                       neighbors->neighborIndexer,
+                                       N,
+                                       zeroOutForce);
+        else
+            gpu_harmonic_repulsion_calculation(d_force.data,
                                        d_npp.data,
                                        d_n.data,
                                        d_nv.data,

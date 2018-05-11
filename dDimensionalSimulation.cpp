@@ -124,16 +124,16 @@ int main(int argc, char*argv[])
     scalar ke = Configuration->setVelocitiesMaxwellBoltzmann(Temperature,noise);
     printf("temperature input %f \t temperature calculated %f\n",Temperature,Configuration->computeInstantaneousTemperature());
 
-    shared_ptr<neighborList> neighList = make_shared<neighborList>(2.5,PBC);
+    shared_ptr<neighborList> neighList = make_shared<neighborList>(1.,PBC);
     neighList->cellList->computeAdjacentCells();
-    /*
      //monodisperse harmonic spheres
     shared_ptr<harmonicRepulsion> softSpheres = make_shared<harmonicRepulsion>();
+    softSpheres->setMonodisperse();
     softSpheres->setNeighborList(neighList);
     vector<scalar> stiffnessParameters(1,1.0);
     softSpheres->setForceParameters(stiffnessParameters);
     sim->addForce(softSpheres,Configuration);
-    */
+    /*
     //kob-anderson 80:20 mixture
     {
     ArrayHandle<int> h_t(Configuration->returnTypes());
@@ -150,6 +150,7 @@ int main(int argc, char*argv[])
     ljParams[4]=1.0;ljParams[5]=0.8;ljParams[6]=0.8;ljParams[7]=0.88;
     lj->setForceParameters(ljParams);
     sim->addForce(lj,Configuration);
+    */
 
     shared_ptr<noseHooverNVT> nvt = make_shared<noseHooverNVT>(Configuration,Temperature);
     nvt->setDeltaT(1e-8);
@@ -187,14 +188,7 @@ cout << "simulation set-up finished" << endl;cout.flush();
     sim->setCPUOperation(true);
     scalar E = sim->computePotentialEnergy();
     printf("simulation potential energy at %f\n",E);
-    /*
-    //how did FIRE do? check by hand
-    {
-    ArrayHandle<dVec> pos(Configuration->returnPositions());
-    for (int pp = 0; pp < N; ++pp)
-        printdVec(pos.data[pp]);
-    }
-    */
+
     scalar timeTaken = (t2-t1)/(scalar)CLOCKS_PER_SEC/maximumIterations;
     cout << endl << "simulations took " << timeTaken << " per time step" << endl;
 
