@@ -109,6 +109,7 @@ static void nvtxProfPush(const char *message)
     {
     #ifdef DEBUGFLAGUP
     nvtxRangePushA(message);
+    printf("%s\n",message);
     #endif
     };
 

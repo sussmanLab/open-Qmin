@@ -199,7 +199,8 @@ NVTXPUSH("primary neighborlist computation");
 NVTXPOP();
 NVTXPUSH("neighborList assist checking");
         {
-        ArrayHandle<int> h_assist(assist);
+        ArrayHandle<int> h_assist(assist,access_location::host,access_mode::readwrite);
+//        printf("h[0]=%i, h[1]=%i\n",h_assist.data[0],h_assist.data[1]);
         if(h_assist.data[1] == 1)
             {
             Nmax = h_assist.data[0];

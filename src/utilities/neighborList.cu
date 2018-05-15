@@ -42,7 +42,6 @@ __global__ void gpu_compute_neighbor_list_TPC_kernel(int *d_idx,
     for (int dd =0; dd < DIMENSION; ++dd)
         cellIndexVec.x[dd] = max(0,min((int)gridCellsPerSide.x[dd]-1,(int) floor(target.x[dd]/gridCellSizes.x[dd])));
     int cell = cellIndexer(cellIndexVec);
-
     //iterate through the given cell
     int currentCell = d_adj[adjacentCellIndexer(cellIdx,cell)];
     int particlesInBin = particlesPerCell[currentCell];
@@ -54,16 +53,18 @@ __global__ void gpu_compute_neighbor_list_TPC_kernel(int *d_idx,
         Box.minDist(target,d_pt[neighborIndex],disp);
         if(norm(disp)>=maxRange) continue;
         int offset = atomicAdd(&(d_npp[particleIdx]),1);
-        if(offset < d_assist[0])
+        if(offset<nmax)
             {
             int nlpos = neighborIndexer(offset,particleIdx);
+            if(nlpos <0 || nlpos >= neighborIndexer.getNumElements())
+                printf("ASDADSAD");
             d_idx[nlpos] = neighborIndex;
             d_vec[nlpos] = disp;
             }
         else
             {
-            d_assist[0] += 1;
-            d_assist[1] = 1;
+            atomicCAS(&(d_assist)[0],offset,offset+1);
+            d_assist[1]=1;
             }
         };
     };
