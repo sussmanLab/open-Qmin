@@ -62,7 +62,10 @@ void hyperrectangularCellList::resetCellSizesCPU()
     //set all cell indexes to zero
     cellListIndexer = Index2D(Nmax,totalCells);
     if(particleIndices.getNumElements() != cellListIndexer.getNumElements())
+        {
         particleIndices.resize(cellListIndexer.getNumElements());
+        particlePositions.resize(cellListIndexer.getNumElements());
+        }
 
     ArrayHandle<int> h_idx(particleIndices,access_location::host,access_mode::overwrite);
     for (int i = 0; i < cellListIndexer.getNumElements(); ++i)
@@ -93,7 +96,10 @@ NVTXPUSH("cell list resetting");
     //set all cell indexes to zero
     cellListIndexer = Index2D(Nmax,totalCells);
     if(particleIndices.getNumElements() != cellListIndexer.getNumElements())
+        {
         particleIndices.resize(cellListIndexer.getNumElements());
+        particlePositions.resize(cellListIndexer.getNumElements());
+        };
 
     if(assist.getNumElements()!= 2)
         assist.resize(2);
@@ -159,6 +165,7 @@ void hyperrectangularCellList::computeCPU(GPUArray<dVec> &points)
         {
         ArrayHandle<unsigned int> h_elementsPerCell(elementsPerCell,access_location::host,access_mode::readwrite);
         ArrayHandle<int> h_idx(particleIndices,access_location::host,access_mode::readwrite);
+        ArrayHandle<dVec> h_cellParticlePos(particlePositions,access_location::host,access_mode::readwrite);
         recompute=false;
 
         for (int nn = 0; nn < Np; ++nn)
@@ -173,6 +180,7 @@ void hyperrectangularCellList::computeCPU(GPUArray<dVec> &points)
                 {
                 int clpos = cellListIndexer(offset,binIndex);
                 h_idx.data[clpos]=nn;
+                h_cellParticlePos.data[clpos] = h_pt.data[nn];
                 }
             else
                 {
@@ -241,12 +249,14 @@ void hyperrectangularCellList::computeGPU(GPUArray<dVec> &points)
             //get cell list arrays...readwrite so things are properly zeroed out
             ArrayHandle<unsigned int> d_elementsPerCell(elementsPerCell,access_location::device,access_mode::readwrite);
             ArrayHandle<int> d_idx(particleIndices,access_location::device,access_mode::readwrite);
+            ArrayHandle<dVec> d_cellParticlePos(particlePositions,access_location::device,access_mode::readwrite);
             ArrayHandle<int> d_assist(assist,access_location::device,access_mode::readwrite);
 
             //call the gpu function
             gpu_compute_cell_list(d_pt.data,        //particle positions...
                           d_elementsPerCell.data,//particles per cell
                           d_idx.data,       //cell list
+                          d_cellParticlePos.data,       //cell list particle positions
                           Np,               //number of particles
                           Nmax,             //maximum particles per cell
                           gridCellsPerSide, //number of cells in each direction

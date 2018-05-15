@@ -14,6 +14,7 @@
 __global__ void gpu_compute_cell_list_kernel(dVec *d_pt,
                                               unsigned int *d_elementsPerCell,
                                               int *d_particleIndices,
+                                              dVec *d_cellParticlePos,
                                               int Np,
                                               unsigned int Nmax,
                                               iVec gridCellsPerSide,
@@ -38,6 +39,7 @@ __global__ void gpu_compute_cell_list_kernel(dVec *d_pt,
         {
         unsigned int write_pos = min(cellListIndexer(offset,binIndex),cellListIndexer.getNumElements()-1);
         d_particleIndices[write_pos] = idx;
+        d_cellParticlePos[write_pos] = pos;
         }
     else
         {
@@ -49,6 +51,7 @@ __global__ void gpu_compute_cell_list_kernel(dVec *d_pt,
 bool gpu_compute_cell_list(dVec *d_pt,
                                   unsigned int *d_cell_sizes,
                                   int *d_idx,
+                                  dVec *d_cellParticlePos,
                                   int Np,
                                   int &Nmax,
                                   iVec gridCellsPerSide,
@@ -69,6 +72,7 @@ bool gpu_compute_cell_list(dVec *d_pt,
     gpu_compute_cell_list_kernel<<<nblocks, block_size>>>(d_pt,
                                                           d_cell_sizes,
                                                           d_idx,
+                                                          d_cellParticlePos,
                                                           Np,
                                                           nmax,
                                                           gridCellsPerSide,

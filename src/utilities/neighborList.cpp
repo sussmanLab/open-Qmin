@@ -160,6 +160,7 @@ NVTXPUSH("cell list");
 NVTXPOP();
     ArrayHandle<unsigned int> particlesPerCell(cellList->elementsPerCell,access_location::device,access_mode::read);
     ArrayHandle<int> indices(cellList->particleIndices,access_location::device,access_mode::read);
+    ArrayHandle<dVec> cellParticlePos(cellList->particlePositions,access_location::device,access_mode::read);
     ArrayHandle<int> d_adj(cellList->returnAdjacentCells(),access_location::device,access_mode::read);
 
     bool recompute = true;
@@ -181,6 +182,7 @@ NVTXPUSH("primary neighborlist computation");
                                   d_vec.data,
                                   particlesPerCell.data,
                                   indices.data,
+                                  cellParticlePos.data,
                                   d_pt.data,
                                   d_assist.data,
                                   d_adj.data,

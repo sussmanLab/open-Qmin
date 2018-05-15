@@ -15,6 +15,7 @@ __global__ void gpu_compute_neighbor_list_TPC_kernel(int *d_idx,
                                dVec *d_vec,
                                unsigned int *particlesPerCell,
                                int *indices,
+                               dVec *cellParticlePos,
                                dVec *d_pt,
                                int *d_assist,
                                int *d_adj,
@@ -48,9 +49,11 @@ __global__ void gpu_compute_neighbor_list_TPC_kernel(int *d_idx,
     dVec disp;
     for(int p1 = 0; p1 < particlesInBin; ++p1)
         {
-        int neighborIndex = indices[cellListIndexer(p1,currentCell)];
+        int cellListIdx = cellListIndexer(p1,currentCell);
+        int neighborIndex = indices[cellListIdx];
         if (neighborIndex == particleIdx) continue;
-        Box.minDist(target,d_pt[neighborIndex],disp);
+        dVec otherParticle = cellParticlePos[cellListIndexer(p1,currentCell)];
+        Box.minDist(target,otherParticle,disp);
         if(norm(disp)>=maxRange) continue;
         int offset = atomicAdd(&(d_npp[particleIdx]),1);
         if(offset<nmax)
@@ -141,6 +144,7 @@ bool gpu_compute_neighbor_list(int *d_idx,
                                dVec *d_vec,
                                unsigned int *particlesPerCell,
                                int *indices,
+                               dVec *cellParticlePos,
                                dVec *d_pt,
                                int *d_assist,
                                int *d_adj,
@@ -198,6 +202,7 @@ bool gpu_compute_neighbor_list(int *d_idx,
             d_vec,
             particlesPerCell,
             indices,
+            cellParticlePos,
             d_pt,
             d_assist,
             d_adj,

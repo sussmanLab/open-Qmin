@@ -82,6 +82,8 @@ class hyperrectangularCellList
         GPUArray<unsigned int> elementsPerCell;
         //!An array containing the indices of particles in various cells. So, particleIndices[cellListIndexer(nn,bin)] gives the index of the nth particle in the bin "bin" of the cell list
         GPUArray<int> particleIndices;
+        //!An array containing the positions of particles in various cells. Aligned with the particleIndices array, so that derived methods can choose whatever is most convenient,so particlePositions[cellListIndexer(nn,bin)] gives the positionof the nth particle in the bin "bin" of the cell list
+        GPUArray<dVec> particlePositions;
 
         //!Enforce GPU operation
         virtual void setGPU(bool _useGPU=true){useGPU = _useGPU;};

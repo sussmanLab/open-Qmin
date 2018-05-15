@@ -18,6 +18,7 @@
 bool gpu_compute_cell_list(dVec *d_pt,
                                   unsigned int *d_cell_sizes,
                                   int *d_idx,
+                                  dVec *d_cellParticlePos,
                                   int Np,
                                   int &Nmax,
                                   iVec gridCellsPerSide,
