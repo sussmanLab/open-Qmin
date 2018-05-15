@@ -34,7 +34,7 @@ __global__ void gpu_compute_cell_list_kernel(dVec *d_pt,
         bin.x[dd] = floor(pos.x[dd] / gridCellSizes.x[dd]);
     int binIndex = cellIndexer(bin);
     unsigned int offset = atomicAdd(&(d_elementsPerCell[binIndex]), 1);
-    if(offset <= d_assist[0]+1)
+    if(offset < Nmax)
         {
         unsigned int write_pos = min(cellListIndexer(offset,binIndex),cellListIndexer.getNumElements()-1);
         d_particleIndices[write_pos] = idx;

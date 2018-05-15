@@ -56,8 +56,6 @@ __global__ void gpu_compute_neighbor_list_TPC_kernel(int *d_idx,
         if(offset<nmax)
             {
             int nlpos = neighborIndexer(offset,particleIdx);
-            if(nlpos <0 || nlpos >= neighborIndexer.getNumElements())
-                printf("ASDADSAD");
             d_idx[nlpos] = neighborIndex;
             d_vec[nlpos] = disp;
             }
