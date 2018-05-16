@@ -68,9 +68,9 @@ class neighborList
         //! compute via CPU
         void computeCPU(GPUArray<dVec> &points);
         //!Initialization and helper without using the GPU
-        void resetNeighborsCPU(int size);
+        void resetNeighborsCPU(int size, int _nmax);
         //!Initialization and helper
-        void resetNeighborsGPU(int size);
+        void resetNeighborsGPU(int size,int _nmax);
 
         //!kernelTuner object
         shared_ptr<kernelTuner> nlistTuner;
