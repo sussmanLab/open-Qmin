@@ -159,14 +159,16 @@ bool gpu_compute_neighbor_list(int *d_idx,
                                scalar maxRange,
                                int nmax,
                                int Np,
+                               int maxBlockSize,
                                bool threadPerCell)
     {
-    if(!threadPerCell)
+    unsigned int block_size = maxBlockSize;
+    unsigned int nblocks = (adjacentCellsPerCell*Np)/block_size+1;
+
+    if(!threadPerCell || nblocks > 2147483647) // max blocks for compute 3.0 and higher
         {
-        //optimize block size later
-        unsigned int block_size = 64;
-        if (Np < 64) block_size = 16;
-        unsigned int nblocks  = Np/block_size + 1;
+        if (Np < maxBlockSize) block_size = 16;
+        nblocks  = Np/block_size + 1;
         gpu_compute_neighbor_list_kernel<<<nblocks, block_size>>>(d_idx,
             d_npp,
             d_vec,
@@ -192,11 +194,8 @@ bool gpu_compute_neighbor_list(int *d_idx,
         }
     else
         {
-        //optimize block size later
-        unsigned int max_block = 128;
-        unsigned int block_size = max_block;
-        if (Np*adjacentCellsPerCell < max_block) block_size = 16;
-        unsigned int nblocks  = (adjacentCellsPerCell*Np)/block_size + 1;
+        if (Np*adjacentCellsPerCell < maxBlockSize) block_size = 16;
+        nblocks  = (adjacentCellsPerCell*Np)/block_size + 1;
         gpu_compute_neighbor_list_TPC_kernel<<<nblocks, block_size>>>(d_idx,
             d_npp,
             d_vec,

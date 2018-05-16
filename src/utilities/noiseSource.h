@@ -14,7 +14,6 @@ Provides features to some psuedo-rng functions. On the CPU side, one can call fo
 (in a specified range), a random real with a uniform distribution, or a random real from a normal
 distribution. On the GPU side, provides access to a GPUArray of curandState objects, and functionality to initialize them.
 */
-
 class noiseSource
     {
     public:

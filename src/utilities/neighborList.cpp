@@ -11,6 +11,7 @@ neighborList::neighborList(scalar range, BoxPtr _box)
     cellList = make_shared<hyperrectangularCellList>(range,Box);
     Nmax = 4;
     maxRange = range;
+    nlistTuner = make_shared<kernelTuner>(16,1024,32,5,200000);
     };
 
 void neighborList::resetNeighborsGPU(int size)
@@ -177,6 +178,7 @@ NVTXPUSH("primary neighborlist computation");
         ArrayHandle<dVec> d_vec(neighborVectors,access_location::device,access_mode::overwrite);
         ArrayHandle<int> d_assist(assist,access_location::device,access_mode::readwrite);
         //!call gpu function
+        nlistTuner->begin();
         gpu_compute_neighbor_list(d_idx.data,
                                   d_npp.data,
                                   d_vec.data,
@@ -196,7 +198,9 @@ NVTXPUSH("primary neighborlist computation");
                                   cellList->getCellSize(),
                                   maxRange,
                                   nmax,
-                                  Np);
+                                  Np,
+                                  nlistTuner->getParameter());
+        nlistTuner->end();
         }//scope
 NVTXPOP();
 NVTXPUSH("neighborList assist checking");

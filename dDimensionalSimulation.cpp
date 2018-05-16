@@ -121,6 +121,7 @@ int main(int argc, char*argv[])
     cout << "disk sampling took "<< loopCount << " diameter attempts and took " << seedingTimeTaken << " total seconds" <<endl;
 
     Configuration->setParticlePositions(poissonPoints);
+//    Configuration->setParticlePositionsRandomly(noise);
     scalar ke = Configuration->setVelocitiesMaxwellBoltzmann(Temperature,noise);
     printf("temperature input %f \t temperature calculated %f\n",Temperature,Configuration->computeInstantaneousTemperature());
 

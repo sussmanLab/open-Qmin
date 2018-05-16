@@ -34,6 +34,7 @@ bool gpu_compute_neighbor_list(int *d_idx,
                                scalar maxRange,
                                int nmax,
                                int Np,
+                               int maxBlockSize,
                                bool threadPerCell = true);
 
 /** @} */ //end of group declaration

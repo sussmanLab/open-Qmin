@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.0.0)
 project(dDimensionalSimulations)
 
-add_definitions(-DDIMENSION=4)
+add_definitions(-DDIMENSION=6)
 
 set(CMAKE_CC_FLAGS "${CMAKE_CC_FLAGS} ")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -std=c++11")
-set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -Wno-deprecated-gpu-targets ")#-Xptxas -O3 -Xcompiler -O3")
+set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -gencode arch=compute_30,code=sm_30 -Wno-deprecated-gpu-targets ")#-Xptxas -O3 -Xcompiler -O3")
 
 find_package(CUDA REQUIRED)
 

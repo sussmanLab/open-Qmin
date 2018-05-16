@@ -2,6 +2,7 @@
 #define neighborList_H
 
 #include "hyperrectangularCellList.h"
+#include "kernelTuner.h"
 /*! \file neighborList.h */
 //!take a set of positions, sort those positions according to a cellList, and create data structures of possible neighbors of each particle
 class neighborList
@@ -70,6 +71,9 @@ class neighborList
         void resetNeighborsCPU(int size);
         //!Initialization and helper
         void resetNeighborsGPU(int size);
+
+        //!kernelTuner object
+        shared_ptr<kernelTuner> nlistTuner;
     };
 
 #endif
