@@ -105,8 +105,9 @@ int main(int argc, char*argv[])
     sim->setConfiguration(Configuration);
     sim->setBox(PBC);
 
-    //after the simulation box has been set, we can set particle positions...do so via poisson disk sampling?
     noiseSource noise(true);
+    /*
+    //after the simulation box has been set, we can set particle positions...do so via poisson disk sampling?
     vector<dVec> poissonPoints;
     scalar diameter = .75;
     clock_t tt1=clock();
@@ -122,12 +123,12 @@ int main(int argc, char*argv[])
     cout << "disk sampling took "<< loopCount << " diameter attempts and took " << seedingTimeTaken << " total seconds" <<endl;
 
     Configuration->setParticlePositions(poissonPoints);
-//    Configuration->setParticlePositionsRandomly(noise);
+    */
+    Configuration->setParticlePositionsRandomly(noise);
     scalar ke = Configuration->setVelocitiesMaxwellBoltzmann(Temperature,noise);
     printf("temperature input %f \t temperature calculated %f\n",Temperature,Configuration->computeInstantaneousTemperature());
 
     shared_ptr<neighborList> neighList = make_shared<neighborList>(1.,PBC);
-    neighList->cellList->computeAdjacentCells();
      //monodisperse harmonic spheres
     shared_ptr<harmonicRepulsion> softSpheres = make_shared<harmonicRepulsion>();
     softSpheres->setMonodisperse();
@@ -155,7 +156,7 @@ int main(int argc, char*argv[])
     */
 
     shared_ptr<noseHooverNVT> nvt = make_shared<noseHooverNVT>(Configuration,Temperature);
-    nvt->setDeltaT(1e-8);
+    nvt->setDeltaT(1e-2);
     sim->addUpdater(nvt,Configuration);
 
     if(gpuSwitch >=0)
@@ -179,7 +180,7 @@ cout << "simulation set-up finished" << endl;cout.flush();
             {
             dt += 1;
             scalar newdt = pow(10,dt);
-            nvt->setDeltaT(newdt);
+            //nvt->setDeltaT(newdt);
             cout << "setting new timestep size of " <<newdt << endl;
             }
         sim->performTimestep();

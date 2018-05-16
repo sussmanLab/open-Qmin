@@ -8,7 +8,10 @@ neighborList::neighborList(scalar range, BoxPtr _box)
     useGPU = false;
     saveDistanceData = true;
     Box = _box;
-    cellList = make_shared<hyperrectangularCellList>(range,Box);
+    scalar gridScale = 0.5;
+    int width = (int)(1/gridScale);
+    cellList = make_shared<hyperrectangularCellList>(range*gridScale,Box);
+    cellList->computeAdjacentCells(width);
     Nmax = 4;
     maxRange = range;
     nlistTuner = make_shared<kernelTuner>(16,1024,32,5,200000);
