@@ -59,7 +59,8 @@ int main(int argc, char*argv[])
     ValueArg<scalar> temperatureSwitchArg("t","temperature","temperature of simulation",false,.001,"double",cmd);
 
     //allow setting of system size by either volume fraction or density (assuming N has been set)
-    ValueArg<scalar> phiSwitchArg("p","phi","volume fraction",false,-1.0,"double",cmd);
+    scalar phiDest = 1.90225*exp(-(scalar)DIMENSION / 2.51907);
+    ValueArg<scalar> phiSwitchArg("p","phi","volume fraction",false,phiDest,"double",cmd);
     ValueArg<scalar> rhoSwitchArg("r","rho","density",false,-1.0,"double",cmd);
     //parse the arguments
     cmd.parse( argc, argv );
@@ -196,7 +197,7 @@ cout << "simulation set-up finished" << endl;cout.flush();
 
     ofstream ofs;
     char dataname[256];
-    sprintf(dataname,"../data/timing_Phi%f_d%i_g%i.txt",phi,DIMENSION,gpuSwitch);
+    sprintf(dataname,"../data/timing_d%i_g%i.txt",DIMENSION,gpuSwitch);
     ofs.open(dataname,ofstream::app);
     ofs << N <<"\t" << timeTaken << "\n";
     ofs.close();
