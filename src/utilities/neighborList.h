@@ -57,6 +57,8 @@ class neighborList
         shared_ptr<hyperrectangularCellList> cellList;
         //! the maximum number of particles found in any neighborhood
         int Nmax;
+        //!kernelTuner object
+        shared_ptr<kernelTuner> nlistTuner;
     protected:
 
         //!Save the displacement and distances associated with neihgbors?
@@ -72,8 +74,6 @@ class neighborList
         //!Initialization and helper
         void resetNeighborsGPU(int size,int _nmax);
 
-        //!kernelTuner object
-        shared_ptr<kernelTuner> nlistTuner;
     };
 
 #endif

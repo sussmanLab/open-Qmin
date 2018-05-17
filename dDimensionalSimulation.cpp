@@ -194,8 +194,9 @@ sim->performTimestep();
     printf("simulation potential energy at %f\n",E);
 
     scalar timeTaken = (t2-t1)/(scalar)CLOCKS_PER_SEC/maximumIterations;
-    cout << endl << "simulations took " << timeTaken << " per time step" << endl;
+    cout << endl << "simulations took " << timeTaken << " per time step" << endl << endl;
 
+    //neighList->nlistTuner->printTimingData();
     ofstream ofs;
     char dataname[256];
     sprintf(dataname,"../data/timing_d%i_g%i.txt",DIMENSION,gpuSwitch);
