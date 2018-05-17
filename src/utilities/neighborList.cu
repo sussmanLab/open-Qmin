@@ -7,6 +7,71 @@
 */
 
 /*!
+  compute a neighbor list with some value of threads per particle
+  (i.e, # threads = N_cells*adjacentCellsPerCell
+*/
+__global__ void gpu_compute_neighbor_list_TPP_kernel(int *d_idx,
+                               unsigned int *d_npp,
+                               dVec *d_vec,
+                               unsigned int *particlesPerCell,
+                               int *indices,
+                               dVec *cellParticlePos,
+                               dVec *d_pt,
+                               int *d_assist,
+                               int *d_adj,
+                               periodicBoundaryConditions Box,
+                               Index2D neighborIndexer,
+                               Index2D cellListIndexer,
+                               IndexDD cellIndexer,
+                               Index2D adjacentCellIndexer,
+                               int adjacentCellsPerCell,
+                               iVec gridCellsPerSide,
+                               dVec gridCellSizes,
+                               int cellListNmax,
+                               scalar maxRange,
+                               int nmax,
+                               int Np,
+                               int threadsPerParticle)
+    {
+    // read in the index of this thread
+    unsigned int tidx = blockDim.x * blockIdx.x + threadIdx.x;
+    int particleIdx = tidx / threadsPerParticle;
+    if (particleIdx >= Np)
+        return;
+    int cellIdx = tidx%adjacentCellsPerCell;
+    dVec target = d_pt[particleIdx];
+    //positionToCellIndex(target)
+    iVec cellIndexVec;
+    for (int dd =0; dd < DIMENSION; ++dd)
+        cellIndexVec.x[dd] = max(0,min((int)gridCellsPerSide.x[dd]-1,(int) floor(target.x[dd]/gridCellSizes.x[dd])));
+    int cell = cellIndexer(cellIndexVec);
+    //iterate through the given cell
+    int currentCell = d_adj[adjacentCellIndexer(cellIdx,cell)];
+    int particlesInBin = particlesPerCell[currentCell];
+    dVec disp;
+    for(int p1 = 0; p1 < particlesInBin; ++p1)
+        {
+        int cellListIdx = cellListIndexer(p1,currentCell);
+        int neighborIndex = indices[cellListIdx];
+        if (neighborIndex == particleIdx) continue;
+        dVec otherParticle = cellParticlePos[cellListIndexer(p1,currentCell)];
+        Box.minDist(target,otherParticle,disp);
+        if(norm(disp)>=maxRange) continue;
+        int offset = atomicAdd(&(d_npp[particleIdx]),1);
+        if(offset<nmax)
+            {
+            int nlpos = neighborIndexer(offset,particleIdx);
+            d_idx[nlpos] = neighborIndex;
+            d_vec[nlpos] = disp;
+            }
+        else
+            {
+            atomicCAS(&(d_assist)[0],offset,offset+1);
+            d_assist[1]=1;
+            }
+        };
+    };
+/*!
   compute a neighbor list with one thread for each cell to scan for every particle
   (i.e, # threads = N_cells*adjacentCellsPerCell
 */
