@@ -9,7 +9,7 @@ class neighborList
     {
     public:
         //!basic constructor has a box and a range
-        neighborList(scalar range, BoxPtr _box);
+        neighborList(scalar range, BoxPtr _box, int subGridReduction = 1);
 
         //!computethe neighborlist of the set of points passed in
         void computeNeighborLists(GPUArray<dVec> &points)

@@ -205,15 +205,11 @@ void hyperrectangularCellList::computeAdjacentCells(int width)
     {
     //compute the number of adjacent cells per cell:
     int neighs = 0;
+    vector<iVec> mask;
     {
     iVec min(-width);
     iVec max(width);
     iVec it(-width);it.x[0]-=1;
-    //
-    //
-    //add mask so this calculation is done just once, then applied to all the other cells...
-    //
-    //
     while(iVecIterate(it,min,max))
         {
         iVec gridPosition = it;
@@ -225,13 +221,15 @@ void hyperrectangularCellList::computeAdjacentCells(int width)
             }
         rmin = sqrt(rmin);
         if(rmin < gridCellSizes.x[0]*width+1e-6)
+            {
             neighs += 1;
+            mask.push_back(it);
+            }
         };
     }
     adjacentCellsPerCell = neighs;
     cout << "building a cell list with "<< adjacentCellsPerCell << " adj cells per cell" << endl;
 
-    //adjacentCellsPerCell = idPow(2*width+1);
     if(adjacentCellsPerCell == adjacentCells.getNumElements()) return;
 
     adjacentCells.resize(totalCells*adjacentCellsPerCell);
@@ -242,24 +240,11 @@ void hyperrectangularCellList::computeAdjacentCells(int width)
     for (int cellIndex = 0; cellIndex < totalCells; ++cellIndex)
         {
         iVec cellIndexVec = cellIndexer.inverseIndex(cellIndex);
-        iVec it(-width);it.x[0]-=1;
-        int neigh = 0;
-        while(iVecIterate(it,min,max))
+        for (int cc = 0; cc < mask.size();++cc)
             {
-            scalar rmin = 0.0;
-            for (int dd = 0; dd < DIMENSION; ++dd)
-                {
-                scalar temp = gridCellSizes.x[dd]*(std::max(abs(it.x[dd])-1.,0.0));
-                rmin += temp*temp;
-                }
-            rmin = sqrt(rmin);
-            if(rmin < gridCellSizes.x[0]*width+1e-6)
-                {
-                int location = adjacentCellIndexer(neigh,cellIndex);
-                adj.data[location] = cellIndexer(modularAddition(cellIndexVec,it,gridCellsPerSide));
-                neigh += 1;
-                }
-            };
+            int location = adjacentCellIndexer(cc,cellIndex);
+            adj.data[location] = cellIndexer(modularAddition(cellIndexVec,mask[cc],gridCellsPerSide));
+            }
         };
     adjCellsComputed = true;
     };

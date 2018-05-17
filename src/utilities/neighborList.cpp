@@ -3,13 +3,13 @@
 #include "neighborList.cuh"
 /*! \file neighborList.cpp */
 
-neighborList::neighborList(scalar range, BoxPtr _box)
+neighborList::neighborList(scalar range, BoxPtr _box, int subGridReduction)
     {
     useGPU = false;
     saveDistanceData = true;
     Box = _box;
-    scalar gridScale = 0.5;
-    int width = (int)(1/gridScale);
+    scalar gridScale = 1./(scalar)subGridReduction;
+    int width = subGridReduction;
     cellList = make_shared<hyperrectangularCellList>(range*gridScale,Box);
     cellList->computeAdjacentCells(width);
     Nmax = 4;

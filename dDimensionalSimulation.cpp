@@ -136,6 +136,7 @@ int main(int argc, char*argv[])
     vector<scalar> stiffnessParameters(1,1.0);
     softSpheres->setForceParameters(stiffnessParameters);
     sim->addForce(softSpheres,Configuration);
+    cout << "simulation set-up finished" << endl;cout.flush();
     /*
     //kob-anderson 80:20 mixture
     {
@@ -168,7 +169,6 @@ int main(int argc, char*argv[])
 //        neighList->setGPU();
         };
 sim->performTimestep();
-cout << "simulation set-up finished" << endl;cout.flush();
 
     clock_t t1 = clock();
     cudaProfilerStart();
