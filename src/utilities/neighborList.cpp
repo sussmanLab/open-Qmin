@@ -201,6 +201,7 @@ NVTXPUSH("primary neighborlist computation");
                                   cellList->adjacentCellsPerCell,
                                   cellList->getBinsPerSide(),
                                   cellList->getCellSize(),
+                                  cellList->getNmax(),
                                   maxRange,
                                   nmax,
                                   Np,

@@ -21,6 +21,15 @@ class kernelTuner
             return parameterValue;
             };
 
+        //! print timing data to screen
+        void printTimingData()
+            {
+            for (int ii = 1; ii < possibleParameters.size();++ii)
+                {
+                cout <<"tuner value " << possibleParameters[ii] << " median time " << sampleMedian[ii]  << endl;
+                }
+            };
+
         //!Is initial sampling complete?
         bool samplingComplete()
             {
