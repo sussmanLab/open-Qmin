@@ -38,6 +38,8 @@ __global__ void gpu_compute_neighbor_list_TPP_kernel(int *d_idx,
     int particleIdx = tidx / threadsPerParticle;
     if (particleIdx >= Np)
         return;
+    int workIdx = tidx % threadsPerParticle;
+
     dVec target = d_pt[particleIdx];
     //positionToCellIndex(target)
     iVec cellIndexVec;
@@ -46,43 +48,43 @@ __global__ void gpu_compute_neighbor_list_TPP_kernel(int *d_idx,
     //the cell index of the target particle
     int cell = cellIndexer(cellIndexVec);
 
-    //how much work needs to be done per particle?
-    int totalWorkToDoPerParticle = adjacentCellsPerCell * cellListNmax;
     //work per thread is integer division, rounding up to guarantee all cells are fully checked
-    int workPerParticleThread = (totalWorkToDoPerParticle+threadsPerParticle-1) / threadsPerParticle;
-    int workIdx = tidx % threadsPerParticle;
+    int workPerParticleThread = (adjacentCellsPerCell*cellListNmax + threadsPerParticle-1) / threadsPerParticle;
     //start the loop with the actual work
-    int cellIndexToScan = workIdx*workPerParticleThread % cellListNmax;
     int cellToScan = workIdx*workPerParticleThread / cellListNmax;
+    int cellIndexToScan = workIdx*workPerParticleThread % cellListNmax;
     if(cellToScan >=adjacentCellsPerCell)
         return;
     int currentCell = d_adj[adjacentCellIndexer(cellToScan,cell)];
     int particlesInBin = particlesPerCell[currentCell];
 
-    dVec disp;
-    bool workDone = false;
     for (int ww = 0; ww < workPerParticleThread; ++ww)
         {
         if(cellIndexToScan < particlesInBin)
             {
             int cellListIdx = cellListIndexer(cellIndexToScan,currentCell);
             int neighborIndex = indices[cellListIdx];
-            if (neighborIndex == particleIdx) continue;
-            dVec otherParticle = cellParticlePos[cellListIdx];
-            Box.minDist(target,otherParticle,disp);
-            if(norm(disp)>=maxRange) continue;
-            int offset = atomicAdd(&(d_npp[particleIdx]),1);
-            if(offset<nmax)
+            if (neighborIndex != particleIdx)
                 {
-                int nlpos = neighborIndexer(offset,particleIdx);
-                d_idx[nlpos] = neighborIndex;
-                d_vec[nlpos] = disp;
-                }
-            else
-                {
-//                atomicAdd(&(d_assist[0]),1);
-                atomicCAS(&(d_assist)[0],offset,offset+1);
-                d_assist[1]=1;
+                dVec otherParticle = cellParticlePos[cellListIdx];
+                dVec disp;
+                Box.minDist(target,otherParticle,disp);
+                if(dot(disp,disp) < maxRange*maxRange)
+                    {
+                    int offset = atomicAdd(&(d_npp[particleIdx]),1);
+                    if(offset<nmax)
+                        {
+                        int nlpos = neighborIndexer(offset,particleIdx);
+                        d_idx[nlpos] = neighborIndex;
+                        d_vec[nlpos] = disp;
+                        }
+                    else
+                        {
+                        //atomicAdd(&(d_assist[0]),1);
+                        atomicCAS(&(d_assist)[0],offset,offset+1);
+                        d_assist[1]=1;
+                        }
+                    }
                 }
             }
         cellIndexToScan += 1;
@@ -91,13 +93,10 @@ __global__ void gpu_compute_neighbor_list_TPP_kernel(int *d_idx,
             cellIndexToScan = 0;
             cellToScan += 1;
             if (cellToScan >= adjacentCellsPerCell)
-                workDone = true;
+                break;
             currentCell = d_adj[adjacentCellIndexer(cellToScan,cell)];
             particlesInBin = particlesPerCell[currentCell];
-
             }
-        if(workDone)
-            break;
         }
     };
 /*!
@@ -257,12 +256,14 @@ bool gpu_compute_neighbor_list(int *d_idx,
                                int maxBlockSize,
                                bool threadPerCell)
     {
-    /* 
-       //testing varying thread pre particle stuff
-    unsigned int block_size = 256;
+    /*
+       //testing varying thread per particle stuff
+    unsigned int block_size = 128;
     int threadsPerParticle = maxBlockSize;
     unsigned int nblocks = (threadsPerParticle*Np)/block_size+1;
-        gpu_compute_neighbor_list_TPP_kernel<<<nblocks, block_size>>>(d_idx,
+    dim3 blocks(nblocks,1,1);
+    dim3 grids(block_size,1,1);
+        gpu_compute_neighbor_list_TPP_kernel<<<blocks, grids>>>(d_idx,
             d_npp,
             d_vec,
             particlesPerCell,
@@ -287,7 +288,7 @@ bool gpu_compute_neighbor_list(int *d_idx,
 
         HANDLE_ERROR(cudaGetLastError());
         return cudaSuccess;
-    */
+        */
     unsigned int block_size = maxBlockSize;
     unsigned int nblocks = (adjacentCellsPerCell*Np)/block_size+1;
 

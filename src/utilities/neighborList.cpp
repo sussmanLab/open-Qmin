@@ -14,7 +14,7 @@ neighborList::neighborList(scalar range, BoxPtr _box, int subGridReduction)
     cellList->computeAdjacentCells(width);
     Nmax = 4;
     maxRange = range;
-    nlistTuner = make_shared<kernelTuner>(32,1024,128,5,200000);
+    nlistTuner = make_shared<kernelTuner>(16,1024,16,5,200000);
     };
 
 void neighborList::resetNeighborsGPU(int size,int _nmax)

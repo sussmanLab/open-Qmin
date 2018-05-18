@@ -128,7 +128,7 @@ int main(int argc, char*argv[])
     scalar ke = Configuration->setVelocitiesMaxwellBoltzmann(Temperature,noise);
     printf("temperature input %f \t temperature calculated %f\n",Temperature,Configuration->computeInstantaneousTemperature());
 
-    shared_ptr<neighborList> neighList = make_shared<neighborList>(1.,PBC);
+    shared_ptr<neighborList> neighList = make_shared<neighborList>(1.,PBC,1);
      //monodisperse harmonic spheres
     shared_ptr<harmonicRepulsion> softSpheres = make_shared<harmonicRepulsion>();
     softSpheres->setMonodisperse();
@@ -168,7 +168,8 @@ int main(int argc, char*argv[])
 //        fire->setGPU();
 //        neighList->setGPU();
         };
-sim->performTimestep();
+for (int ii = 0; ii < 1000; ++ii) sim->performTimestep();
+    neighList->nlistTuner->printTimingData();
 
     clock_t t1 = clock();
     cudaProfilerStart();
