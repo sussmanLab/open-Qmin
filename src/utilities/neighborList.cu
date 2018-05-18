@@ -120,7 +120,7 @@ __global__ void gpu_compute_neighbor_list_TPC_kernel(int *d_idx,
                                int adjacentCellsPerCell,
                                iVec gridCellsPerSide,
                                dVec gridCellSizes,
-                               scalar maxRange,
+                               scalar maxRange2,
                                int nmax,
                                int Np)
     {
@@ -147,7 +147,7 @@ __global__ void gpu_compute_neighbor_list_TPC_kernel(int *d_idx,
         if (neighborIndex == particleIdx) continue;
         dVec otherParticle = cellParticlePos[cellListIndexer(p1,currentCell)];
         Box.minDist(target,otherParticle,disp);
-        if(norm(disp)>=maxRange) continue;
+        if(dot(disp,disp)>=maxRange2) continue;
         int offset = atomicAdd(&(d_npp[particleIdx]),1);
         if(offset<nmax)
             {
@@ -184,7 +184,7 @@ __global__ void gpu_compute_neighbor_list_kernel(int *d_idx,
                                int adjacentCellsPerCell,
                                iVec gridCellsPerSide,
                                dVec gridCellSizes,
-                               scalar maxRange,
+                               scalar maxRange2,
                                int nmax,
                                int Np)
     {
@@ -209,7 +209,7 @@ __global__ void gpu_compute_neighbor_list_kernel(int *d_idx,
             if (neighborIndex == idx) continue;
             dVec disp;
             Box.minDist(target,d_pt[neighborIndex],disp);
-            if(norm(disp)>=maxRange) continue;
+            if(dot(disp,disp)>=maxRange2) continue;
 
             int offset = d_npp[idx];
             if(offset < d_assist[0])
@@ -312,7 +312,7 @@ bool gpu_compute_neighbor_list(int *d_idx,
             adjacentCellsPerCell,
             gridCellsPerSide,
             gridCellSizes,
-            maxRange,
+            maxRange*maxRange,
             nmax,
             Np);
 
@@ -340,7 +340,7 @@ bool gpu_compute_neighbor_list(int *d_idx,
             adjacentCellsPerCell,
             gridCellsPerSide,
             gridCellSizes,
-            maxRange,
+            maxRange*maxRange,
             nmax,
             Np);
 

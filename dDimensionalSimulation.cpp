@@ -169,7 +169,7 @@ int main(int argc, char*argv[])
 //        neighList->setGPU();
         };
 for (int ii = 0; ii < 1000; ++ii) sim->performTimestep();
-    neighList->nlistTuner->printTimingData();
+//neighList->nlistTuner->printTimingData();
 
     clock_t t1 = clock();
     cudaProfilerStart();
