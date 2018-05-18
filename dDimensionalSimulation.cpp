@@ -168,7 +168,7 @@ int main(int argc, char*argv[])
 //        fire->setGPU();
 //        neighList->setGPU();
         };
-for (int ii = 0; ii < 1000; ++ii) sim->performTimestep();
+for (int ii = 0; ii < maximumIterations; ++ii) sim->performTimestep();
 //neighList->nlistTuner->printTimingData();
 
     clock_t t1 = clock();
