@@ -80,10 +80,10 @@ using namespace std;
 //!Handle errors in kernel calls...returns file and line numbers if cudaSuccess doesn't pan out
 static void HandleError(cudaError_t err, const char *file, int line)
     {
-    //as an additional debugging check, if always synchronize cuda threads after every kernel call
-//    #ifdef CUDATHREADSYNC
+    //as an additional debugging check, synchronize cuda threads after every kernel call
+    #ifdef DEBUGFLAGUP
     cudaThreadSynchronize();
-//    #endif
+    #endif
     if (err != cudaSuccess)
         {
         printf("\nError: %s in file %s at line %d\n",cudaGetErrorString(err),file,line);
