@@ -11,7 +11,7 @@
 #include "simpleModel.h"
 #include "baseUpdater.h"
 #include "energyMinimizerFIRE.h"
-#include "adamMinimizer.h"
+#include "energyMinimizerAdam.h"
 #include "noiseSource.h"
 #include "harmonicRepulsion.h"
 #include "indexer.h"
@@ -20,6 +20,17 @@
 
 using namespace std;
 using namespace TCLAP;
+
+scalar sphereVolume(scalar radius, int dimension)
+    {
+    if(dimension == 1)
+        return 2*radius;
+    else
+        if(dimension == 2)
+            return PI*radius*radius;
+        else
+            return (2.*PI*radius*radius)/((scalar) dimension)*sphereVolume(radius,dimension-2);
+    };
 
 /*!
 command line parameters help identify a data directory and a filename... the output is a text file
@@ -43,6 +54,11 @@ int main(int argc, char*argv[])
     ValueArg<int> maxIterationsSwitchArg("i","iterations","number of timestep iterations",false,100,"int",cmd);
     ValueArg<scalar> lengthSwitchArg("l","sideLength","size of simulation domain",false,10.0,"double",cmd);
     ValueArg<scalar> temperatureSwitchArg("t","temperature","temperature of simulation",false,.001,"double",cmd);
+
+    //allow setting of system size by either volume fraction or density (assuming N has been set)
+    scalar phiDest = 1.90225*exp(-(scalar)DIMENSION / 2.51907);
+    ValueArg<scalar> phiSwitchArg("p","phi","volume fraction",false,phiDest,"double",cmd);
+    ValueArg<scalar> rhoSwitchArg("r","rho","density",false,-1.0,"double",cmd);
     //parse the arguments
     cmd.parse( argc, argv );
 
@@ -51,13 +67,32 @@ int main(int argc, char*argv[])
     int maximumIterations = maxIterationsSwitchArg.getValue();
     scalar L = lengthSwitchArg.getValue();
     scalar Temperature = temperatureSwitchArg.getValue();
+    scalar phi = phiSwitchArg.getValue();
+    scalar rho = rhoSwitchArg.getValue();
+
     int gpuSwitch = gpuSwitchArg.getValue();
     bool GPU = false;
     if(gpuSwitch >=0)
         GPU = chooseGPU(gpuSwitch);
 
+    if(phi >0)
+        {
+        L = pow(N*sphereVolume(.5,DIMENSION) / phi,(1.0/(scalar) DIMENSION));
+        rho = N/pow(L,(scalar)DIMENSION);
+        }
+    else
+        phi = N*sphereVolume(.5,DIMENSION) / pow(L,(scalar)DIMENSION);
+
+    if(rho >0)
+        {
+        L = pow(((scalar)N/rho),(1.0/(scalar) DIMENSION));
+        phi = rho * sphereVolume(.5,DIMENSION);
+        }
+    else
+        rho = N/pow(L,(scalar)DIMENSION);
     int dim =DIMENSION;
-    cout << "running a simulation in "<<dim << " dimensions" << endl;
+    cout << "running a simulation in "<<dim << " dimensions with box sizes " << L << endl;
+    cout << "density = " << rho << "\tvolume fracation = "<<phi<<endl;
     shared_ptr<simpleModel> Configuration = make_shared<simpleModel>(N);
     shared_ptr<periodicBoundaryConditions> PBC = make_shared<periodicBoundaryConditions>(L);
 
@@ -81,11 +116,15 @@ int main(int argc, char*argv[])
     shared_ptr<energyMinimizerFIRE> fire = make_shared<energyMinimizerFIRE>(Configuration);
     fire->setFIREParameters(0.05,0.99,0.1,1.1,0.95,.9,4,1e-12);
     fire->setMaximumIterations(maximumIterations);
-    //sim->addUpdater(fire,Configuration);
 
-    shared_ptr<adamMinimizer> adam  = make_shared<adamMinimizer>();
+    shared_ptr<energyMinimizerAdam> adam  = make_shared<energyMinimizerAdam>();
     adam->setAdamParameters();
-    sim->addUpdater(adam,Configuration);
+    adam->setMaximumIterations(maximumIterations);
+
+    if(programSwitch == 0)
+        sim->addUpdater(fire,Configuration);
+    else
+        sim->addUpdater(adam,Configuration);
 
     if(gpuSwitch >=0)
         {
@@ -98,11 +137,7 @@ int main(int argc, char*argv[])
 
     cudaProfilerStart();
     clock_t t1 = clock();
-    for (int ii = 0; ii < maximumIterations; ++ii)
-        {
-        if(ii%100==0&& ii !=0) cout << "maxForce = " << adam->getMaxForce() << endl;
-        sim->performTimestep();
-        }
+    sim->performTimestep();
     clock_t t2 = clock();
     cudaProfilerStop();
 

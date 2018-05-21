@@ -1,11 +1,12 @@
-#include"adamMinimizer.h"
-//#include"adamMinimizer.cuh"
+#include"energyMinimizerAdam.h"
+//#include"energyMinimizerAdam.cuh"
 //#include "utilities.cuh"
 
-/*! \file adamMinimizer.cpp */
+/*! \file energyMinimizerAdam.cpp */
 
-void adamMinimizer::initializeFromModel()
+void energyMinimizerAdam::initializeFromModel()
     {
+    iterations = 0;
     Ndof = model->getNumberOfParticles();
     displacement.resize(Ndof);
     biasedMomentumEstimate.resize(Ndof);
@@ -19,12 +20,9 @@ void adamMinimizer::initializeFromModel()
     fillGPUArrayWithVector(zeroes,correctedMomentumSquaredEstimate);
     };
 
-void adamMinimizer::integrateEOMCPU()
+void energyMinimizerAdam::adamStepCPU()
     {
     sim->computeForces();
-    {
-    beta1t *= beta1;
-    beta2t *= beta2;
     ArrayHandle<dVec> negativeGrad(model->returnForces());
     ArrayHandle<dVec> m(biasedMomentumEstimate);
     ArrayHandle<dVec> v(biasedMomentumSquaredEstimate);
@@ -32,24 +30,45 @@ void adamMinimizer::integrateEOMCPU()
     ArrayHandle<dVec> vc(correctedMomentumSquaredEstimate);
     ArrayHandle<dVec> disp(displacement);
     forceMax = 0.0;
+    scalar forceNorm = 0.0;
     for (int nn = 0; nn < Ndof;++nn)
         {
-        if(norm(negativeGrad.data[nn])>forceMax)
-            forceMax = norm(negativeGrad.data[nn]);
+        forceNorm += dot(negativeGrad.data[nn],negativeGrad.data[nn]);
         m.data[nn] = beta1*m.data[nn] + (beta1-1)*negativeGrad.data[nn];
         v.data[nn] = beta2*v.data[nn] + (1-beta2)*(negativeGrad.data[nn]*negativeGrad.data[nn]);
         mc.data[nn] = m.data[nn] *(1.0/(1.0 - beta1t));
         vc.data[nn] = v.data[nn]*(1.0/(1.0 - beta2t));
         for (int dd = 0; dd < DIMENSION; ++dd)
             {
-            disp.data[nn].x[dd] = -alpha*mc.data[nn].x[dd]/(sqrt(vc.data[nn].x[dd]) + epsilon);
+            disp.data[nn].x[dd] = -deltaT*mc.data[nn].x[dd]/(sqrt(vc.data[nn].x[dd]) + epsilon);
             }
         }
-    }
     model->moveParticles(displacement);
+    forceMax = sqrt(forceNorm)/Ndof;
+    beta1t *= beta1;
+    beta2t *= beta2;
+    };
+
+void energyMinimizerAdam::minimize()
+    {
+    cout << "attempting a minimization" << endl;
+    if (Ndof != model->getNumberOfParticles())
+        initializeFromModel();
+    forceMax = 110.0;
+    while( (iterations < maxIterations) && (forceMax > forceCutoff) )
+        {
+        iterations +=1;
+        if(useGPU)
+            adamStepGPU();
+        else
+            adamStepCPU();
+        if(iterations%1000 == 999)
+            printf("step %i max force:%.3g \n",iterations,forceMax);
+        };
+    printf("adam finished: step %i max force:%.3g \n",iterations,forceMax);
     }
 
-void adamMinimizer::integrateEOMGPU()
+void energyMinimizerAdam::adamStepGPU()
     {
     UNWRITTENCODE("adam gpu stuff");
     }
