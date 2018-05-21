@@ -40,7 +40,9 @@ void energyMinimizerAdam::adamStepCPU()
         vc.data[nn] = v.data[nn]*(1.0/(1.0 - beta2t));
         for (int dd = 0; dd < DIMENSION; ++dd)
             {
-            disp.data[nn].x[dd] = -deltaT*mc.data[nn].x[dd]/(sqrt(vc.data[nn].x[dd]) + epsilon);
+            scalar rootvc = sqrt(vc.data[nn].x[dd]);
+            if (rootvc == 0) rootvc = epsilon;
+            disp.data[nn].x[dd] = -deltaT*mc.data[nn].x[dd]/(rootvc);
             }
         }
     model->moveParticles(displacement);
