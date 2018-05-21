@@ -11,6 +11,7 @@
 #include "simpleModel.h"
 #include "baseUpdater.h"
 #include "energyMinimizerFIRE.h"
+#include "adamMinimizer.h"
 #include "noiseSource.h"
 #include "harmonicRepulsion.h"
 #include "indexer.h"
@@ -80,7 +81,11 @@ int main(int argc, char*argv[])
     shared_ptr<energyMinimizerFIRE> fire = make_shared<energyMinimizerFIRE>(Configuration);
     fire->setFIREParameters(0.05,0.99,0.1,1.1,0.95,.9,4,1e-12);
     fire->setMaximumIterations(maximumIterations);
-    sim->addUpdater(fire,Configuration);
+    //sim->addUpdater(fire,Configuration);
+
+    shared_ptr<adamMinimizer> adam  = make_shared<adamMinimizer>();
+    adam->setAdamParameters();
+    sim->addUpdater(adam,Configuration);
 
     if(gpuSwitch >=0)
         {
@@ -93,7 +98,11 @@ int main(int argc, char*argv[])
 
     cudaProfilerStart();
     clock_t t1 = clock();
-    sim->performTimestep();
+    for (int ii = 0; ii < maximumIterations; ++ii)
+        {
+        if(ii%100==0&& ii !=0) cout << "maxForce = " << adam->getMaxForce() << endl;
+        sim->performTimestep();
+        }
     clock_t t2 = clock();
     cudaProfilerStop();
 

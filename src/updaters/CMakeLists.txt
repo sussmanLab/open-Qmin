@@ -8,6 +8,7 @@ add_library(updater
     velocityVerlet.cpp
     noseHooverNVT.cpp
     energyMinimizerFIRE.cpp
+    adamMinimizer.cpp
     )
 cuda_add_library(updaterGPU
     velocityVerlet.cu
