@@ -27,6 +27,7 @@ class basePairwiseForce : public force
                     return computeEnergyGPU();
                 };
 
+        virtual MatrixDxD computePressureTensor();
         virtual scalar computeEnergyGPU(){return 0.0;};
 
         virtual void computePairwiseForce(dVec &relativeDistance, scalar distance,vector<scalar> &parameters, dVec &f){printf("in base pairwiseForce...why?\n");};

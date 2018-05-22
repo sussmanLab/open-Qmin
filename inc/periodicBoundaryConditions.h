@@ -47,6 +47,15 @@ struct periodicBoundaryConditions
         HOSTDEVICE void minDist(const dVec &p1, const dVec &p2, dVec &pans);
         //!Move p1 by the amount disp, then put it in the box
         HOSTDEVICE void move(dVec &p1, const dVec &disp);
+
+        //!compute volume
+        HOSTDEVICE scalar Volume()
+            {
+            scalar vol = 1.0;
+            for (int dd = 0; dd < DIMENSION; ++dd)
+                vol *= boxDimensions.x[dd];
+            return vol;
+            };
 /*
         HOSTDEVICE void operator=(periodicBoundaryConditions &other)
             {

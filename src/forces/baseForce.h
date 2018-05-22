@@ -34,6 +34,9 @@ class force
         //!compute the energy associated with this force
         virtual scalar computeEnergy(){return 0.;};
 
+        //! compute the system-averaged pressure tensor; return identity if the force hasn't defined this yet
+        virtual MatrixDxD computePressureTensor(){MatrixDxD temp; return temp;};
+
         //! A pointer to a simpleModel that the updater acts on
         shared_ptr<simpleModel> model;
         //!Enforce GPU operation

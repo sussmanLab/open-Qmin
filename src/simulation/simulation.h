@@ -57,6 +57,8 @@ class Simulation : public basicSimulation, public enable_shared_from_this<Simula
             {
             return computeKineticEnergy() + computePotentialEnergy();
             };
+        //!compute the pressure tensor
+        virtual void computePressureTensor(MatrixDxD &P);
 
 /*
         //!A neighbor list assisting the simulation

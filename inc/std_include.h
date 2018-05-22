@@ -75,6 +75,7 @@ using namespace std;
 #endif
 
 #include "dDimensionalVectorTypes.h"
+#include "matrix.h"
 #include "structures.h"
 
 //!Handle errors in kernel calls...returns file and line numbers if cudaSuccess doesn't pan out

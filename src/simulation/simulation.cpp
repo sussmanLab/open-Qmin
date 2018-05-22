@@ -124,6 +124,17 @@ scalar Simulation::computePotentialEnergy()
     return PE;
     };
 
+void Simulation::computePressureTensor(MatrixDxD &P)
+    {
+    dVec zero = make_dVec(0.0);
+    for(int dd = 0; dd < DIMENSION; ++dd)
+        P.mat[dd] = zero;
+    for (int f = 0; f < forceComputers.size(); ++f)
+        {
+        auto frc = forceComputers[f].lock();
+        P += frc->computePressureTensor();
+        };
+    };
 /*!
 Call all relevant functions to advance the system one time step; every sortPeriod also call the
 spatial sorting routine.

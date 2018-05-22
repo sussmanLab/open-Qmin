@@ -46,8 +46,8 @@ else()
 target_link_libraries(simulationExecutable.out ${myLibs} ${CUDA_LIBRARIES})
 endif(${CMAKE_BUILD_TYPE} MATCHES "Debug")
 
-#add_executable(otherExecutable.out fixedTopologyInteractions.cpp)
-#target_link_libraries(otherExecutable.out ${myLibs} ${CUDA_LIBRARIES})
+add_executable(otherExecutable.out minimize.cpp)
+target_link_libraries(otherExecutable.out ${myLibs} ${CUDA_LIBRARIES})
 
 
 #file(GLOB appSrcs RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.cpp)
