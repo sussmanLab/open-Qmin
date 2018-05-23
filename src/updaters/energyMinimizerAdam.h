@@ -13,7 +13,7 @@ class energyMinimizerAdam : public equationOfMotion
         void minimize();
         //!The "intergate equatios of motion just calls minimize
         virtual void performUpdate(){minimize();};
-        void setAdamParameters(scalar b1 = 0.9, scalar b2 = 0.99, scalar eps = 0.00000001,scalar _dt = 0.01,scalar fc = 1e-12)
+        void setAdamParameters(scalar b1 = 0.9, scalar b2 = 0.99, scalar eps = 0.00000001,scalar _dt = 0.005,scalar fc = 1e-12)
             {
             beta1 = b1;
             beta1t=b1;

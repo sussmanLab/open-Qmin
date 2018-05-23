@@ -57,7 +57,7 @@ int main(int argc, char*argv[])
 
     //allow setting of system size by either volume fraction or density (assuming N has been set)
     scalar phiDest = 1.90225*exp(-(scalar)DIMENSION / 2.51907);
-    ValueArg<scalar> phiSwitchArg("p","phi","volume fraction",false,phiDest,"double",cmd);
+    ValueArg<scalar> pTargetSwitchArg("p","pressureTarget","target pressure",false,0.02,"double",cmd);
     ValueArg<scalar> rhoSwitchArg("r","rho","density",false,-1.0,"double",cmd);
     //parse the arguments
     cmd.parse( argc, argv );
@@ -67,7 +67,7 @@ int main(int argc, char*argv[])
     int maximumIterations = maxIterationsSwitchArg.getValue();
     scalar L = lengthSwitchArg.getValue();
     scalar Temperature = temperatureSwitchArg.getValue();
-    scalar phi = phiSwitchArg.getValue();
+    scalar pTarget = pTargetSwitchArg.getValue();
     scalar rho = rhoSwitchArg.getValue();
 
     int gpuSwitch = gpuSwitchArg.getValue();
@@ -75,21 +75,18 @@ int main(int argc, char*argv[])
     if(gpuSwitch >=0)
         GPU = chooseGPU(gpuSwitch);
 
-    if(phi >0)
-        {
-        L = pow(N*sphereVolume(.5,DIMENSION) / phi,(1.0/(scalar) DIMENSION));
-        rho = N/pow(L,(scalar)DIMENSION);
-        }
-    else
-        phi = N*sphereVolume(.5,DIMENSION) / pow(L,(scalar)DIMENSION);
-
+    scalar phi = 1.0;
     if(rho >0)
         {
         L = pow(((scalar)N/rho),(1.0/(scalar) DIMENSION));
         phi = rho * sphereVolume(.5,DIMENSION);
         }
     else
+        {
         rho = N/pow(L,(scalar)DIMENSION);
+        phi = rho * sphereVolume(.5,DIMENSION);
+        }
+
     int dim =DIMENSION;
     cout << "running a simulation in "<<dim << " dimensions with box sizes " << L << endl;
     cout << "density = " << rho << "\tvolume fracation = "<<phi<<endl;
@@ -133,9 +130,62 @@ int main(int argc, char*argv[])
 //        neighList->setGPU();
         };
 
-    cudaProfilerStart();
-    clock_t t1 = clock();
     sim->performTimestep();
+    int curMaxIt = maximumIterations;
+
+    clock_t t1 = clock();
+    scalar phi_current  = phi;
+    scalar phi_low = phiDest-0.2;
+    scalar phi_high = 1.10;
+
+    MatrixDxD Pressure;
+    sim->computePressureTensor(Pressure);
+    scalar p = trace(Pressure) / (1.0*DIMENSION);
+    scalar Lold = L;
+    while(abs(p-pTarget)/pTarget > 0.01)
+        {
+        if(p>pTarget)
+            {
+            if(phi_current < phi_high) phi_high = phi_current;
+            phi_current = 0.5*(phi_current+phi_low);
+            }
+        else
+            {
+            if(phi_current > phi_low) phi_low = phi_current;
+            phi_current = 0.5*(phi_current+phi_high);
+            }
+
+        scalar Lnew = pow(N*sphereVolume(.5,DIMENSION) / phi_current,(1.0/(scalar) DIMENSION));
+        ArrayHandle<dVec> pos(Configuration->returnPositions());
+        for(int i=0;i<N;++i)
+            {
+            pos.data[i] =(Lnew/Lold)*pos.data[i];
+            }
+
+
+        cout << "(p-pTarget) = " << p-pTarget <<"... setting new box length: "<<Lnew << endl;
+        shared_ptr<periodicBoundaryConditions> PBCnew = make_shared<periodicBoundaryConditions>(Lnew);
+
+        sim->setBox(PBCnew);
+        shared_ptr<neighborList> neighList = make_shared<neighborList>(1.,PBC);
+        softSpheres->setNeighborList(neighList);
+
+        scalar ftol = 1.0;
+        while(ftol > 1e-12)
+            {
+            curMaxIt += maximumIterations;
+            fire->setMaximumIterations(curMaxIt);
+            sim->performTimestep();
+            ftol = fire->getMaxForce();
+            }
+        sim->computePressureTensor(Pressure);
+        p = trace(Pressure) / (1.0*DIMENSION);
+        printf("p=%g\n\n",p);
+        };
+    
+
+
+    cudaProfilerStart();
     clock_t t2 = clock();
     cudaProfilerStop();
 
@@ -151,11 +201,8 @@ int main(int argc, char*argv[])
     sim->setCPUOperation(true);
     scalar E = sim->computePotentialEnergy();
     printf("simulation potential energy at %f\n",E);
-    MatrixDxD Pressure;
-    cout << "built" << endl;
     sim->computePressureTensor(Pressure);
     cout << "computedbuilt" << endl;
-    scalar p = trace(Pressure) / (1.0*DIMENSION);
     cout << "Pressure = " <<  p << endl;
     /*
     neighList->computeNeighborLists(Configuration->returnPositions());
