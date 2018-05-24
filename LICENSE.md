@@ -1,6 +1,6 @@
 # Licensing information {#license}
 
-CellGPU is released under the MIT license
+dDimensionalSimulation is released under the MIT license
 
 Copyright (c) 2018 -  Daniel M. Sussman
 
@@ -19,12 +19,13 @@ THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABI
 CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 
-# External code used
+## External code used
 
 Additionally, some files and functionality draw from existing open-source code, as described below.
 
-(1) A file (gpuarray.h) is largely based on parts of the HOOMD-blue project, released
-under the BSD 3-Clause License.
+(1) A file (gpuarray.h) is based on a part of the HOOMD-blue project, released
+under the BSD 3-Clause License. (similar ideas for classes that simultaneously handly cpu and GPU array data
+structures have also appeared elsewhere; the hoomd version is the file I started modifying, though)
 https://glotzerlab.engin.umich.edu/hoomd-blue
 
 HOOMD-blue Open Source Software License Copyright 2009-2016 The Regents of

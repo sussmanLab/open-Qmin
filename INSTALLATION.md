@@ -12,7 +12,9 @@ A general CMake scheme is included with the repository.
 
 Go into the CMakeLists.txt file in the root directory, locate the line that says
 "add_definitions(-DDIMENSION=3) "
-and change the 3 to something else.
+and change the 3 (or whatever other number happens to be there) to something else.
+This sets the dimensionality of the degrees of freedom, and by default also the 
+dimensionality of the space those d.o.f.s are in.
 
 # Requirements
 
@@ -31,3 +33,4 @@ range of parameters.
 The requirements can be obtained by looking at the info on the following:
 
 CUDA: https://developer.nvidia.com/cuda-downloads
+CMAKE: https://cmake.org
