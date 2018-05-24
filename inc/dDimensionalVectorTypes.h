@@ -28,6 +28,8 @@ class dVec
 
         scalar x[DIMENSION];
 
+        HOSTDEVICE scalar& operator[](int i){return x[i];};
+
         //mutating operators
         HOSTDEVICE dVec& operator=(const dVec &other)
             {
@@ -160,6 +162,8 @@ class iVec
             };
 
         int x[DIMENSION];
+
+        HOSTDEVICE int& operator[](int i){return x[i];};
 
         //mutating operators
         iVec& operator=(const iVec &other)

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.0.0)
 project(dDimensionalSimulations)
 
-add_definitions(-DDIMENSION=2)
+add_definitions(-DDIMENSION=3)
 
 set(CMAKE_CC_FLAGS "${CMAKE_CC_FLAGS} ")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -std=c++11")
