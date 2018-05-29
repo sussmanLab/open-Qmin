@@ -32,6 +32,8 @@ class simpleModel
     public:
         //!The base constructor requires the number of particles
         simpleModel(int n, bool _useGPU = false);
+        //!a blank default constructor
+        simpleModel(){};
         //!initialize the size of the basic data structure arrays
         void initializeSimpleModel(int n);
 

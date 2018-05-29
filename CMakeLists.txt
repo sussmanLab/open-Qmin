@@ -46,7 +46,7 @@ else()
 target_link_libraries(simulationExecutable.out ${myLibs} ${CUDA_LIBRARIES})
 endif(${CMAKE_BUILD_TYPE} MATCHES "Debug")
 
-add_executable(otherExecutable.out minimize.cpp)
+add_executable(otherExecutable.out cubicLatticeQTensor.cpp)
 target_link_libraries(otherExecutable.out ${myLibs} ${CUDA_LIBRARIES})
 
 

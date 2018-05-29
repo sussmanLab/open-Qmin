@@ -62,6 +62,82 @@ class Index2D
         unsigned int height;   //!< array height
     };
 
+//!Switch between a 3-dimensional grid to a flattened, 1D index
+/*!
+ * A class for converting between a 3d index and a 1-d array, which makes calculation on
+ * the GPU a bit easier. This was inspired by the indexer class of Hoomd-blue
+ */
+class Index3D
+    {
+    public:
+        HOSTDEVICE Index3D(unsigned int w=0){setSizes(w);};
+        HOSTDEVICE Index3D(int3 w){setSizes(w);};
+
+        HOSTDEVICE void setSizes(unsigned int w)
+            {
+            sizes.x = w;
+            numberOfElements = sizes.x;
+            intermediateSizes.x=1;
+            sizes.y = w;
+            intermediateSizes.y = intermediateSizes.x*sizes.y;
+            numberOfElements *= sizes.y;
+            sizes.z = w;
+            intermediateSizes.z = intermediateSizes.y*sizes.z;
+            numberOfElements *= sizes.z;
+            };
+        HOSTDEVICE void setSizes(int3 w)
+            {
+            sizes.x = w.x;
+            numberOfElements = sizes.x;
+            intermediateSizes.x=1;
+            sizes.y = w.y;
+            intermediateSizes.y = intermediateSizes.x*sizes.y;
+            numberOfElements *= sizes.y;
+            sizes.z = w.z;
+            intermediateSizes.z = intermediateSizes.y*sizes.z;
+            numberOfElements *= sizes.z;
+            };
+
+        HOSTDEVICE unsigned int operator()(const int x, const int y, const int z) const
+            {
+            return x*intermediateSizes.x+y*intermediateSizes.y+z*intermediateSizes.z;
+            };
+
+        HOSTDEVICE unsigned int operator()(const int3 &i) const
+            {
+            return i.x*intermediateSizes.x+i.y*intermediateSizes.y+i.z*intermediateSizes.z;
+            };
+
+        //!What iVec would correspond to a given unsigned int IndexDD(iVec)
+        HOSTDEVICE int3 inverseIndex(int i)
+            {
+            int3 ans;
+            int z0 = i;
+            ans.x = z0%sizes.x;
+            z0= (z0-ans.x)/sizes.x;
+            ans.y = z0%sizes.y;
+            z0=(z0-ans.y)/sizes.y;
+            ans.z = z0%sizes.z;
+            return ans;
+            };
+
+        //!Return the number of elements that the indexer can index
+        HOSTDEVICE unsigned int getNumElements() const
+            {
+            return numberOfElements;
+            };
+
+        //!Get the iVec of sizes
+        HOSTDEVICE int3 getSizes() const
+            {
+            return sizes;
+            };
+
+        int3 sizes; //!< a list of the size of the full array in each of the d dimensions
+        int3 intermediateSizes; //!<intermediateSizes[a] = Product_{d<=a} sizes. intermediateSizes[0]=1;
+        unsigned int numberOfElements; //! The total number of elements that the indexer can index
+        unsigned int width;   //!< array width
+    };
 //!Switch between a d-dimensional grid to a flattened, 1D index
 /*!
  * A class for converting between a 2d index and a 1-d array, which makes calculation on
