@@ -41,6 +41,8 @@ class Simulation : public basicSimulation, public enable_shared_from_this<Simula
         //!Add an updater with a reference to a configuration
         void addUpdater(UpdaterPtr _upd, ConfigPtr _config);
         //!Add a force computer configuration
+        void addForce(ForcePtr _force){forceComputers.push_back(_force);};
+        //!Add a force computer configuration
         void addForce(ForcePtr _force, ConfigPtr _config);
 
         //!Clear out the vector of forceComputes

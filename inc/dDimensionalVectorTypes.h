@@ -267,6 +267,11 @@ HOSTDEVICE iVec modularAddition(const iVec &i1, const iVec &i2, const iVec &max)
     };
 
 //!print a iVec to screen
+inline __attribute__((always_inline)) void printInt3(int3 a)
+    {
+    printf("{%i,%i,%i}\n",a.x,a.y,a.z);
+    };
+//!print a iVec to screen
 inline __attribute__((always_inline)) void printiVec(iVec a)
     {
     cout <<"{";

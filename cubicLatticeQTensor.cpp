@@ -8,6 +8,7 @@
 #include "gpuarray.h"
 #include "simulation.h"
 #include "cubicLattice.h"
+#include "baseLatticeForce.h"
 #include "energyMinimizerFIRE.h"
 #include "energyMinimizerAdam.h"
 #include "noiseSource.h"
@@ -51,20 +52,39 @@ int main(int argc, char*argv[])
 
     int dim =DIMENSION;
     cout << "running a simulation in "<<dim << " dimensions with box sizes " << L << endl;
-
-    shared_ptr<cubicLattice> Configuration = make_shared<cubicLattice>(L);
+    bool sliceLatticeSites = false;
+    shared_ptr<cubicLattice> Configuration = make_shared<cubicLattice>(L,sliceLatticeSites);
     int N = L*L*L;
 
     shared_ptr<Simulation> sim = make_shared<Simulation>();
     sim->setConfiguration(Configuration);
+    shared_ptr<baseLatticeForce> nVectorModel = make_shared<baseLatticeForce>();
+    nVectorModel->setModel(Configuration);
+    sim->addForce(nVectorModel);
 
     //after the simulation box has been set, we can set particle positions
+    if(gpuSwitch >=0)
+        {
+        sim->setCPUOperation(false);
+        };
     noiseSource noise(true);
     Configuration->setSpinsRandomly(noise);
-    int4 xyN;
-    int2 zN;
-    int n = Configuration->getNeighbors(100,xyN,zN);
-    printf("idx %i...neighbors: %i, %i, %i, %i, %i, %i\n",n, xyN.x,xyN.y,xyN.z,xyN.w,zN.x,zN.y);
+
+
+    int3 tar; tar.x=5;tar.y=5,tar.z=9;
+    vector<int> neighbors;
+    int neighs;
+    int n = Configuration->latticeSiteToLinearIndex(tar);
+    printf("%i\n",n);
+    n = Configuration->getNeighbors(n,neighbors,neighs);
+    printf("idx %i...neighbors: ",n);
+    for(int ii = 0; ii < neighs; ++ii)
+        printf("%i ",neighbors[ii]);
+    printf("\n");
+    int3 test;
+        printInt3(Configuration->latticeIndex.inverseIndex(n));
+    for (int ii =0; ii < neighs; ++ii)
+        printInt3(Configuration->latticeIndex.inverseIndex(neighbors[ii]));
 /*
     shared_ptr<energyMinimizerFIRE> fire = make_shared<energyMinimizerFIRE>(Configuration);
     fire->setFIREParameters(0.05,0.99,0.1,1.1,0.95,.9,4,1e-12);
@@ -80,8 +100,14 @@ int main(int argc, char*argv[])
         {
         sim->setCPUOperation(false);
         };
-    /*
+    dVec meanSpin = Configuration->averagePosition();
+    cout << "average spin magnitude "<< norm(meanSpin) << endl;
+    printdVec(meanSpin);
     sim->performTimestep();
+    meanSpin = Configuration->averagePosition();
+    cout << "average spin magnitude "<< norm(meanSpin);
+    printdVec(meanSpin);
+    /*
     int curMaxIt = maximumIterations;
 
     clock_t t1 = clock();

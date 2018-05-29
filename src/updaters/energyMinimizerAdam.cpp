@@ -53,10 +53,10 @@ void energyMinimizerAdam::adamStepCPU()
 
 void energyMinimizerAdam::minimize()
     {
-    cout << "attempting a minimization" << endl;
     if (Ndof != model->getNumberOfParticles())
         initializeFromModel();
     forceMax = 110.0;
+    cout << "attempting minimization " <<iterations <<" out of " << maxIterations << " maximum attempts" << endl;
     while( (iterations < maxIterations) && (forceMax > forceCutoff) )
         {
         iterations +=1;
@@ -65,9 +65,9 @@ void energyMinimizerAdam::minimize()
         else
             adamStepCPU();
         if(iterations%1000 == 999)
-            printf("step %i max force:%.3g \n",iterations,forceMax);
+            printf("step %i max force:%.3g\t energy %.3g\n",iterations,forceMax,sim->computePotentialEnergy());
         };
-    printf("adam finished: step %i max force:%.3g \n",iterations,forceMax);
+            printf("adam finished: step %i max force:%.3g\t energy %.3g\n",iterations,forceMax,sim->computePotentialEnergy());
     }
 
 void energyMinimizerAdam::adamStepGPU()

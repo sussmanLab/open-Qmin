@@ -75,15 +75,8 @@ class Index3D
 
         HOSTDEVICE void setSizes(unsigned int w)
             {
-            sizes.x = w;
-            numberOfElements = sizes.x;
-            intermediateSizes.x=1;
-            sizes.y = w;
-            intermediateSizes.y = intermediateSizes.x*sizes.y;
-            numberOfElements *= sizes.y;
-            sizes.z = w;
-            intermediateSizes.z = intermediateSizes.y*sizes.z;
-            numberOfElements *= sizes.z;
+            int3 W; W.x=w;W.y=w;W.z=w;
+            setSizes(W);
             };
         HOSTDEVICE void setSizes(int3 w)
             {
