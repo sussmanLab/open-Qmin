@@ -12,6 +12,13 @@
  * \brief CUDA kernels and callers
  */
 
+//! move spins
+bool gpu_update_spins(dVec *d_disp,
+                      dVec *d_pos,
+                      scalar scale,
+                      int N,
+                      bool normalize);
+
 //! set spins to be random points on d-sphere
 bool gpu_set_random_spins(dVec *d_pos,
                           curandState *rngs,

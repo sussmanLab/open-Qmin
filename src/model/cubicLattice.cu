@@ -37,4 +37,35 @@ bool gpu_set_random_spins(dVec *d_pos,
     return cudaSuccess;
     }
 
+__global__ void gpu_update_spins_kernel(dVec *d_disp,
+                      dVec *d_pos,
+                      scalar scale,
+                      int N,
+                      bool normalize)
+    {
+    unsigned int idx = blockDim.x * blockIdx.x + threadIdx.x;
+    if (idx >= N)
+        return;
+    d_pos[idx] += scale*d_disp[idx];
+    if(normalize)
+        {
+        scalar nrm =norm(d_pos[idx]);
+        d_pos[idx] = (1.0/nrm)*d_pos[idx];
+        }
+    }
+
+bool gpu_update_spins(dVec *d_disp,
+                      dVec *d_pos,
+                      scalar scale,
+                      int N,
+                      bool normalize)
+    {
+    unsigned int block_size = 128;
+    if (N < 128) block_size = 16;
+    unsigned int nblocks  = N/block_size + 1;
+    gpu_update_spins_kernel<<<nblocks,block_size>>>(d_disp,d_pos,scale,N,normalize);
+    HANDLE_ERROR(cudaGetLastError());
+    return cudaSuccess;
+    }
+
 /** @} */ //end of group declaration

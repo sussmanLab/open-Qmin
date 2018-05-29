@@ -32,10 +32,12 @@ class baseLatticeForce : public force
             return energy;
             };
         virtual void computeEnergyCPU();
-        virtual void computeEnergyGPU(){UNWRITTENCODE("gpu energy calculation of lattice model");};
+        virtual void computeEnergyGPU(){printf("gpu energy calculation of lattice model being done on the cpu");energy = 0.0;};
 
         //! virtual function to allow the model to be a derived class
         virtual void setModel(shared_ptr<cubicLattice> _model){lattice=_model;model = _model;};
+        //!kernelTuner object
+        shared_ptr<kernelTuner> forceTuner;
     protected:
         shared_ptr<cubicLattice> lattice;
         //!if all lattice interactions are uniform

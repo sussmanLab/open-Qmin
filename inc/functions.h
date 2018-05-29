@@ -162,6 +162,17 @@ HOSTDEVICE scalar norm(const dVec &p)
     return sqrt(dot(p,p));
     };
 
+//!fit integers into non-negative domains
+HOSTDEVICE int wrap(int x,int m)
+    {
+    int ans = x;
+    if(x >= m)
+        ans = x % m;
+    while(ans <0)
+        ans += m;
+    return ans;
+    }
+
 
 //!compute the sign of a scalar, and return zero if x = 0
 HOSTDEVICE int computeSign(scalar x)

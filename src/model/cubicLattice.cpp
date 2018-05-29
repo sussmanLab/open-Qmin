@@ -14,11 +14,18 @@ cubicLattice::cubicLattice(int l, bool _slice, bool _useGPU)
     positions.resize(N);
     types.resize(N);
     forces.resize(N);
+    //temporary?
+    masses.resize(N);
+    velocities.resize(N);
+
     vector<dVec> zeroes(N,make_dVec(0.0));
     vector<int> units(N,0);
+    vector<scalar> unities(N,1.0);
     fillGPUArrayWithVector(units,types);
+    fillGPUArrayWithVector(unities,masses);
     fillGPUArrayWithVector(zeroes,positions);
     fillGPUArrayWithVector(zeroes,forces);
+    fillGPUArrayWithVector(zeroes,velocities);
     normalizeSpins = true;
     };
 
@@ -42,8 +49,7 @@ void cubicLattice::moveParticles(GPUArray<dVec> &displacements, scalar scale)
         {//gpu branch
         ArrayHandle<dVec> d_disp(displacements,access_location::device,access_mode::readwrite);
         ArrayHandle<dVec> d_pos(positions,access_location::device,access_mode::readwrite);
-        UNWRITTENCODE("moving spins on gpu");
-//        gpu_move_particles(d_pos.data,d_disp.data,*(Box),scale,N);
+        gpu_update_spins(d_disp.data,d_pos.data,scale,N,normalizeSpins);
         };
 
     
@@ -73,16 +79,6 @@ void cubicLattice::setSpinsRandomly(noiseSource &noise)
         gpu_set_random_spins(pos.data,d_curandRNGs.data, blockSize,nBlocks,N);
         }
     };
-
-int cubicLattice::wrap(int x, int m)
-    {
-    int ans = x;
-    if(x >= m)
-        ans = x % m;
-    while(ans <0)
-        ans += m;
-    return ans;
-    }
 
 int cubicLattice::latticeSiteToLinearIndex(const int3 &target)
     {

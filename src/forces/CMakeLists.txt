@@ -15,4 +15,5 @@ add_library(force
 cuda_add_library(forceGPU
     lennardJones6_12.cu
     harmonicRepulsion.cu
+    baseLatticeForce.cu
     )

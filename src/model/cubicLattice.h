@@ -46,9 +46,6 @@ class cubicLattice : public simpleModel
         //!lattice sites per edge
         int L;
 
-        //!enforce periodic boundaries on lattice sits
-        int wrap(int x, int m);
-
         //!normalize vector length when moving spins?
         bool normalizeSpins;
     };

@@ -70,7 +70,7 @@ int main(int argc, char*argv[])
     noiseSource noise(true);
     Configuration->setSpinsRandomly(noise);
 
-
+/*
     int3 tar; tar.x=5;tar.y=5,tar.z=9;
     vector<int> neighbors;
     int neighs;
@@ -85,41 +85,44 @@ int main(int argc, char*argv[])
         printInt3(Configuration->latticeIndex.inverseIndex(n));
     for (int ii =0; ii < neighs; ++ii)
         printInt3(Configuration->latticeIndex.inverseIndex(neighbors[ii]));
-/*
+        */
     shared_ptr<energyMinimizerFIRE> fire = make_shared<energyMinimizerFIRE>(Configuration);
     fire->setFIREParameters(0.05,0.99,0.1,1.1,0.95,.9,4,1e-12);
     fire->setMaximumIterations(maximumIterations);
-*/
+    sim->addUpdater(fire,Configuration);
+/*
     shared_ptr<energyMinimizerAdam> adam  = make_shared<energyMinimizerAdam>();
     adam->setAdamParameters();
     adam->setMaximumIterations(maximumIterations);
-
     sim->addUpdater(adam,Configuration);
+*/
 
     if(gpuSwitch >=0)
         {
         sim->setCPUOperation(false);
         };
+    scalar E = sim->computePotentialEnergy();
+    printf("simulation potential energy at %f\n",E);
+
     dVec meanSpin = Configuration->averagePosition();
     cout << "average spin magnitude "<< norm(meanSpin) << endl;
     printdVec(meanSpin);
-    sim->performTimestep();
-    meanSpin = Configuration->averagePosition();
-    cout << "average spin magnitude "<< norm(meanSpin);
-    printdVec(meanSpin);
-    /*
+
     int curMaxIt = maximumIterations;
 
     clock_t t1 = clock();
     cudaProfilerStart();
+    sim->performTimestep();
     clock_t t2 = clock();
     cudaProfilerStop();
+    meanSpin = Configuration->averagePosition();
+    cout << "average spin magnitude "<< norm(meanSpin);
+    printdVec(meanSpin);
 
     cout << endl << "minimization took " << (t2-t1)/(scalar)CLOCKS_PER_SEC << endl;
     sim->setCPUOperation(true);
-    scalar E = sim->computePotentialEnergy();
+    E = sim->computePotentialEnergy();
     printf("simulation potential energy at %f\n",E);
-*/
 
 //
 //The end of the tclap try
