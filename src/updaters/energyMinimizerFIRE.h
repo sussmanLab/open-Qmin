@@ -5,6 +5,7 @@
 #include "gpuarray.h"
 #include "simpleModel.h"
 #include "velocityVerlet.h"
+#include "kernelTuner.h"
 
 
 /*! \file energyMinimizerFIRE.h */

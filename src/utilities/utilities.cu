@@ -348,6 +348,22 @@ bool gpu_parallel_reduction(scalar *input, scalar *intermediate, scalar *output,
     return cudaSuccess;
     };
 
+bool gpu_parallel_reduction(scalar *input, scalar *intermediate, scalar *output, int helperIdx, int N,int block_size)
+    {
+    unsigned int nblocks  = N/block_size + 1;
+    //first do a block reduction of input
+    unsigned int smem = block_size*sizeof(scalar);
+
+    //Do a block reduction of the input array
+    gpu_parallel_block_reduction2_kernel<<<nblocks,block_size,smem>>>(input,intermediate, N);
+    HANDLE_ERROR(cudaGetLastError());
+
+    //sum reduce the temporary array, saving the result in the right slot of the output array
+    gpu_serial_reduction_kernel<<<1,1>>>(intermediate,output,helperIdx,nblocks);
+    HANDLE_ERROR(cudaGetLastError());
+    return cudaSuccess;
+    };
+
 /*!
 This serial reduction routine should probably never be called. It provides an interface to the
 gpu_serial_reduction_kernel above that may be useful for testing

@@ -85,9 +85,11 @@ void energyMinimizerFIRE::fireStepGPU()
     {//scope for reduction arrays
     ArrayHandle<scalar> d_intermediate(sumReductionIntermediate,access_location::device,access_mode::overwrite);
     ArrayHandle<scalar> d_assist(sumReductions,access_location::device,access_mode::overwrite);
-    gpu_parallel_reduction(d_ff.data,d_intermediate.data,d_assist.data,0,Ndof);
-    gpu_parallel_reduction(d_fv.data,d_intermediate.data,d_assist.data,1,Ndof);
-    gpu_parallel_reduction(d_vv.data,d_intermediate.data,d_assist.data,2,Ndof);
+    int maxBlockSize = 1024;
+    if(Ndof < 1024) maxBlockSize = 16;
+    gpu_parallel_reduction(d_ff.data,d_intermediate.data,d_assist.data,0,Ndof,maxBlockSize);
+    gpu_parallel_reduction(d_fv.data,d_intermediate.data,d_assist.data,1,Ndof,maxBlockSize);
+    gpu_parallel_reduction(d_vv.data,d_intermediate.data,d_assist.data,2,Ndof,maxBlockSize);
     };
     ArrayHandle<scalar> h_assist(sumReductions,access_location::host,access_mode::read);
     scalar forceNorm = h_assist.data[0];

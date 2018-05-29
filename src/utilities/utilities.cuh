@@ -68,5 +68,14 @@ bool gpu_parallel_reduction(
                     int helperIdx,
                     int N);
 
+//!A straightforward two-step parallel reduction algorithm with block_size declared
+bool gpu_parallel_reduction(
+                    scalar *input,
+                    scalar *intermediate,
+                    scalar *output,
+                    int helperIdx,
+                    int N,
+                    int block_size);
+
 /** @} */ //end of group declaration
 #endif

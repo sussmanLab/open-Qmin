@@ -27,12 +27,16 @@ __global__ void gpu_lattice_spin_force_nn_kernel(dVec *d_force,
     smz = latticeIndex(target.x,target.y,wrap(target.z-1,L));
     spz = latticeIndex(target.x,target.y,wrap(target.z+1,L));
 
-    d_force[idx] += J*d_spins[smx];
-    d_force[idx] += J*d_spins[spx];
-    d_force[idx] += J*d_spins[smy];
-    d_force[idx] += J*d_spins[spy];
-    d_force[idx] += J*d_spins[smz];
-    d_force[idx] += J*d_spins[spz];
+    if(zeroForce)
+        d_force[idx] = J*(d_spins[smx]+d_spins[spx] + d_spins[smy]+d_spins[spy] + d_spins[smz]+d_spins[spz]) ;
+    else
+        d_force[idx] += J*(d_spins[smx]+d_spins[spx] + d_spins[smy]+d_spins[spy] + d_spins[smz]+d_spins[spz]) ;
+
+//    d_force[idx] += J*d_spins[spx];
+//    d_force[idx] += J*(d_spins[smy]+d_spins[spy]);
+//    d_force[idx] += J*d_spins[spy];
+//    d_force[idx] += J*(d_spins[smz]+d_spins[spz]);
+//    d_force[idx] += J*d_spins[spz];
     }
 
 bool gpu_lattice_spin_force_nn(dVec *d_force,
