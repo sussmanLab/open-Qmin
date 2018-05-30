@@ -30,7 +30,7 @@ void energyMinimizerAdam::adamStepGPU()
     ArrayHandle<dVec> mc(correctedMomentumEstimate,access_location::device,access_mode::readwrite);
     ArrayHandle<dVec> vc(correctedMomentumSquaredEstimate,access_location::device,access_mode::readwrite);
     ArrayHandle<dVec> disp(displacement,access_location::device,access_mode::readwrite);
-    int blockSize = 256;
+    int blockSize = 512;
     gpu_adam_step(negativeGrad.data,
                   m.data,
                   v.data,

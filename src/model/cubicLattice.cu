@@ -60,7 +60,7 @@ bool gpu_update_spins(dVec *d_disp,
                       int N,
                       bool normalize)
     {
-    unsigned int block_size = 128;
+    unsigned int block_size = 1024;
     if (N < 128) block_size = 16;
     unsigned int nblocks  = N/block_size + 1;
     gpu_update_spins_kernel<<<nblocks,block_size>>>(d_disp,d_pos,scale,N,normalize);

@@ -22,17 +22,26 @@ __global__ void gpu_adam_step_kernel(dVec *force,
     unsigned int idx = blockDim.x * blockIdx.x + threadIdx.x;
     if (idx >= N)
         return;
-    biasedMomentum[idx] = beta1*biasedMomentum[idx]+(beta1-1)*force[idx];
-    biasedMomentum2[idx] = beta2*biasedMomentum2[idx]+(1-beta2)*force[idx]*force[idx];
-    correctedMomentum[idx] = biasedMomentum[idx]*(1.0/(1.0-beta1t));
-    correctedMomentum2[idx] = biasedMomentum2[idx]*(1.0/(1.0-beta2t));
     scalar rootvc;
+    dVec f = force[idx];
+    dVec bm = biasedMomentum[idx];
+    dVec bm2 = biasedMomentum2[idx];
+    dVec cm, cm2,ans;
     for(int dd = 0; dd < DIMENSION; ++dd)
         {
-        rootvc = sqrt(correctedMomentum2[idx][dd]);
+        bm[dd] = beta1*bm[dd]+(beta1-1.)*f[dd];
+        bm2[dd] = beta2*bm2[dd]+(1.-beta2)*f[dd]*f[dd];
+        cm[dd] = bm[dd]*(1.0/(1.-beta1t));
+        cm2[dd]=bm2[dd]*(1.0/(1.-beta2t));
+        rootvc = sqrt(cm2[dd]);
         if(rootvc ==0) rootvc = 1e-10;
-        displacement[idx][dd] = -deltaT*correctedMomentum[idx][dd]/(rootvc);
+        ans[dd] = -deltaT*cm[dd]/(rootvc);
         }
+    displacement[idx] = ans;
+    biasedMomentum[idx] = bm;
+    biasedMomentum2[idx] = bm2;
+    correctedMomentum[idx] = cm;
+    correctedMomentum2[idx] = cm2;
     }
 
 bool gpu_adam_step(dVec *force,
