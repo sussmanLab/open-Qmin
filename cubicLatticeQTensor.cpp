@@ -89,13 +89,13 @@ int main(int argc, char*argv[])
     shared_ptr<energyMinimizerFIRE> fire = make_shared<energyMinimizerFIRE>(Configuration);
     fire->setFIREParameters(0.05,0.99,0.1,1.1,0.95,.9,4,1e-12);
     fire->setMaximumIterations(maximumIterations);
-    sim->addUpdater(fire,Configuration);
-/*
     shared_ptr<energyMinimizerAdam> adam  = make_shared<energyMinimizerAdam>();
     adam->setAdamParameters();
     adam->setMaximumIterations(maximumIterations);
-    sim->addUpdater(adam,Configuration);
-*/
+    if(programSwitch ==1)
+        sim->addUpdater(fire,Configuration);
+    else
+        sim->addUpdater(adam,Configuration);
 
     if(gpuSwitch >=0)
         {
