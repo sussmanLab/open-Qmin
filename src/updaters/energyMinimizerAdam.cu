@@ -20,6 +20,7 @@ __global__ void gpu_adam_step_kernel(dVec *force,
     {
     // read in the index that belongs to this thread
     unsigned int idx = blockDim.x * blockIdx.x + threadIdx.x;
+    /*
     if (idx >= N)
         return;
     scalar rootvc;
@@ -42,8 +43,34 @@ __global__ void gpu_adam_step_kernel(dVec *force,
     biasedMomentum2[idx] = bm2;
     correctedMomentum[idx] = cm;
     correctedMomentum2[idx] = cm2;
+    */
+    int pidx = idx/DIMENSION;
+    if(pidx>=N) return;
+    int didx = idx%DIMENSION;
+
+    scalar rootvc;
+    scalar f = force[pidx][didx];
+    scalar bm = biasedMomentum[pidx][didx];
+    scalar bm2 = biasedMomentum2[pidx][didx];
+    scalar cm, cm2,ans;
+    bm = beta1*bm+(beta1-1.)*f;
+    bm2 = beta2*bm2+(1.-beta2)*f*f;
+    cm = bm*(1.0/(1.-beta1t));
+    cm2=bm2*(1.0/(1.-beta2t));
+    rootvc = sqrt(cm2);
+    if(rootvc ==0) rootvc = 1e-10;
+    ans = -deltaT*cm/(rootvc);
+
+    displacement[pidx][didx] = ans;
+    biasedMomentum[pidx][didx] = bm;
+    biasedMomentum2[pidx][didx] = bm2;
+    correctedMomentum[pidx][didx] = cm;
+    correctedMomentum2[pidx][didx] = cm2;
     }
 
+/*!
+A memory-efficiency optimization has each thread acting on one dimension of one degree of freedom...
+  */
 bool gpu_adam_step(dVec *force,
                    dVec *biasedMomentum,
                    dVec *biasedMomentum2,
@@ -60,7 +87,7 @@ bool gpu_adam_step(dVec *force,
     {
     int block_size=blockSize;
     if (N < 128) block_size = 32;
-    unsigned int nblocks  = N/block_size + 1;
+    unsigned int nblocks  = DIMENSION*N/block_size + 1;
     gpu_adam_step_kernel<<<nblocks,block_size>>>(force,biasedMomentum,biasedMomentum2,
             correctedMomentum,correctedMomentum2, displacement,
             deltaT,beta1,beta2,beta1t,beta2t,N);

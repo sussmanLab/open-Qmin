@@ -60,17 +60,19 @@ bool gpu_serial_reduction(
                     int helperIdx,
                     int N);
 
-//!A straightforward two-step parallel reduction algorithm.
+//!A straightforward two-step parallel reduction algorithm with block_size declared
 bool gpu_parallel_reduction(
                     scalar *input,
                     scalar *intermediate,
                     scalar *output,
                     int helperIdx,
-                    int N);
+                    int N,
+                    int block_size);
 
-//!A straightforward two-step parallel reduction algorithm with block_size declared
-bool gpu_parallel_reduction(
-                    scalar *input,
+//!Take two vectors of dVecs and compute the sum of the dot products between them
+bool gpu_dVec_dot_products(
+                    dVec *input1,
+                    dVec *input2,
                     scalar *intermediate,
                     scalar *output,
                     int helperIdx,

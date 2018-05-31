@@ -8,13 +8,14 @@
 /*!
 update the velocity according to a FIRE step
 */
-__global__ void gpu_update_velocity_FIRE_kernel(dVec *d_velocity, dVec *d_force, scalar alpha, scalar scaling, int n)
+__global__ void gpu_update_velocity_FIRE_kernel(dVec *d_velocity, dVec *d_force, scalar alpha, scalar scaling, int N)
     {
     // read in the index that belongs to this thread
     unsigned int idx = blockDim.x * blockIdx.x + threadIdx.x;
-    if (idx >= n)
-        return;
-    d_velocity[idx] = (1-alpha)*d_velocity[idx] + alpha*scaling*d_force[idx];
+    int pidx = idx/DIMENSION;
+    if(pidx>=N) return;
+    int didx = idx%DIMENSION;
+    d_velocity[pidx][didx] = (1-alpha)*d_velocity[pidx][didx] + alpha*scaling*d_force[pidx][didx];
     };
 
 /*!
@@ -27,9 +28,9 @@ __global__ void gpu_update_velocity_FIRE_kernel(dVec *d_velocity, dVec *d_force,
 */
 bool gpu_update_velocity_FIRE(dVec *d_velocity, dVec *d_force, scalar alpha, scalar scaling, int N)
     {
-    unsigned int block_size = 128;
-    if (N < 128) block_size = 32;
-    unsigned int nblocks  = N/block_size + 1;
+    unsigned int block_size = 512;
+    if (N < 512) block_size = 32;
+    unsigned int nblocks  = (DIMENSION*N)/block_size + 1;
     gpu_update_velocity_FIRE_kernel<<<nblocks,block_size>>>(
                                                 d_velocity,
                                                 d_force,

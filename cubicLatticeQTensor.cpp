@@ -62,13 +62,14 @@ int main(int argc, char*argv[])
     nVectorModel->setModel(Configuration);
     sim->addForce(nVectorModel);
 
-    //after the simulation box has been set, we can set particle positions
+    noiseSource noise(true);
+    Configuration->setSpinsRandomly(noise);
+    //after the simulation box has been set, we can set particle positions... putting this here ensures that the random
+    //spins are the same for gpu and cpu testing
     if(gpuSwitch >=0)
         {
         sim->setCPUOperation(false);
         };
-    noiseSource noise(true);
-    Configuration->setSpinsRandomly(noise);
 
 /*
     int3 tar; tar.x=5;tar.y=5,tar.z=9;

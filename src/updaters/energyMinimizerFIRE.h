@@ -97,13 +97,6 @@ class energyMinimizerFIRE : public velocityVerlet
         //!The fraction by which alpha can decrease
         scalar alphaDec;
 
-        //!Utility array for computing force.velocity
-        GPUArray<scalar> forceDotVelocity;
-        //!Utility array for computing force.force
-        GPUArray<scalar> forceDotForce;
-        //!Utility array for computing velocity.velocity
-        GPUArray<scalar> velocityDotVelocity;
-
         //!Utility array for simple reductions
         GPUArray<scalar> sumReductionIntermediate;
         //!Utility array for simple reductions

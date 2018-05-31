@@ -46,9 +46,6 @@ Initialize the minimizer with some default parameters.
 void energyMinimizerFIRE::initializeFromModel()
     {
     Ndof = model->getNumberOfParticles();
-    forceDotForce.resize(Ndof);
-    forceDotVelocity.resize(Ndof);
-    velocityDotVelocity.resize(Ndof);
     displacement.resize(Ndof);
     sumReductionIntermediate.resize(Ndof);
     };
@@ -74,23 +71,15 @@ void energyMinimizerFIRE::fireStepGPU()
     {//array handle scope
     ArrayHandle<dVec> d_f(model->returnForces(),access_location::device,access_mode::read);
     ArrayHandle<dVec> d_v(model->returnVelocities(),access_location::device,access_mode::readwrite);
-    ArrayHandle<scalar> d_ff(forceDotForce,access_location::device,access_mode::readwrite);
-    ArrayHandle<scalar> d_fv(forceDotVelocity,access_location::device,access_mode::readwrite);
-    ArrayHandle<scalar> d_vv(velocityDotVelocity,access_location::device,access_mode::readwrite);
-    gpu_dot_dVec_vectors(d_f.data,d_f.data,d_ff.data,Ndof);
-    gpu_dot_dVec_vectors(d_f.data,d_v.data,d_fv.data,Ndof);
-    gpu_dot_dVec_vectors(d_v.data,d_v.data,d_vv.data,Ndof);
-
-    //parallel reduction
-    {//scope for reduction arrays
     ArrayHandle<scalar> d_intermediate(sumReductionIntermediate,access_location::device,access_mode::overwrite);
+    {//scope for reduction / assist array
     ArrayHandle<scalar> d_assist(sumReductions,access_location::device,access_mode::overwrite);
-    int maxBlockSize = 1024;
-    if(Ndof < 1024) maxBlockSize = 16;
-    gpu_parallel_reduction(d_ff.data,d_intermediate.data,d_assist.data,0,Ndof,maxBlockSize);
-    gpu_parallel_reduction(d_fv.data,d_intermediate.data,d_assist.data,1,Ndof,maxBlockSize);
-    gpu_parallel_reduction(d_vv.data,d_intermediate.data,d_assist.data,2,Ndof,maxBlockSize);
-    };
+    int maxBlockSize = 128;
+    if(Ndof < maxBlockSize) maxBlockSize = 16;
+    gpu_dVec_dot_products(d_f.data,d_f.data,d_intermediate.data,d_assist.data,0,Ndof,maxBlockSize);
+    gpu_dVec_dot_products(d_f.data,d_v.data,d_intermediate.data,d_assist.data,1,Ndof,maxBlockSize);
+    gpu_dVec_dot_products(d_v.data,d_v.data,d_intermediate.data,d_assist.data,2,Ndof,maxBlockSize);
+    }//scope for reduction array
     ArrayHandle<scalar> h_assist(sumReductions,access_location::host,access_mode::read);
     scalar forceNorm = h_assist.data[0];
     Power = h_assist.data[1];

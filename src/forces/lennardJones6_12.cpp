@@ -141,7 +141,8 @@ scalar lennardJones6_12::computeEnergyGPU()
     ArrayHandle<scalar> d_energy(energyPerParticle,access_location::device,access_mode::read);
     ArrayHandle<scalar> d_intermediate(energyIntermediateReduction,access_location::device,access_mode::overwrite);
     ArrayHandle<scalar> d_ans(energyReduction,access_location::device,access_mode::overwrite);
-    gpu_parallel_reduction(d_energy.data,d_intermediate.data,d_ans.data,0,N);
+    int blockSize = 256;
+    gpu_parallel_reduction(d_energy.data,d_intermediate.data,d_ans.data,0,N,blockSize);
     };
     ArrayHandle<scalar> h_ans(energyReduction);
     return h_ans.data[0];
