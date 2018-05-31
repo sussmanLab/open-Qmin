@@ -7,8 +7,8 @@
 #include "functions.h"
 #include "gpuarray.h"
 #include "simulation.h"
-#include "cubicLattice.h"
-#include "baseLatticeForce.h"
+#include "qTensorLatticeModel.h"
+#include "liquidCrystalElasticity.h"
 #include "energyMinimizerFIRE.h"
 #include "energyMinimizerAdam.h"
 #include "noiseSource.h"
@@ -52,15 +52,15 @@ int main(int argc, char*argv[])
 
     int dim =DIMENSION;
     cout << "running a simulation in "<<dim << " dimensions with box sizes " << L << endl;
-    bool sliceLatticeSites = false;
-    shared_ptr<cubicLattice> Configuration = make_shared<cubicLattice>(L,sliceLatticeSites);
+    shared_ptr<qTensorLatticeModel> Configuration = make_shared<qTensorLatticeModel>(L);
     int N = L*L*L;
 
     shared_ptr<Simulation> sim = make_shared<Simulation>();
     sim->setConfiguration(Configuration);
-    shared_ptr<baseLatticeForce> nVectorModel = make_shared<baseLatticeForce>();
-    nVectorModel->setModel(Configuration);
-    sim->addForce(nVectorModel);
+    shared_ptr<liquidCrystalElasticity> LdG = make_shared<liquidCrystalElasticity>();
+    LdG->setModel(Configuration);
+    LdG->setElasticConstants(1.0,1.0,1.0);
+    sim->addForce(LdG);
 
     noiseSource noise(true);
     Configuration->setSpinsRandomly(noise);

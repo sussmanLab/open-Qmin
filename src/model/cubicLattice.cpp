@@ -1,7 +1,7 @@
 #include "cubicLattice.h"
 #include "cubicLattice.cuh"
 #include "functions.h"
-/*! /file cubicLattice.cpp */
+/*! \file cubicLattice.cpp */
 
 cubicLattice::cubicLattice(int l, bool _slice, bool _useGPU)
     {
