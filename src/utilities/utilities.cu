@@ -26,14 +26,14 @@ add the first N elements of array and put it in output[helperIdx]...use shared m
 __global__ void gpu_serial_reduction_kernel2(scalar *array, scalar *output, int helperIdx,int N)
     {
     int tidx = threadIdx.x;
-    __shared__ scalar partialSum[32];
+    extern __shared__ scalar partialSum[];
 
     partialSum[tidx] = 0.0;
     __syncthreads();
-    int max = N/32+1;
+    int max = N/ blockDim.x+1;
     for (int i = 0; i < max;++i)
         {
-        int pos = 32*i+tidx;
+        int pos =  blockDim.x *i+tidx;
         if(pos > N) continue;
         partialSum[tidx] += array[pos];
         }
@@ -41,7 +41,7 @@ __global__ void gpu_serial_reduction_kernel2(scalar *array, scalar *output, int 
     if(tidx ==0)
         {
         scalar ans =0.0;
-        for (int i = 0; i < 32; ++i)
+        for (int i = 0; i <  blockDim.x; ++i)
             ans += partialSum[i];
         output[helperIdx] = ans;
         }
@@ -445,7 +445,9 @@ bool gpu_dVec_dot_products(dVec *input1,dVec *input2, scalar *intermediate, scal
     HANDLE_ERROR(cudaGetLastError());
 
     //sum reduce the temporary array, saving the result in the right slot of the output array
-    gpu_serial_reduction_kernel2<<<1,32>>>(intermediate,output,helperIdx,nblocks);
+    int nb=256;
+    if(nblocks < nb) nb = 1;
+    gpu_serial_reduction_kernel2<<<1,nb,nb*sizeof(scalar)>>>(intermediate,output,helperIdx,nblocks+1);
     HANDLE_ERROR(cudaGetLastError());
     return cudaSuccess;
     };
@@ -470,7 +472,9 @@ bool gpu_parallel_reduction(scalar *input, scalar *intermediate, scalar *output,
     HANDLE_ERROR(cudaGetLastError());
 
     //sum reduce the temporary array, saving the result in the right slot of the output array
-    gpu_serial_reduction_kernel2<<<1,32>>>(intermediate,output,helperIdx,nblocks);
+    int nb=256;
+    if(nblocks < nb) nb = 1;
+    gpu_serial_reduction_kernel2<<<1,nb,nb*sizeof(scalar)>>>(intermediate,output,helperIdx,nblocks+1);
     HANDLE_ERROR(cudaGetLastError());
     return cudaSuccess;
     };
