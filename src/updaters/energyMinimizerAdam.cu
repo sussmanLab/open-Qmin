@@ -58,8 +58,10 @@ __global__ void gpu_adam_step_kernel(dVec *force,
     cm = bm*(1.0/(1.-beta1t));
     cm2=bm2*(1.0/(1.-beta2t));
     rootvc = sqrt(cm2);
-    if(rootvc ==0) rootvc = 1e-10;
-    ans = -deltaT*cm/(rootvc);
+    if(rootvc ==0)
+        ans = -deltaT*cm*1e8;
+    else
+        ans = -deltaT*cm/(rootvc);
 
     displacement[pidx][didx] = ans;
     biasedMomentum[pidx][didx] = bm;
