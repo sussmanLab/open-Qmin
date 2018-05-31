@@ -5,7 +5,17 @@ add_definitions(-DDIMENSION=5)
 
 set(CMAKE_CC_FLAGS "${CMAKE_CC_FLAGS} ")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -std=c++11")
-set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -gencode arch=compute_30,code=sm_30 -Wno-deprecated-gpu-targets ")#-Xptxas -O3 -Xcompiler -O3")
+set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS}
+                                        -arch=sm_30
+                                        -gencode=arch=compute_30,code=sm_30
+                                        -gencode=arch=compute_50,code=sm_50
+                                        -gencode=arch=compute_52,code=sm_52
+                                        -gencode=arch=compute_60,code=sm_60
+                                        -gencode=arch=compute_61,code=sm_61
+                                        -gencode=arch=compute_61,code=compute_61
+                                        ")
+
+                                        #")#-gencode arch=compute_30,code=sm_30 -Wno-deprecated-gpu-targets ")#-Xptxas -O3 -Xcompiler -O3")
 
 find_package(CUDA REQUIRED)
 
