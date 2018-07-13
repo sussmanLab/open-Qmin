@@ -157,10 +157,10 @@ inline void printMatrix(Matrix2x2 &m)
 
 
 /*!
-Matrix2x2 provides a simple interface for operations using 2x2 matrices. In particular, it implement
+MatrixDxD provides a simple interface for operations using DxD matrices. In particular, it implement
 matrix-maxtrix multiplication, and has specialized matrix-vector and vector-matrix multiplication in
-which scalar2 variables take the place of vectors. A dyadic product is implemented which takes two
-scalar2s and returns a Matrix2x2
+which dVecs variables take the place of vectors. A dyadic product is implemented which takes two
+dVecs and returns a MatrixDxD
 */
 struct MatrixDxD
     {
