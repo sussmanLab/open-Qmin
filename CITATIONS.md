@@ -4,7 +4,7 @@
 
 If you use dDimensionalSimulation for a publication or project, please cite:
 
-Daniel for being so helpful. No current publications describe this repository.
+Daniel M. Sussman for being so helpful. No current publications describe this repository.
 
 ## Feature-specific citations
 
@@ -21,3 +21,6 @@ described in Martyna et al., (see also the nice algorithmic pseudo-code in the F
 
 ### ADAM energy minimization
 [D. P. Kingma and J. Ba, arXiv:1412.6980 (2014)](https://arxiv.org/abs/1412.6980)
+
+###Poisson disk sampling
+[Robert Bridson, SIGGRAPH sketches (2007)](https://www.cs.ubc.ca/~rbridson/docs/bridson-siggraph07-poissondisk.pdf)

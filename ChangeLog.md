@@ -2,6 +2,8 @@
 
 ### Changes in progress
 
+* implement lattice calculations, where d-dimensional objects live on a 3D cubic lattice
+
 ### dDimensionalSimulation version 0.1
 
 * hypercubic celllist and neighbor list implemented

@@ -2,8 +2,10 @@
 #define STDINCLUDE_H
 
 /*! \file std_include.h
-a file to be included all the time... carries with it things DMS often uses
-Crucially, it also defines scalars as either floats or doubles, depending on
+a file to be included all the time... carries with it things DMS often uses.
+It includes some handy debugging / testing functions, and includes too many
+standard library headers
+It also defines scalars as either floats or doubles, depending on
 how the program is compiled
 */
 
@@ -92,7 +94,7 @@ static void HandleError(cudaError_t err, const char *file, int line)
         }
     }
 
-//!Report somewhere that code needs to be written 
+//!Report somewhere that code needs to be written
 static void unwrittenCode(const char *message, const char *file, int line)
     {
     printf("\nCode unwritten (file %s; line %d)\nMessage: %s\n",file,line,message);

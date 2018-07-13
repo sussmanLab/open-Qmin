@@ -11,7 +11,7 @@ and to permit persons to whom the Software is furnished to do so, subject to the
 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
-All publications and presentations based on this softward will acknowledge its use according to the terms posted at the time of submission on the code homepage.
+All publications and presentations based on this software will acknowledge its use according to the terms posted at the time of submission on the code homepage.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
 TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
@@ -24,7 +24,7 @@ DEALINGS IN THE SOFTWARE.
 Additionally, some files and functionality draw from existing open-source code, as described below.
 
 (1) A file (gpuarray.h) is based on a part of the HOOMD-blue project, released
-under the BSD 3-Clause License. (similar ideas for classes that simultaneously handly cpu and GPU array data
+under the BSD 3-Clause License. (similar ideas for classes that simultaneously handle cpu and GPU array data
 structures have also appeared elsewhere; the hoomd version is the file I started modifying, though)
 https://glotzerlab.engin.umich.edu/hoomd-blue
 

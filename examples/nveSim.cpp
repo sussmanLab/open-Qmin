@@ -22,9 +22,7 @@ using namespace std;
 using namespace TCLAP;
 
 /*!
-command line parameters help identify a data directory and a filename... the output is a text file
-(in the data/ directory rooted here) containing easy-to-read fourier transforms of the height-map
-representation of the extremal interfaces for each point in time
+testing a basic NVE simulation
 */
 int main(int argc, char*argv[])
 {

@@ -17,18 +17,19 @@ using namespace std;
 using namespace TCLAP;
 
 /*!
-command line parameters help identify a data directory and a filename... the output is a text file
-(in the data/ directory rooted here) containing easy-to-read fourier transforms of the height-map
-representation of the extremal interfaces for each point in time
+Eventually: run minimization of a (3D) cubic lattice with a local Q-tensor
+living on each lattice site, together with some sites enforcing boundary
+conditions.
+
+Will require that the compiled dimension in the CMakeList be 5
 */
 int main(int argc, char*argv[])
 {
-    // wrap tclap in a try block
+    // wrap the command line parser in a try block...
     try
     {
-    //First, we set up a basic command line parser...
-    //      cmd("command description message", delimiter, version string)
-    CmdLine cmd("basic testing of dDimSim", ' ', "V0.1");
+    //First, we set up a basic command line parser with some message and version
+    CmdLine cmd("dDimSim applied to a lattice of Q-tensors", ' ', "V0.1");
 
     //define the various command line strings that can be passed in...
     //ValueArg<T> variableName("shortflag","longFlag","description",required or not, default value,"value type",CmdLine object to add to
@@ -40,6 +41,7 @@ int main(int argc, char*argv[])
     //parse the arguments
     cmd.parse( argc, argv );
 
+    //define variables that correspond to the command line parameters
     int programSwitch = programSwitchArg.getValue();
     int maximumIterations = maxIterationsSwitchArg.getValue();
     scalar L = lengthSwitchArg.getValue();

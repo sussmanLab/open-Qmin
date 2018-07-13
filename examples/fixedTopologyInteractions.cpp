@@ -21,9 +21,8 @@ using namespace std;
 using namespace TCLAP;
 
 /*!
-command line parameters help identify a data directory and a filename... the output is a text file
-(in the data/ directory rooted here) containing easy-to-read fourier transforms of the height-map
-representation of the extremal interfaces for each point in time
+An example for Suraj... setting up fixed-topology (bonded, etc.) interactions
+Define interactions and then minimize
 */
 int main(int argc, char*argv[])
 {

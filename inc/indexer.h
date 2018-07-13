@@ -138,6 +138,7 @@ class Index3D
         unsigned int numberOfElements; //! The total number of elements that the indexer can index
         unsigned int width;   //!< array width
     };
+
 //!Switch between a d-dimensional grid to a flattened, 1D index
 /*!
  * A class for converting between a 2d index and a 1-d array, which makes calculation on

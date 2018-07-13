@@ -4,6 +4,7 @@
 /*! \file structures.h
 defines simpleBond class
 defines simpleAngle class
+defines simpleDihedral class
 */
 
 #ifdef NVCC

@@ -24,6 +24,7 @@
 using namespace std;
 using namespace TCLAP;
 
+//!What, after all, *is* the volume of a d-dimensional sphere?
 scalar sphereVolume(scalar radius, int dimension)
     {
     if(dimension == 1)
@@ -36,9 +37,9 @@ scalar sphereVolume(scalar radius, int dimension)
     };
 
 /*!
-command line parameters help identify a data directory and a filename... the output is a text file
-(in the data/ directory rooted here) containing easy-to-read fourier transforms of the height-map
-representation of the extremal interfaces for each point in time
+This file runs some dynamics on particles interacting according to some
+potential... when this repository is ever meant to be used this all should be
+updated.
 */
 int main(int argc, char*argv[])
 {
