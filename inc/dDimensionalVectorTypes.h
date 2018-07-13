@@ -7,11 +7,13 @@ defines iVec class (d-dimensional array of ints)
 
 #ifdef NVCC
 #define HOSTDEVICE __host__ __device__ inline
+#define MY_ALIGN(n) __align__(n)
 #else
 #define HOSTDEVICE inline __attribute__((always_inline))
+#define MY_ALIGN(n) __attribute__((aligned(n)))
 #endif
 //!dVec is an array whose length matches the dimension of the system
-class dVec
+class MY_ALIGN(8) dVec
     {
     public:
         HOSTDEVICE dVec(){};
@@ -266,6 +268,11 @@ HOSTDEVICE iVec modularAddition(const iVec &i1, const iVec &i2, const iVec &max)
     return ans;
     };
 
+//!print a iVec to screen
+inline __attribute__((always_inline)) void printInt3(int3 a)
+    {
+    printf("{%i,%i,%i}\n",a.x,a.y,a.z);
+    };
 //!print a iVec to screen
 inline __attribute__((always_inline)) void printiVec(iVec a)
     {

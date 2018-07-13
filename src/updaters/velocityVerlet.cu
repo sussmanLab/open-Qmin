@@ -8,26 +8,28 @@
 /*!
 update the velocity in a velocity Verlet step
 */
-__global__ void gpu_update_velocity_kernel(dVec *d_velocity, dVec *d_force, scalar *d_mass,scalar deltaT, int n)
+__global__ void gpu_update_velocity_kernel(dVec *d_velocity, dVec *d_force, scalar *d_mass,scalar deltaT, int N)
     {
     // read in the index that belongs to this thread
     unsigned int idx = blockDim.x * blockIdx.x + threadIdx.x;
-    if (idx >= n)
-        return;
-    d_velocity[idx] += (0.5/d_mass[idx])*deltaT*d_force[idx];
+    int pidx = idx/DIMENSION;
+    if(pidx>=N) return;
+    int didx = idx%DIMENSION;
+    d_velocity[pidx][didx] += (0.5/d_mass[pidx])*deltaT*d_force[pidx][didx];
     };
 
 /*!
 calculate the displacement in a velocity verlet step according to the force and velocity
 */
 __global__ void gpu_displacement_vv_kernel(dVec *d_displacement, dVec *d_velocity,
-                                           dVec *d_force, scalar deltaT, int n)
+                                           dVec *d_force, scalar deltaT, int N)
     {
     // read in the index that belongs to this thread
     unsigned int idx = blockDim.x * blockIdx.x + threadIdx.x;
-    if (idx >= n)
-        return;
-    d_displacement[idx] = deltaT*d_velocity[idx]+0.5*deltaT*deltaT*d_force[idx];
+    int pidx = idx/DIMENSION;
+    if(pidx>=N) return;
+    int didx = idx%DIMENSION;
+    d_displacement[pidx][didx] = deltaT*d_velocity[pidx][didx]+0.5*deltaT*deltaT*d_force[pidx][didx];
     };
 
 /*!
@@ -39,9 +41,9 @@ __global__ void gpu_displacement_vv_kernel(dVec *d_displacement, dVec *d_velocit
 */
 bool gpu_update_velocity(dVec *d_velocity, dVec *d_force, scalar *d_mass,scalar deltaT, int N)
     {
-    unsigned int block_size = 128;
-    if (N < 128) block_size = 32;
-    unsigned int nblocks  = N/block_size + 1;
+    unsigned int block_size = 512;
+    if (N < 512) block_size = 32;
+    unsigned int nblocks  = (DIMENSION*N)/block_size + 1;
     gpu_update_velocity_kernel<<<nblocks,block_size>>>(
                                                 d_velocity,
                                                 d_force,
@@ -66,9 +68,9 @@ bool gpu_displacement_velocity_verlet(dVec *d_displacement,
                       scalar deltaT,
                       int N)
     {
-    unsigned int block_size = 128;
-    if (N < 128) block_size = 32;
-    unsigned int nblocks  = N/block_size + 1;
+    unsigned int block_size = 512;
+    if (N < 512) block_size = 32;
+    unsigned int nblocks  = (DIMENSION*N)/block_size + 1;
     gpu_displacement_vv_kernel<<<nblocks,block_size>>>(
                                                 d_displacement,d_velocity,d_force,deltaT,N);
     HANDLE_ERROR(cudaGetLastError());

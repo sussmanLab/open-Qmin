@@ -44,7 +44,7 @@ class force
             {
             useGPU = _useGPU;
             if(useNeighborList)
-                    neighbors->setGPU(_useGPU);
+                neighbors->setGPU(_useGPU);
             };
         //!whether the updater does its work on the GPU or not
         bool useGPU;

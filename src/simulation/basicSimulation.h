@@ -17,6 +17,8 @@ class basicSimulation
         virtual void computeForces()=0;
         //!Call the configuration to move particles around
         virtual void moveParticles(GPUArray<dVec> &displacements)=0;
+        //!compute the potential energy associated with all of the forces
+        virtual scalar computePotentialEnergy()=0;
         //!This changes the contents of the Box pointed to by Box to match that of _box
         void setBox(BoxPtr _box);
 

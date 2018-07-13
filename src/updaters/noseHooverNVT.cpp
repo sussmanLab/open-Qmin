@@ -257,7 +257,7 @@ void noseHooverNVT::calculateKineticEnergyGPU()
     ArrayHandle<scalar> d_keArray(keArray,access_location::device,access_mode::read);
     ArrayHandle<scalar> d_kes(kineticEnergyScaleFactor,access_location::device,access_mode::readwrite);
     ArrayHandle<scalar> d_keIntermediate(keIntermediateReduction,access_location::device,access_mode::overwrite);
-
-    gpu_parallel_reduction(d_keArray.data,d_keIntermediate.data,d_kes.data,0,Ndof);
+    int blockSize = 256;
+    gpu_parallel_reduction(d_keArray.data,d_keIntermediate.data,d_kes.data,0,Ndof,blockSize);
     }
     };

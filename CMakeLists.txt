@@ -1,11 +1,20 @@
 cmake_minimum_required(VERSION 3.0.0)
 project(dDimensionalSimulations)
 
-add_definitions(-DDIMENSION=3)
+add_definitions(-DDIMENSION=5)
 
 set(CMAKE_CC_FLAGS "${CMAKE_CC_FLAGS} ")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -std=c++11")
-set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -gencode arch=compute_30,code=sm_30 -Wno-deprecated-gpu-targets ")#-Xptxas -O3 -Xcompiler -O3")
+set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS}
+                                        -arch=sm_30
+                                        -gencode=arch=compute_30,code=sm_30
+                                        -gencode=arch=compute_50,code=sm_50
+                                        -gencode=arch=compute_52,code=sm_52
+                                        -gencode=arch=compute_60,code=sm_60
+                                        -gencode=arch=compute_61,code=sm_61
+                                        -gencode=arch=compute_61,code=compute_61
+                                        ")
+                                        #")#-gencode arch=compute_30,code=sm_30 -Wno-deprecated-gpu-targets ")#-Xptxas -O3 -Xcompiler -O3")
 
 find_package(CUDA REQUIRED)
 
@@ -26,16 +35,16 @@ add_subdirectory(src)
 include_directories(inc ${CUDA_INCLUDE_DIRS} src src/utilities src/simulation src/model src/forces src/updaters)
 link_directories(${CUDA_LIBRARY_DIRS})
 
-set(myLibs 
-    force 
-    forceGPU 
-    updater 
-    updaterGPU 
+set(myLibs
+    force
+    forceGPU
+    updater
+    updaterGPU
     simulation
-    model 
-    modelGPU 
-    utility 
-    utilityGPU 
+    model
+    modelGPU
+    utility
+    utilityGPU
     )
 message("libraries = " "${myLibs}")
 
@@ -48,12 +57,3 @@ endif(${CMAKE_BUILD_TYPE} MATCHES "Debug")
 
 add_executable(otherExecutable.out cubicLatticeQTensor.cpp)
 target_link_libraries(otherExecutable.out ${myLibs} ${CUDA_LIBRARIES})
-
-
-#file(GLOB appSrcs RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.cpp)
-#foreach(testSourceFile ${appSrcs})
-#    string( REPLACE ".cpp" ".out" testname ${testSourceFile})
-#    message("evaluating " ${testSourceFile} " " ${testname})
-#    add_executable(${testname} ${CMAKE_CURRENT_SOURCE_DIR}${testsourcefile} )
-#    target_link_libraries( ${testname} force updater simulation model utility ${CUDA_LIBRARIES} )
-#endforeach( testSourceFile ${appSrcs} )

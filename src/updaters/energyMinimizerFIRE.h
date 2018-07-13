@@ -5,6 +5,7 @@
 #include "gpuarray.h"
 #include "simpleModel.h"
 #include "velocityVerlet.h"
+#include "kernelTuner.h"
 
 
 /*! \file energyMinimizerFIRE.h */
@@ -95,13 +96,6 @@ class energyMinimizerFIRE : public velocityVerlet
         scalar alphaStart;
         //!The fraction by which alpha can decrease
         scalar alphaDec;
-
-        //!Utility array for computing force.velocity
-        GPUArray<scalar> forceDotVelocity;
-        //!Utility array for computing force.force
-        GPUArray<scalar> forceDotForce;
-        //!Utility array for computing velocity.velocity
-        GPUArray<scalar> velocityDotVelocity;
 
         //!Utility array for simple reductions
         GPUArray<scalar> sumReductionIntermediate;

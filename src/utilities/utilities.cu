@@ -21,6 +21,35 @@ __global__ void gpu_serial_reduction_kernel(scalar *array, scalar *output, int h
     };
 
 /*!
+add the first N elements of array and put it in output[helperIdx]...use shared memory a bit
+*/
+__global__ void gpu_serial_reduction_kernel2(scalar *array, scalar *output, int helperIdx,int N)
+    {
+    int tidx = threadIdx.x;
+    extern __shared__ scalar partialSum[];
+
+    partialSum[tidx] = 0.0;
+    __syncthreads();
+    int max = N/ blockDim.x+1;
+    for (int i = 0; i < max;++i)
+        {
+        int pos =  blockDim.x *i+tidx;
+        if(pos > N) continue;
+        partialSum[tidx] += array[pos];
+        }
+    __syncthreads();
+    if(tidx ==0)
+        {
+        scalar ans =0.0;
+        for (int i = 0; i <  blockDim.x; ++i)
+            ans += partialSum[i];
+        output[helperIdx] = ans;
+        }
+
+    return;
+    };
+
+/*!
 perform a block reduction, storing the partial sums of input into output
 */
 __global__ void gpu_parallel_block_reduction_kernel(scalar *input, scalar *output,int N)
@@ -54,7 +83,6 @@ a slight optimization of the previous block reduction, c.f. M. Harris presentati
 __global__ void gpu_parallel_block_reduction2_kernel(scalar *input, scalar *output,int N)
     {
     extern __shared__ scalar sharedArray[];
-
     unsigned int tidx = threadIdx.x;
     unsigned int i = 2*blockDim.x * blockIdx.x + threadIdx.x;
 
@@ -66,7 +94,6 @@ __global__ void gpu_parallel_block_reduction2_kernel(scalar *input, scalar *outp
         sum = 0.0;
     if(i + blockDim.x < N)
         sum += input[i+blockDim.x];
-
     sharedArray[tidx] = sum;
     __syncthreads();
 
@@ -80,6 +107,84 @@ __global__ void gpu_parallel_block_reduction2_kernel(scalar *input, scalar *outp
     //write to the correct block of the output array
     if (tidx==0)
         output[blockIdx.x] = sum;
+    };
+
+/*!
+  multiple loads and loop unrolling...
+a slight optimization of the previous block reduction, c.f. M. Harris presentation
+*/
+__global__ void gpu_parallel_block_reduction3_kernel(scalar *input, scalar *output,int N)
+    {
+    extern __shared__ scalar sharedArray[];
+    unsigned int tidx = threadIdx.x;
+    unsigned int i = 2*blockDim.x * blockIdx.x + threadIdx.x;
+
+    if(i+blockDim.x < N)
+        sharedArray[tidx] = input[i]+input[i+blockDim.x];
+    else if(i < N)
+        sharedArray[tidx] = input[i];
+    else
+        sharedArray[tidx] = 0.0;
+    __syncthreads();
+
+    //reduce
+    for (int stride = blockDim.x/2;stride >32; stride >>=1)
+        {
+        if(tidx<stride)
+            sharedArray[tidx] += sharedArray[tidx+stride];
+        __syncthreads();
+        }
+    if(tidx < 32)
+        {
+        sharedArray[tidx] += sharedArray[tidx+32];
+        sharedArray[tidx] += sharedArray[tidx+16];
+        sharedArray[tidx] += sharedArray[tidx+8];
+        sharedArray[tidx] += sharedArray[tidx+4];
+        sharedArray[tidx] += sharedArray[tidx+2];
+        sharedArray[tidx] += sharedArray[tidx+1];
+        }
+    //write to the correct block of the output array
+    if (tidx==0)
+        output[blockIdx.x] = sharedArray[0];
+    };
+
+/*!
+This kernel basically performs the operation of the "reduction3" kernel, but the shared memory gets
+dot products 
+*/
+__global__ void gpu_dVec_dot_products_kernel(dVec *input1, dVec *input2, scalar *output,int N)
+    {
+    extern __shared__ scalar sharedArray[];
+    unsigned int tidx = threadIdx.x;
+    unsigned int i = 2*blockDim.x * blockIdx.x + threadIdx.x;
+
+    if(i+blockDim.x < N)
+        sharedArray[tidx] = dot(input1[i],input2[i])+ dot(input1[i+blockDim.x],input2[i+blockDim.x]);
+    else if(i < N)
+        sharedArray[tidx] = dot(input1[i],input2[i]);
+    else
+        sharedArray[tidx] = 0.0;
+    __syncthreads();
+
+    //reduce
+    for (int stride = blockDim.x/2;stride >32; stride >>=1)
+        {
+        if(tidx<stride)
+            sharedArray[tidx] += sharedArray[tidx+stride];
+        __syncthreads();
+        }
+    if(tidx < 32)
+        {
+        sharedArray[tidx] += sharedArray[tidx+32];
+        sharedArray[tidx] += sharedArray[tidx+16];
+        sharedArray[tidx] += sharedArray[tidx+8];
+        sharedArray[tidx] += sharedArray[tidx+4];
+        sharedArray[tidx] += sharedArray[tidx+2];
+        sharedArray[tidx] += sharedArray[tidx+1];
+        }
+    //write to the correct block of the output array
+    if (tidx==0)
+        output[blockIdx.x] = sharedArray[0];
     };
 
 /*!
@@ -323,6 +428,31 @@ bool gpu_zero_array(int *arr,
     }
 
 /*!
+takes the dot product of every element of the two input arrays and performs a reduction on the sum
+\param intermediate an array that input is block-reduced to
+\param output the intermediate array will be sum reduced and stored in one of the components of output
+\param helperIdx the location in output to store the answer
+\param N the size of the input and  intermediate arrays
+*/
+bool gpu_dVec_dot_products(dVec *input1,dVec *input2, scalar *intermediate, scalar *output, int helperIdx, int N,int block_size)
+    {
+    unsigned int nblocks  = N/block_size + 1;
+    //first do a block reduction of input
+    unsigned int smem = block_size*sizeof(scalar);
+
+    //Do a block reduction of the input array
+    gpu_dVec_dot_products_kernel<<<nblocks,block_size,smem>>>(input1,input2,intermediate, N);
+    HANDLE_ERROR(cudaGetLastError());
+
+    //sum reduce the temporary array, saving the result in the right slot of the output array
+    int nb=256;
+    if(nblocks < nb) nb = 1;
+    gpu_serial_reduction_kernel2<<<1,nb,nb*sizeof(scalar)>>>(intermediate,output,helperIdx,nblocks+1);
+    HANDLE_ERROR(cudaGetLastError());
+    return cudaSuccess;
+    };
+
+/*!
 a two-step parallel reduction algorithm that first does a partial sum reduction of input into the
 intermediate array, then launches a second kernel to sum reduce intermediate into output[helperIdx]
 \param input the input array to sum
@@ -331,19 +461,20 @@ intermediate array, then launches a second kernel to sum reduce intermediate int
 \param helperIdx the location in output to store the answer
 \param N the size of the input and  intermediate arrays
 */
-bool gpu_parallel_reduction(scalar *input, scalar *intermediate, scalar *output, int helperIdx, int N)
+bool gpu_parallel_reduction(scalar *input, scalar *intermediate, scalar *output, int helperIdx, int N,int block_size)
     {
-    unsigned int block_size = 256;
     unsigned int nblocks  = N/block_size + 1;
     //first do a block reduction of input
     unsigned int smem = block_size*sizeof(scalar);
 
     //Do a block reduction of the input array
-    gpu_parallel_block_reduction2_kernel<<<nblocks,block_size,smem>>>(input,intermediate, N);
+    gpu_parallel_block_reduction3_kernel<<<nblocks,block_size,smem>>>(input,intermediate, N);
     HANDLE_ERROR(cudaGetLastError());
 
     //sum reduce the temporary array, saving the result in the right slot of the output array
-    gpu_serial_reduction_kernel<<<1,1>>>(intermediate,output,helperIdx,nblocks);
+    int nb=256;
+    if(nblocks < nb) nb = 1;
+    gpu_serial_reduction_kernel2<<<1,nb,nb*sizeof(scalar)>>>(intermediate,output,helperIdx,nblocks+1);
     HANDLE_ERROR(cudaGetLastError());
     return cudaSuccess;
     };
