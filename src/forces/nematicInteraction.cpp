@@ -39,8 +39,8 @@ void nematicInteraction::computeForceCPU(GPUArray<dVec> &forces, bool zeroOutFor
         //use the neighbors to compute the laplacian
         for(int dd = 0; dd < DIMENSION; ++dd)
             {
-            h_f.data[currentIndex][dd] += -L*(xDown[dd]+xUp[dd]+yDown[dd]+yUp[dd]+zDown[dd]+zUp[dd] -6.0*qCurrent[dd])
-
+            h_f.data[currentIndex][dd] += -L*(xDown[dd]+xUp[dd]+yDown[dd]+yUp[dd]+zDown[dd]+zUp[dd]
+                                              -6.0*qCurrent[dd]);
             };
         //now compute the elastic terms depending only on the current site
         h_f.data[currentIndex] +=2.0*A*qCurrent;
