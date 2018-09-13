@@ -7,6 +7,7 @@ add_library(force
     baseForce.cpp
     basePairwiseForce.cpp
     baseLatticeForce.cpp
+    nematicInteraction.cpp
     liquidCrystalElasticity.cpp
     harmonicRepulsion.cpp
     lennardJones6_12.cpp

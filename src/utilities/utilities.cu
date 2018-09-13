@@ -150,7 +150,7 @@ __global__ void gpu_parallel_block_reduction3_kernel(scalar *input, scalar *outp
 
 /*!
 This kernel basically performs the operation of the "reduction3" kernel, but the shared memory gets
-dot products 
+dot products
 */
 __global__ void gpu_dVec_dot_products_kernel(dVec *input1, dVec *input2, scalar *output,int N)
     {
@@ -188,7 +188,7 @@ __global__ void gpu_dVec_dot_products_kernel(dVec *input1, dVec *input2, scalar 
     };
 
 /*!
-  A function of convenience...zero out an array on the device
+  A function of poorly written convenience...zero out an array on the device
   */
 __global__ void gpu_zero_array_kernel(dVec *arr,
                                               int N)
@@ -197,8 +197,8 @@ __global__ void gpu_zero_array_kernel(dVec *arr,
     unsigned int idx = blockDim.x * blockIdx.x + threadIdx.x;
     if (idx >= N)
         return;
-    dVec temp = make_dVec(0.0);
-    arr[idx] = temp;
+    //dVec temp = make_dVec(0.0);
+    //arr[idx] = temp;
     for (int dd = 0; dd < DIMENSION; ++dd)
         arr[idx].x[dd] = 0.0;
     return;
@@ -249,7 +249,7 @@ __global__ void gpu_zero_array_kernel(int *arr,
 
 /*!
 take a vector of dVecs, a vector of scalars, a factor, and return a vector where
-every entry is 
+every entry is
 factor*scalar[i]*(dVec[i])^2
 */
 __global__ void gpu_scalar_times_dVec_squared_kernel(dVec *d_vec1, scalar *d_scalars, scalar factor, scalar *d_ans, int n)

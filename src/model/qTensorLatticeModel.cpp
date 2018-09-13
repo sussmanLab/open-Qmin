@@ -5,7 +5,7 @@
 This simply calls the cubic lattice constructor (without slicing optimization, since that is not yet
 operational).
 Additionally, throws an exception if the dimensionality is incorrect.
- */ 
+ */
 qTensorLatticeModel::qTensorLatticeModel(int l, bool _useGPU)
     : cubicLattice(l,false,_useGPU)
     {
@@ -13,6 +13,39 @@ qTensorLatticeModel::qTensorLatticeModel(int l, bool _useGPU)
         {
         printf("\nAttempting to run a simulation with incorrectly set dimension... change the root CMakeLists.txt file to have dimension 5 and recompile\n");
         throw std::exception();
+        }
+    };
+
+void qTensorLatticeModel::setNematicQTensorRandomly(noiseSource &noise,scalar S0)
+    {
+
+    if(!useGPU)
+        {
+        ArrayHandle<dVec> pos(positions);
+        for(int pp = 0; pp < N; ++pp)
+            {
+            scalar amplitude =  3./2.*S0;
+            scalar theta = acos(2.0*noise.getRealUniform()-1);
+            scalar phi = 2.0*PI*noise.getRealUniform();
+            pos.data[pp][0] = amplitude*(sin(theta)*sin(theta)*cos(phi)*cos(phi)-1.0/3.0);
+            pos.data[pp][1] = amplitude*sin(theta)*sin(theta)*cos(phi)*sin(phi);
+            pos.data[pp][2] = amplitude*sin(theta)*cos(theta)*cos(phi);
+            pos.data[pp][3] = amplitude*(sin(theta)*sin(theta)*sin(phi)*sin(phi)-1.0/3.0);
+            pos.data[pp][4] = amplitude*sin(theta)*cos(theta)*sin(phi);
+            };
+        }
+    else
+        {
+        UNWRITTENCODE("q-tensor setting on the gpu unwritten");
+        /*
+        ArrayHandle<dVec> pos(positions,access_location::device,access_mode::overwrite);
+        int blockSize = 128;
+        int nBlocks = N/blockSize+1;
+        noise.initialize(nBlocks);
+        noise.initializeGPURNGs();
+        ArrayHandle<curandState> d_curandRNGs(noise.RNGs,access_location::device,access_mode::readwrite);
+        gpu_set_random_spins(pos.data,d_curandRNGs.data, blockSize,nBlocks,N);
+        */
         }
     };
 

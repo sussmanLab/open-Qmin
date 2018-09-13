@@ -21,6 +21,8 @@ class qTensorLatticeModel : public cubicLattice
         //!(possibly) need to rewrite how the Q tensors update with respect to a displacement call
         virtual void moveParticles(GPUArray<dVec> &displacements, scalar scale = 1.);
 
+        //!initialize each d.o.f., also passing in the value of the nematicity
+        void setNematicQTensorRandomly(noiseSource &noise, scalar s0);
 
     };
 #endif
