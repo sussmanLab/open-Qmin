@@ -13,8 +13,8 @@ class nematicInteraction : public baseLatticeForce
         virtual void computeForceGPU(GPUArray<dVec> &forces,bool zeroOutForce = true);
         virtual void computeForceCPU(GPUArray<dVec> &forces,bool zeroOutForce = true);
 
-        virtual void computeEnergyCPU();
-        virtual void computeEnergyGPU(){UNWRITTENCODE("gpu energy calculation of lattice model being done on the cpu");energy = 0.0;};
+        virtual void computeEnergyCPU();//NOT DONE YET
+        virtual void computeEnergyGPU(){//NOT DONE YET};
 
     protected:
         //!constants, etc.

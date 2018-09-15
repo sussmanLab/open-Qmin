@@ -10,7 +10,7 @@ nematicInteraction::nematicInteraction(double _A, double _B, double _C, double _
     C=_C;
     L=_L;
     useNeighborList = false;
-    forceTuner = make_shared<kernelTuner>(16,1024,16,5,200000);
+    forceTuner = make_shared<kernelTuner>(16,256,16,5,200000);
     };
 
 //!As an example of usage, we'll implement an n-Vector model force w/ nearest-neighbor interactions
