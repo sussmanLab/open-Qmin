@@ -124,9 +124,10 @@ int main(int argc, char*argv[])
     Configuration->getAverageEigenvalues();
     printdVec(Configuration->averagePosition());
 
-    cout << endl << "minimization took " << (t2-t1)/(scalar)CLOCKS_PER_SEC << endl;
-    sim->setCPUOperation(true);
-    E = sim->computePotentialEnergy();
+    cout << endl << "minimization:"  << endl;
+    printf("{%f,%f},\n",L,(t2-t1)/(scalar)CLOCKS_PER_SEC);
+    //sim->setCPUOperation(true);
+    //E = sim->computePotentialEnergy();
     //printf("simulation potential energy at %f\n",E);
 
 //

@@ -1,5 +1,5 @@
 #include "nematicInteraction.h"
-//#include "nematicInteraction.cuh"
+#include "nematicInteraction.cuh"
 #include "qTensorFunctions.h"
 /*! \file nematicInteraction.cpp */
 
@@ -39,9 +39,6 @@ void nematicInteraction::computeForceCPU(GPUArray<dVec> &forces, bool zeroOutFor
         zUp = Qtensors.data[neighbors[5]];
 
         //compute the elastic terms depending only on the current site
-        dVec temp1 = 0.5*A*derivativeTrQ2(qCurrent);
-        dVec temp2 = (B/3.0)*derivativeTrQ3(qCurrent);
-        dVec temp3 = 0.25*C*derivativeTrQ2Squared(qCurrent);
         h_f.data[currentIndex] -= 0.5*A*derivativeTrQ2(qCurrent);
         h_f.data[currentIndex] -= B/3.0*derivativeTrQ3(qCurrent);
         h_f.data[currentIndex] -= 0.25*C*derivativeTrQ2Squared(qCurrent);
@@ -61,22 +58,19 @@ void nematicInteraction::computeForceCPU(GPUArray<dVec> &forces, bool zeroOutFor
 //!As an example of usage, we'll implement an n-Vector model force w/ nearest-neighbor interactions
 void nematicInteraction::computeForceGPU(GPUArray<dVec> &forces, bool zeroOutForce)
     {
-    UNWRITTENCODE("nematic q-tensor not written");
     int N = lattice->getNumberOfParticles();
     ArrayHandle<dVec> d_force(forces,access_location::device,access_mode::readwrite);
     ArrayHandle<dVec> d_spins(lattice->returnPositions(),access_location::device,access_mode::read);
 
     forceTuner->begin();
-    /*
-    gpu_lattice_spin_force_nn(d_force.data,
+    gpu_qTensor_oneConstantForce(d_force.data,
                               d_spins.data,
                               lattice->latticeIndex,
-                              J,
+                              A,B,C,L,
                               N,
                               zeroOutForce,
                               forceTuner->getParameter()
                               );
-    */
     forceTuner->end();
     };
 

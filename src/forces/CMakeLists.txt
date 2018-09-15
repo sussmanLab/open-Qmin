@@ -19,4 +19,5 @@ cuda_add_library(forceGPU
     harmonicRepulsion.cu
     baseLatticeForce.cu
     liquidCrystalElasticity.cu
+    nematicInteraction.cu
     )
