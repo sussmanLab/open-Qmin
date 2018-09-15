@@ -2,6 +2,7 @@
 #define qTensorLatticeModel_H
 
 #include "cubicLattice.h"
+#include "qTensorFunctions.h"
 /*! \file qTensorLatticeModel.h */
 
 //! Each site on the underlying lattice gets a local Q-tensor
@@ -24,5 +25,13 @@ class qTensorLatticeModel : public cubicLattice
         //!initialize each d.o.f., also passing in the value of the nematicity
         void setNematicQTensorRandomly(noiseSource &noise, scalar s0);
 
+        //!get field-averaged eigenvalues
+        void getAverageEigenvalues()
+            {
+            scalar a,b,c;
+            dVec meanQ = averagePosition();
+            eigenvaluesOfQ(meanQ,a,b,c);
+            printf("eigenvalues: %f\t%f\t%f\n",a,b,c);
+            };
     };
 #endif

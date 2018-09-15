@@ -9,6 +9,7 @@ Additionally, throws an exception if the dimensionality is incorrect.
 qTensorLatticeModel::qTensorLatticeModel(int l, bool _useGPU)
     : cubicLattice(l,false,_useGPU)
     {
+    normalizeSpins = false;
     if(DIMENSION !=5)
         {
         printf("\nAttempting to run a simulation with incorrectly set dimension... change the root CMakeLists.txt file to have dimension 5 and recompile\n");

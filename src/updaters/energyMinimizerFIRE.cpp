@@ -103,6 +103,7 @@ void energyMinimizerFIRE::fireStepGPU()
         }
     else
         {
+        NSinceNegativePower = 0;
         deltaT = deltaT*deltaTDec;
         alpha = alphaStart;
         ArrayHandle<dVec> d_v(model->returnVelocities(),access_location::device,access_mode::overwrite);
@@ -154,6 +155,7 @@ void energyMinimizerFIRE::fireStepCPU()
         }
     else
         {
+        NSinceNegativePower = 0;
         deltaT = deltaT*deltaTDec;
         deltaT = max (deltaT,deltaTMin);
         alpha = alphaStart;
@@ -200,4 +202,3 @@ void energyMinimizerFIRE::setFIREParameters(scalar deltaT, scalar alphaStart, sc
     setNMin(nMin);
     setForceCutoff(forceCutoff);
     };
-

@@ -1,11 +1,12 @@
 #include "nematicInteraction.h"
 //#include "nematicInteraction.cuh"
+#include "qTensorFunctions.h"
 /*! \file nematicInteraction.cpp */
 
 nematicInteraction::nematicInteraction(double _A, double _B, double _C, double _L)
     {
     A=_A;
-    B=_C;
+    B=_B;
     C=_C;
     L=_L;
     useNeighborList = false;
@@ -36,17 +37,24 @@ void nematicInteraction::computeForceCPU(GPUArray<dVec> &forces, bool zeroOutFor
         yUp = Qtensors.data[neighbors[3]];
         zDown = Qtensors.data[neighbors[4]];
         zUp = Qtensors.data[neighbors[5]];
-        //use the neighbors to compute the laplacian
-        for(int dd = 0; dd < DIMENSION; ++dd)
-            {
-            h_f.data[currentIndex][dd] += -L*(xDown[dd]+xUp[dd]+yDown[dd]+yUp[dd]+zDown[dd]+zUp[dd]
-                                              -6.0*qCurrent[dd]);
-            };
-        //now compute the elastic terms depending only on the current site
-        h_f.data[currentIndex] +=2.0*A*qCurrent;
 
-        h_f.data[currentIndex] += 0.0;
+        //compute the elastic terms depending only on the current site
+        dVec temp1 = 0.5*A*derivativeTrQ2(qCurrent);
+        dVec temp2 = (B/3.0)*derivativeTrQ3(qCurrent);
+        dVec temp3 = 0.25*C*derivativeTrQ2Squared(qCurrent);
+        h_f.data[currentIndex] -= 0.5*A*derivativeTrQ2(qCurrent);
+        h_f.data[currentIndex] -= B/3.0*derivativeTrQ3(qCurrent);
+        h_f.data[currentIndex] -= 0.25*C*derivativeTrQ2Squared(qCurrent);
 
+        //use the neighbors to compute the laplacian term
+        dVec spatialTerm = 2.0*L*(6.0*qCurrent-xDown-xUp-yDown-yUp-zDown-zUp);
+        scalar AxxAyy = spatialTerm[0]+spatialTerm[3];
+        spatialTerm[0] += AxxAyy;
+        spatialTerm[1] *= 2.0;
+        spatialTerm[2] *= 2.0;
+        spatialTerm[3] += AxxAyy;
+        spatialTerm[4] *= 2.0;
+        h_f.data[currentIndex] -= spatialTerm;
         };
     };
 

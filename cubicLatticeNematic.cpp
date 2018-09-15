@@ -13,6 +13,7 @@
 #include "energyMinimizerAdam.h"
 #include "noiseSource.h"
 #include "indexer.h"
+#include "qTensorFunctions.h"
 
 using namespace std;
 using namespace TCLAP;
@@ -38,6 +39,7 @@ int main(int argc, char*argv[])
     ValueArg<int> gpuSwitchArg("g","USEGPU","an integer controlling which gpu to use... g < 0 uses the cpu",false,-1,"int",cmd);
     ValueArg<int> maxIterationsSwitchArg("i","iterations","number of timestep iterations",false,100,"int",cmd);
     ValueArg<scalar> lengthSwitchArg("l","sideLength","size of simulation domain",false,10.0,"double",cmd);
+    ValueArg<scalar> dtSwitchArg("e","timeStepSize","size of Delta t",false,0.001,"double",cmd);
 
     //parse the arguments
     cmd.parse( argc, argv );
@@ -46,6 +48,7 @@ int main(int argc, char*argv[])
     int programSwitch = programSwitchArg.getValue();
     int maximumIterations = maxIterationsSwitchArg.getValue();
     scalar L = lengthSwitchArg.getValue();
+    scalar dt = dtSwitchArg.getValue();
 
     int gpuSwitch = gpuSwitchArg.getValue();
     bool GPU = false;
@@ -60,11 +63,13 @@ int main(int argc, char*argv[])
         throw std::exception();
         }
 
-    scalar a = 1;
-    scalar b = 10;
-    scalar c = 1;
-    scalar l = 1;
+    scalar a = -1;
+    scalar b = -2.12/0.172;
+    scalar c = 1.73/0.172;
+    scalar l = 2.32;
+
     scalar S0 = (-b+sqrt(b*b-24*a*c))/(6*c);
+    cout << "S0 set at " << S0 << endl;
     noiseSource noise(true);
     shared_ptr<qTensorLatticeModel> Configuration = make_shared<qTensorLatticeModel>(L);
     Configuration->setNematicQTensorRandomly(noise,S0);
@@ -85,17 +90,15 @@ int main(int argc, char*argv[])
         sim->setCPUOperation(false);
         };
 
-
-
     shared_ptr<energyMinimizerFIRE> fire = make_shared<energyMinimizerFIRE>(Configuration);
-    fire->setFIREParameters(0.05,0.99,0.1,1.1,0.95,.9,4,1e-12);
+    fire->setFIREParameters(dt,0.99,100*dt,1.1,0.95,.9,4,1e-12);
     fire->setMaximumIterations(maximumIterations);
     shared_ptr<energyMinimizerAdam> adam  = make_shared<energyMinimizerAdam>();
     adam->setAdamParameters();
     adam->setMaximumIterations(maximumIterations);
-    if(programSwitch ==1)
+    if(programSwitch ==0)
         sim->addUpdater(fire,Configuration);
-    else
+    else //adam parameters not tuned yet... avoid this for now
         sim->addUpdater(adam,Configuration);
 
     if(gpuSwitch >=0)
@@ -103,11 +106,12 @@ int main(int argc, char*argv[])
         sim->setCPUOperation(false);
         };
     scalar E = sim->computePotentialEnergy();
-    printf("simulation potential energy at %f\n",E);
+//    printf("simulation potential energy at %f\n",E);
 
-    dVec meanSpin = Configuration->averagePosition();
-    cout << "average spin magnitude "<< norm(meanSpin) << endl;
-    printdVec(meanSpin);
+    Configuration->getAverageEigenvalues();
+    printdVec(Configuration->averagePosition());
+
+    sim->computeForces();
 
     int curMaxIt = maximumIterations;
 
@@ -116,14 +120,14 @@ int main(int argc, char*argv[])
     sim->performTimestep();
     clock_t t2 = clock();
     cudaProfilerStop();
-    meanSpin = Configuration->averagePosition();
-    cout << "average spin magnitude "<< norm(meanSpin);
-    printdVec(meanSpin);
+
+    Configuration->getAverageEigenvalues();
+    printdVec(Configuration->averagePosition());
 
     cout << endl << "minimization took " << (t2-t1)/(scalar)CLOCKS_PER_SEC << endl;
     sim->setCPUOperation(true);
     E = sim->computePotentialEnergy();
-    printf("simulation potential energy at %f\n",E);
+    //printf("simulation potential energy at %f\n",E);
 
 //
 //The end of the tclap try
