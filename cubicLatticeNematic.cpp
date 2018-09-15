@@ -94,7 +94,7 @@ int main(int argc, char*argv[])
     fire->setFIREParameters(dt,0.99,100*dt,1.1,0.95,.9,4,1e-12);
     fire->setMaximumIterations(maximumIterations);
     shared_ptr<energyMinimizerAdam> adam  = make_shared<energyMinimizerAdam>();
-    adam->setAdamParameters();
+    adam->setAdamParameters(.9,.99,1e-8,dt,1e-12);
     adam->setMaximumIterations(maximumIterations);
     if(programSwitch ==0)
         sim->addUpdater(fire,Configuration);
