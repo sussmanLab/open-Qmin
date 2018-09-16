@@ -8,7 +8,8 @@ landauDeGennesLC::landauDeGennesLC(double _A, double _B, double _C, double _L)
     A=_A;
     B=_B;
     C=_C;
-    L=_L;
+    L1=_L;
+    numberOfConstants = distortionEnergyType::oneConstant;
     useNeighborList = false;
     forceTuner = make_shared<kernelTuner>(16,256,16,5,200000);
     };
@@ -27,6 +28,10 @@ void landauDeGennesLC::computeForceCPU(GPUArray<dVec> &forces, bool zeroOutForce
     vector<int> neighbors;
     int currentIndex;
     dVec qCurrent, xDown, xUp, yDown,yUp,zDown,zUp;
+    scalar a = 0.5*A;
+    scalar b = B/3.0;
+    scalar c = 0.25*C;
+    scalar l = 2.0*L1;
     for (int i = 0; i < lattice->getNumberOfParticles(); ++i)
         {
         currentIndex = lattice->getNeighbors(i,neighbors,neighNum);
@@ -39,12 +44,12 @@ void landauDeGennesLC::computeForceCPU(GPUArray<dVec> &forces, bool zeroOutForce
         zUp = Qtensors.data[neighbors[5]];
 
         //compute the elastic terms depending only on the current site
-        h_f.data[currentIndex] -= 0.5*A*derivativeTrQ2(qCurrent);
-        h_f.data[currentIndex] -= B/3.0*derivativeTrQ3(qCurrent);
-        h_f.data[currentIndex] -= 0.25*C*derivativeTrQ2Squared(qCurrent);
+        h_f.data[currentIndex] -= a*derivativeTrQ2(qCurrent);
+        h_f.data[currentIndex] -= b*derivativeTrQ3(qCurrent);
+        h_f.data[currentIndex] -= c*derivativeTrQ2Squared(qCurrent);
 
         //use the neighbors to compute the laplacian term
-        dVec spatialTerm = 2.0*L*(6.0*qCurrent-xDown-xUp-yDown-yUp-zDown-zUp);
+        dVec spatialTerm = l*(6.0*qCurrent-xDown-xUp-yDown-yUp-zDown-zUp);
         scalar AxxAyy = spatialTerm[0]+spatialTerm[3];
         spatialTerm[0] += AxxAyy;
         spatialTerm[1] *= 2.0;
@@ -66,7 +71,7 @@ void landauDeGennesLC::computeForceGPU(GPUArray<dVec> &forces, bool zeroOutForce
     gpu_qTensor_oneConstantForce(d_force.data,
                               d_spins.data,
                               lattice->latticeIndex,
-                              A,B,C,L,
+                              A,B,C,L1,
                               N,
                               zeroOutForce,
                               forceTuner->getParameter()

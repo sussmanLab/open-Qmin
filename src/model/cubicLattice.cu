@@ -13,7 +13,6 @@ __global__ void gpu_set_random_spins_kernel(dVec *pos, curandState *rngs,int N)
         return;
     curandState randState;
     randState = rngs[blockIdx.x];
-//    skipahead(threadIdx.x,&randState);
     for (int j =0 ; j < threadIdx.x; ++j)
         curand(&randState);
     for (int dd = 0; dd < DIMENSION; ++dd)
@@ -33,6 +32,44 @@ bool gpu_set_random_spins(dVec *d_pos,
     {
     cout << "calling gpu spin setting" << endl;
     gpu_set_random_spins_kernel<<<nBlocks,blockSize>>>(d_pos,rngs,N);
+    HANDLE_ERROR(cudaGetLastError());
+    return cudaSuccess;
+    }
+
+__global__ void gpu_set_random_nematic_qTensors_kernel(dVec *pos, curandState *rngs,scalar amplitude, int N)
+    {
+    unsigned int idx = blockDim.x * blockIdx.x + threadIdx.x;
+    if (idx >= N)
+        return;
+    curandState randState;
+    randState = rngs[idx];
+
+    scalar theta = acos(2.0*curand_uniform(&randState)-1);
+    scalar phi = 2.0*PI*curand_uniform(&randState);
+    pos[idx][0] = amplitude*(sin(theta)*sin(theta)*cos(phi)*cos(phi)-1.0/3.0);
+    pos[idx][1] = amplitude*sin(theta)*sin(theta)*cos(phi)*sin(phi);
+    pos[idx][2] = amplitude*sin(theta)*cos(theta)*cos(phi);
+    pos[idx][3] = amplitude*(sin(theta)*sin(theta)*sin(phi)*sin(phi)-1.0/3.0);
+    pos[idx][4] = amplitude*sin(theta)*cos(theta)*sin(phi);
+
+    rngs[idx] = randState;
+    return;
+    };
+
+bool gpu_set_random_nematic_qTensors(dVec *d_pos,
+                          curandState *rngs,
+                          scalar amplitude,
+                          int blockSize,
+                          int nBlocks,
+                          int N
+                          )
+    {
+    if(DIMENSION !=5)
+        {
+        printf("\nAttempting to initialize Q-tensors with incorrectly set dimension...change the root CMakeLists.txt file to have dimension 5 and recompile\n");
+        throw std::exception();
+        }
+    gpu_set_random_nematic_qTensors_kernel<<<nBlocks,blockSize>>>(d_pos,rngs,amplitude,N);
     HANDLE_ERROR(cudaGetLastError());
     return cudaSuccess;
     }

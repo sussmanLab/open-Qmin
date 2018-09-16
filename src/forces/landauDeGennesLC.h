@@ -4,6 +4,8 @@
 #include "baseLatticeForce.h"
 /*! \file landauDeGennesLC.h */
 
+enum class distortionEnergyType {oneConstant,twoConstant,threeConstant};
+
 //!A landau-de gennes  q-tensor framework force computer...currently working with the one-constant approximation for the distortion term
 class landauDeGennesLC : public baseLatticeForce
     {
@@ -22,7 +24,11 @@ class landauDeGennesLC : public baseLatticeForce
         scalar A;
         scalar B;
         scalar C;
-        scalar L;
+        scalar L1;
+        scalar L2;
+        scalar L3;
+
+        distortionEnergyType numberOfConstants;
     };
 
 #endif
