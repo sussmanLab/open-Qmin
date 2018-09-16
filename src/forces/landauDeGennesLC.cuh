@@ -1,9 +1,9 @@
-#ifndef nematicInteraction_CUH
-#define nematicInteraction_CUH
+#ifndef landauDeGennesLC_CUH
+#define landauDeGennesLC_CUH
 #include "std_include.h"
 #include "indexer.h"
 
-/*! \file nematicInteraction.cuh */
+/*! \file landauDeGennesLC.cuh */
 /** @addtogroup forceKernels force Kernels
  * @{
  * \brief CUDA kernels and callers

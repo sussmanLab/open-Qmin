@@ -7,8 +7,7 @@ add_library(force
     baseForce.cpp
     basePairwiseForce.cpp
     baseLatticeForce.cpp
-    nematicInteraction.cpp
-    liquidCrystalElasticity.cpp
+    landauDeGennesLC.cpp
     harmonicRepulsion.cpp
     lennardJones6_12.cpp
     harmonicBond.cpp
@@ -18,6 +17,5 @@ cuda_add_library(forceGPU
     lennardJones6_12.cu
     harmonicRepulsion.cu
     baseLatticeForce.cu
-    liquidCrystalElasticity.cu
-    nematicInteraction.cu
+    landauDeGennesLC.cu
     )

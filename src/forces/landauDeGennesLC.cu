@@ -1,6 +1,6 @@
-#include "nematicInteraction.cuh"
+#include "landauDeGennesLC.cuh"
 #include "qTensorFunctions.h"
-/*! \file nematicInteraction.cu */
+/*! \file landauDeGennesLC.cu */
 /** @addtogroup forceKernels force Kernels
  * @{
  * \brief CUDA kernels and callers

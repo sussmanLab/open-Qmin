@@ -1,9 +1,9 @@
-#include "nematicInteraction.h"
-#include "nematicInteraction.cuh"
+#include "landauDeGennesLC.h"
+#include "landauDeGennesLC.cuh"
 #include "qTensorFunctions.h"
-/*! \file nematicInteraction.cpp */
+/*! \file landauDeGennesLC.cpp */
 
-nematicInteraction::nematicInteraction(double _A, double _B, double _C, double _L)
+landauDeGennesLC::landauDeGennesLC(double _A, double _B, double _C, double _L)
     {
     A=_A;
     B=_B;
@@ -14,7 +14,7 @@ nematicInteraction::nematicInteraction(double _A, double _B, double _C, double _
     };
 
 //!As an example of usage, we'll implement an n-Vector model force w/ nearest-neighbor interactions
-void nematicInteraction::computeForceCPU(GPUArray<dVec> &forces, bool zeroOutForce)
+void landauDeGennesLC::computeForceCPU(GPUArray<dVec> &forces, bool zeroOutForce)
     {
     energy=0.0;
     ArrayHandle<dVec> h_f(forces);
@@ -56,7 +56,7 @@ void nematicInteraction::computeForceCPU(GPUArray<dVec> &forces, bool zeroOutFor
     };
 
 //!As an example of usage, we'll implement an n-Vector model force w/ nearest-neighbor interactions
-void nematicInteraction::computeForceGPU(GPUArray<dVec> &forces, bool zeroOutForce)
+void landauDeGennesLC::computeForceGPU(GPUArray<dVec> &forces, bool zeroOutForce)
     {
     int N = lattice->getNumberOfParticles();
     ArrayHandle<dVec> d_force(forces,access_location::device,access_mode::readwrite);
@@ -75,7 +75,7 @@ void nematicInteraction::computeForceGPU(GPUArray<dVec> &forces, bool zeroOutFor
     };
 
 //!As an example of usage, we'll implement an n-Vector model force w/ nearest-neighbor interactions
-void nematicInteraction::computeEnergyCPU()
+void landauDeGennesLC::computeEnergyCPU()
     {
     energy=0.0;
     ArrayHandle<dVec> spins(lattice->returnPositions());

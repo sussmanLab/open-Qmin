@@ -1,20 +1,21 @@
-#ifndef nematicInteraction_H
-#define nematicInteraction_H
+#ifndef landauDeGennesLC_H
+#define landauDeGennesLC_H
 
 #include "baseLatticeForce.h"
-/*! \file nematicInteraction.h */
+/*! \file landauDeGennesLC.h */
 
-//!A nematic interactions in the q-tensor framework
-class nematicInteraction : public baseLatticeForce
+//!A landau-de gennes  q-tensor framework force computer...currently working with the one-constant approximation for the distortion term
+class landauDeGennesLC : public baseLatticeForce
     {
     public:
-        nematicInteraction(double _A, double _B, double _C, double _L);
+
+        landauDeGennesLC(double _A, double _B, double _C, double _L);
 
         virtual void computeForceGPU(GPUArray<dVec> &forces,bool zeroOutForce = true);
         virtual void computeForceCPU(GPUArray<dVec> &forces,bool zeroOutForce = true);
 
         virtual void computeEnergyCPU();//NOT DONE YET
-        virtual void computeEnergyGPU(){//NOT DONE YET};
+        virtual void computeEnergyGPU(){};//NOT DONE YET;
 
     protected:
         //!constants, etc.

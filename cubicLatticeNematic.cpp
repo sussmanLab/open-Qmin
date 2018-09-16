@@ -8,7 +8,7 @@
 #include "gpuarray.h"
 #include "simulation.h"
 #include "qTensorLatticeModel.h"
-#include "nematicInteraction.h"
+#include "landauDeGennesLC.h"
 #include "energyMinimizerFIRE.h"
 #include "energyMinimizerAdam.h"
 #include "noiseSource.h"
@@ -77,9 +77,9 @@ int main(int argc, char*argv[])
     shared_ptr<Simulation> sim = make_shared<Simulation>();
     sim->setConfiguration(Configuration);
 
-    shared_ptr<nematicInteraction> nematic = make_shared<nematicInteraction>(a,b,c,l);
-    nematic->setModel(Configuration);
-    sim->addForce(nematic);
+    shared_ptr<landauDeGennesLC> oneConstantLdG = make_shared<landauDeGennesLC>(a,b,c,l);
+    oneConstantLdG->setModel(Configuration);
+    sim->addForce(oneConstantLdG);
 
 
 
