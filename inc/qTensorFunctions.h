@@ -27,10 +27,23 @@ This file implements handy manipulations and functions of the Q-tensor as laid o
  \brief Utility functions that can be called from host or device
  */
 
-//!Q_{kl}Q_{lk}
-HOSTDEVICE scalar TrQSquared(dVec &q)
+//!Tr(Q^2) = Q_{kl}Q_{lk}
+HOSTDEVICE scalar TrQ2(dVec &q)
     {
     return 2.0*(q[0]*q[0] + q[1]*q[1] + q[2]*q[2] + q[3]*q[3] + q[4]*q[4] + q[0]*q[3]);
+    };
+
+//!Tr(Q^3)
+HOSTDEVICE scalar TrQ3(dVec &q)
+    {
+    return -3.0*((-(q[1]*q[1]) + q[3]*q[3] + q[4]*q[4])*q[0] + q[0]*q[0]*q[3] - q[1]*q[1]*q[3] + q[2]*q[2]*q[3] - 2*q[1]*q[2]*q[4]);
+    };
+
+//!(Tr(Q^2))^2
+HOSTDEVICE scalar TrQ2Squared(dVec &q)
+    {
+    scalar Q2 = TrQ2(q);
+    return Q2*Q2;
     };
 
 //!derivative of Tr(Q^2) w/r/t q[0] .. q[4]

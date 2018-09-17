@@ -9,7 +9,7 @@
 __global__ void gpu_qTensor_oneConstantForce_kernel(dVec *d_force,
                                 dVec *d_spins,
                                 Index3D latticeIndex,
-                                scalar A,scalar B,scalar C,scalar L,
+                                scalar a,scalar b,scalar c,scalar l,
                                 int N,
                                 bool zeroForce)
     {
@@ -23,9 +23,9 @@ __global__ void gpu_qTensor_oneConstantForce_kernel(dVec *d_force,
     dVec qCurrent, xDown, xUp, yDown,yUp,zDown,zUp;
     dVec force(0.0);
     qCurrent = d_spins[idx];
-    force -= 0.5*A*derivativeTrQ2(qCurrent);
-    force -= B/3.0*derivativeTrQ3(qCurrent);
-    force -= 0.25*C*derivativeTrQ2Squared(qCurrent);
+    force -= a*derivativeTrQ2(qCurrent);
+    force -= b*derivativeTrQ3(qCurrent);
+    force -= c*derivativeTrQ2Squared(qCurrent);
 
     xDown = d_spins[latticeIndex(wrap(target.x-1,latticeSizes.x),target.y,target.z)];
     xUp = d_spins[latticeIndex(wrap(target.x+1,latticeSizes.x),target.y,target.z)];
@@ -33,7 +33,7 @@ __global__ void gpu_qTensor_oneConstantForce_kernel(dVec *d_force,
     yUp = d_spins[latticeIndex(target.x,wrap(target.y+1,latticeSizes.y),target.z)];
     zDown = d_spins[latticeIndex(target.x,target.y,wrap(target.z-1,latticeSizes.z))];
     zUp = d_spins[latticeIndex(target.x,target.y,wrap(target.z+1,latticeSizes.z))];
-    dVec spatialTerm = 2.0*L*(6.0*qCurrent-xDown-xUp-yDown-yUp-zDown-zUp);
+    dVec spatialTerm = l*(6.0*qCurrent-xDown-xUp-yDown-yUp-zDown-zUp);
     scalar AxxAyy = spatialTerm[0]+spatialTerm[3];
     spatialTerm[0] += AxxAyy;
     spatialTerm[1] *= 2.0;
@@ -55,9 +55,12 @@ bool gpu_qTensor_oneConstantForce(dVec *d_force,
     {
     unsigned int block_size = maxBlockSize;
     unsigned int nblocks = N/block_size+1;
-
+    scalar a = 0.5*A;
+    scalar b = B/3.0;
+    scalar c = 0.25*C;
+    scalar l = 2.0*L;
     gpu_qTensor_oneConstantForce_kernel<<<nblocks,block_size>>>(d_force,d_spins,latticeIndex,
-                                                             A,B,C,L,N,zeroForce);
+                                                             a,b,c,l,N,zeroForce);
     HANDLE_ERROR(cudaGetLastError());
     return cudaSuccess;
     }

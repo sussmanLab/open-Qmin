@@ -36,6 +36,5 @@ bool gpu_set_random_nematic_qTensors(dVec *d_pos,
                         int N
                         );
 
-
 /** @} */ //end of group declaration
 #endif

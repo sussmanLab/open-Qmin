@@ -106,7 +106,7 @@ int main(int argc, char*argv[])
         sim->setCPUOperation(false);
         };
     scalar E = sim->computePotentialEnergy();
-//    printf("simulation potential energy at %f\n",E);
+    printf("simulation energy at %f\n",E);
 
     Configuration->getAverageEigenvalues();
     printdVec(Configuration->averagePosition());
@@ -126,9 +126,9 @@ int main(int argc, char*argv[])
 
     cout << endl << "minimization:"  << endl;
     printf("{%f,%f},\n",L,(t2-t1)/(scalar)CLOCKS_PER_SEC);
-    //sim->setCPUOperation(true);
-    //E = sim->computePotentialEnergy();
-    //printf("simulation potential energy at %f\n",E);
+    sim->setCPUOperation(true);
+    E = sim->computePotentialEnergy();
+    printf("simulation energy at %f\n",E);
 
 //
 //The end of the tclap try

@@ -11,13 +11,52 @@ class landauDeGennesLC : public baseLatticeForce
     {
     public:
 
-        landauDeGennesLC(double _A, double _B, double _C, double _L);
+        landauDeGennesLC(scalar _A, scalar _B, scalar _C, scalar _L1);
+        landauDeGennesLC(scalar _A, scalar _B, scalar _C, scalar _L1, scalar _L2);
+        landauDeGennesLC(scalar _A, scalar _B, scalar _C, scalar _L1, scalar _L2, scalar _L3);
 
-        virtual void computeForceGPU(GPUArray<dVec> &forces,bool zeroOutForce = true);
-        virtual void computeForceCPU(GPUArray<dVec> &forces,bool zeroOutForce = true);
+        //select the force routing based on the number of elastic constants
+        virtual void computeForceGPU(GPUArray<dVec> &forces,bool zeroOutForce = true)
+            {
+            switch (numberOfConstants)
+                {
+                case distortionEnergyType::oneConstant :
+                    computeForceOneConstantGPU(forces,zeroOutForce);
+                    break;
+                case distortionEnergyType::twoConstant :
+                    computeForceOneConstantGPU(forces,zeroOutForce);
+                    break;
+                case distortionEnergyType::threeConstant :
+                    computeForceOneConstantGPU(forces,zeroOutForce);
+                    break;
+                };
+            };
+        virtual void computeForceCPU(GPUArray<dVec> &forces,bool zeroOutForce = true)
+            {
+            switch (numberOfConstants)
+                {
+                case distortionEnergyType::oneConstant :
+                    computeForceOneConstantCPU(forces,zeroOutForce);
+                    break;
+                case distortionEnergyType::twoConstant :
+                    computeForceOneConstantCPU(forces,zeroOutForce);
+                    break;
+                case distortionEnergyType::threeConstant :
+                    computeForceOneConstantCPU(forces,zeroOutForce);
+                    break;
+                };
+            };
+        virtual void computeForceOneConstantCPU(GPUArray<dVec> &forces,bool zeroOutForce);
+        virtual void computeForceOneConstantGPU(GPUArray<dVec> &forces,bool zeroOutForce);
 
-        virtual void computeEnergyCPU();//NOT DONE YET
-        virtual void computeEnergyGPU(){};//NOT DONE YET;
+        virtual void computeForceTwoConstantCPU(GPUArray<dVec> &forces,bool zeroOutForce){};
+        virtual void computeForceTwoConstantGPU(GPUArray<dVec> &forces,bool zeroOutForce){};
+
+        virtual void computeForceThreeConstantCPU(GPUArray<dVec> &forces,bool zeroOutForce){};
+        virtual void computeForceThreeConstantGPU(GPUArray<dVec> &forces,bool zeroOutForce){};
+
+        virtual void computeEnergyCPU();
+        virtual void computeEnergyGPU(){computeEnergyCPU();};//NOT DONE YET;
 
     protected:
         //!constants, etc.
