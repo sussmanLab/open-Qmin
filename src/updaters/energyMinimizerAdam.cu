@@ -1,5 +1,5 @@
 #include "energyMinimizerAdam.cuh"
-/*! \file energyMinimizerAdam.cu 
+/*! \file energyMinimizerAdam.cu
 
 \addtogroup updaterKernels
 @{
@@ -48,7 +48,6 @@ __global__ void gpu_adam_step_kernel(dVec *force,
     if(pidx>=N) return;
     int didx = idx%DIMENSION;
 
-    scalar rootvc;
     scalar f = force[pidx][didx];
     scalar bm = biasedMomentum[pidx][didx];
     scalar bm2 = biasedMomentum2[pidx][didx];
@@ -57,11 +56,11 @@ __global__ void gpu_adam_step_kernel(dVec *force,
     bm2 = beta2*bm2+(1.-beta2)*f*f;
     cm = bm*(1.0/(1.-beta1t));
     cm2=bm2*(1.0/(1.-beta2t));
-    rootvc = sqrt(cm2);
-    if(rootvc ==0)
-        ans = -deltaT*cm*1e8;
+    scalar rootvc = sqrt(cm2);
+    if(rootvc !=0)
+        ans = -deltaT*cm/rootvc;
     else
-        ans = -deltaT*cm/(rootvc);
+        ans = -deltaT*cm*1e8;
 
     displacement[pidx][didx] = ans;
     biasedMomentum[pidx][didx] = bm;

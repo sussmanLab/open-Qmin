@@ -91,6 +91,18 @@ __global__ void gpu_update_spins_kernel(dVec *d_disp,
         }
     }
 
+__global__ void gpu_update_spins_simple_kernel(dVec *d_disp,
+                      dVec *d_pos,
+                      int N)
+    {
+    unsigned int idx = blockDim.x * blockIdx.x + threadIdx.x;
+    int pidx = idx/DIMENSION;
+    if(pidx>=N) return;
+    int didx = idx%DIMENSION;
+
+    d_pos[pidx][didx] += d_disp[pidx][didx];
+    }
+
 bool gpu_update_spins(dVec *d_disp,
                       dVec *d_pos,
                       scalar scale,
@@ -100,7 +112,13 @@ bool gpu_update_spins(dVec *d_disp,
     unsigned int block_size = 1024;
     if (N < 128) block_size = 16;
     unsigned int nblocks  = N/block_size + 1;
-    gpu_update_spins_kernel<<<nblocks,block_size>>>(d_disp,d_pos,scale,N,normalize);
+    if(!normalize && scale == 1.)
+        {
+        nblocks = DIMENSION*N/block_size + 1;
+        gpu_update_spins_simple_kernel<<<nblocks,block_size>>>(d_disp,d_pos,N);
+        }
+    else
+        gpu_update_spins_kernel<<<nblocks,block_size>>>(d_disp,d_pos,scale,N,normalize);
     HANDLE_ERROR(cudaGetLastError());
     return cudaSuccess;
     }

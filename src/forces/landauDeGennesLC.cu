@@ -16,8 +16,6 @@ __global__ void gpu_qTensor_oneConstantForce_kernel(dVec *d_force,
     unsigned int idx = blockDim.x * blockIdx.x + threadIdx.x;
     if (idx >= N)
         return;
-    if(zeroForce)
-        d_force[idx] = make_dVec(0.0);
     int3 target = latticeIndex.inverseIndex(idx);
     int3 latticeSizes = latticeIndex.getSizes();
     dVec qCurrent, xDown, xUp, yDown,yUp,zDown,zUp;
@@ -42,7 +40,10 @@ __global__ void gpu_qTensor_oneConstantForce_kernel(dVec *d_force,
     spatialTerm[4] *= 2.0;
     force -= spatialTerm;
 
-    d_force[idx] = force;
+    if(zeroForce)
+        d_force[idx] = force;
+    else
+        d_force[idx] += force;
     }
 
 bool gpu_qTensor_oneConstantForce(dVec *d_force,
