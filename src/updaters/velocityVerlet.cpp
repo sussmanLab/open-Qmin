@@ -37,14 +37,14 @@ void velocityVerlet::integrateEOMCPU()
 
 void velocityVerlet::integrateEOMGPU()
     {
+    ArrayHandle<scalar> d_m(model->returnMasses(),access_location::device,access_mode::read);
     //first half step
     {//array handle scope
     ArrayHandle<dVec> d_f(model->returnForces(),access_location::device,access_mode::read);
     ArrayHandle<dVec> d_v(model->returnVelocities(),access_location::device,access_mode::readwrite);
-    ArrayHandle<scalar> d_m(model->returnMasses(),access_location::device,access_mode::read);
     ArrayHandle<dVec> d_d(displacement,access_location::device,access_mode::overwrite);
-    gpu_displacement_velocity_verlet(d_d.data,d_v.data,d_f.data,deltaT,Ndof);
-    gpu_update_velocity(d_v.data,d_f.data,d_m.data,deltaT,Ndof);
+    //this call sets the displacement and also does the first half of the velocity update
+    gpu_displacement_velocity_verlet(d_d.data,d_v.data,d_f.data,d_m.data,deltaT,Ndof);
     }
     //move particles and recompute forces
     model->moveParticles(displacement);
@@ -53,6 +53,5 @@ void velocityVerlet::integrateEOMGPU()
     //update velocities again
     ArrayHandle<dVec> d_f(model->returnForces(),access_location::device,access_mode::read);
     ArrayHandle<dVec> d_v(model->returnVelocities(),access_location::device,access_mode::readwrite);
-    ArrayHandle<scalar> d_m(model->returnMasses(),access_location::device,access_mode::read);
     gpu_update_velocity(d_v.data,d_f.data,d_m.data,deltaT,Ndof);
     };
