@@ -4,9 +4,18 @@
 /*! \file latticeBoundaries.h */
 
 //! Distinguish the potential types of non-liquid-crystalline lattice sites
-enum class boundaryType {homeotropic};
+enum class boundaryType {homeotropic,degeneratePlanar};
 
 //! "boundary objects" have a boundary type and few parameters that will be used in force/energy calculations
+/*!
+For homeotropic anchoring (Rapini-Papoular) with
+F_{anchoring} = W_0  tr((Q-Q^B)^2)
+P1 is W_0.
+
+For degenerate planar anchoring (Fournier and Galatola) with
+F_{anchoring} = W_1 tr((\tilde{Q} - \tilde{Q}^\perp)^2) + W_1 (tr(\tilde{Q}^2) - (3 s_0/2)^2)^2
+P1 is W_1 and P2 is S_0 (at the moment we use the W_2 = W_1 simplification)
+*/
 class boundaryObject
     {
     public:
