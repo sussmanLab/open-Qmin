@@ -128,7 +128,7 @@ int main(int argc, char*argv[])
     printf("{%f,%f},\n",L,(t2-t1)/(scalar)CLOCKS_PER_SEC);
     sim->setCPUOperation(true);
     E = sim->computePotentialEnergy();
-    printf("simulation energy at %f\n",E);
+    printf("simulation energy per site at %f\n",E);
 
 //
 //The end of the tclap try

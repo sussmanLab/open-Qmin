@@ -10,6 +10,7 @@ cubicLattice::cubicLattice(int l, bool _slice, bool _useGPU)
     sliceSites = _slice;
     N = l*l*l;
     L=l;
+    Box = make_shared<periodicBoundaryConditions>(L);
     selfForceCompute = false;
     positions.resize(N);
     types.resize(N);
@@ -19,9 +20,9 @@ cubicLattice::cubicLattice(int l, bool _slice, bool _useGPU)
     velocities.resize(N);
 
     vector<dVec> zeroes(N,make_dVec(0.0));
-    vector<int> units(N,0);
+    vector<int> zeroInts(N,0);
     vector<scalar> unities(N,1.0);
-    fillGPUArrayWithVector(units,types);
+    fillGPUArrayWithVector(zeroInts,types);
     fillGPUArrayWithVector(unities,masses);
     fillGPUArrayWithVector(zeroes,positions);
     fillGPUArrayWithVector(zeroes,forces);
@@ -52,7 +53,6 @@ void cubicLattice::moveParticles(GPUArray<dVec> &displacements, scalar scale)
         gpu_update_spins(d_disp.data,d_pos.data,scale,N,normalizeSpins);
         };
 
-    
     };
 
 void cubicLattice::setSpinsRandomly(noiseSource &noise)

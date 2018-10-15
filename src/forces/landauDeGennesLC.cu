@@ -8,6 +8,7 @@
 
 __global__ void gpu_qTensor_oneConstantForce_kernel(dVec *d_force,
                                 dVec *d_spins,
+                                int *d_types,
                                 Index3D latticeIndex,
                                 scalar a,scalar b,scalar c,scalar l,
                                 int N,
@@ -20,26 +21,64 @@ __global__ void gpu_qTensor_oneConstantForce_kernel(dVec *d_force,
     int3 latticeSizes = latticeIndex.getSizes();
     dVec qCurrent, xDown, xUp, yDown,yUp,zDown,zUp;
     dVec force(0.0);
-    qCurrent = d_spins[idx];
-    force -= a*derivativeTrQ2(qCurrent);
-    force -= b*derivativeTrQ3(qCurrent);
-    force -= c*derivativeTrQ2Squared(qCurrent);
 
-    xDown = d_spins[latticeIndex(wrap(target.x-1,latticeSizes.x),target.y,target.z)];
-    xUp = d_spins[latticeIndex(wrap(target.x+1,latticeSizes.x),target.y,target.z)];
-    yDown = d_spins[latticeIndex(target.x,wrap(target.y-1,latticeSizes.y),target.z)];
-    yUp = d_spins[latticeIndex(target.x,wrap(target.y+1,latticeSizes.y),target.z)];
-    zDown = d_spins[latticeIndex(target.x,target.y,wrap(target.z-1,latticeSizes.z))];
-    zUp = d_spins[latticeIndex(target.x,target.y,wrap(target.z+1,latticeSizes.z))];
-    dVec spatialTerm = l*(6.0*qCurrent-xDown-xUp-yDown-yUp-zDown-zUp);
-    scalar AxxAyy = spatialTerm[0]+spatialTerm[3];
-    spatialTerm[0] += AxxAyy;
-    spatialTerm[1] *= 2.0;
-    spatialTerm[2] *= 2.0;
-    spatialTerm[3] += AxxAyy;
-    spatialTerm[4] *= 2.0;
-    force -= spatialTerm;
+    if(d_types[idx] <= 0) //no force on sites that are part of boundaries
+        {
+        //phase part is simple
+        qCurrent = d_spins[idx];
+        force -= a*derivativeTrQ2(qCurrent);
+        force -= b*derivativeTrQ3(qCurrent);
+        force -= c*derivativeTrQ2Squared(qCurrent);
 
+        //get neighbor indices and data
+        int ixd, ixu,iyd,iyu,izd,izu;
+        ixd = latticeIndex(wrap(target.x-1,latticeSizes.x),target.y,target.z);
+        ixu = latticeIndex(wrap(target.x+1,latticeSizes.x),target.y,target.z);
+        iyd = latticeIndex(target.x,wrap(target.y-1,latticeSizes.y),target.z);
+        iyu = latticeIndex(target.x,wrap(target.y+1,latticeSizes.y),target.z);
+        izd = latticeIndex(target.x,target.y,wrap(target.z-1,latticeSizes.z));
+        izu = latticeIndex(target.x,target.y,wrap(target.z+1,latticeSizes.z));
+        xDown = d_spins[ixd];
+        xUp = d_spins[ixu];
+        yDown = d_spins[iyd];
+        yUp = d_spins[iyu];
+        zDown = d_spins[izd];
+        zUp = d_spins[izu];
+        dVec spatialTerm(0.0);
+        if(d_types[idx] == 0) // bulk is easy
+            {
+            spatialTerm = l*(6.0*qCurrent-xDown-xUp-yDown-yUp-zDown-zUp);
+            scalar AxxAyy = spatialTerm[0]+spatialTerm[3];
+            spatialTerm[0] += AxxAyy;
+            spatialTerm[1] *= 2.0;
+            spatialTerm[2] *= 2.0;
+            spatialTerm[3] += AxxAyy;
+            spatialTerm[4] *= 2.0;
+            }
+        else //near a boundary is less easy
+            {
+            if(d_types[ixd] <=0)
+                spatialTerm += qCurrent - xDown;
+            if(d_types[ixu] <=0)
+                spatialTerm += qCurrent - xUp;
+            if(d_types[iyd] <=0)
+                spatialTerm += qCurrent - yDown;
+            if(d_types[iyu] <=0)
+                spatialTerm += qCurrent - yUp;
+            if(d_types[izd] <=0)
+                spatialTerm += qCurrent - zDown;
+            if(d_types[izu] <=0)
+                spatialTerm += qCurrent - zUp;
+            scalar AxxAyy = spatialTerm[0]+spatialTerm[3];
+            spatialTerm[0] += AxxAyy;
+            spatialTerm[1] *= 2.0;
+            spatialTerm[2] *= 2.0;
+            spatialTerm[3] += AxxAyy;
+            spatialTerm[4] *= 2.0;
+            spatialTerm = l*spatialTerm;
+            };
+        force -= spatialTerm;
+        };
     if(zeroForce)
         d_force[idx] = force;
     else
@@ -48,6 +87,7 @@ __global__ void gpu_qTensor_oneConstantForce_kernel(dVec *d_force,
 
 bool gpu_qTensor_oneConstantForce(dVec *d_force,
                                 dVec *d_spins,
+                                int *d_types,
                                 Index3D latticeIndex,
                                 scalar A,scalar B,scalar C,scalar L,
                                 int N,
@@ -60,7 +100,7 @@ bool gpu_qTensor_oneConstantForce(dVec *d_force,
     scalar b = B/3.0;
     scalar c = 0.25*C;
     scalar l = 2.0*L;
-    gpu_qTensor_oneConstantForce_kernel<<<nblocks,block_size>>>(d_force,d_spins,latticeIndex,
+    gpu_qTensor_oneConstantForce_kernel<<<nblocks,block_size>>>(d_force,d_spins,d_types,latticeIndex,
                                                              a,b,c,l,N,zeroForce);
     HANDLE_ERROR(cudaGetLastError());
     return cudaSuccess;

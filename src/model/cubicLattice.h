@@ -3,6 +3,8 @@
 
 #include "simpleModel.h"
 #include "indexer.h"
+#include "latticeBoundaries.h"
+
 /*! \file cubicLattic.h
 \brief puts degrees of freedom on a cubic lattice... probably for spin-like models
 */
@@ -24,7 +26,7 @@ class cubicLattice : public simpleModel
         int getNeighbors(int target, vector<int> &neighbors, int &neighs);
         //!decide to slice sites
         void sliceIndices(bool _s=true){sliceSites = _s;};
-        //!given a triple, determine what 
+        //!given a triple, determine what
         int latticeSiteToLinearIndex(const int3 &target);
         //!indexer for lattice sites
         Index3D latticeIndex;
@@ -38,7 +40,23 @@ class cubicLattice : public simpleModel
                 ans += spins.data[i];
             ans = (1.0/N)*ans;
             return ans;
-            }
+        };
+
+        //!list of the non-bulk objects in the simulations
+        vector<boundaryObject> boundaries;
+
+        //!assign a collection of lattice sites to a new boundaryObject
+        void createBoundaryObject(vector<int> &latticeSites, boundaryType _type, scalar Param1, scalar Param2)
+            {
+            boundaryObject bound(_type,Param1,Param2);
+            boundaries.push_back(bound);
+            int j = boundaries.size();
+            ArrayHandle<int> t(types);
+            for (int ii = 0; ii < latticeSites.size();++ii)
+                {
+                t.data[latticeSites[ii]] = j;
+                };
+            };
     protected:
         //! should we use a memory-efficient slicing scheme?
         bool sliceSites;

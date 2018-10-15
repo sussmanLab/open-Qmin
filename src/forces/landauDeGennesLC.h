@@ -30,6 +30,10 @@ class landauDeGennesLC : public baseLatticeForce
                     computeForceOneConstantGPU(forces,zeroOutForce);
                     break;
                 };
+            if(lattice->boundaries.size() >0)
+                {
+                computeBoundaryForcesGPU(forces,false);
+                };
             };
         virtual void computeForceCPU(GPUArray<dVec> &forces,bool zeroOutForce = true)
             {
@@ -45,7 +49,15 @@ class landauDeGennesLC : public baseLatticeForce
                     computeForceOneConstantCPU(forces,zeroOutForce);
                     break;
                 };
+            if(lattice->boundaries.size() >0)
+                {
+                computeBoundaryForcesCPU(forces,false);
+                };
             };
+
+        virtual void computeBoundaryForcesCPU(GPUArray<dVec> &forces,bool zeroOutForce);
+        virtual void computeBoundaryForcesGPU(GPUArray<dVec> &forces,bool zeroOutForce);
+
         virtual void computeForceOneConstantCPU(GPUArray<dVec> &forces,bool zeroOutForce);
         virtual void computeForceOneConstantGPU(GPUArray<dVec> &forces,bool zeroOutForce);
 

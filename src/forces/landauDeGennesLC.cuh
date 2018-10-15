@@ -11,6 +11,7 @@
 
 bool gpu_qTensor_oneConstantForce(dVec *d_force,
                                 dVec *d_spins,
+                                int *d_types,
                                 Index3D latticeIndex,
                                 scalar A,scalar B,scalar C,scalar L,
                                 int N,

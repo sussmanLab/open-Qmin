@@ -12,6 +12,15 @@ a dVec of q[0,1,2,3,4] corresponds to the symmetric traceless tensor laid out as
     (q[0]    q[1]        q[2]    )
 Q = (q[1]    q[3]        q[4]    )
     (q[2]    q[4]   -(q[0]+q[3]) )
+
+Boundaries are implemented by making use of the "type" data structure that is inherited from the base simpleModel
+class...: each bulk LC lattice site will have type zero (the default), and lattice sites *adjacent to a boundary* will
+have type < 0 (-1 for now, possibly optimized later). A lattice site type[i] > 0 will mean the lattice site is part of
+whatever object boundaries[type[i]-1] refers to.
+
+The qTensorLatticeModel implements a "create boundary" method which takes an array of lattice sites, appends a new
+boundaryObject to boundaries (so that boundaries[j] now exists), and then sets the type of the lattice sites so that
+type[i] = j+1
  */
 class qTensorLatticeModel : public cubicLattice
     {
