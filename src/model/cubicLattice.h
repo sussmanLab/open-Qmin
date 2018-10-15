@@ -43,14 +43,17 @@ class cubicLattice : public simpleModel
         };
 
         //!list of the non-bulk objects in the simulations
-        vector<boundaryObject> boundaries;
+        GPUArray<boundaryObject> boundaries;
 
         //!assign a collection of lattice sites to a new boundaryObject
         void createBoundaryObject(vector<int> &latticeSites, boundaryType _type, scalar Param1, scalar Param2)
             {
+            growGPUArray(boundaries,1);
+            ArrayHandle<boundaryObject> boundaryObjs(boundaries);
             boundaryObject bound(_type,Param1,Param2);
-            boundaries.push_back(bound);
-            int j = boundaries.size();
+            boundaryObjs.data[boundaries.getNumElements()-1] = bound;
+
+            int j = boundaries.getNumElements();
             ArrayHandle<int> t(types);
             for (int ii = 0; ii < latticeSites.size();++ii)
                 {

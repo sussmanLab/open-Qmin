@@ -126,6 +126,53 @@ void landauDeGennesLC::computeForceOneConstantGPU(GPUArray<dVec> &forces, bool z
 
 void landauDeGennesLC::computeBoundaryForcesCPU(GPUArray<dVec> &forces,bool zeroOutForce)
     {
+
+    ArrayHandle<dVec> h_f(forces);
+    if(zeroOutForce)
+        for(int pp = 0; pp < lattice->getNumberOfParticles(); ++pp)
+            h_f.data[pp] = make_dVec(0.0);
+    ArrayHandle<dVec> Qtensors(lattice->returnPositions());
+    ArrayHandle<int> latticeTypes(lattice->returnTypes());
+    ArrayHandle<boundaryObject> bounds(lattice->boundaries);
+    //the current scheme for getting the six nearest neighbors
+    int neighNum;
+    vector<int> neighbors;
+    int currentIndex;
+    dVec qCurrent, xDown, xUp, yDown,yUp,zDown,zUp,tempForce;
+
+    for (int i = 0; i < lattice->getNumberOfParticles(); ++i)
+        {
+        currentIndex = lattice->getNeighbors(i,neighbors,neighNum);
+        if(latticeTypes.data[currentIndex] < 0)
+            {
+            qCurrent = Qtensors.data[currentIndex];
+            xDown = Qtensors.data[neighbors[0]];
+            xUp = Qtensors.data[neighbors[1]];
+            yDown = Qtensors.data[neighbors[2]];
+            yUp = Qtensors.data[neighbors[3]];
+            zDown = Qtensors.data[neighbors[4]];
+            zUp = Qtensors.data[neighbors[5]];
+
+            if(latticeTypes.data[neighbors[0]] > 0)
+                computeBoundaryForce(qCurrent, xDown, bounds.data[latticeTypes.data[neighbors[0]]-1],tempForce);
+            h_f.data[currentIndex] += tempForce;
+            if(latticeTypes.data[neighbors[1]] > 0)
+                computeBoundaryForce(qCurrent, xUp, bounds.data[latticeTypes.data[neighbors[1]]-1],tempForce);
+            h_f.data[currentIndex] += tempForce;
+            if(latticeTypes.data[neighbors[2]] > 0)
+                computeBoundaryForce(qCurrent, yDown, bounds.data[latticeTypes.data[neighbors[2]]-1],tempForce);
+            h_f.data[currentIndex] += tempForce;
+            if(latticeTypes.data[neighbors[3]] > 0)
+                computeBoundaryForce(qCurrent, yUp, bounds.data[latticeTypes.data[neighbors[3]]-1],tempForce);
+            h_f.data[currentIndex] += tempForce;
+            if(latticeTypes.data[neighbors[4]] > 0)
+                computeBoundaryForce(qCurrent, zDown, bounds.data[latticeTypes.data[neighbors[4]]-1],tempForce);
+            h_f.data[currentIndex] += tempForce;
+            if(latticeTypes.data[neighbors[5]] > 0)
+                computeBoundaryForce(qCurrent, zUp, bounds.data[latticeTypes.data[neighbors[5]]-1],tempForce);
+            h_f.data[currentIndex] += tempForce;
+            }
+        }
     };
 
 void landauDeGennesLC::computeBoundaryForcesGPU(GPUArray<dVec> &forces,bool zeroOutForce)

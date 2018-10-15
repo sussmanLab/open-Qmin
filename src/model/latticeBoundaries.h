@@ -16,6 +16,15 @@ class boundaryObject
             P1 = _p1;
             P2 = _p2;
             }
+
+        //mutating operators
+        boundaryObject& operator=(const boundaryObject &other)
+                {
+                this->boundary = other.boundary;
+                this->P1 = other.P1;
+                this->P2 = other.P2;
+                return *this;
+                }
         boundaryType boundary;
         scalar P1, P2 ;
     };
