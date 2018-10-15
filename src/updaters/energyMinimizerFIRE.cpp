@@ -36,6 +36,7 @@ void energyMinimizerFIRE::initializeParameters()
     setAlphaDec(.9);
     setNMin(5);
     setGPU(false);
+    alphaMin = 0.0;
     };
 
 
@@ -149,7 +150,7 @@ void energyMinimizerFIRE::fireStepCPU()
             {
             deltaT = min(deltaT*deltaTInc,deltaTMax);
             alpha = alpha * alphaDec;
-            //alpha = max(alpha, 0.75);
+            alpha = max(alpha, 0.75);
             };
         NSinceNegativePower += 1;
         }
@@ -191,7 +192,7 @@ void energyMinimizerFIRE::minimize()
     };
 
 
-void energyMinimizerFIRE::setFIREParameters(scalar deltaT, scalar alphaStart, scalar deltaTMax, scalar deltaTInc, scalar deltaTDec, scalar alphaDec, int nMin, scalar forceCutoff)
+void energyMinimizerFIRE::setFIREParameters(scalar deltaT, scalar alphaStart, scalar deltaTMax, scalar deltaTInc, scalar deltaTDec, scalar alphaDec, int nMin, scalar forceCutoff, scalar _alphaMin)
     {
     setDeltaT(deltaT);
     setAlphaStart(alphaStart);
@@ -201,4 +202,5 @@ void energyMinimizerFIRE::setFIREParameters(scalar deltaT, scalar alphaStart, sc
     setAlphaDec(alphaDec);
     setNMin(nMin);
     setForceCutoff(forceCutoff);
+    alphaMin = _alphaMin;
     };

@@ -46,20 +46,11 @@ class cubicLattice : public simpleModel
         GPUArray<boundaryObject> boundaries;
 
         //!assign a collection of lattice sites to a new boundaryObject
-        void createBoundaryObject(vector<int> &latticeSites, boundaryType _type, scalar Param1, scalar Param2)
-            {
-            growGPUArray(boundaries,1);
-            ArrayHandle<boundaryObject> boundaryObjs(boundaries);
-            boundaryObject bound(_type,Param1,Param2);
-            boundaryObjs.data[boundaries.getNumElements()-1] = bound;
+        void createBoundaryObject(vector<int> &latticeSites, boundaryType _type, scalar Param1, scalar Param2);
 
-            int j = boundaries.getNumElements();
-            ArrayHandle<int> t(types);
-            for (int ii = 0; ii < latticeSites.size();++ii)
-                {
-                t.data[latticeSites[ii]] = j;
-                };
-            };
+        //!create a flat wall (with z-normal) at the specified location, with anchoring given by the boundary object
+        void createSimpleFlatWallZNormal(int zPlane, boundaryObject &bObj);
+
     protected:
         //! should we use a memory-efficient slicing scheme?
         bool sliceSites;

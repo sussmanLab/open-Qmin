@@ -10,7 +10,7 @@ enum class boundaryType {homeotropic,degeneratePlanar};
 /*!
 For homeotropic anchoring (Rapini-Papoular) with
 F_{anchoring} = W_0  tr((Q-Q^B)^2)
-P1 is W_0.
+P1 is W_0 and P2 is S0
 
 For degenerate planar anchoring (Fournier and Galatola) with
 F_{anchoring} = W_1 tr((\tilde{Q} - \tilde{Q}^\perp)^2) + W_1 (tr(\tilde{Q}^2) - (3 s_0/2)^2)^2
