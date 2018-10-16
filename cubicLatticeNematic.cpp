@@ -85,8 +85,8 @@ int main(int argc, char*argv[])
     boundaryObject homeotropicWall(boundaryType::homeotropic,5.82,S0);
     boundaryObject planarDegenerateWall(boundaryType::degeneratePlanar,.582,S0);
 
-    Configuration->createSimpleFlatWallZNormal(0, homeotropicWall);
-    //Configuration->createSimpleFlatWallZNormal(0, planarDegenerateWall);
+    Configuration->createSimpleFlatWallZNormal(1, homeotropicWall);
+    Configuration->createSimpleFlatWallZNormal(0, planarDegenerateWall);
 
     //after the simulation box has been set, we can set particle positions... putting this here ensures that the random
     //spins are the same for gpu and cpu testing
@@ -135,6 +135,19 @@ int main(int argc, char*argv[])
     E = sim->computePotentialEnergy();
     printf("simulation energy per site at %f\n",E);
 
+    ArrayHandle<dVec> f(Configuration->returnForces());
+    ArrayHandle<dVec> pp(Configuration->returnPositions());
+    ArrayHandle<int> tt(Configuration->returnTypes());
+    for (int ll = 0; ll < L; ++ll)
+        {
+        cout << tt.data[Configuration->latticeIndex(L/2,L/2,ll)] << endl;
+        printdVec(f.data[Configuration->latticeIndex(L/2,L/2,ll)]);
+        printdVec(pp.data[Configuration->latticeIndex(L/2,L/2,ll)]);
+        }
+
+    ArrayHandle<boundaryObject> boundaryObjs(Configuration->boundaries);
+    for (int bb = 0; bb < Configuration->boundaries.getNumElements(); ++bb)
+        cout << boundaryObjs.data[bb].P1 << "\t" << boundaryObjs.data[bb].P2 << endl;
 //
 //The end of the tclap try
 //

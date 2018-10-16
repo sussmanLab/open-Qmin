@@ -138,7 +138,7 @@ void landauDeGennesLC::computeBoundaryForcesCPU(GPUArray<dVec> &forces,bool zero
     int neighNum;
     vector<int> neighbors;
     int currentIndex;
-    dVec qCurrent, xDown, xUp, yDown,yUp,zDown,zUp,tempForce;
+    dVec qCurrent,xDown,xUp,yDown,yUp,zDown,zUp,tempForce;
 
     for (int i = 0; i < lattice->getNumberOfParticles(); ++i)
         {
@@ -184,8 +184,11 @@ void landauDeGennesLC::computeEnergyCPU()
     {
     scalar phaseEnergy = 0.0;
     scalar distortionEnergy = 0.0;
+    scalar anchoringEnergy = 0.0;
     energy=0.0;
     ArrayHandle<dVec> Qtensors(lattice->returnPositions());
+    ArrayHandle<int> latticeTypes(lattice->returnTypes());
+    ArrayHandle<boundaryObject> bounds(lattice->boundaries);
     //the current scheme for getting the six nearest neighbors
     int neighNum;
     vector<int> neighbors;
@@ -195,26 +198,65 @@ void landauDeGennesLC::computeEnergyCPU()
     scalar b = B/3.0;
     scalar c = 0.25*C;
     scalar l = L1;
+    int LCSites = 0;
     for (int i = 0; i < lattice->getNumberOfParticles(); ++i)
         {
         currentIndex = lattice->getNeighbors(i,neighbors,neighNum);
         qCurrent = Qtensors.data[currentIndex];
-        phaseEnergy += a*TrQ2(qCurrent) + b*TrQ3(qCurrent) + c* TrQ2Squared(qCurrent);
+        if(latticeTypes.data[currentIndex] <=0)
+            {
+            LCSites +=1;
+            phaseEnergy += a*TrQ2(qCurrent) + b*TrQ3(qCurrent) + c* TrQ2Squared(qCurrent);
 
-        xDown = Qtensors.data[neighbors[0]];
-        xUp = Qtensors.data[neighbors[1]];
-        yDown = Qtensors.data[neighbors[2]];
-        yUp = Qtensors.data[neighbors[3]];
-        zDown = Qtensors.data[neighbors[4]];
-        zUp = Qtensors.data[neighbors[5]];
+            xDown = Qtensors.data[neighbors[0]];
+            xUp = Qtensors.data[neighbors[1]];
+            yDown = Qtensors.data[neighbors[2]];
+            yUp = Qtensors.data[neighbors[3]];
+            zDown = Qtensors.data[neighbors[4]];
+            zUp = Qtensors.data[neighbors[5]];
 
-        dVec firstDerivativeX = 0.5*(xUp - xDown);
-        distortionEnergy += l*(dot(firstDerivativeX,firstDerivativeX) + firstDerivativeX[0]*firstDerivativeX[3]);
-        dVec firstDerivativeY = 0.5*(yUp - yDown);
-        distortionEnergy += l*(dot(firstDerivativeY,firstDerivativeY) + firstDerivativeY[0]*firstDerivativeY[3]);
-        dVec firstDerivativeZ = 0.5*(zUp - zDown);
-        distortionEnergy += l*(dot(firstDerivativeZ,firstDerivativeZ) + firstDerivativeZ[0]*firstDerivativeZ[3]);
+            dVec firstDerivativeX = 0.5*(xUp - xDown);
+            dVec firstDerivativeY = 0.5*(yUp - yDown);
+            dVec firstDerivativeZ = 0.5*(zUp - zDown);
+            if(latticeTypes.data[currentIndex] <0)
+                {
+                if(latticeTypes.data[neighbors[0]]>0)
+                    {
+                    anchoringEnergy += computeBoundaryEnergy(qCurrent, xDown, bounds.data[latticeTypes.data[neighbors[0]]-1]);
+                    firstDerivativeX = xUp - qCurrent;
+                    }
+                if(latticeTypes.data[neighbors[1]]>0)
+                    {
+                    anchoringEnergy += computeBoundaryEnergy(qCurrent, xUp, bounds.data[latticeTypes.data[neighbors[1]]-1]);
+                    firstDerivativeX = qCurrent - xDown;
+                    }
+                if(latticeTypes.data[neighbors[2]]>0)
+                    {
+                    anchoringEnergy += computeBoundaryEnergy(qCurrent, yDown, bounds.data[latticeTypes.data[neighbors[2]]-1]);
+                    firstDerivativeY = yUp - qCurrent;
+                    }
+                if(latticeTypes.data[neighbors[3]]>0)
+                    {
+                    anchoringEnergy += computeBoundaryEnergy(qCurrent, yUp, bounds.data[latticeTypes.data[neighbors[3]]-1]);
+                    firstDerivativeY = qCurrent - yDown;
+                    }
+                if(latticeTypes.data[neighbors[4]]>0)
+                    {
+                    anchoringEnergy += computeBoundaryEnergy(qCurrent, zDown, bounds.data[latticeTypes.data[neighbors[4]]-1]);
+                    firstDerivativeZ = zUp - qCurrent;
+                    }
+                if(latticeTypes.data[neighbors[5]]>0)
+                    {
+                    anchoringEnergy += computeBoundaryEnergy(qCurrent, zUp, bounds.data[latticeTypes.data[neighbors[5]]-1]);
+                    firstDerivativeZ = qCurrent - zDown;
+                    }
+                }
+            distortionEnergy += l*(dot(firstDerivativeX,firstDerivativeX) + firstDerivativeX[0]*firstDerivativeX[3]);
+            distortionEnergy += l*(dot(firstDerivativeY,firstDerivativeY) + firstDerivativeY[0]*firstDerivativeY[3]);
+            distortionEnergy += l*(dot(firstDerivativeZ,firstDerivativeZ) + firstDerivativeZ[0]*firstDerivativeZ[3]);
 
+
+            }
         };
-    energy = (phaseEnergy + distortionEnergy) / lattice->getNumberOfParticles();
+    energy = (phaseEnergy + distortionEnergy + anchoringEnergy) / LCSites;
     };

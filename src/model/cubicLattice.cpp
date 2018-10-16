@@ -105,49 +105,49 @@ int cubicLattice::getNeighbors(int target, vector<int> &neighbors, int &neighs)
     if(!sliceSites)
         {
         int3 position = latticeIndex.inverseIndex(target);
-        if(position.x >0 && position.x < L-1)
+        if(position.x >0 && position.x < latticeIndex.sizes.x-1)
             {
             neighbors[0] = latticeIndex(position.x-1,position.y,position.z);
             neighbors[1] = latticeIndex(position.x+1,position.y,position.z);
             }
         else if(position.x ==0)
             {
-            neighbors[0] = latticeIndex(L-1,position.y,position.z);
+            neighbors[0] = latticeIndex(latticeIndex.sizes.x-1,position.y,position.z);
             neighbors[1] = latticeIndex(1,position.y,position.z);
             }
         else
             {
-            neighbors[0] = latticeIndex(L-2,position.y,position.z);
+            neighbors[0] = latticeIndex(latticeIndex.sizes.x-2,position.y,position.z);
             neighbors[1] = latticeIndex(0,position.y,position.z);
             };
-        if(position.y >0 && position.y < L-1)
+        if(position.y >0 && position.y < latticeIndex.sizes.y-1)
             {
             neighbors[2] = latticeIndex(position.x,position.y-1,position.z);
             neighbors[3] = latticeIndex(position.x,position.y+1,position.z);
             }
         else if(position.y ==0)
             {
-            neighbors[2] = latticeIndex(position.x,L-1,position.z);
+            neighbors[2] = latticeIndex(position.x,latticeIndex.sizes.y-1,position.z);
             neighbors[3] = latticeIndex(position.x,1 ,position.z);
             }
         else
             {
-            neighbors[2] = latticeIndex(position.x,L-2,position.z);
+            neighbors[2] = latticeIndex(position.x,latticeIndex.sizes.y-2,position.z);
             neighbors[3] = latticeIndex(position.x,0,position.z);
             };
-        if(position.z >0 && position.z < L-1)
+        if(position.z >0 && position.z < latticeIndex.sizes.z-1)
             {
             neighbors[4] = latticeIndex(position.x,position.y,position.z-1);
             neighbors[5] = latticeIndex(position.x,position.y,position.z+1);
             }
         else if(position.z ==0)
             {
-            neighbors[4] = latticeIndex(position.x,position.y,L-1);
+            neighbors[4] = latticeIndex(position.x,position.y,latticeIndex.sizes.z-1);
             neighbors[5] = latticeIndex(position.x,position.y,1);
             }
         else
             {
-            neighbors[4] = latticeIndex(position.x,position.y,L-2);
+            neighbors[4] = latticeIndex(position.x,position.y,latticeIndex.sizes.z-2);
             neighbors[5] = latticeIndex(position.x,position.y,0);
             };
         return target;
@@ -211,4 +211,5 @@ void cubicLattice::createBoundaryObject(vector<int> &latticeSites, boundaryType 
             if(t.data[neighbors[nn]] < 1)
                 t.data[neighbors[nn]] = -1;
         };
+    printf("there are now %i boundary objects known to the configuration\n",boundaries.getNumElements());
     };

@@ -68,7 +68,7 @@ class landauDeGennesLC : public baseLatticeForce
         virtual void computeForceThreeConstantCPU(GPUArray<dVec> &forces,bool zeroOutForce){};//NOT DONE YET;
         virtual void computeForceThreeConstantGPU(GPUArray<dVec> &forces,bool zeroOutForce){};//NOT DONE YET;
 
-        virtual void computeEnergyCPU();//NOT DONE YET: does not handle boundary energy or boundary distortion terms correctly;
+        virtual void computeEnergyCPU();
         virtual void computeEnergyGPU(){computeEnergyCPU();};//NOT DONE YET;
 
     protected:
