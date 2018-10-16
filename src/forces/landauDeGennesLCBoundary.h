@@ -17,8 +17,9 @@ additional information. For instance, given homeotropic anchoring the boundary s
 have a q tensor which is Q^B = 3 S_0/2*(\nu^s \nu^s - \delta_{ab}/3), where \nu^s is the
 locally preferred director.
 For degenerate planar anchoring the boundary site should be,
-Q^B[0] = theta
-Q^B[1] = phi
+Q^B[0] = \hat{nu}_x
+Q^B[1] = \hat{nu}_y
+Q^B[2] = \hat{nu}_z
 where \nu^s = {Cos[\[Phi]] Sin[\[theta]], Sin[\[Phi]] Sin[\[theta]], Cos[\[theta]]}
  is the direction to which the LC should try to be orthogonal
 */
@@ -43,13 +44,9 @@ HOSTDEVICE void computeBoundaryForce(const dVec &latticeSite, const dVec &bounda
             scalar W1 = bObj.P1;
             scalar W2 = bObj.P1;
             scalar S0 = bObj.P2;
-            scalar sinTheta = sin(boundarySite.x[0]);
-            scalar cosTheta = cos(boundarySite.x[0]);
-            scalar sinPhi = sin(boundarySite.x[1]);
-            scalar cosPhi = cos(boundarySite.x[1]);
-            scalar nuX = cosPhi*sinTheta;
-            scalar nuY = sinPhi*sinTheta;
-            scalar nuZ = cosTheta;
+            scalar nuX = boundarySite.x[0];
+            scalar nuY = boundarySite.x[1];
+            scalar nuZ = boundarySite.x[2];
             scalar nuX2 = nuX*nuX;
             scalar nuX3 = nuX2*nuX;
             scalar nuY2 = nuY*nuY;
@@ -94,13 +91,9 @@ HOSTDEVICE scalar computeBoundaryEnergy(const dVec &latticeSite, const dVec &bou
             scalar W1 = bObj.P1;
             scalar W2 = bObj.P1;
             scalar S0 = bObj.P2;
-            scalar sinTheta = sin(boundarySite.x[0]);
-            scalar cosTheta = cos(boundarySite.x[0]);
-            scalar sinPhi = sin(boundarySite.x[1]);
-            scalar cosPhi = cos(boundarySite.x[1]);
-            scalar nuX = cosPhi*sinTheta;
-            scalar nuY = sinPhi*sinTheta;
-            scalar nuZ = cosTheta;
+            scalar nuX = boundarySite.x[0];
+            scalar nuY = boundarySite.x[1];
+            scalar nuZ = boundarySite.x[2];
             scalar nuX2 = nuX*nuX;
             scalar nuX3 = nuX2*nuX;
             scalar nuY2 = nuY*nuY;

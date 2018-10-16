@@ -82,11 +82,11 @@ int main(int argc, char*argv[])
     oneConstantLdG->setModel(Configuration);
     sim->addForce(oneConstantLdG);
 
-    boundaryObject homeotropicWall(boundaryType::homeotropic,5.82,S0);
+    boundaryObject homeotropicWall(boundaryType::homeotropic,1.82,S0);
     boundaryObject planarDegenerateWall(boundaryType::degeneratePlanar,.582,S0);
 
     Configuration->createSimpleFlatWallZNormal(1, homeotropicWall);
-    Configuration->createSimpleFlatWallZNormal(0, planarDegenerateWall);
+    //Configuration->createSimpleFlatWallZNormal(L/2, planarDegenerateWall);
 
     //after the simulation box has been set, we can set particle positions... putting this here ensures that the random
     //spins are the same for gpu and cpu testing

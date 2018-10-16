@@ -167,7 +167,7 @@ void cubicLattice::createSimpleFlatWallZNormal(int zPlane, boundaryObject &bObj)
             }
         case boundaryType::degeneratePlanar:
             {
-            Qtensor[0]=0.0; Qtensor[1] = 0.0;
+            Qtensor[0]=0.0; Qtensor[1] = 0.0; Qtensor[2] = 1.0;
             break;
             }
         default:

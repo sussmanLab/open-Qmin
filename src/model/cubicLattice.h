@@ -36,9 +36,15 @@ class cubicLattice : public simpleModel
             {
             dVec ans(0.0);
             ArrayHandle<dVec> spins(positions);
+            ArrayHandle<int> t(types);
+            int nSites=0;
             for(int i = 0; i < N; ++i)
-                ans += spins.data[i];
-            ans = (1.0/N)*ans;
+                if(t.data[i] <= 0)
+                    {
+                    nSites+=1;
+                    ans += spins.data[i];
+                    };
+            ans = (1.0/nSites)*ans;
             return ans;
         };
 
