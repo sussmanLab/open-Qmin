@@ -18,6 +18,17 @@ qTensorLatticeModel::qTensorLatticeModel(int l, bool _useGPU)
         }
     };
 
+qTensorLatticeModel::qTensorLatticeModel(int lx,int ly,int lz, bool _useGPU)
+    : cubicLattice(lx,ly,lz,false,_useGPU)
+    {
+    normalizeSpins = false;
+    if(DIMENSION !=5)
+        {
+        printf("\nAttempting to run a simulation with incorrectly set dimension... change the root CMakeLists.txt file to have dimension 5 and recompile\n");
+        throw std::exception();
+        }
+    };
+
 void qTensorLatticeModel::setNematicQTensorRandomly(noiseSource &noise,scalar S0)
     {
     scalar amplitude =  3./2.*S0;

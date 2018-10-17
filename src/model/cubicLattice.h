@@ -16,6 +16,9 @@ class cubicLattice : public simpleModel
         //!The base constructor takes the number of lattice sites along the cubic edge
         cubicLattice(int l, bool _slice = false,bool _useGPU = false);
 
+        //!A rectilinear set of lattice sits
+        cubicLattice(int lx, int ly, int lz, bool _slice = false,bool _useGPU = false);
+
         //!move the degrees of freedom
         virtual void moveParticles(GPUArray<dVec> &displacements,scalar scale = 1.);
 
@@ -55,6 +58,8 @@ class cubicLattice : public simpleModel
         void createBoundaryObject(vector<int> &latticeSites, boundaryType _type, scalar Param1, scalar Param2);
 
     protected:
+        //!a utility function for initialization
+        void initializeNSites();
         //! should we use a memory-efficient slicing scheme?
         bool sliceSites;
 

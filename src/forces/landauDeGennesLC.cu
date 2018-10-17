@@ -70,6 +70,10 @@ __global__ void gpu_qTensor_computeBoundaryForcesGPU_kernel(dVec *d_force,
             force+=tempForce;
             };
         };
+    if(zeroForce)
+        d_force[idx] = force;
+    else
+        d_force[idx] += force;
     }
 
 __global__ void gpu_qTensor_oneConstantForce_kernel(dVec *d_force,

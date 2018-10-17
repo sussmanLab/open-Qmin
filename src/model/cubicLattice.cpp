@@ -12,6 +12,27 @@ cubicLattice::cubicLattice(int l, bool _slice, bool _useGPU)
     L=l;
     Box = make_shared<periodicBoundaryConditions>(L);
     selfForceCompute = false;
+    initializeNSites();
+    normalizeSpins = true;
+    };
+
+cubicLattice::cubicLattice(int lx, int ly, int lz, bool _slice, bool _useGPU)
+    {
+    useGPU=_useGPU;
+    int3 idx;
+    idx.x=lx;idx.y=ly;idx.z=lz;
+    latticeIndex = Index3D(idx);
+    sliceSites = _slice;
+    N = lx*ly*lz;
+    L=lx;
+    Box = make_shared<periodicBoundaryConditions>(L);//DONT USE
+    selfForceCompute = false;
+    initializeNSites();
+    normalizeSpins = true;
+    };
+
+void cubicLattice::initializeNSites()
+    {
     positions.resize(N);
     types.resize(N);
     forces.resize(N);
@@ -27,7 +48,6 @@ cubicLattice::cubicLattice(int l, bool _slice, bool _useGPU)
     fillGPUArrayWithVector(zeroes,positions);
     fillGPUArrayWithVector(zeroes,forces);
     fillGPUArrayWithVector(zeroes,velocities);
-    normalizeSpins = true;
     };
 
 void cubicLattice::moveParticles(GPUArray<dVec> &displacements, scalar scale)
