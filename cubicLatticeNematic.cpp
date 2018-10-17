@@ -95,9 +95,6 @@ int main(int argc, char*argv[])
     Configuration->createSimpleSpherialColloid(right, 0.18*L, homeotropicBoundary);
 
 
-
-Configuration->computeForces();
-
     //after the simulation box has been set, we can set particle positions... putting this here ensures that the random
     //spins are the same for gpu and cpu testing
     if(gpuSwitch >=0)
