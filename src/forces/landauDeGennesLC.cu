@@ -22,8 +22,9 @@ __global__ void gpu_qTensor_computeBoundaryForcesGPU_kernel(dVec *d_force,
     dVec qCurrent, xDown, xUp, yDown,yUp,zDown,zUp;
     dVec force(0.0);
     dVec tempForce(0.0);
-    if(d_types[idx] < 0) //no force on sites that are part of boundaries
+    if(d_types[idx] < 0) //compute only for sites adjacent to boundaries
         {
+        qCurrent = d_spins[idx];
         //get neighbor indices and data
         int ixd, ixu,iyd,iyu,izd,izu;
         ixd = latticeIndex(wrap(target.x-1,latticeSizes.x),target.y,target.z);
@@ -37,37 +38,37 @@ __global__ void gpu_qTensor_computeBoundaryForcesGPU_kernel(dVec *d_force,
             {
             xDown = d_spins[ixd];
             computeBoundaryForce(qCurrent, xDown, d_bounds[d_types[ixd]-1],tempForce);
-            force+=tempForce;
+            force = force + tempForce;
             }
         if(d_types[ixu] > 0)
             {
             xUp = d_spins[ixu];
             computeBoundaryForce(qCurrent, xUp, d_bounds[d_types[ixu]-1],tempForce);
-            force+=tempForce;
+            force = force +tempForce;
             };
         if(d_types[iyd] > 0)
             {
             yDown = d_spins[iyd];
             computeBoundaryForce(qCurrent, yDown, d_bounds[d_types[iyd]-1],tempForce);
-            force+=tempForce;
+            force = force +tempForce;
             };
         if(d_types[iyu] > 0)
             {
             yUp = d_spins[iyu];
             computeBoundaryForce(qCurrent, yUp, d_bounds[d_types[iyu]-1],tempForce);
-            force+=tempForce;
+            force = force +tempForce;
             };
         if(d_types[izd] > 0)
             {
             zDown = d_spins[izd];
             computeBoundaryForce(qCurrent, zDown, d_bounds[d_types[izd]-1],tempForce);
-            force+=tempForce;
+            force = force +tempForce;
             };
         if(d_types[izu] > 0)
             {
             zUp = d_spins[izu];
             computeBoundaryForce(qCurrent, zUp, d_bounds[d_types[izu]-1],tempForce);
-            force+=tempForce;
+            force = force +tempForce;
             };
         };
     if(zeroForce)
