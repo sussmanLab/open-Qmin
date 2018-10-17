@@ -27,6 +27,26 @@ This file implements handy manipulations and functions of the Q-tensor as laid o
  \brief Utility functions that can be called from host or device
  */
 
+//! return a qtensor given a director and a value of S0
+HOSTDEVICE void qTensorFromDirector(scalar3 n, scalar S0, dVec &q)
+    {
+    //first, ensure that n is a unit vector
+    scalar scale = sqrt(n.x*n.x+n.y*n.y+n.z*n.z);
+    if(scale == 0) // this shouldn't be called. ifit is, by default make \hat{[}n} the z-direction
+        {
+        q[0] = -0.5*S0; q[3] = -0.5*S0;
+        }
+    else if (scale != 1)
+        {
+        n.x /=scale;n.y /=scale;n.z /=scale;
+        }
+    q[0] = 1.5*(n.x*n.x-1.0/3.0)*S0;
+    q[1] = 1.5*n.x*n.y;
+    q[2] = 1.5*n.x*n.z;
+    q[3] = 1.5*(n.y*n.y-1.0/3.0)*S0;
+    q[4] = 1.5*n.y*n.z;
+    };
+
 //!Tr(Q^2) = Q_{kl}Q_{lk}
 HOSTDEVICE scalar TrQ2(dVec &q)
     {

@@ -42,5 +42,11 @@ class qTensorLatticeModel : public cubicLattice
             eigenvaluesOfQ(meanQ,a,b,c);
             printf("eigenvalues: %f\t%f\t%f\n",a,b,c);
             };
+
+        //!create a flat wall (with z-normal) at the specified location, with anchoring given by the boundary object
+        void createSimpleFlatWallZNormal(int zPlane, boundaryObject &bObj);
+
+        //!create a spherical colloid with anchoring given by the boundary object (with surface normal the director direction)
+        void createSimpleSpherialColloid(scalar3 center, scalar radius, boundaryObject &bObj);
     };
 #endif

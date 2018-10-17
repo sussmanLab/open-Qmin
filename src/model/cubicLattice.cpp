@@ -155,37 +155,6 @@ int cubicLattice::getNeighbors(int target, vector<int> &neighbors, int &neighs)
     return target; //nope
     };
 
-void cubicLattice::createSimpleFlatWallZNormal(int zPlane, boundaryObject &bObj)
-    {
-    dVec Qtensor(0.0);
-    switch(bObj.boundary)
-        {
-        case boundaryType::homeotropic:
-            {
-            Qtensor[0] = -0.5*bObj.P2; Qtensor[3] = -0.5*bObj.P2;
-            break;
-            }
-        case boundaryType::degeneratePlanar:
-            {
-            Qtensor[0]=0.0; Qtensor[1] = 0.0; Qtensor[2] = 1.0;
-            break;
-            }
-        default:
-            UNWRITTENCODE("non-defined boundary type is attempting to create a boundary");
-        };
-
-    vector<int> boundSites;
-    ArrayHandle<dVec> pos(positions);
-    for (int xx = 0; xx < latticeIndex.sizes.x; ++xx)
-        for (int yy = 0; yy < latticeIndex.sizes.y; ++yy)
-            {
-            int currentSite = latticeIndex(xx,yy,zPlane);
-            boundSites.push_back(currentSite);
-            pos.data[currentSite] = Qtensor;
-            }
-    createBoundaryObject(boundSites,bObj.boundary,bObj.P1,bObj.P2);
-    };
-
 void cubicLattice::createBoundaryObject(vector<int> &latticeSites, boundaryType _type, scalar Param1, scalar Param2)
     {
     growGPUArray(boundaries,1);

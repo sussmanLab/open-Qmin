@@ -51,3 +51,77 @@ void qTensorLatticeModel::moveParticles(GPUArray<dVec> &displacements,scalar sca
     {
     cubicLattice::moveParticles(displacements,scale);
     };
+
+void qTensorLatticeModel::createSimpleSpherialColloid(scalar3 center, scalar radius, boundaryObject &bObj)
+    {
+    dVec Qtensor(0.);
+    scalar S0 = bObj.P2;
+    vector<int> boundSites;
+    ArrayHandle<dVec> pos(positions);
+    for (int xx = ceil(center.x-radius); xx < floor(center.x+radius); ++xx)
+        for (int yy = ceil(center.y-radius); yy < floor(center.y+radius); ++yy)
+            for (int zz = ceil(center.z-radius); zz < floor(center.z+radius); ++zz)
+            {
+            scalar3 disp;
+            disp.x = xx - center.x;
+            disp.x = yy - center.y;
+            disp.x = zz - center.z;
+            if((disp.x*disp.x+disp.y*disp.y+disp.z*disp.z) < radius*radius)
+                {
+                int3 sitePos;
+                sitePos.x = wrap(xx,latticeIndex.sizes.x);
+                sitePos.y = wrap(yy,latticeIndex.sizes.y);
+                sitePos.z = wrap(zz,latticeIndex.sizes.z);
+                int currentSite = latticeIndex(sitePos);
+                boundSites.push_back(currentSite);
+                switch(bObj.boundary)
+                    {
+                    case boundaryType::homeotropic:
+                        {
+                        qTensorFromDirector(disp, S0, Qtensor);
+                        break;
+                        }
+                    case boundaryType::degeneratePlanar:
+                        {
+                        Qtensor[0]=disp.x; Qtensor[1] = disp.y; Qtensor[2] = disp.z;
+                        break;
+                        }
+                    default:
+                        UNWRITTENCODE("non-defined boundary type is attempting to create a boundary");
+                    };
+                pos.data[currentSite] = Qtensor;
+                };
+            }
+    createBoundaryObject(boundSites,bObj.boundary,bObj.P1,bObj.P2);
+    };
+
+void qTensorLatticeModel::createSimpleFlatWallZNormal(int zPlane, boundaryObject &bObj)
+    {
+    dVec Qtensor(0.0);
+    switch(bObj.boundary)
+        {
+        case boundaryType::homeotropic:
+            {
+            Qtensor[0] = -0.5*bObj.P2; Qtensor[3] = -0.5*bObj.P2;
+            break;
+            }
+        case boundaryType::degeneratePlanar:
+            {
+            Qtensor[0]=0.0; Qtensor[1] = 0.0; Qtensor[2] = 1.0;
+            break;
+            }
+        default:
+            UNWRITTENCODE("non-defined boundary type is attempting to create a boundary");
+        };
+
+    vector<int> boundSites;
+    ArrayHandle<dVec> pos(positions);
+    for (int xx = 0; xx < latticeIndex.sizes.x; ++xx)
+        for (int yy = 0; yy < latticeIndex.sizes.y; ++yy)
+            {
+            int currentSite = latticeIndex(xx,yy,zPlane);
+            boundSites.push_back(currentSite);
+            pos.data[currentSite] = Qtensor;
+            }
+    createBoundaryObject(boundSites,bObj.boundary,bObj.P1,bObj.P2);
+    };

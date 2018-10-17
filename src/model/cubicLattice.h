@@ -54,9 +54,6 @@ class cubicLattice : public simpleModel
         //!assign a collection of lattice sites to a new boundaryObject
         void createBoundaryObject(vector<int> &latticeSites, boundaryType _type, scalar Param1, scalar Param2);
 
-        //!create a flat wall (with z-normal) at the specified location, with anchoring given by the boundary object
-        void createSimpleFlatWallZNormal(int zPlane, boundaryObject &bObj);
-
     protected:
         //! should we use a memory-efficient slicing scheme?
         bool sliceSites;
