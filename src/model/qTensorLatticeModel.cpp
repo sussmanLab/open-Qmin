@@ -69,6 +69,8 @@ void qTensorLatticeModel::createSimpleSpherialColloid(scalar3 center, scalar rad
     scalar S0 = bObj.P2;
     vector<int> boundSites;
     ArrayHandle<dVec> pos(positions);
+    printf("%i %i %i\n",latticeIndex.sizes.x,latticeIndex.sizes.y,latticeIndex.sizes.z);
+    printf("center = {%f,%f,%f}\n",center.x,center.y,center.z);
     for (int xx = ceil(center.x-radius); xx < floor(center.x+radius); ++xx)
         for (int yy = ceil(center.y-radius); yy < floor(center.y+radius); ++yy)
             for (int zz = ceil(center.z-radius); zz < floor(center.z+radius); ++zz)
@@ -77,6 +79,7 @@ void qTensorLatticeModel::createSimpleSpherialColloid(scalar3 center, scalar rad
             disp.x = xx - center.x;
             disp.y = yy - center.y;
             disp.z = zz - center.z;
+
             if((disp.x*disp.x+disp.y*disp.y+disp.z*disp.z) < radius*radius)
                 {
                 int3 sitePos;

@@ -72,7 +72,8 @@ int main(int argc, char*argv[])
     scalar S0 = (-b+sqrt(b*b-24*a*c))/(6*c);
     cout << "S0 set at " << S0 << endl;
     noiseSource noise(true);
-    shared_ptr<qTensorLatticeModel> Configuration = make_shared<qTensorLatticeModel>(L,L,L);
+    scalar Lz=0.5*L;
+    shared_ptr<qTensorLatticeModel> Configuration = make_shared<qTensorLatticeModel>(L,L,Lz);
     Configuration->setNematicQTensorRandomly(noise,S0);
 
     shared_ptr<Simulation> sim = make_shared<Simulation>();
@@ -86,12 +87,12 @@ int main(int argc, char*argv[])
     boundaryObject planarDegenerateBoundary(boundaryType::degeneratePlanar,.582,S0);
 
     scalar3 left;
-    left.x = 0.3*L;left.y = 0.5*L;left.z = 0.5*L;
+    left.x = 0.3*L;left.y = 0.5*L;left.z = 0.5*Lz;
     scalar3 right;
-    right.x = 0.7*L;right.y = 0.5*L;right.z = 0.5*L;
+    right.x = 0.7*L;right.y = 0.5*L;right.z = 0.5*Lz;
     Configuration->createSimpleFlatWallZNormal(0, planarDegenerateBoundary);
-    Configuration->createSimpleSpherialColloid(left,0.15*L, homeotropicBoundary);
-    Configuration->createSimpleSpherialColloid(right, 0.15*L, homeotropicBoundary);
+    Configuration->createSimpleSpherialColloid(left,0.18*L, homeotropicBoundary);
+    Configuration->createSimpleSpherialColloid(right, 0.18*L, homeotropicBoundary);
 
 
     //after the simulation box has been set, we can set particle positions... putting this here ensures that the random

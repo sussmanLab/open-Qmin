@@ -75,30 +75,27 @@ class Index3D
 
         HOSTDEVICE void setSizes(unsigned int w)
             {
-            int3 W; W.x=w;W.y=w;W.z=w;
+            int3 W;
+            W.x=w;W.y=w;W.z=w;
             setSizes(W);
             };
         HOSTDEVICE void setSizes(int3 w)
             {
-            sizes.x = w.x;
-            numberOfElements = sizes.x;
+            sizes.x = w.x;sizes.y = w.y;sizes.z = w.z;
+            numberOfElements = sizes.x * sizes.y * sizes.z;
             intermediateSizes.x=1;
-            sizes.y = w.y;
-            intermediateSizes.y = intermediateSizes.x*sizes.y;
-            numberOfElements *= sizes.y;
-            sizes.z = w.z;
-            intermediateSizes.z = intermediateSizes.y*sizes.z;
-            numberOfElements *= sizes.z;
+            intermediateSizes.y = intermediateSizes.x*sizes.x;
+            intermediateSizes.z = intermediateSizes.y*sizes.y;
             };
 
         HOSTDEVICE unsigned int operator()(const int x, const int y, const int z) const
             {
-            return x*intermediateSizes.x+y*intermediateSizes.y+z*intermediateSizes.z;
+            return x*intermediateSizes.x + y*intermediateSizes.y + z*intermediateSizes.z;
             };
 
         HOSTDEVICE unsigned int operator()(const int3 &i) const
             {
-            return i.x*intermediateSizes.x+i.y*intermediateSizes.y+i.z*intermediateSizes.z;
+            return i.x*intermediateSizes.x + i.y*intermediateSizes.y + i.z*intermediateSizes.z;
             };
 
         //!What iVec would correspond to a given unsigned int IndexDD(iVec)
