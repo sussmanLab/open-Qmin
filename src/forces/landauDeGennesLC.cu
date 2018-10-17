@@ -6,6 +6,72 @@
  * \brief CUDA kernels and callers
  */
 
+__global__ void gpu_qTensor_computeBoundaryForcesGPU_kernel(dVec *d_force,
+                                 dVec *d_spins,
+                                 int *d_types,
+                                 boundaryObject *d_bounds,
+                                 Index3D latticeIndex,
+                                 int N,
+                                 bool zeroForce)
+    {
+    unsigned int idx = blockDim.x * blockIdx.x + threadIdx.x;
+    if (idx >= N)
+        return;
+    int3 target = latticeIndex.inverseIndex(idx);
+    int3 latticeSizes = latticeIndex.getSizes();
+    dVec qCurrent, xDown, xUp, yDown,yUp,zDown,zUp;
+    dVec force(0.0);
+    dVec tempForce(0.0);
+    if(d_types[idx] < 0) //no force on sites that are part of boundaries
+        {
+        //get neighbor indices and data
+        int ixd, ixu,iyd,iyu,izd,izu;
+        ixd = latticeIndex(wrap(target.x-1,latticeSizes.x),target.y,target.z);
+        ixu = latticeIndex(wrap(target.x+1,latticeSizes.x),target.y,target.z);
+        iyd = latticeIndex(target.x,wrap(target.y-1,latticeSizes.y),target.z);
+        iyu = latticeIndex(target.x,wrap(target.y+1,latticeSizes.y),target.z);
+        izd = latticeIndex(target.x,target.y,wrap(target.z-1,latticeSizes.z));
+        izu = latticeIndex(target.x,target.y,wrap(target.z+1,latticeSizes.z));
+
+        if(d_types[ixd] > 0)
+            {
+            xDown = d_spins[ixd];
+            computeBoundaryForce(qCurrent, xDown, d_bounds[d_types[ixd]-1],tempForce);
+            force+=tempForce;
+            }
+        if(d_types[ixu] > 0)
+            {
+            xUp = d_spins[ixu];
+            computeBoundaryForce(qCurrent, xUp, d_bounds[d_types[ixu]-1],tempForce);
+            force+=tempForce;
+            };
+        if(d_types[iyd] > 0)
+            {
+            yDown = d_spins[iyd];
+            computeBoundaryForce(qCurrent, yDown, d_bounds[d_types[iyd]-1],tempForce);
+            force+=tempForce;
+            };
+        if(d_types[iyu] > 0)
+            {
+            yUp = d_spins[iyu];
+            computeBoundaryForce(qCurrent, yUp, d_bounds[d_types[iyu]-1],tempForce);
+            force+=tempForce;
+            };
+        if(d_types[izd] > 0)
+            {
+            zDown = d_spins[izd];
+            computeBoundaryForce(qCurrent, zDown, d_bounds[d_types[izd]-1],tempForce);
+            force+=tempForce;
+            };
+        if(d_types[izu] > 0)
+            {
+            zUp = d_spins[izu];
+            computeBoundaryForce(qCurrent, zUp, d_bounds[d_types[izu]-1],tempForce);
+            force+=tempForce;
+            };
+        };
+    }
+
 __global__ void gpu_qTensor_oneConstantForce_kernel(dVec *d_force,
                                 dVec *d_spins,
                                 int *d_types,
@@ -84,6 +150,23 @@ __global__ void gpu_qTensor_oneConstantForce_kernel(dVec *d_force,
     else
         d_force[idx] += force;
     }
+
+bool gpu_qTensor_computeBoundaryForcesGPU(dVec *d_force,
+                                dVec *d_spins,
+                                int *d_types,
+                                boundaryObject *d_bounds,
+                                Index3D latticeIndex,
+                                int N,
+                                bool zeroForce,
+                                int maxBlockSize)
+    {
+    unsigned int block_size = maxBlockSize;
+    unsigned int nblocks = N/block_size+1;
+    gpu_qTensor_computeBoundaryForcesGPU_kernel<<<nblocks,block_size>>>(d_force,d_spins,d_types,d_bounds,latticeIndex,
+                                                             N,zeroForce);
+    HANDLE_ERROR(cudaGetLastError());
+    return cudaSuccess;
+    };
 
 bool gpu_qTensor_oneConstantForce(dVec *d_force,
                                 dVec *d_spins,

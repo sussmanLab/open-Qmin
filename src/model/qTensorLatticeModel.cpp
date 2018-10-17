@@ -64,8 +64,8 @@ void qTensorLatticeModel::createSimpleSpherialColloid(scalar3 center, scalar rad
             {
             scalar3 disp;
             disp.x = xx - center.x;
-            disp.x = yy - center.y;
-            disp.x = zz - center.z;
+            disp.y = yy - center.y;
+            disp.z = zz - center.z;
             if((disp.x*disp.x+disp.y*disp.y+disp.z*disp.z) < radius*radius)
                 {
                 int3 sitePos;
@@ -92,6 +92,7 @@ void qTensorLatticeModel::createSimpleSpherialColloid(scalar3 center, scalar rad
                 pos.data[currentSite] = Qtensor;
                 };
             }
+    printf("sphere with %lu sites created\n",boundSites.size());
     createBoundaryObject(boundSites,bObj.boundary,bObj.P1,bObj.P2);
     };
 

@@ -86,12 +86,12 @@ int main(int argc, char*argv[])
     boundaryObject planarDegenerateBoundary(boundaryType::degeneratePlanar,.582,S0);
 
     scalar3 left;
-    left.x = 0.33*L;left.y = 0.33*L;left.z = 0.33*L;
+    left.x = 0.33*L;left.y = 0.5*L;left.z = 0.5*L;
     scalar3 right;
-    right.x = 0.66*L;right.y = 0.66*L;right.z = 0.66*L;
+    right.x = 0.66*L;right.y = 0.5*L;right.z = 0.5*L;
     Configuration->createSimpleFlatWallZNormal(0, planarDegenerateBoundary);
-    Configuration->createSimpleSpherialColloid(left, 10.5, homeotropicBoundary);
-    Configuration->createSimpleSpherialColloid(right, 10.5, homeotropicBoundary);
+    Configuration->createSimpleSpherialColloid(left,13.05, homeotropicBoundary);
+    Configuration->createSimpleSpherialColloid(right, 13.05, homeotropicBoundary);
 
 
     //after the simulation box has been set, we can set particle positions... putting this here ensures that the random
@@ -102,15 +102,17 @@ int main(int argc, char*argv[])
         };
 
     shared_ptr<energyMinimizerFIRE> fire = make_shared<energyMinimizerFIRE>(Configuration);
-    fire->setFIREParameters(dt,0.99,100*dt,1.1,0.95,.9,4,1e-12);
+    scalar alphaStart=.99; scalar deltaTMax=100*dt; scalar deltaTInc=1.1; scalar deltaTDec=0.95;
+    scalar alphaDec=0.9; int nMin=4; scalar forceCutoff=1e-12; scalar alphaMin = .9;
+    fire->setFIREParameters(dt,alphaStart,deltaTMax,deltaTInc,deltaTDec,alphaDec,nMin,forceCutoff,alphaMin);
     fire->setMaximumIterations(maximumIterations);
     shared_ptr<energyMinimizerAdam> adam  = make_shared<energyMinimizerAdam>();
     adam->setAdamParameters(.9,.99,1e-8,dt,1e-12);
     adam->setMaximumIterations(maximumIterations);
-    if(programSwitch ==0)
+    //if(programSwitch ==0)
         sim->addUpdater(fire,Configuration);
-    else //adam parameters not tuned yet... avoid this for now
-        sim->addUpdater(adam,Configuration);
+    //else //adam parameters not tuned yet... avoid this for now
+    //    sim->addUpdater(adam,Configuration);
 
     if(gpuSwitch >=0)
         {
@@ -141,19 +143,23 @@ int main(int argc, char*argv[])
     E = sim->computePotentialEnergy();
     printf("simulation energy per site at %f\n",E);
 
-    ArrayHandle<dVec> f(Configuration->returnForces());
-    ArrayHandle<dVec> pp(Configuration->returnPositions());
-    ArrayHandle<int> tt(Configuration->returnTypes());
-    for (int ll = 0; ll < L; ++ll)
+    if (programSwitch >0)
         {
-        cout << tt.data[Configuration->latticeIndex(L/2,L/2,ll)] << endl;
-        printdVec(f.data[Configuration->latticeIndex(L/2,L/2,ll)]);
-        printdVec(pp.data[Configuration->latticeIndex(L/2,L/2,ll)]);
-        }
+        ArrayHandle<dVec> pp(Configuration->returnPositions());
+        ArrayHandle<int> tt(Configuration->returnTypes());
+        char dataname[256];
+        sprintf(dataname,"../data/twoColloidTest.txt");
+        ofstream myfile;
+        myfile.open (dataname);
+        for (int ii = 0; ii < Configuration->getNumberOfParticles();++ii)
+            {
+            int3 pos = Configuration->latticeIndex.inverseIndex(ii);
+            myfile << pos.x <<"\t"<<pos.y<<"\t"<<pos.z<<"\t"<<pp.data[ii][0]<<"\t"<<pp.data[ii][1]<<"\t"<<
+                    pp.data[ii][2]<<"\t"<<pp.data[ii][3]<<"\t"<<pp.data[ii][4]<<"\t"<<tt.data[ii]<<"\n";
+            };
 
-    ArrayHandle<boundaryObject> boundaryObjs(Configuration->boundaries);
-    for (int bb = 0; bb < Configuration->boundaries.getNumElements(); ++bb)
-        cout << boundaryObjs.data[bb].P1 << "\t" << boundaryObjs.data[bb].P2 << endl;
+        myfile.close();
+        }
 //
 //The end of the tclap try
 //

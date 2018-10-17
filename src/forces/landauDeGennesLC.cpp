@@ -27,7 +27,7 @@ landauDeGennesLC::landauDeGennesLC(double _A, double _B, double _C, double _L1, 
     forceTuner = make_shared<kernelTuner>(16,256,16,5,200000);
     };
 
-//!compute the phase and distortion parts of the Landau energy
+//!compute the phase and distortion parts of the Landau energy. Handles all sites with type <=0
 void landauDeGennesLC::computeForceOneConstantCPU(GPUArray<dVec> &forces, bool zeroOutForce)
     {
     energy=0.0;
@@ -103,7 +103,6 @@ void landauDeGennesLC::computeForceOneConstantCPU(GPUArray<dVec> &forces, bool z
         };
     };
 
-//!As an example of usage, we'll implement an n-Vector model force w/ nearest-neighbor interactions
 void landauDeGennesLC::computeForceOneConstantGPU(GPUArray<dVec> &forces, bool zeroOutForce)
     {
     int N = lattice->getNumberOfParticles();
@@ -177,6 +176,20 @@ void landauDeGennesLC::computeBoundaryForcesCPU(GPUArray<dVec> &forces,bool zero
 
 void landauDeGennesLC::computeBoundaryForcesGPU(GPUArray<dVec> &forces,bool zeroOutForce)
     {
+    int N = lattice->getNumberOfParticles();
+    ArrayHandle<dVec> d_force(forces,access_location::device,access_mode::readwrite);
+    ArrayHandle<dVec> d_spins(lattice->returnPositions(),access_location::device,access_mode::read);
+    ArrayHandle<int>  d_latticeTypes(lattice->returnTypes(),access_location::device,access_mode::read);
+    ArrayHandle<boundaryObject> d_bounds(lattice->boundaries,access_location::device,access_mode::read);
+    gpu_qTensor_computeBoundaryForcesGPU(d_force.data,
+                              d_spins.data,
+                              d_latticeTypes.data,
+                              d_bounds.data,
+                              lattice->latticeIndex,
+                              N,
+                              zeroOutForce,
+                              forceTuner->getParameter()
+                              );
     };
 
 //!As an example of usage, we'll implement an n-Vector model force w/ nearest-neighbor interactions

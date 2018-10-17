@@ -150,7 +150,7 @@ void energyMinimizerFIRE::fireStepCPU()
             {
             deltaT = min(deltaT*deltaTInc,deltaTMax);
             alpha = alpha * alphaDec;
-            alpha = max(alpha, 0.75);
+            alpha = max(alpha, alphaMin);
             };
         NSinceNegativePower += 1;
         }
