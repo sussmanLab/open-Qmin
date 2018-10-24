@@ -99,6 +99,7 @@ void energyMinimizerFIRE::fireStepGPU()
             {
             deltaT = min(deltaT*deltaTInc,deltaTMax);
             alpha = alpha * alphaDec;
+            alpha = max(alpha, alphaMin);
             };
         NSinceNegativePower += 1;
         }
@@ -106,6 +107,7 @@ void energyMinimizerFIRE::fireStepGPU()
         {
         NSinceNegativePower = 0;
         deltaT = deltaT*deltaTDec;
+        deltaT = max (deltaT,deltaTMin);
         alpha = alphaStart;
         ArrayHandle<dVec> d_v(model->returnVelocities(),access_location::device,access_mode::overwrite);
         gpu_zero_array(d_v.data,Ndof);
