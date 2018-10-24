@@ -20,6 +20,7 @@ landauDeGennesLC::landauDeGennesLC(scalar _A, scalar _B, scalar _C, scalar _L1, 
     useNeighborList=false;
     numberOfConstants = _type;
     forceTuner = make_shared<kernelTuner>(16,256,16,5,200000);
+    boundaryForceTuner = make_shared<kernelTuner>(16,256,16,5,200000);
     forceAssistTuner = make_shared<kernelTuner>(16,256,16,5,200000);
     };
 
