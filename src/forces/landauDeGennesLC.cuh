@@ -19,6 +19,16 @@ bool gpu_qTensor_oneConstantForce(dVec *d_force,
                                 bool zeroForce,
                                 int maxBlockSize);
 
+bool gpu_qTensor_twoConstantForce(dVec *d_force,
+                                dVec *d_spins,
+                                int *d_types,
+                                cubicLatticeDerivativeVector *d_derivatives,
+                                Index3D latticeIndex,
+                                scalar A,scalar B,scalar C,scalar L1,scalar L2, scalar q0,
+                                int N,
+                                bool zeroForce,
+                                int maxBlockSize);
+
 bool gpu_qTensor_threeConstantForce(dVec *d_force,
                                 dVec *d_spins,
                                 int *d_types,

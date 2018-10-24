@@ -57,6 +57,7 @@ class landauDeGennesLC : public baseLatticeForce
                 };
             };
 
+        //!Precompute the first derivatives at all of the LC Sites
         virtual void computeFirstDerivatives();
 
         virtual void computeBoundaryForcesCPU(GPUArray<dVec> &forces,bool zeroOutForce);
@@ -65,8 +66,8 @@ class landauDeGennesLC : public baseLatticeForce
         virtual void computeForceOneConstantCPU(GPUArray<dVec> &forces,bool zeroOutForce);
         virtual void computeForceOneConstantGPU(GPUArray<dVec> &forces,bool zeroOutForce);
 
-        virtual void computeForceTwoConstantCPU(GPUArray<dVec> &forces,bool zeroOutForce){};//NOT DONE YET;
-        virtual void computeForceTwoConstantGPU(GPUArray<dVec> &forces,bool zeroOutForce){};//NOT DONE YET;
+        virtual void computeForceTwoConstantCPU(GPUArray<dVec> &forces,bool zeroOutForce);
+        virtual void computeForceTwoConstantGPU(GPUArray<dVec> &forces,bool zeroOutForce);
 
         virtual void computeForceThreeConstantCPU(GPUArray<dVec> &forces,bool zeroOutForce);
         virtual void computeForceThreeConstantGPU(GPUArray<dVec> &forces,bool zeroOutForce);

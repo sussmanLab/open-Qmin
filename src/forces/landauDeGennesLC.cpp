@@ -47,7 +47,6 @@ void landauDeGennesLC::setModel(shared_ptr<cubicLattice> _model)
         };
     };
 
-//!Precompute the first derivatives at all of the LC LCSites
 void landauDeGennesLC::computeFirstDerivatives()
     {
     int N = lattice->getNumberOfParticles();
@@ -174,7 +173,6 @@ void landauDeGennesLC::computeFirstDerivatives()
         }//end if -- else for using GPU
     };
 
-//!compute the phase and distortion parts of the Landau energy. Handles all sites with type <=0
 void landauDeGennesLC::computeForceOneConstantCPU(GPUArray<dVec> &forces, bool zeroOutForce)
     {
     energy=0.0;
@@ -250,50 +248,139 @@ void landauDeGennesLC::computeForceOneConstantCPU(GPUArray<dVec> &forces, bool z
         };
     };
 
-void landauDeGennesLC::computeForceOneConstantGPU(GPUArray<dVec> &forces, bool zeroOutForce)
+void landauDeGennesLC::computeForceTwoConstantCPU(GPUArray<dVec> &forces, bool zeroOutForce)
     {
-    int N = lattice->getNumberOfParticles();
-    ArrayHandle<dVec> d_force(forces,access_location::device,access_mode::readwrite);
-    ArrayHandle<dVec> d_spins(lattice->returnPositions(),access_location::device,access_mode::read);
-    ArrayHandle<int>  d_latticeTypes(lattice->returnTypes(),access_location::device,access_mode::read);
-
-    forceTuner->begin();
-    gpu_qTensor_oneConstantForce(d_force.data,
-                              d_spins.data,
-                              d_latticeTypes.data,
-                              lattice->latticeIndex,
-                              A,B,C,L1,
-                              N,
-                              zeroOutForce,
-                              forceTuner->getParameter()
-                              );
-    forceTuner->end();
-    };
-
-void landauDeGennesLC::computeForceThreeConstantGPU(GPUArray<dVec> &forces, bool zeroOutForce)
-    {
+    //start by precomputing first d_derivatives
     computeFirstDerivatives();
-    int N = lattice->getNumberOfParticles();
-    ArrayHandle<dVec> d_force(forces,access_location::device,access_mode::readwrite);
-    ArrayHandle<dVec> d_spins(lattice->returnPositions(),access_location::device,access_mode::read);
-    ArrayHandle<int>  d_latticeTypes(lattice->returnTypes(),access_location::device,access_mode::read);
-    ArrayHandle<cubicLatticeDerivativeVector> d_derivatives(forceCalculationAssist,access_location::device,access_mode::read);
+    energy=0.0;
+    ArrayHandle<dVec> h_f(forces);
+    if(zeroOutForce)
+        for(int pp = 0; pp < lattice->getNumberOfParticles(); ++pp)
+            h_f.data[pp] = make_dVec(0.0);
+    ArrayHandle<dVec> Qtensors(lattice->returnPositions());
+    ArrayHandle<int> latticeTypes(lattice->returnTypes());
+    ArrayHandle<cubicLatticeDerivativeVector> h_derivatives(forceCalculationAssist,access_location::host,access_mode::read);
+    //the current scheme for getting the six nearest neighbors
+    int neighNum;
+    vector<int> neighbors;
+    int currentIndex;
+    dVec qCurrent, xDown, xUp, yDown,yUp,zDown,zUp;
+    scalar a = 0.5*A;
+    scalar b = B/3.0;
+    scalar c = 0.25*C;
+    for (int i = 0; i < lattice->getNumberOfParticles(); ++i)
+        {
+        currentIndex = lattice->getNeighbors(i,neighbors,neighNum);
+        if(latticeTypes.data[currentIndex] <= 0)
+            {
+            qCurrent = Qtensors.data[currentIndex];
+            int ixd = neighbors[0]; int ixu = neighbors[1];
+            int iyd = neighbors[2]; int iyu = neighbors[3];
+            int izd = neighbors[4]; int izu = neighbors[5];
+            xDown = Qtensors.data[ixd]; xUp = Qtensors.data[ixu];
+            yDown = Qtensors.data[iyd]; yUp = Qtensors.data[iyu];
+            zDown = Qtensors.data[izd]; zUp = Qtensors.data[izu];
+            cubicLatticeDerivativeVector qCurrentDerivative = h_derivatives.data[currentIndex];
+            cubicLatticeDerivativeVector xDownDerivative = h_derivatives.data[ixd];
+            cubicLatticeDerivativeVector xUpDerivative = h_derivatives.data[ixu];
+            cubicLatticeDerivativeVector yDownDerivative = h_derivatives.data[iyd];
+            cubicLatticeDerivativeVector yUpDerivative = h_derivatives.data[iyu];
+            cubicLatticeDerivativeVector zDownDerivative = h_derivatives.data[izd];
+            cubicLatticeDerivativeVector zUpDerivative = h_derivatives.data[izu];
 
-    forceTuner->begin();
-    gpu_qTensor_threeConstantForce(d_force.data,
-                              d_spins.data,
-                              d_latticeTypes.data,
-                              d_derivatives.data,
-                              lattice->latticeIndex,
-                              A,B,C,L1,L2,L3,
-                              N,
-                              zeroOutForce,
-                              forceTuner->getParameter()
-                              );
-    forceTuner->end();
+            //compute the phase terms depending only on the current site
+            h_f.data[currentIndex] -= a*derivativeTrQ2(qCurrent);
+            h_f.data[currentIndex] -= b*derivativeTrQ3(qCurrent);
+            h_f.data[currentIndex] -= c*derivativeTrQ2Squared(qCurrent);
+
+            dVec xMinusTerm(0.0);
+            dVec xPlusTerm(0.0);
+            dVec yMinusTerm(0.0);
+            dVec yPlusTerm(0.0);
+            dVec zMinusTerm(0.0);
+            dVec zPlusTerm(0.0);
+            if(latticeTypes.data[ixd] <= 0) //xMinus
+                {
+                xMinusTerm[0]=0.0;
+
+                xMinusTerm[1]=0;
+
+                xMinusTerm[2]=-0;
+
+                xMinusTerm[3]=0;
+
+                xMinusTerm[4]=0;
+                }
+            if(latticeTypes.data[ixu] <= 0) //xPlus
+                {
+                xPlusTerm[0]=0;
+
+                xPlusTerm[1]=0;
+
+                xPlusTerm[2]=0;
+
+                xPlusTerm[3]=0;
+
+                xPlusTerm[4]=0;
+                }
+
+            if(latticeTypes.data[iyd] <= 0) //yMinus
+                {
+                yMinusTerm[0]=0;
+
+                yMinusTerm[1]=0;
+
+                yMinusTerm[2]=0;
+
+                yMinusTerm[3]=0;
+
+                yMinusTerm[4]=0;
+                }
+
+            if(latticeTypes.data[iyu] <= 0) //yPlus
+                {
+                yPlusTerm[0]=0;
+
+                yPlusTerm[1]=0;
+
+                yPlusTerm[2]=0;
+
+                yPlusTerm[3]=0;
+
+                yPlusTerm[4]=0;
+                }
+
+            if(latticeTypes.data[izd] <= 0) //zMinus
+                {
+                zMinusTerm[0]=0;
+
+                zMinusTerm[1]=0;
+
+                zMinusTerm[2]=0;
+
+                zMinusTerm[3]=0;
+
+                zMinusTerm[4]=0;
+                }
+
+            if(latticeTypes.data[izu] <= 0) //zPlus
+                {
+                zPlusTerm[0]=0;
+
+                zPlusTerm[1]=0;
+
+                zPlusTerm[2]=0;
+
+                zPlusTerm[3]=0;
+
+                zPlusTerm[4]=0;
+                }
+
+            h_f.data[currentIndex] += xMinusTerm+xPlusTerm+yMinusTerm+yPlusTerm+zMinusTerm+zPlusTerm;
+            };
+        };
     };
 
-//!compute the phase and distortion parts of the Landau energy. Handles all sites with type <=0
 void landauDeGennesLC::computeForceThreeConstantCPU(GPUArray<dVec> &forces, bool zeroOutForce)
     {
     //start by precomputing first d_derivatives
@@ -478,6 +565,72 @@ void landauDeGennesLC::computeBoundaryForcesCPU(GPUArray<dVec> &forces,bool zero
         }
     };
 
+void landauDeGennesLC::computeForceOneConstantGPU(GPUArray<dVec> &forces, bool zeroOutForce)
+    {
+    int N = lattice->getNumberOfParticles();
+    ArrayHandle<dVec> d_force(forces,access_location::device,access_mode::readwrite);
+    ArrayHandle<dVec> d_spins(lattice->returnPositions(),access_location::device,access_mode::read);
+    ArrayHandle<int>  d_latticeTypes(lattice->returnTypes(),access_location::device,access_mode::read);
+
+    forceTuner->begin();
+    gpu_qTensor_oneConstantForce(d_force.data,
+                              d_spins.data,
+                              d_latticeTypes.data,
+                              lattice->latticeIndex,
+                              A,B,C,L1,
+                              N,
+                              zeroOutForce,
+                              forceTuner->getParameter()
+                              );
+    forceTuner->end();
+    };
+
+void landauDeGennesLC::computeForceTwoConstantGPU(GPUArray<dVec> &forces, bool zeroOutForce)
+    {
+    computeFirstDerivatives();
+    int N = lattice->getNumberOfParticles();
+    ArrayHandle<dVec> d_force(forces,access_location::device,access_mode::readwrite);
+    ArrayHandle<dVec> d_spins(lattice->returnPositions(),access_location::device,access_mode::read);
+    ArrayHandle<int>  d_latticeTypes(lattice->returnTypes(),access_location::device,access_mode::read);
+    ArrayHandle<cubicLatticeDerivativeVector> d_derivatives(forceCalculationAssist,access_location::device,access_mode::read);
+
+    forceTuner->begin();
+    gpu_qTensor_twoConstantForce(d_force.data,
+                              d_spins.data,
+                              d_latticeTypes.data,
+                              d_derivatives.data,
+                              lattice->latticeIndex,
+                              A,B,C,L1,L2,q0,
+                              N,
+                              zeroOutForce,
+                              forceTuner->getParameter()
+                              );
+    forceTuner->end();
+    };
+
+void landauDeGennesLC::computeForceThreeConstantGPU(GPUArray<dVec> &forces, bool zeroOutForce)
+    {
+    computeFirstDerivatives();
+    int N = lattice->getNumberOfParticles();
+    ArrayHandle<dVec> d_force(forces,access_location::device,access_mode::readwrite);
+    ArrayHandle<dVec> d_spins(lattice->returnPositions(),access_location::device,access_mode::read);
+    ArrayHandle<int>  d_latticeTypes(lattice->returnTypes(),access_location::device,access_mode::read);
+    ArrayHandle<cubicLatticeDerivativeVector> d_derivatives(forceCalculationAssist,access_location::device,access_mode::read);
+
+    forceTuner->begin();
+    gpu_qTensor_threeConstantForce(d_force.data,
+                              d_spins.data,
+                              d_latticeTypes.data,
+                              d_derivatives.data,
+                              lattice->latticeIndex,
+                              A,B,C,L1,L2,L3,
+                              N,
+                              zeroOutForce,
+                              forceTuner->getParameter()
+                              );
+    forceTuner->end();
+    };
+
 void landauDeGennesLC::computeBoundaryForcesGPU(GPUArray<dVec> &forces,bool zeroOutForce)
     {
     int N = lattice->getNumberOfParticles();
@@ -498,7 +651,6 @@ void landauDeGennesLC::computeBoundaryForcesGPU(GPUArray<dVec> &forces,bool zero
     boundaryForceTuner->end();
     };
 
-//!As an example of usage, we'll implement an n-Vector model force w/ nearest-neighbor interactions
 void landauDeGennesLC::computeEnergyCPU()
     {
     scalar phaseEnergy = 0.0;

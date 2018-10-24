@@ -264,6 +264,88 @@ __global__ void gpu_qTensor_oneConstantForce_kernel(dVec *d_force,
         d_force[idx] += force;
     }
 
+__global__ void gpu_qTensor_twoConstantForce_kernel(dVec *d_force,
+                                dVec *d_spins,
+                                int *d_types,
+                                cubicLatticeDerivativeVector *d_derivatives,
+                                Index3D latticeIndex,
+                                scalar a,scalar b,scalar c,scalar L1,scalar L2, scalar q0,
+                                int N,
+                                bool zeroForce)
+    {
+    unsigned int idx = blockDim.x * blockIdx.x + threadIdx.x;
+    if (idx >= N)
+        return;
+    int3 target = latticeIndex.inverseIndex(idx);
+    int3 latticeSizes = latticeIndex.getSizes();
+    dVec qCurrent, xDown, xUp, yDown,yUp,zDown,zUp;
+    dVec force(0.0);
+
+    if(d_types[idx] <= 0) //no force on sites that are part of boundaries
+        {
+        //phase part is simple
+        qCurrent = d_spins[idx];
+        force -= a*derivativeTrQ2(qCurrent);
+        force -= b*derivativeTrQ3(qCurrent);
+        force -= c*derivativeTrQ2Squared(qCurrent);
+
+        //get neighbor indices and data
+        int ixd, ixu,iyd,iyu,izd,izu;
+        gpu_get_six_neighbors(target,ixd, ixu,iyd,iyu,izd,izu,latticeIndex,latticeSizes);
+        xDown = d_spins[ixd]; xUp = d_spins[ixu];
+        yDown = d_spins[iyd]; yUp = d_spins[iyu];
+        zDown = d_spins[izd]; zUp = d_spins[izu];
+        cubicLatticeDerivativeVector qCurrentDerivative = d_derivatives[idx];
+        cubicLatticeDerivativeVector xDownDerivative = d_derivatives[ixd];
+        cubicLatticeDerivativeVector xUpDerivative = d_derivatives[ixu];
+        cubicLatticeDerivativeVector yDownDerivative = d_derivatives[iyd];
+        cubicLatticeDerivativeVector yUpDerivative = d_derivatives[iyu];
+        cubicLatticeDerivativeVector zDownDerivative = d_derivatives[izd];
+        cubicLatticeDerivativeVector zUpDerivative = d_derivatives[izu];
+
+        dVec xMinusTerm(0.0);
+        dVec xPlusTerm(0.0);
+        dVec yMinusTerm(0.0);
+        dVec yPlusTerm(0.0);
+        dVec zMinusTerm(0.0);
+        dVec zPlusTerm(0.0);
+        if(d_types[ixd] <= 0) //xMinus
+            {
+
+            }
+        if(d_types[ixu] <= 0) //xPlus
+            {
+
+            }
+        if(d_types[iyd] <= 0) //yMinus
+            {
+
+            }
+
+        if(d_types[iyu] <= 0) //yPlus
+            {
+
+            }
+
+        if(d_types[izd] <= 0) //zMinus
+            {
+
+            }
+
+        if(d_types[izu] <= 0) //zPlus
+            {
+            
+            }
+
+        force = xMinusTerm+xPlusTerm+yMinusTerm+yPlusTerm+zMinusTerm+zPlusTerm;
+
+        };
+    if(zeroForce)
+        d_force[idx] = force;
+    else
+        d_force[idx] += force;
+    }
+
 __global__ void gpu_qTensor_threeConstantForce_kernel(dVec *d_force,
                                 dVec *d_spins,
                                 int *d_types,
@@ -442,6 +524,27 @@ bool gpu_qTensor_oneConstantForce(dVec *d_force,
     scalar l = 2.0*L;
     gpu_qTensor_oneConstantForce_kernel<<<nblocks,block_size>>>(d_force,d_spins,d_types,latticeIndex,
                                                              a,b,c,l,N,zeroForce);
+    HANDLE_ERROR(cudaGetLastError());
+    return cudaSuccess;
+    }
+
+bool gpu_qTensor_twoConstantForce(dVec *d_force,
+                                dVec *d_spins,
+                                int *d_types,
+                                cubicLatticeDerivativeVector *d_derivatives,
+                                Index3D latticeIndex,
+                                scalar A,scalar B,scalar C,scalar L1,scalar L2, scalar q0,
+                                int N,
+                                bool zeroForce,
+                                int maxBlockSize)
+    {
+    unsigned int block_size = maxBlockSize;
+    unsigned int nblocks = N/block_size+1;
+    scalar a = 0.5*A;
+    scalar b = B/3.0;
+    scalar c = 0.25*C;
+    gpu_qTensor_twoConstantForce_kernel<<<nblocks,block_size>>>(d_force,d_spins,d_types,d_derivatives,latticeIndex,
+                                                             a,b,c,L1,L2,q0,N,zeroForce);
     HANDLE_ERROR(cudaGetLastError());
     return cudaSuccess;
     }
