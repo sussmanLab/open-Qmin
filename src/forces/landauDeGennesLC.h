@@ -26,10 +26,10 @@ class landauDeGennesLC : public baseLatticeForce
                     computeForceOneConstantGPU(forces,zeroOutForce);
                     break;
                 case distortionEnergyType::twoConstant :
-                    computeForceOneConstantGPU(forces,zeroOutForce);
+                    computeForceTwoConstantGPU(forces,zeroOutForce);
                     break;
                 case distortionEnergyType::threeConstant :
-                    computeForceOneConstantGPU(forces,zeroOutForce);
+                    computeForceThreeConstantGPU(forces,zeroOutForce);
                     break;
                 };
             if(lattice->boundaries.getNumElements() >0)
@@ -45,10 +45,10 @@ class landauDeGennesLC : public baseLatticeForce
                     computeForceOneConstantCPU(forces,zeroOutForce);
                     break;
                 case distortionEnergyType::twoConstant :
-                    computeForceOneConstantCPU(forces,zeroOutForce);
+                    computeForceTwoConstantCPU(forces,zeroOutForce);
                     break;
                 case distortionEnergyType::threeConstant :
-                    computeForceOneConstantCPU(forces,zeroOutForce);
+                    computeForceThreeConstantCPU(forces,zeroOutForce);
                     break;
                 };
             if(lattice->boundaries.getNumElements() >0)
@@ -68,8 +68,8 @@ class landauDeGennesLC : public baseLatticeForce
         virtual void computeForceTwoConstantCPU(GPUArray<dVec> &forces,bool zeroOutForce){};//NOT DONE YET;
         virtual void computeForceTwoConstantGPU(GPUArray<dVec> &forces,bool zeroOutForce){};//NOT DONE YET;
 
-        virtual void computeForceThreeConstantCPU(GPUArray<dVec> &forces,bool zeroOutForce){};//NOT DONE YET;
-        virtual void computeForceThreeConstantGPU(GPUArray<dVec> &forces,bool zeroOutForce){};//NOT DONE YET;
+        virtual void computeForceThreeConstantCPU(GPUArray<dVec> &forces,bool zeroOutForce);
+        virtual void computeForceThreeConstantGPU(GPUArray<dVec> &forces,bool zeroOutForce);
 
         virtual void computeEnergyCPU();
         virtual void computeEnergyGPU(){computeEnergyCPU();};//NOT DONE YET;

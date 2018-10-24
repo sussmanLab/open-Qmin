@@ -37,6 +37,7 @@ int main(int argc, char*argv[])
     //define the various command line strings that can be passed in...
     //ValueArg<T> variableName("shortflag","longFlag","description",required or not, default value,"value type",CmdLine object to add to
     ValueArg<int> programSwitchArg("z","programSwitch","an integer controlling program branch",false,0,"int",cmd);
+    ValueArg<int> constantSwitchArg("k","numberOfConstants","an integer controlling the force approximation",false,1,"int",cmd);
     ValueArg<int> gpuSwitchArg("g","USEGPU","an integer controlling which gpu to use... g < 0 uses the cpu",false,-1,"int",cmd);
     ValueArg<int> maxIterationsSwitchArg("i","iterations","number of timestep iterations",false,100,"int",cmd);
     ValueArg<scalar> lengthSwitchArg("l","sideLength","size of simulation domain",false,10.0,"double",cmd);
@@ -47,6 +48,7 @@ int main(int argc, char*argv[])
 
     //define variables that correspond to the command line parameters
     int programSwitch = programSwitchArg.getValue();
+    int Nconstants = constantSwitchArg.getValue();
     int maximumIterations = maxIterationsSwitchArg.getValue();
     scalar L = lengthSwitchArg.getValue();
     scalar dt = dtSwitchArg.getValue();
@@ -68,6 +70,8 @@ int main(int argc, char*argv[])
     scalar b = -2.12/0.172;
     scalar c = 1.73/0.172;
     scalar l = 2.32;
+    scalar l2 = 1.32;
+    scalar l3 = 1.82;
 
     scalar S0 = (-b+sqrt(b*b-24*a*c))/(6*c);
     cout << "S0 set at " << S0 << endl;
@@ -79,9 +83,24 @@ int main(int argc, char*argv[])
     shared_ptr<Simulation> sim = make_shared<Simulation>();
     sim->setConfiguration(Configuration);
 
-    shared_ptr<landauDeGennesLC> oneConstantLdG = make_shared<landauDeGennesLC>(a,b,c,l);
-    oneConstantLdG->setModel(Configuration);
-    sim->addForce(oneConstantLdG);
+    shared_ptr<landauDeGennesLC> landauLCForceOneConstant = make_shared<landauDeGennesLC>(a,b,c,l);
+    shared_ptr<landauDeGennesLC> landauLCForceThreeConstant = make_shared<landauDeGennesLC>
+                                                (a,b,c,l,l2,l3,distortionEnergyType::threeConstant);
+    switch(Nconstants)
+        {
+        case 1 :
+            landauLCForceOneConstant->setModel(Configuration);
+            sim->addForce(landauLCForceOneConstant);
+            break;
+        case 3 :
+            landauLCForceThreeConstant->setModel(Configuration);
+            sim->addForce(landauLCForceThreeConstant);
+            break;
+        default:
+            cout << " you have asked for a force calculation ("<<Nconstants<<") which has not been coded" << endl;
+            break;
+        }
+
 
     boundaryObject homeotropicBoundary(boundaryType::homeotropic,1.0,S0);
     boundaryObject planarDegenerateBoundary(boundaryType::degeneratePlanar,.582,S0);
