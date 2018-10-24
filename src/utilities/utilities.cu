@@ -217,6 +217,22 @@ __global__ void gpu_zero_array_kernel(scalar *arr,
     arr[idx] = 0.;
     return;
     };
+
+/*!
+  A function of convenience...zero out an array on the device
+  */
+__global__ void gpu_zero_array_kernel(cubicLatticeDerivativeVector *arr,
+                                              int N)
+    {
+    // read in the particle that belongs to this thread
+    unsigned int idx = blockDim.x * blockIdx.x + threadIdx.x;
+    if (idx >= N)
+        return;
+    cubicLatticeDerivativeVector zero(0.0);
+    arr[idx]=zero;
+    return;
+    };
+
 /*!
   A function of convenience...zero out an array on the device
   */
@@ -412,6 +428,22 @@ bool gpu_zero_array(scalar *arr,
     HANDLE_ERROR(cudaGetLastError());
     return cudaSuccess;
     }
+
+bool gpu_zero_array(cubicLatticeDerivativeVector *arr,
+                    int N
+                    )
+    {
+    unsigned int block_size = 128;
+    if (N < 128) block_size = 16;
+    unsigned int nblocks  = N/block_size + 1;
+
+    gpu_zero_array_kernel<<<nblocks, block_size>>>(arr,
+                                                    N
+                                                    );
+    HANDLE_ERROR(cudaGetLastError());
+    return cudaSuccess;
+    }
+
 bool gpu_zero_array(int *arr,
                     int N
                     )

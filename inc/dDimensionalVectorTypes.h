@@ -1,6 +1,6 @@
 #ifndef dDimensionalVectorTypes_h
 #define dDimensionalVectorTypes_h
-/*! \file dDimensionalVectorTypes.h 
+/*! \file dDimensionalVectorTypes.h
 defines dVec class (d-dimensional array of scalars)
 defines iVec class (d-dimensional array of ints)
 */
@@ -51,6 +51,28 @@ class MY_ALIGN(8) dVec
                 this->x[dd] += other.x[dd];
             return *this;
             }
+    };
+
+
+//!define a vector of length 3*DIMENSION...convenient for storing the 3 spatial derivatives of the spins
+class cubicLatticeDerivativeVector
+    {
+    public:
+        HOSTDEVICE cubicLatticeDerivativeVector(){};
+        HOSTDEVICE cubicLatticeDerivativeVector(const scalar value)
+            {
+            for (int dd = 0; dd < 3*DIMENSION; ++dd)
+                x[dd] = value;
+            };
+        HOSTDEVICE cubicLatticeDerivativeVector(const cubicLatticeDerivativeVector &other)
+            {
+            for (int dd = 0; dd < 3*DIMENSION; ++dd)
+                x[dd] = other.x[dd];
+            };
+
+        scalar x[3*DIMENSION];
+
+        HOSTDEVICE scalar& operator[](int i){return x[i];};
     };
 
 //!Less than operator for dVecs just sorts by the x-coordinate

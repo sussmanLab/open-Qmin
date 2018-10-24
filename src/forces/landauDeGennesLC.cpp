@@ -1,6 +1,7 @@
 #include "landauDeGennesLC.h"
 #include "landauDeGennesLC.cuh"
 #include "qTensorFunctions.h"
+#include "utilities.cuh"
 /*! \file landauDeGennesLC.cpp */
 
 landauDeGennesLC::landauDeGennesLC(double _A, double _B, double _C, double _L1) :
@@ -9,22 +10,168 @@ landauDeGennesLC::landauDeGennesLC(double _A, double _B, double _C, double _L1) 
     useNeighborList=false;
     numberOfConstants = distortionEnergyType::oneConstant;
     forceTuner = make_shared<kernelTuner>(16,256,16,5,200000);
+    boundaryForceTuner = make_shared<kernelTuner>(16,256,16,5,200000);
     };
 
-landauDeGennesLC::landauDeGennesLC(double _A, double _B, double _C, double _L1, double _L2) :
-    A(_A), B(_B), C(_C), L1(_L1), L2(_L2)
+landauDeGennesLC::landauDeGennesLC(scalar _A, scalar _B, scalar _C, scalar _L1, scalar _L2,scalar _L3orWavenumber,
+                                   distortionEnergyType _type) :
+                                   A(_A), B(_B), C(_C), L1(_L1), L2(_L2), L3(_L3orWavenumber), q0(_L3orWavenumber)
     {
     useNeighborList=false;
-    numberOfConstants = distortionEnergyType::twoConstant;
+    numberOfConstants = _type;
     forceTuner = make_shared<kernelTuner>(16,256,16,5,200000);
+    forceAssistTuner = make_shared<kernelTuner>(16,256,16,5,200000);
     };
 
-landauDeGennesLC::landauDeGennesLC(double _A, double _B, double _C, double _L1, double _L2, double _L3) :
-    A(_A), B(_B), C(_C), L1(_L1), L2(_L2), L3(_L3)
+void landauDeGennesLC::setModel(shared_ptr<cubicLattice> _model)
     {
-    useNeighborList=false;
-    numberOfConstants = distortionEnergyType::threeConstant;
-    forceTuner = make_shared<kernelTuner>(16,256,16,5,200000);
+    lattice=_model;
+    model = _model;
+    if(numberOfConstants == distortionEnergyType::twoConstant ||
+        numberOfConstants == distortionEnergyType::threeConstant)
+        {
+        int N = lattice->getNumberOfParticles();
+        forceCalculationAssist.resize(N);
+        if(useGPU)
+            {
+            ArrayHandle<cubicLatticeDerivativeVector> fca(forceCalculationAssist,access_location::device,access_mode::overwrite);
+            gpu_zero_array(fca.data,N);
+            }
+        else
+            {
+            ArrayHandle<cubicLatticeDerivativeVector> fca(forceCalculationAssist);
+            cubicLatticeDerivativeVector zero(0.0);
+            for(int ii = 0; ii < N; ++ii)
+                fca.data[ii] = zero;
+            };
+        };
+    };
+
+//!Precompute the first derivatives at all of the LC LCSites
+void landauDeGennesLC::computeFirstDerivatives()
+    {
+    int N = lattice->getNumberOfParticles();
+    if(useGPU)
+        {
+        ArrayHandle<cubicLatticeDerivativeVector> d_derivatives(forceCalculationAssist,access_location::device,access_mode::readwrite);
+        ArrayHandle<dVec> d_spins(lattice->returnPositions(),access_location::device,access_mode::read);
+        ArrayHandle<int>  d_latticeTypes(lattice->returnTypes(),access_location::device,access_mode::read);
+        forceAssistTuner->begin();
+        gpu_qTensor_firstDerivatives(d_derivatives.data,
+                                  d_spins.data,
+                                  d_latticeTypes.data,
+                                  lattice->latticeIndex,
+                                  N,
+                                  forceAssistTuner->getParameter()
+                                  );
+        forceAssistTuner->end();
+        }
+    else
+        {
+        ArrayHandle<cubicLatticeDerivativeVector> h_derivatives(forceCalculationAssist);
+        ArrayHandle<dVec> Qtensors(lattice->returnPositions(),access_location::host,access_mode::read);
+        ArrayHandle<int>  h_latticeTypes(lattice->returnTypes(),access_location::host,access_mode::read);
+        int neighNum;
+        vector<int> neighbors;
+        int idx;
+        dVec qCurrent, xDown, xUp, yDown,yUp,zDown,zUp;
+        for (int i = 0; i < N; ++i)
+            {
+            idx = lattice->getNeighbors(i,neighbors,neighNum);
+            if(h_latticeTypes.data[idx] <= 0)
+                {
+                qCurrent = Qtensors.data[idx];
+                int ixd = neighbors[0]; int ixu = neighbors[1];
+                int iyd = neighbors[2]; int iyu = neighbors[3];
+                int izd = neighbors[4]; int izu = neighbors[5];
+                xDown = Qtensors.data[ixd]; xUp = Qtensors.data[ixu];
+                yDown = Qtensors.data[iyd]; yUp = Qtensors.data[iyu];
+                zDown = Qtensors.data[izd]; zUp = Qtensors.data[izu];
+
+                if(h_latticeTypes.data[idx] == 0) // if it's in the bulk, things are easy
+                    {
+                    for (int qq = 0; qq < DIMENSION; ++qq)
+                        {
+                        h_derivatives.data[idx][qq] = 0.5*(xUp[qq]-xDown[qq]);
+                        };
+                    for (int qq = 0; qq < DIMENSION; ++qq)
+                        {
+                        h_derivatives.data[idx][DIMENSION+qq] = 0.5*(yUp[qq]-yDown[qq]);
+                        };
+                    for (int qq = 0; qq < DIMENSION; ++qq)
+                        {
+                        h_derivatives.data[idx][2*DIMENSION+qq] = 0.5*(zUp[qq]-zDown[qq]);
+                        };
+                    }
+                else // boundary terms are slightly more work
+                    {
+                    if(h_latticeTypes.data[ixd] <=0 ||h_latticeTypes.data[ixu] <= 0) //x bulk
+                        {
+                        for (int qq = 0; qq < DIMENSION; ++qq)
+                            {
+                            h_derivatives.data[idx][qq] = 0.5*(xUp[qq]-xDown[qq]);
+                            };
+                        }
+                    else if (h_latticeTypes.data[ixd] <=0 ||h_latticeTypes.data[ixu] > 0) //right is boundary
+                        {
+                        for (int qq = 0; qq < DIMENSION; ++qq)
+                            {
+                            h_derivatives.data[idx][qq] = (qCurrent[qq]-xDown[qq]);
+                            };
+                        }
+                    else//left is boundary
+                        {
+                        for (int qq = 0; qq < DIMENSION; ++qq)
+                            {
+                            h_derivatives.data[idx][qq] = (qCurrent[qq]-xUp[qq]);
+                            };
+                        };
+                    if(h_latticeTypes.data[iyd] <=0 ||h_latticeTypes.data[iyu] <= 0) //y bulk
+                        {
+                        for (int qq = 0; qq < DIMENSION; ++qq)
+                            {
+                            h_derivatives.data[idx][DIMENSION+qq] = 0.5*(yUp[qq]-yDown[qq]);
+                            };
+                        }
+                    else if (h_latticeTypes.data[iyd] <=0 ||h_latticeTypes.data[iyu] > 0) //up is boundary
+                        {
+                        for (int qq = 0; qq < DIMENSION; ++qq)
+                            {
+                            h_derivatives.data[idx][DIMENSION+qq] = (qCurrent[qq]-yDown[qq]);
+                            };
+                        }
+                    else//down is boundary
+                        {
+                        for (int qq = 0; qq < DIMENSION; ++qq)
+                            {
+                            h_derivatives.data[idx][DIMENSION+qq] = (qCurrent[qq]-yUp[qq]);
+                            };
+                        };
+                    if(h_latticeTypes.data[izd] <=0 ||h_latticeTypes.data[izu] <= 0) //z bulk
+                        {
+                        for (int qq = 0; qq < DIMENSION; ++qq)
+                            {
+                            h_derivatives.data[idx][2*DIMENSION+qq] = 0.5*(zUp[qq]-zDown[qq]);
+                            };
+                        }
+                    else if (h_latticeTypes.data[izd] <=0 ||h_latticeTypes.data[izu] > 0) //up is boundary
+                        {
+                        for (int qq = 0; qq < DIMENSION; ++qq)
+                            {
+                            h_derivatives.data[idx][2*DIMENSION+qq] = (qCurrent[qq]-zDown[qq]);
+                            };
+                        }
+                    else//down is boundary
+                        {
+                        for (int qq = 0; qq < DIMENSION; ++qq)
+                            {
+                            h_derivatives.data[idx][2*DIMENSION+qq] = (qCurrent[qq]-zUp[qq]);
+                            };
+                        };
+                    }
+                };
+            };//end cpu loop over N
+        }//end if -- else for using GPU
     };
 
 //!compute the phase and distortion parts of the Landau energy. Handles all sites with type <=0
@@ -181,6 +328,7 @@ void landauDeGennesLC::computeBoundaryForcesGPU(GPUArray<dVec> &forces,bool zero
     ArrayHandle<dVec> d_spins(lattice->returnPositions(),access_location::device,access_mode::read);
     ArrayHandle<int>  d_latticeTypes(lattice->returnTypes(),access_location::device,access_mode::read);
     ArrayHandle<boundaryObject> d_bounds(lattice->boundaries,access_location::device,access_mode::read);
+    boundaryForceTuner->begin();
     gpu_qTensor_computeBoundaryForcesGPU(d_force.data,
                               d_spins.data,
                               d_latticeTypes.data,
@@ -188,8 +336,9 @@ void landauDeGennesLC::computeBoundaryForcesGPU(GPUArray<dVec> &forces,bool zero
                               lattice->latticeIndex,
                               N,
                               zeroOutForce,
-                              forceTuner->getParameter()
+                              boundaryForceTuner->getParameter()
                               );
+    boundaryForceTuner->end();
     };
 
 //!As an example of usage, we'll implement an n-Vector model force w/ nearest-neighbor interactions

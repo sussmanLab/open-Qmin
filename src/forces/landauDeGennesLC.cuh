@@ -19,6 +19,13 @@ bool gpu_qTensor_oneConstantForce(dVec *d_force,
                                 bool zeroForce,
                                 int maxBlockSize);
 
+bool gpu_qTensor_firstDerivatives(cubicLatticeDerivativeVector *d_derivatives,
+                          dVec *d_spins,
+                          int *d_types,
+                          Index3D latticeIndex,
+                          int N,
+                          int maxBlockSize);
+
 bool gpu_qTensor_computeBoundaryForcesGPU(dVec *d_force,
                                 dVec *d_spins,
                                 int *d_types,

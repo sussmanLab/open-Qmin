@@ -17,6 +17,12 @@ A file providing an interface to the relevant cuda calls for some simple GPU arr
 bool gpu_zero_array(scalar *arr,
                     int N
                     );
+
+//!convenience function to zero out an array on the GPU
+bool gpu_zero_array(cubicLatticeDerivativeVector *arr,
+                    int N
+                    );
+
 //!convenience function to zero out an array on the GPU
 bool gpu_zero_array(int *arr,
                     int N
