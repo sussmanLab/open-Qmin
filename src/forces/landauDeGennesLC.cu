@@ -311,30 +311,79 @@ __global__ void gpu_qTensor_twoConstantForce_kernel(dVec *d_force,
         dVec zPlusTerm(0.0);
         if(d_types[ixd] <= 0) //xMinus
             {
+            xMinusTerm[0]=-(L1*(2*qCurrent[0] + 2*qCurrent[3] + 324*(q0*q0)*(2*qCurrent[0] + qCurrent[3]) + qCurrentDerivative[12] - 2*xDown[0] - 2*xDown[3] - 18*q0*(qCurrentDerivative[11] - 2*(qCurrentDerivative[7] + xDown[4])) + xDownDerivative[12]))/2. - (L2*(2*qCurrent[0] + qCurrentDerivative[6] + qCurrentDerivative[12] - 2*xDown[0] + xDownDerivative[6] + xDownDerivative[12]))/2.;
 
+            xMinusTerm[1]=(L1*(qCurrentDerivative[5] - 2*(qCurrent[1] + 324*(q0*q0)*qCurrent[1] - xDown[1] + 9*q0*(qCurrentDerivative[9] + qCurrentDerivative[10] - qCurrentDerivative[13] + 2*xDown[2])) + xDownDerivative[5]))/2. - (L2*(2*qCurrent[1] + qCurrentDerivative[8] + qCurrentDerivative[14] - 2*xDown[1] + xDownDerivative[8] + xDownDerivative[14]))/2.;
+
+            xMinusTerm[2]=-(L1*(1296*(q0*q0)*qCurrent[2] - 36*q0*(2*qCurrentDerivative[5] + qCurrentDerivative[8] + qCurrentDerivative[14] + 2*xDown[1]) - 2*(-2*qCurrent[2] + qCurrentDerivative[10] + 2*xDown[2] + xDownDerivative[10])))/4. + (L2*(-2*qCurrent[2] - qCurrentDerivative[9] + qCurrentDerivative[10] + qCurrentDerivative[13] + 2*xDown[2] - xDownDerivative[9] + xDownDerivative[10] + xDownDerivative[13]))/2.;
+
+            xMinusTerm[3]=-(L1*(2*qCurrent[0] + 324*(q0*q0)*qCurrent[0] + 4*qCurrent[3] + 648*(q0*q0)*qCurrent[3] - qCurrentDerivative[6] + 18*q0*qCurrentDerivative[7] + 18*q0*qCurrentDerivative[11] + qCurrentDerivative[12] - 2*xDown[0] - 4*xDown[3] + 72*q0*xDown[4] - xDownDerivative[6] + xDownDerivative[12]))/2.;
+
+            xMinusTerm[4]=(L1*(-4*qCurrent[4] - 648*(q0*q0)*qCurrent[4] + qCurrentDerivative[7] + qCurrentDerivative[11] + 18*q0*(qCurrentDerivative[6] - qCurrentDerivative[12] + 2*xDown[0] + 4*xDown[3]) + 4*xDown[4] + xDownDerivative[7] + xDownDerivative[11]))/2.;
             }
         if(d_types[ixu] <= 0) //xPlus
             {
+            xPlusTerm[0]=(L2*(-2*qCurrent[0] + qCurrentDerivative[6] + qCurrentDerivative[12] + 2*xUp[0] + xUpDerivative[6] + xUpDerivative[12]))/2. - (L1*(648*(q0*q0)*(2*qCurrent[0] + qCurrent[3]) - 36*q0*(-2*qCurrentDerivative[7] + qCurrentDerivative[11] + 2*xUp[4]) - 2*(-2*qCurrent[0] - 2*qCurrent[3] + qCurrentDerivative[12] + 2*xUp[0] + 2*xUp[3] + xUpDerivative[12])))/4.;
 
+            xPlusTerm[1]=-(L1*(qCurrentDerivative[5] + 2*(qCurrent[1] + 324*(q0*q0)*qCurrent[1] - xUp[1] + 9*q0*(qCurrentDerivative[9] + qCurrentDerivative[10] - qCurrentDerivative[13] - 2*xUp[2])) + xUpDerivative[5]))/2. + (L2*(-2*qCurrent[1] + qCurrentDerivative[8] + qCurrentDerivative[14] + 2*xUp[1] + xUpDerivative[8] + xUpDerivative[14]))/2.;
+
+            xPlusTerm[2]=-(L1*(2*qCurrent[2] + 648*(q0*q0)*qCurrent[2] + qCurrentDerivative[10] - 18*q0*(2*qCurrentDerivative[5] + qCurrentDerivative[8] + qCurrentDerivative[14] - 2*xUp[1]) - 2*xUp[2] + xUpDerivative[10]))/2. - (L2*(2*qCurrent[2] - qCurrentDerivative[9] + qCurrentDerivative[10] + qCurrentDerivative[13] - 2*xUp[2] - xUpDerivative[9] + xUpDerivative[10] + xUpDerivative[13]))/2.;
+
+            xPlusTerm[3]=-(L1*(2*qCurrent[0] + 324*(q0*q0)*qCurrent[0] + 4*qCurrent[3] + 648*(q0*q0)*qCurrent[3] + qCurrentDerivative[6] + 18*q0*qCurrentDerivative[7] + 18*q0*qCurrentDerivative[11] - qCurrentDerivative[12] - 2*xUp[0] - 4*xUp[3] - 72*q0*xUp[4] + xUpDerivative[6] - xUpDerivative[12]))/2.;
+
+            xPlusTerm[4]=-(L1*(4*qCurrent[4] + 648*(q0*q0)*qCurrent[4] + qCurrentDerivative[7] + qCurrentDerivative[11] - 18*q0*(qCurrentDerivative[6] - qCurrentDerivative[12] - 2*xUp[0] - 4*xUp[3]) - 4*xUp[4] + xUpDerivative[7] + xUpDerivative[11]))/2.;
             }
+
         if(d_types[iyd] <= 0) //yMinus
             {
+            yMinusTerm[0]=-(L1*(4*qCurrent[0] + 648*(q0*q0)*qCurrent[0] + 2*qCurrent[3] + 324*(q0*q0)*qCurrent[3] - qCurrentDerivative[1] - 18*q0*qCurrentDerivative[4] - 18*q0*qCurrentDerivative[11] + qCurrentDerivative[14] - 4*yDown[0] - 72*q0*yDown[2] - 2*yDown[3] - yDownDerivative[1] + yDownDerivative[14]))/2.;
 
+            yMinusTerm[1]=-(L1*(1296*(q0*q0)*qCurrent[1] + 36*q0*(-qCurrentDerivative[2] + qCurrentDerivative[10] - qCurrentDerivative[13] - 2*yDown[4]) - 2*(-2*qCurrent[1] + qCurrentDerivative[3] + 2*yDown[1] + yDownDerivative[3])))/4. - (L2*(2*qCurrent[1] + qCurrentDerivative[0] + qCurrentDerivative[12] - 2*yDown[1] + yDownDerivative[0] + yDownDerivative[12]))/2.;
+
+            yMinusTerm[2]=(L1*(-4*qCurrent[2] - 648*(q0*q0)*qCurrent[2] + qCurrentDerivative[4] + qCurrentDerivative[11] + 4*yDown[2] - 18*q0*(qCurrentDerivative[1] - qCurrentDerivative[14] + 4*yDown[0] + 2*yDown[3]) + yDownDerivative[4] + yDownDerivative[11]))/2.;
+
+            yMinusTerm[3]=-(L1*(2*qCurrent[0] + 2*qCurrent[3] + 324*(q0*q0)*(qCurrent[0] + 2*qCurrent[3]) + qCurrentDerivative[14] - 2*yDown[0] + 18*q0*(qCurrentDerivative[11] - 2*(qCurrentDerivative[4] + yDown[2])) - 2*yDown[3] + yDownDerivative[14]))/2. - (L2*(2*qCurrent[3] + qCurrentDerivative[1] + qCurrentDerivative[14] - 2*yDown[3] + yDownDerivative[1] + yDownDerivative[14]));
+
+            yMinusTerm[4]=(L2*(-2*qCurrent[4] - qCurrentDerivative[2] + qCurrentDerivative[10] + qCurrentDerivative[13] + 2*yDown[4] - yDownDerivative[2] + yDownDerivative[10] + yDownDerivative[13]))/2. - (L1*(1296*(q0*q0)*qCurrent[4] + 36*q0*(qCurrentDerivative[0] + qCurrentDerivative[12] + 2*(qCurrentDerivative[3] + yDown[1])) - 2*(-2*qCurrent[4] + qCurrentDerivative[13] + 2*yDown[4] + yDownDerivative[13])))/4.;
             }
 
         if(d_types[iyu] <= 0) //yPlus
             {
+            yPlusTerm[0]=-(L1*(4*qCurrent[0] + 648*(q0*q0)*qCurrent[0] + 2*qCurrent[3] + 324*(q0*q0)*qCurrent[3] + qCurrentDerivative[1] - 18*q0*qCurrentDerivative[4] - 18*q0*qCurrentDerivative[11] - qCurrentDerivative[14] - 4*yUp[0] + 72*q0*yUp[2] - 2*yUp[3] + yUpDerivative[1] - yUpDerivative[14]))/2.;
 
+            yPlusTerm[1]=-(L1*(2*qCurrent[1] + 648*(q0*q0)*qCurrent[1] + qCurrentDerivative[3] - 2*yUp[1] + 18*q0*(-qCurrentDerivative[2] + qCurrentDerivative[10] - qCurrentDerivative[13] + 2*yUp[4]) + yUpDerivative[3]))/2. + (L2*(-2*qCurrent[1] + qCurrentDerivative[0] + qCurrentDerivative[12] + 2*yUp[1] + yUpDerivative[0] + yUpDerivative[12]))/2.;
+
+            yPlusTerm[2]=-(L1*(4*qCurrent[2] + 648*(q0*q0)*qCurrent[2] + qCurrentDerivative[4] + qCurrentDerivative[11] - 4*yUp[2] + 18*q0*(qCurrentDerivative[1] - qCurrentDerivative[14] - 4*yUp[0] - 2*yUp[3]) + yUpDerivative[4] + yUpDerivative[11]))/2.;
+
+            yPlusTerm[3]=(L2*(-2*qCurrent[3] + qCurrentDerivative[1] + qCurrentDerivative[14] + 2*yUp[3] + yUpDerivative[1] + yUpDerivative[14]))/2. - (L1*(648*(q0*q0)*(qCurrent[0] + 2*qCurrent[3]) + 36*q0*(-2*qCurrentDerivative[4] + qCurrentDerivative[11] + 2*yUp[2]) - 2*(-2*qCurrent[0] - 2*qCurrent[3] + qCurrentDerivative[14] + 2*yUp[0] + 2*yUp[3] + yUpDerivative[14])))/4.;
+
+            yPlusTerm[4]=-(L1*(2*qCurrent[4] + 648*(q0*q0)*qCurrent[4] + qCurrentDerivative[13] + 18*q0*(qCurrentDerivative[0] + 2*qCurrentDerivative[3] + qCurrentDerivative[12] - 2*yUp[1]) - 2*yUp[4] + yUpDerivative[13]))/2. - (L2*(2*qCurrent[4] - qCurrentDerivative[2] + qCurrentDerivative[10] + qCurrentDerivative[13] - 2*yUp[4] - yUpDerivative[2] + yUpDerivative[10] + yUpDerivative[13]))/2.;
             }
 
         if(d_types[izd] <= 0) //zMinus
             {
+            zMinusTerm[0]=(L1*(qCurrentDerivative[2] - 2*(qCurrent[0] + 162*(q0*q0)*(2*qCurrent[0] + qCurrent[3]) - zDown[0] + 9*q0*(-qCurrentDerivative[4] + 2*qCurrentDerivative[7] + 2*zDown[1])) + zDownDerivative[2]))/2. + (L2*(-2*qCurrent[0] - 2*qCurrent[3] + qCurrentDerivative[2] + qCurrentDerivative[9] + 2*zDown[0] + 2*zDown[3] + zDownDerivative[2] + zDownDerivative[9]))/2.;
 
+            zMinusTerm[1]=-(L1*(1296*(q0*q0)*qCurrent[1] - 36*q0*(qCurrentDerivative[2] - qCurrentDerivative[9] + 2*zDown[0] - 2*zDown[3]) - 2*(-4*qCurrent[1] + qCurrentDerivative[4] + qCurrentDerivative[7] + 4*zDown[1] + zDownDerivative[4] + zDownDerivative[7])))/4.;
+
+            zMinusTerm[2]=-(L1*(2*qCurrent[2] + 648*(q0*q0)*qCurrent[2] + qCurrentDerivative[0] + 18*q0*qCurrentDerivative[1] + qCurrentDerivative[3] - 36*q0*qCurrentDerivative[5] - 18*q0*qCurrentDerivative[8] - 2*zDown[2] + 36*q0*zDown[4] + zDownDerivative[0] + zDownDerivative[3]))/2. - (L2*(2*qCurrent[2] + qCurrentDerivative[0] + qCurrentDerivative[6] - 2*zDown[2] + zDownDerivative[0] + zDownDerivative[6]))/2.;
+
+            zMinusTerm[3]=(L2*(-2*qCurrent[0] - 2*qCurrent[3] + qCurrentDerivative[2] + qCurrentDerivative[9] + 2*zDown[0] + 2*zDown[3] + zDownDerivative[2] + zDownDerivative[9]))/2. - (L1*(648*(q0*q0)*(qCurrent[0] + 2*qCurrent[3]) + 36*q0*(qCurrentDerivative[7] - 2*(qCurrentDerivative[4] + zDown[1])) - 2*(-2*qCurrent[3] + qCurrentDerivative[9] + 2*zDown[3] + zDownDerivative[9])))/4.;
+
+            zMinusTerm[4]=-(L2*(2*qCurrent[4] + qCurrentDerivative[1] + qCurrentDerivative[8] - 2*zDown[4] + zDownDerivative[1] + zDownDerivative[8]))/2. - (L1*(2*qCurrent[4] + 648*(q0*q0)*qCurrent[4] + qCurrentDerivative[5] + qCurrentDerivative[8] + 18*q0*(qCurrentDerivative[0] + 2*qCurrentDerivative[3] - qCurrentDerivative[6] - 2*zDown[2]) - 2*zDown[4] + zDownDerivative[5] + zDownDerivative[8]))/2.;
             }
 
         if(d_types[izu] <= 0) //zPlus
             {
-            
+            zPlusTerm[0]=-(L1*(qCurrentDerivative[2] + 2*(qCurrent[0] + 324*(q0*q0)*qCurrent[0] + 162*(q0*q0)*qCurrent[3] - 9*q0*qCurrentDerivative[4] + 18*q0*qCurrentDerivative[7] - zUp[0] - 18*q0*zUp[1]) + zUpDerivative[2]))/2. - (L2*(2*qCurrent[0] + 2*qCurrent[3] + qCurrentDerivative[2] + qCurrentDerivative[9] - 2*zUp[0] - 2*zUp[3] + zUpDerivative[2] + zUpDerivative[9]))/2.;
+
+            zPlusTerm[1]=-(L1*(4*qCurrent[1] + 648*(q0*q0)*qCurrent[1] + qCurrentDerivative[4] + qCurrentDerivative[7] - 4*zUp[1] - 18*q0*(qCurrentDerivative[2] - qCurrentDerivative[9] - 2*zUp[0] + 2*zUp[3]) + zUpDerivative[4] + zUpDerivative[7]))/2.;
+
+            zPlusTerm[2]=(L1*(-2*qCurrent[2] - 648*(q0*q0)*qCurrent[2] + qCurrentDerivative[0] - 18*q0*qCurrentDerivative[1] + qCurrentDerivative[3] + 36*q0*qCurrentDerivative[5] + 18*q0*qCurrentDerivative[8] + 2*zUp[2] + 36*q0*zUp[4] + zUpDerivative[0] + zUpDerivative[3]))/2. + (L2*(-2*qCurrent[2] + qCurrentDerivative[0] + qCurrentDerivative[6] + 2*zUp[2] + zUpDerivative[0] + zUpDerivative[6]))/2.;
+
+            zPlusTerm[3]=-(L1*(2*qCurrent[3] + 324*(q0*q0)*(qCurrent[0] + 2*qCurrent[3]) + qCurrentDerivative[9] + 18*q0*(-2*qCurrentDerivative[4] + qCurrentDerivative[7] + 2*zUp[1]) - 2*zUp[3] + zUpDerivative[9]))/2. - (L2*(2*qCurrent[0] + 2*qCurrent[3] + qCurrentDerivative[2] + qCurrentDerivative[9] - 2*zUp[0] - 2*zUp[3] + zUpDerivative[2] + zUpDerivative[9]))/2.;
+
+            zPlusTerm[4]=(L2*(-2*qCurrent[4] + qCurrentDerivative[1] + qCurrentDerivative[8] + 2*zUp[4] + zUpDerivative[1] + zUpDerivative[8]))/2. - (L1*(1296*(q0*q0)*qCurrent[4] + 36*q0*(qCurrentDerivative[0] - qCurrentDerivative[6] + 2*(qCurrentDerivative[3] + zUp[2])) - 2*(-2*qCurrent[4] + qCurrentDerivative[5] + qCurrentDerivative[8] + 2*zUp[4] + zUpDerivative[5] + zUpDerivative[8])))/4.;
             }
 
         force = xMinusTerm+xPlusTerm+yMinusTerm+yPlusTerm+zMinusTerm+zPlusTerm;

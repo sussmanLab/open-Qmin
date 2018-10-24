@@ -72,6 +72,7 @@ int main(int argc, char*argv[])
     scalar l = 2.32;
     scalar l2 = 1.32;
     scalar l3 = 1.82;
+    scalar q0 =0.05;
 
     scalar S0 = (-b+sqrt(b*b-24*a*c))/(6*c);
     cout << "S0 set at " << S0 << endl;
@@ -84,6 +85,8 @@ int main(int argc, char*argv[])
     sim->setConfiguration(Configuration);
 
     shared_ptr<landauDeGennesLC> landauLCForceOneConstant = make_shared<landauDeGennesLC>(a,b,c,l);
+    shared_ptr<landauDeGennesLC> landauLCForceTwoConstant = make_shared<landauDeGennesLC>
+                                                (a,b,c,l,l2,q0,distortionEnergyType::twoConstant);
     shared_ptr<landauDeGennesLC> landauLCForceThreeConstant = make_shared<landauDeGennesLC>
                                                 (a,b,c,l,l2,l3,distortionEnergyType::threeConstant);
     switch(Nconstants)
@@ -91,6 +94,10 @@ int main(int argc, char*argv[])
         case 1 :
             landauLCForceOneConstant->setModel(Configuration);
             sim->addForce(landauLCForceOneConstant);
+            break;
+        case 2 :
+            landauLCForceTwoConstant->setModel(Configuration);
+            sim->addForce(landauLCForceTwoConstant);
             break;
         case 3 :
             landauLCForceThreeConstant->setModel(Configuration);
