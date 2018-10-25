@@ -24,6 +24,7 @@ class kernelTuner
         //! print timing data to screen
         void printTimingData()
             {
+            cout << "parameter used: " << parameterValue << endl;
             for (int ii = 1; ii < possibleParameters.size();++ii)
                 {
                 cout <<"tuner value " << possibleParameters[ii] << " median time " << sampleMedian[ii]  << endl;

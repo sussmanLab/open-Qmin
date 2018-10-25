@@ -17,15 +17,16 @@ landauDeGennesLC::landauDeGennesLC(scalar _A, scalar _B, scalar _C, scalar _L1, 
     {
     baseInitialization();
     numberOfConstants = _type;
-    forceAssistTuner = make_shared<kernelTuner>(16,256,16,5,200000);
     };
 
 void landauDeGennesLC::baseInitialization()
     {
     useNeighborList=false;
     useL24 = false;
-    forceTuner = make_shared<kernelTuner>(16,256,16,5,200000);
-    boundaryForceTuner = make_shared<kernelTuner>(16,256,16,5,200000);
+    forceTuner = make_shared<kernelTuner>(32,256,32,10,200000);
+    boundaryForceTuner = make_shared<kernelTuner>(32,256,32,10,200000);
+    l24ForceTuner = make_shared<kernelTuner>(32,256,32,10,200000);
+    forceAssistTuner = make_shared<kernelTuner>(32,256,32,10,200000);
     energyComponents.resize(3);
     }
 

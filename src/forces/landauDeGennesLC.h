@@ -22,12 +22,7 @@ class landauDeGennesLC : public baseLatticeForce
         //select the force routing based on the number of elastic constants
         virtual void computeForceGPU(GPUArray<dVec> &forces,bool zeroOutForce = true);
 
-        void setL24(scalar _l24)
-            {
-            L24=_l24;useL24=true;
-            if(useGPU)
-                l24ForceTuner = make_shared<kernelTuner>(16,256,16,5,200000);
-            };
+        void setL24(scalar _l24){L24=_l24;useL24=true;};
 
         virtual void computeForceCPU(GPUArray<dVec> &forces,bool zeroOutForce = true)
             {
@@ -70,6 +65,26 @@ class landauDeGennesLC : public baseLatticeForce
         //!A vector storing the components of energy (phase,distortion,anchoring)
         vector<scalar> energyComponents;
 
+        void printTuners()
+            {
+            printf("forceTuner\n");
+            forceTuner->printTimingData();
+            if(numberOfConstants != distortionEnergyType::oneConstant)
+                {
+                printf("forceAssistTuner\n");
+                forceAssistTuner->printTimingData();
+                };
+            if(lattice->boundaries.getNumElements() >0)
+                {
+                printf("BoundaryForceTuner\n");
+                boundaryForceTuner->printTimingData();
+                };
+            if(useL24)
+                {
+                printf("L24ForceTuner\n");
+                l24ForceTuner->printTimingData();
+                };
+            }
     protected:
         //!constants, etc.
         scalar A;

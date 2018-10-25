@@ -190,6 +190,14 @@ int main(int argc, char*argv[])
 
         myfile.close();
         }
+    /*
+    if(GPU && Nconstants == 1)
+        landauLCForceOneConstant->printTuners();
+    if(GPU && Nconstants == 2)
+        landauLCForceTwoConstant->printTuners();
+    if(GPU && Nconstants == 3)
+        landauLCForceThreeConstant->printTuners();
+    */
 //
 //The end of the tclap try
 //
