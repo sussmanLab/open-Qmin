@@ -72,7 +72,7 @@ int main(int argc, char*argv[])
     scalar l = 2.32;
     scalar l2 = 1.32;
     scalar l3 = 1.82;
-    scalar q0 =0.05;
+    scalar q0 =0.01;
 
     scalar S0 = (-b+sqrt(b*b-24*a*c))/(6*c);
     cout << "S0 set at " << S0 << endl;
@@ -116,9 +116,9 @@ int main(int argc, char*argv[])
     left.x = 0.3*L;left.y = 0.5*L;left.z = 0.5*Lz;
     scalar3 right;
     right.x = 0.7*L;right.y = 0.5*L;right.z = 0.5*Lz;
-    Configuration->createSimpleFlatWallZNormal(0, planarDegenerateBoundary);
     if(Nconstants!= 2)
         {
+        Configuration->createSimpleFlatWallZNormal(0, planarDegenerateBoundary);
         Configuration->createSimpleSpherialColloid(left,0.18*L, homeotropicBoundary);
         Configuration->createSimpleSpherialColloid(right, 0.18*L, homeotropicBoundary);
         };
@@ -133,7 +133,7 @@ int main(int argc, char*argv[])
 
     shared_ptr<energyMinimizerFIRE> fire = make_shared<energyMinimizerFIRE>(Configuration);
     scalar alphaStart=.99; scalar deltaTMax=100*dt; scalar deltaTInc=1.1; scalar deltaTDec=0.95;
-    scalar alphaDec=0.9; int nMin=4; scalar forceCutoff=1e-12; scalar alphaMin = 0.0;
+    scalar alphaDec=0.9; int nMin=4; scalar forceCutoff=1e-12; scalar alphaMin = 0.7;
     fire->setFIREParameters(dt,alphaStart,deltaTMax,deltaTInc,deltaTDec,alphaDec,nMin,forceCutoff,alphaMin);
     fire->setMaximumIterations(maximumIterations);
     shared_ptr<energyMinimizerAdam> adam  = make_shared<energyMinimizerAdam>();
