@@ -17,6 +17,13 @@ __device__ void gpu_get_six_neighbors(int3 &target, int &ixd, int &ixu,int &iyd,
     izu = latticeIndex(target.x,target.y,wrap(target.z+1,latticeSizes.z));
     };
 
+__device__ void gpu_phase_force(dVec &qCurrent, scalar &a, scalar &b, scalar &c, dVec &force)
+    {
+    force -= a*derivativeTrQ2(qCurrent);
+    force -= b*derivativeTrQ3(qCurrent);
+    force -= c*derivativeTrQ2Squared(qCurrent);
+    }
+
 __global__ void gpu_qTensor_computeBoundaryForcesGPU_kernel(dVec *d_force,
                                  dVec *d_spins,
                                  int *d_types,
@@ -213,9 +220,7 @@ __global__ void gpu_qTensor_oneConstantForce_kernel(dVec *d_force,
         {
         //phase part is simple
         qCurrent = d_spins[idx];
-        force -= a*derivativeTrQ2(qCurrent);
-        force -= b*derivativeTrQ3(qCurrent);
-        force -= c*derivativeTrQ2Squared(qCurrent);
+        gpu_phase_force(qCurrent, a, b, c, force);
 
         //get neighbor indices and data
         int ixd, ixu,iyd,iyu,izd,izu;
@@ -285,9 +290,7 @@ __global__ void gpu_qTensor_twoConstantForce_kernel(dVec *d_force,
         {
         //phase part is simple
         qCurrent = d_spins[idx];
-        force -= a*derivativeTrQ2(qCurrent);
-        force -= b*derivativeTrQ3(qCurrent);
-        force -= c*derivativeTrQ2Squared(qCurrent);
+        gpu_phase_force(qCurrent, a, b, c, force);
 
         //get neighbor indices and data
         int ixd, ixu,iyd,iyu,izd,izu;
@@ -386,7 +389,7 @@ __global__ void gpu_qTensor_twoConstantForce_kernel(dVec *d_force,
             zPlusTerm[4]=(L2*(-2*qCurrent[4] + qCurrentDerivative[1] + qCurrentDerivative[8] + 2*zUp[4] + zUpDerivative[1] + zUpDerivative[8]))/2. - (L1*(1296*(q0*q0)*qCurrent[4] + 36*q0*(qCurrentDerivative[0] - qCurrentDerivative[6] + 2*(qCurrentDerivative[3] + zUp[2])) - 2*(-2*qCurrent[4] + qCurrentDerivative[5] + qCurrentDerivative[8] + 2*zUp[4] + zUpDerivative[5] + zUpDerivative[8])))/4.;
             }
 
-        force = xMinusTerm+xPlusTerm+yMinusTerm+yPlusTerm+zMinusTerm+zPlusTerm;
+        force += xMinusTerm+xPlusTerm+yMinusTerm+yPlusTerm+zMinusTerm+zPlusTerm;
 
         };
     if(zeroForce)
@@ -416,9 +419,7 @@ __global__ void gpu_qTensor_threeConstantForce_kernel(dVec *d_force,
         {
         //phase part is simple
         qCurrent = d_spins[idx];
-        force -= a*derivativeTrQ2(qCurrent);
-        force -= b*derivativeTrQ3(qCurrent);
-        force -= c*derivativeTrQ2Squared(qCurrent);
+        gpu_phase_force(qCurrent, a, b, c, force);
 
         //get neighbor indices and data
         int ixd, ixu,iyd,iyu,izd,izu;
@@ -516,7 +517,7 @@ __global__ void gpu_qTensor_threeConstantForce_kernel(dVec *d_force,
             zPlusTerm[4]=-2*L1*(qCurrent[4] - zUp[4]) + (L2*(-2*qCurrent[4] + qCurrentDerivative[1] + qCurrentDerivative[8] + 2*zUp[4] + zUpDerivative[1] + zUpDerivative[8]))/2. - (L3*(qCurrentDerivative[5]*(-2*qCurrent[0] - qCurrent[3] + 2*zUp[0] + zUp[3]) + qCurrentDerivative[8]*(-qCurrent[0] - 2*qCurrent[3] + zUp[0] + 2*zUp[3]) - 2*(qCurrent[0]*qCurrent[4] + qCurrent[3]*qCurrent[4] + qCurrent[2]*qCurrentDerivative[4] + 2*qCurrent[4]*qCurrentDerivative[9] + qCurrent[4]*zUp[0] + qCurrentDerivative[6]*(qCurrent[1] - zUp[1]) + qCurrentDerivative[7]*(qCurrent[2] - zUp[2]) + qCurrent[4]*zUp[3] - qCurrent[0]*zUp[4] - qCurrent[3]*zUp[4] - qCurrentDerivative[9]*zUp[4] - zUp[0]*zUp[4] - zUp[3]*zUp[4] + zUp[2]*zUpDerivative[4] + zUp[4]*zUpDerivative[9])))/2.;
             }
 
-        force = xMinusTerm+xPlusTerm+yMinusTerm+yPlusTerm+zMinusTerm+zPlusTerm;
+        force += xMinusTerm+xPlusTerm+yMinusTerm+yPlusTerm+zMinusTerm+zPlusTerm;
 
         };
     if(zeroForce)
