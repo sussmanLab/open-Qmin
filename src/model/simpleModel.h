@@ -79,6 +79,8 @@ class simpleModel
 
         //!The space in which the particles live
         BoxPtr Box;
+        //!Are the forces current? set to false after every call to moveParticles. set to true after the SIMULATION calls computeForces
+        bool forcesComputed;
 
     protected:
         //!The number of particles
@@ -95,7 +97,7 @@ class simpleModel
         GPUArray<scalar> masses;
         //!particle types
         GPUArray<int> types;
-
+        
         //!Whether the GPU should be used to compute anything
         bool useGPU;
 

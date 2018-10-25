@@ -95,7 +95,7 @@ void Simulation::computeForces()
         bool zeroForces = (f==0 && !Conf->selfForceCompute);
         frc->computeForces(Conf->returnForces(),zeroForces);
         };
-
+    Conf->forcesComputed = true;
     };
 
 /*!

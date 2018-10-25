@@ -15,6 +15,8 @@ class landauDeGennesLC : public baseLatticeForce
         landauDeGennesLC(scalar _A, scalar _B, scalar _C, scalar _L1);
         landauDeGennesLC(scalar _A, scalar _B, scalar _C, scalar _L1, scalar _L2,scalar _L3orWavenumber, distortionEnergyType _type);
 
+        //!set up a few basic things (common force tuners, number of energy components, etc.)
+        void baseInitialization();
         //!The model setting creates an additional data structure to help with 2- or 3- constant approximation
         virtual void setModel(shared_ptr<cubicLattice> _model);
         //select the force routing based on the number of elastic constants
@@ -74,6 +76,9 @@ class landauDeGennesLC : public baseLatticeForce
 
         virtual void computeEnergyCPU();
         virtual void computeEnergyGPU(){computeEnergyCPU();};//NOT DONE YET;
+
+        //!A vector storing the components of energy (phase,distortion,anchoring)
+        vector<scalar> energyComponents;
 
     protected:
         //!constants, etc.

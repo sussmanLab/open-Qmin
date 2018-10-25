@@ -146,6 +146,7 @@ void simpleModel::moveParticles(GPUArray<dVec> &displacement, scalar scale)
         ArrayHandle<dVec> d_pos(positions,access_location::device,access_mode::readwrite);
         gpu_move_particles(d_pos.data,d_disp.data,*(Box),scale,N);
         };
+    forcesComputed = false;
     };
 
 /*!
