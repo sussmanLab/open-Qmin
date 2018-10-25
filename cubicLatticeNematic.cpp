@@ -117,8 +117,11 @@ int main(int argc, char*argv[])
     scalar3 right;
     right.x = 0.7*L;right.y = 0.5*L;right.z = 0.5*Lz;
     Configuration->createSimpleFlatWallZNormal(0, planarDegenerateBoundary);
-    Configuration->createSimpleSpherialColloid(left,0.18*L, homeotropicBoundary);
-    Configuration->createSimpleSpherialColloid(right, 0.18*L, homeotropicBoundary);
+    if(Nconstants!= 2)
+        {
+        Configuration->createSimpleSpherialColloid(left,0.18*L, homeotropicBoundary);
+        Configuration->createSimpleSpherialColloid(right, 0.18*L, homeotropicBoundary);
+        };
 
 
     //after the simulation box has been set, we can set particle positions... putting this here ensures that the random
@@ -164,8 +167,8 @@ int main(int argc, char*argv[])
     Configuration->getAverageEigenvalues();
     printdVec(Configuration->averagePosition());
 
-    cout << endl << "minimization:"  << endl;
-    printf("{%f,%f},\n",L,(t2-t1)/(scalar)CLOCKS_PER_SEC);
+    cout << endl << "minimization (system size, time per iteration):"  << endl;
+    printf("{%f,%f},\n",L,(t2-t1)/(scalar)CLOCKS_PER_SEC/maximumIterations);
     sim->setCPUOperation(true);
     E = sim->computePotentialEnergy();
     printf("simulation energy per site at %f\n",E);
@@ -175,7 +178,7 @@ int main(int argc, char*argv[])
         ArrayHandle<dVec> pp(Configuration->returnPositions());
         ArrayHandle<int> tt(Configuration->returnTypes());
         char dataname[256];
-        sprintf(dataname,"../data/twoColloidTest.txt");
+        sprintf(dataname,"../data/twoWallsTest.txt");
         ofstream myfile;
         myfile.open (dataname);
         for (int ii = 0; ii < Configuration->getNumberOfParticles();++ii)
