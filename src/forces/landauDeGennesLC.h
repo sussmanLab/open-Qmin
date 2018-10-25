@@ -20,25 +20,15 @@ class landauDeGennesLC : public baseLatticeForce
         //!The model setting creates an additional data structure to help with 2- or 3- constant approximation
         virtual void setModel(shared_ptr<cubicLattice> _model);
         //select the force routing based on the number of elastic constants
-        virtual void computeForceGPU(GPUArray<dVec> &forces,bool zeroOutForce = true)
+        virtual void computeForceGPU(GPUArray<dVec> &forces,bool zeroOutForce = true);
+
+        void setL24(scalar _l24)
             {
-            switch (numberOfConstants)
-                {
-                case distortionEnergyType::oneConstant :
-                    computeForceOneConstantGPU(forces,zeroOutForce);
-                    break;
-                case distortionEnergyType::twoConstant :
-                    computeForceTwoConstantGPU(forces,zeroOutForce);
-                    break;
-                case distortionEnergyType::threeConstant :
-                    computeForceThreeConstantGPU(forces,zeroOutForce);
-                    break;
-                };
-            if(lattice->boundaries.getNumElements() >0)
-                {
-                computeBoundaryForcesGPU(forces,false);
-                };
+            L24=_l24;useL24=true;
+            if(useGPU)
+                l24ForceTuner = make_shared<kernelTuner>(16,256,16,5,200000);
             };
+
         virtual void computeForceCPU(GPUArray<dVec> &forces,bool zeroOutForce = true)
             {
             switch (numberOfConstants)
@@ -57,6 +47,8 @@ class landauDeGennesLC : public baseLatticeForce
                 {
                 computeBoundaryForcesCPU(forces,false);
                 };
+            if(useL24)
+                computeL24ForcesCPU(forces, false);
             };
 
         //!Precompute the first derivatives at all of the LC Sites
@@ -65,14 +57,12 @@ class landauDeGennesLC : public baseLatticeForce
         virtual void computeBoundaryForcesCPU(GPUArray<dVec> &forces,bool zeroOutForce);
         virtual void computeBoundaryForcesGPU(GPUArray<dVec> &forces,bool zeroOutForce);
 
+        virtual void computeL24ForcesCPU(GPUArray<dVec> &forces,bool zeroOutForce);
+        virtual void computeL24ForcesGPU(GPUArray<dVec> &forces,bool zeroOutForce);
+
         virtual void computeForceOneConstantCPU(GPUArray<dVec> &forces,bool zeroOutForce);
-        virtual void computeForceOneConstantGPU(GPUArray<dVec> &forces,bool zeroOutForce);
-
         virtual void computeForceTwoConstantCPU(GPUArray<dVec> &forces,bool zeroOutForce);
-        virtual void computeForceTwoConstantGPU(GPUArray<dVec> &forces,bool zeroOutForce);
-
         virtual void computeForceThreeConstantCPU(GPUArray<dVec> &forces,bool zeroOutForce);
-        virtual void computeForceThreeConstantGPU(GPUArray<dVec> &forces,bool zeroOutForce);
 
         virtual void computeEnergyCPU();
         virtual void computeEnergyGPU(){computeEnergyCPU();};//NOT DONE YET;
@@ -88,9 +78,14 @@ class landauDeGennesLC : public baseLatticeForce
         scalar L1;
         scalar L2;
         scalar L3;
+        scalar L24;
         scalar q0;
 
+
+        //!number of elastic constants
         distortionEnergyType numberOfConstants;
+        //!independently of numberOfConstants, should L24 term be computed?
+        bool useL24;
         //!for 2- and 3- constant approximations, the force calculation is helped by first pre-computing first derivatives
         GPUArray<cubicLatticeDerivativeVector> forceCalculationAssist;
         /*
@@ -103,6 +98,8 @@ class landauDeGennesLC : public baseLatticeForce
         shared_ptr<kernelTuner> forceAssistTuner;
         //!performance for the boundary force kernel
         shared_ptr<kernelTuner> boundaryForceTuner;
+        //!performance for the l24 force kernel
+        shared_ptr<kernelTuner> l24ForceTuner;
     };
 
 #endif

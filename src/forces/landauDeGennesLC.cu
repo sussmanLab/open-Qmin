@@ -526,6 +526,125 @@ __global__ void gpu_qTensor_threeConstantForce_kernel(dVec *d_force,
         d_force[idx] += force;
     }
 
+__global__ void gpu_qTensor_l24Force_kernel(dVec *d_force,
+                                int *d_types,
+                                cubicLatticeDerivativeVector *d_derivatives,
+                                Index3D latticeIndex,
+                                int N,
+                                scalar L24,
+                                bool zeroForce)
+    {
+    unsigned int idx = blockDim.x * blockIdx.x + threadIdx.x;
+    if (idx >= N)
+        return;
+    int3 target = latticeIndex.inverseIndex(idx);
+    int3 latticeSizes = latticeIndex.getSizes();
+    dVec force(0.0);
+
+    if(d_types[idx] <= 0) //no force on sites that are part of boundaries
+        {
+        //get neighbor indices and data
+        int ixd, ixu,iyd,iyu,izd,izu;
+        gpu_get_six_neighbors(target,ixd, ixu,iyd,iyu,izd,izu,latticeIndex,latticeSizes);
+        cubicLatticeDerivativeVector qCurrentDerivative = d_derivatives[idx];
+        cubicLatticeDerivativeVector xDownDerivative = d_derivatives[ixd];
+        cubicLatticeDerivativeVector xUpDerivative = d_derivatives[ixu];
+        cubicLatticeDerivativeVector yDownDerivative = d_derivatives[iyd];
+        cubicLatticeDerivativeVector yUpDerivative = d_derivatives[iyu];
+        cubicLatticeDerivativeVector zDownDerivative = d_derivatives[izd];
+        cubicLatticeDerivativeVector zUpDerivative = d_derivatives[izu];
+
+        dVec xMinusTerm(0.0);
+        dVec xPlusTerm(0.0);
+        dVec yMinusTerm(0.0);
+        dVec yPlusTerm(0.0);
+        dVec zMinusTerm(0.0);
+        dVec zPlusTerm(0.0);
+        if(d_types[ixd] <= 0) //xMinus
+            {
+            xMinusTerm[0]=(3*L24*(qCurrentDerivative[6] + xDownDerivative[6] + 2*(qCurrentDerivative[12] + xDownDerivative[12])))/2.;
+
+            xMinusTerm[1]=(-3*L24*(qCurrentDerivative[5] - qCurrentDerivative[8] - qCurrentDerivative[14] + xDownDerivative[5] - xDownDerivative[8] - xDownDerivative[14]))/2.;
+
+            xMinusTerm[2]=(-3*L24*(-qCurrentDerivative[9] + 2*qCurrentDerivative[10] + qCurrentDerivative[13] - xDownDerivative[9] + 2*xDownDerivative[10] + xDownDerivative[13]))/2.;
+
+            xMinusTerm[3]=(-3*L24*(qCurrentDerivative[6] - qCurrentDerivative[12] + xDownDerivative[6] - xDownDerivative[12]))/2.;
+
+            xMinusTerm[4]=(-3*L24*(qCurrentDerivative[7] + qCurrentDerivative[11] + xDownDerivative[7] + xDownDerivative[11]))/2.;
+            }
+        if(d_types[ixu] <= 0) //xPlus
+            {
+            xPlusTerm[0]=(-3*L24*(qCurrentDerivative[6] + xUpDerivative[6] + 2*(qCurrentDerivative[12] + xUpDerivative[12])))/2.;
+
+            xPlusTerm[1]=(-3*L24*(-qCurrentDerivative[5] + qCurrentDerivative[8] + qCurrentDerivative[14] - xUpDerivative[5] + xUpDerivative[8] + xUpDerivative[14]))/2.;
+
+            xPlusTerm[2]=(3*L24*(-qCurrentDerivative[9] + 2*qCurrentDerivative[10] + qCurrentDerivative[13] - xUpDerivative[9] + 2*xUpDerivative[10] + xUpDerivative[13]))/2.;
+
+            xPlusTerm[3]=(3*L24*(qCurrentDerivative[6] - qCurrentDerivative[12] + xUpDerivative[6] - xUpDerivative[12]))/2.;
+
+            xPlusTerm[4]=(3*L24*(qCurrentDerivative[7] + qCurrentDerivative[11] + xUpDerivative[7] + xUpDerivative[11]))/2.;
+            }
+
+        if(d_types[iyd] <= 0) //yMinus
+            {
+            yMinusTerm[0]=(-3*L24*(qCurrentDerivative[1] - qCurrentDerivative[14] + yDownDerivative[1] - yDownDerivative[14]))/2.;
+
+            yMinusTerm[1]=(3*L24*(qCurrentDerivative[0] - qCurrentDerivative[3] + qCurrentDerivative[12] + yDownDerivative[0] - yDownDerivative[3] + yDownDerivative[12]))/2.;
+
+            yMinusTerm[2]=(-3*L24*(qCurrentDerivative[4] + qCurrentDerivative[11] + yDownDerivative[4] + yDownDerivative[11]))/2.;
+
+            yMinusTerm[3]=(3*L24*(qCurrentDerivative[1] + yDownDerivative[1] + 2*(qCurrentDerivative[14] + yDownDerivative[14])))/2.;
+
+            yMinusTerm[4]=(-3*L24*(-qCurrentDerivative[2] + qCurrentDerivative[10] + 2*qCurrentDerivative[13] - yDownDerivative[2] + yDownDerivative[10] + 2*yDownDerivative[13]))/2.;
+            }
+
+        if(d_types[iyu] <= 0) //yPlus
+            {
+            yPlusTerm[0]=(3*L24*(qCurrentDerivative[1] - qCurrentDerivative[14] + yUpDerivative[1] - yUpDerivative[14]))/2.;
+
+            yPlusTerm[1]=(-3*L24*(qCurrentDerivative[0] - qCurrentDerivative[3] + qCurrentDerivative[12] + yUpDerivative[0] - yUpDerivative[3] + yUpDerivative[12]))/2.;
+
+            yPlusTerm[2]=(3*L24*(qCurrentDerivative[4] + qCurrentDerivative[11] + yUpDerivative[4] + yUpDerivative[11]))/2.;
+
+            yPlusTerm[3]=(-3*L24*(qCurrentDerivative[1] + yUpDerivative[1] + 2*(qCurrentDerivative[14] + yUpDerivative[14])))/2.;
+
+            yPlusTerm[4]=(3*L24*(-qCurrentDerivative[2] + qCurrentDerivative[10] + 2*qCurrentDerivative[13] - yUpDerivative[2] + yUpDerivative[10] + 2*yUpDerivative[13]))/2.;
+            }
+
+        if(d_types[izd] <= 0) //zMinus
+            {
+            zMinusTerm[0]=(-3*L24*(2*qCurrentDerivative[2] + qCurrentDerivative[9] + 2*zDownDerivative[2] + zDownDerivative[9]))/2.;
+
+            zMinusTerm[1]=(-3*L24*(qCurrentDerivative[4] + qCurrentDerivative[7] + zDownDerivative[4] + zDownDerivative[7]))/2.;
+
+            zMinusTerm[2]=(3*L24*(2*qCurrentDerivative[0] + qCurrentDerivative[3] + qCurrentDerivative[6] + 2*zDownDerivative[0] + zDownDerivative[3] + zDownDerivative[6]))/2.;
+
+            zMinusTerm[3]=(-3*L24*(qCurrentDerivative[2] + zDownDerivative[2] + 2*(qCurrentDerivative[9] + zDownDerivative[9])))/2.;
+
+            zMinusTerm[4]=(3*L24*(qCurrentDerivative[1] + qCurrentDerivative[5] + 2*qCurrentDerivative[8] + zDownDerivative[1] + zDownDerivative[5] + 2*zDownDerivative[8]))/2.;
+            }
+
+        if(d_types[izu] <= 0) //zPlus
+            {
+            zPlusTerm[0]=(3*L24*(2*qCurrentDerivative[2] + qCurrentDerivative[9] + 2*zUpDerivative[2] + zUpDerivative[9]))/2.;
+
+            zPlusTerm[1]=(3*L24*(qCurrentDerivative[4] + qCurrentDerivative[7] + zUpDerivative[4] + zUpDerivative[7]))/2.;
+
+            zPlusTerm[2]=(-3*L24*(2*qCurrentDerivative[0] + qCurrentDerivative[3] + qCurrentDerivative[6] + 2*zUpDerivative[0] + zUpDerivative[3] + zUpDerivative[6]))/2.;
+
+            zPlusTerm[3]=(3*L24*(qCurrentDerivative[2] + zUpDerivative[2] + 2*(qCurrentDerivative[9] + zUpDerivative[9])))/2.;
+
+            zPlusTerm[4]=(-3*L24*(qCurrentDerivative[1] + qCurrentDerivative[5] + 2*qCurrentDerivative[8] + zUpDerivative[1] + zUpDerivative[5] + 2*zUpDerivative[8]))/2.;
+            }
+
+        force += xMinusTerm+xPlusTerm+yMinusTerm+yPlusTerm+zMinusTerm+zPlusTerm;
+        };
+    if(zeroForce)
+        d_force[idx] = force;
+    else
+        d_force[idx] += force;
+    };
+
 bool gpu_qTensor_computeBoundaryForcesGPU(dVec *d_force,
                                 dVec *d_spins,
                                 int *d_types,
@@ -619,4 +738,20 @@ bool gpu_qTensor_threeConstantForce(dVec *d_force,
     HANDLE_ERROR(cudaGetLastError());
     return cudaSuccess;
     }
+
+bool gpu_qTensor_computeL24ForcesGPU(dVec *d_force,
+                                    int *d_types,
+                                    cubicLatticeDerivativeVector *d_derivatives,
+                                    Index3D latticeIndex,
+                                    int N, scalar L24,
+                                    bool zeroOutForce,
+                                    int maxBlockSize)
+    {
+    unsigned int block_size = maxBlockSize;
+    unsigned int nblocks = N/block_size+1;
+    gpu_qTensor_l24Force_kernel<<<nblocks,block_size>>>(d_force,d_types,d_derivatives,latticeIndex,
+                                                                 N,L24,zeroOutForce);
+    HANDLE_ERROR(cudaGetLastError());
+    return cudaSuccess;
+    };
 /** @} */ //end of group declaration

@@ -23,6 +23,7 @@ landauDeGennesLC::landauDeGennesLC(scalar _A, scalar _B, scalar _C, scalar _L1, 
 void landauDeGennesLC::baseInitialization()
     {
     useNeighborList=false;
+    useL24 = false;
     forceTuner = make_shared<kernelTuner>(16,256,16,5,200000);
     boundaryForceTuner = make_shared<kernelTuner>(16,256,16,5,200000);
     energyComponents.resize(3);
@@ -180,7 +181,6 @@ void landauDeGennesLC::computeFirstDerivatives()
 
 void landauDeGennesLC::computeForceOneConstantCPU(GPUArray<dVec> &forces, bool zeroOutForce)
     {
-    energy=0.0;
     ArrayHandle<dVec> h_f(forces);
     if(zeroOutForce)
         for(int pp = 0; pp < lattice->getNumberOfParticles(); ++pp)
@@ -257,7 +257,6 @@ void landauDeGennesLC::computeForceTwoConstantCPU(GPUArray<dVec> &forces, bool z
     {
     //start by precomputing first d_derivatives
     computeFirstDerivatives();
-    energy=0.0;
     ArrayHandle<dVec> h_f(forces);
     if(zeroOutForce)
         for(int pp = 0; pp < lattice->getNumberOfParticles(); ++pp)
@@ -390,7 +389,6 @@ void landauDeGennesLC::computeForceThreeConstantCPU(GPUArray<dVec> &forces, bool
     {
     //start by precomputing first d_derivatives
     computeFirstDerivatives();
-    energy=0.0;
     ArrayHandle<dVec> h_f(forces);
     if(zeroOutForce)
         for(int pp = 0; pp < lattice->getNumberOfParticles(); ++pp)
@@ -519,6 +517,126 @@ void landauDeGennesLC::computeForceThreeConstantCPU(GPUArray<dVec> &forces, bool
         };
     };
 
+void landauDeGennesLC::computeL24ForcesCPU(GPUArray<dVec> &forces,bool zeroOutForce)
+{
+    //start by precomputing first d_derivatives if we're not in the 2 or 3 constant approx.
+    if(numberOfConstants==distortionEnergyType::oneConstant)
+        computeFirstDerivatives();
+    energy=0.0;
+    ArrayHandle<dVec> h_f(forces);
+    if(zeroOutForce)
+        for(int pp = 0; pp < lattice->getNumberOfParticles(); ++pp)
+            h_f.data[pp] = make_dVec(0.0);
+    ArrayHandle<int> latticeTypes(lattice->returnTypes());
+    ArrayHandle<cubicLatticeDerivativeVector> h_derivatives(forceCalculationAssist,access_location::host,access_mode::read);
+    //the current scheme for getting the six nearest neighbors
+    int neighNum;
+    vector<int> neighbors;
+    int currentIndex;
+    for (int i = 0; i < lattice->getNumberOfParticles(); ++i)
+        {
+        currentIndex = lattice->getNeighbors(i,neighbors,neighNum);
+        if(latticeTypes.data[currentIndex] <= 0)
+            {
+            int ixd = neighbors[0]; int ixu = neighbors[1];
+            int iyd = neighbors[2]; int iyu = neighbors[3];
+            int izd = neighbors[4]; int izu = neighbors[5];
+            cubicLatticeDerivativeVector qCurrentDerivative = h_derivatives.data[currentIndex];
+            cubicLatticeDerivativeVector xDownDerivative = h_derivatives.data[ixd];
+            cubicLatticeDerivativeVector xUpDerivative = h_derivatives.data[ixu];
+            cubicLatticeDerivativeVector yDownDerivative = h_derivatives.data[iyd];
+            cubicLatticeDerivativeVector yUpDerivative = h_derivatives.data[iyu];
+            cubicLatticeDerivativeVector zDownDerivative = h_derivatives.data[izd];
+            cubicLatticeDerivativeVector zUpDerivative = h_derivatives.data[izu];
+
+            dVec xMinusTerm(0.0);
+            dVec xPlusTerm(0.0);
+            dVec yMinusTerm(0.0);
+            dVec yPlusTerm(0.0);
+            dVec zMinusTerm(0.0);
+            dVec zPlusTerm(0.0);
+            if(latticeTypes.data[ixd] <= 0) //xMinus
+                {
+                xMinusTerm[0]=(3*L24*(qCurrentDerivative[6] + xDownDerivative[6] + 2*(qCurrentDerivative[12] + xDownDerivative[12])))/2.;
+
+                xMinusTerm[1]=(-3*L24*(qCurrentDerivative[5] - qCurrentDerivative[8] - qCurrentDerivative[14] + xDownDerivative[5] - xDownDerivative[8] - xDownDerivative[14]))/2.;
+
+                xMinusTerm[2]=(-3*L24*(-qCurrentDerivative[9] + 2*qCurrentDerivative[10] + qCurrentDerivative[13] - xDownDerivative[9] + 2*xDownDerivative[10] + xDownDerivative[13]))/2.;
+
+                xMinusTerm[3]=(-3*L24*(qCurrentDerivative[6] - qCurrentDerivative[12] + xDownDerivative[6] - xDownDerivative[12]))/2.;
+
+                xMinusTerm[4]=(-3*L24*(qCurrentDerivative[7] + qCurrentDerivative[11] + xDownDerivative[7] + xDownDerivative[11]))/2.;
+                }
+            if(latticeTypes.data[ixu] <= 0) //xPlus
+                {
+                xPlusTerm[0]=(-3*L24*(qCurrentDerivative[6] + xUpDerivative[6] + 2*(qCurrentDerivative[12] + xUpDerivative[12])))/2.;
+
+                xPlusTerm[1]=(-3*L24*(-qCurrentDerivative[5] + qCurrentDerivative[8] + qCurrentDerivative[14] - xUpDerivative[5] + xUpDerivative[8] + xUpDerivative[14]))/2.;
+
+                xPlusTerm[2]=(3*L24*(-qCurrentDerivative[9] + 2*qCurrentDerivative[10] + qCurrentDerivative[13] - xUpDerivative[9] + 2*xUpDerivative[10] + xUpDerivative[13]))/2.;
+
+                xPlusTerm[3]=(3*L24*(qCurrentDerivative[6] - qCurrentDerivative[12] + xUpDerivative[6] - xUpDerivative[12]))/2.;
+
+                xPlusTerm[4]=(3*L24*(qCurrentDerivative[7] + qCurrentDerivative[11] + xUpDerivative[7] + xUpDerivative[11]))/2.;
+                }
+
+            if(latticeTypes.data[iyd] <= 0) //yMinus
+                {
+                yMinusTerm[0]=(-3*L24*(qCurrentDerivative[1] - qCurrentDerivative[14] + yDownDerivative[1] - yDownDerivative[14]))/2.;
+
+                yMinusTerm[1]=(3*L24*(qCurrentDerivative[0] - qCurrentDerivative[3] + qCurrentDerivative[12] + yDownDerivative[0] - yDownDerivative[3] + yDownDerivative[12]))/2.;
+
+                yMinusTerm[2]=(-3*L24*(qCurrentDerivative[4] + qCurrentDerivative[11] + yDownDerivative[4] + yDownDerivative[11]))/2.;
+
+                yMinusTerm[3]=(3*L24*(qCurrentDerivative[1] + yDownDerivative[1] + 2*(qCurrentDerivative[14] + yDownDerivative[14])))/2.;
+
+                yMinusTerm[4]=(-3*L24*(-qCurrentDerivative[2] + qCurrentDerivative[10] + 2*qCurrentDerivative[13] - yDownDerivative[2] + yDownDerivative[10] + 2*yDownDerivative[13]))/2.;
+                }
+
+            if(latticeTypes.data[iyu] <= 0) //yPlus
+                {
+                yPlusTerm[0]=(3*L24*(qCurrentDerivative[1] - qCurrentDerivative[14] + yUpDerivative[1] - yUpDerivative[14]))/2.;
+
+                yPlusTerm[1]=(-3*L24*(qCurrentDerivative[0] - qCurrentDerivative[3] + qCurrentDerivative[12] + yUpDerivative[0] - yUpDerivative[3] + yUpDerivative[12]))/2.;
+
+                yPlusTerm[2]=(3*L24*(qCurrentDerivative[4] + qCurrentDerivative[11] + yUpDerivative[4] + yUpDerivative[11]))/2.;
+
+                yPlusTerm[3]=(-3*L24*(qCurrentDerivative[1] + yUpDerivative[1] + 2*(qCurrentDerivative[14] + yUpDerivative[14])))/2.;
+
+                yPlusTerm[4]=(3*L24*(-qCurrentDerivative[2] + qCurrentDerivative[10] + 2*qCurrentDerivative[13] - yUpDerivative[2] + yUpDerivative[10] + 2*yUpDerivative[13]))/2.;
+                }
+
+            if(latticeTypes.data[izd] <= 0) //zMinus
+                {
+                zMinusTerm[0]=(-3*L24*(2*qCurrentDerivative[2] + qCurrentDerivative[9] + 2*zDownDerivative[2] + zDownDerivative[9]))/2.;
+
+                zMinusTerm[1]=(-3*L24*(qCurrentDerivative[4] + qCurrentDerivative[7] + zDownDerivative[4] + zDownDerivative[7]))/2.;
+
+                zMinusTerm[2]=(3*L24*(2*qCurrentDerivative[0] + qCurrentDerivative[3] + qCurrentDerivative[6] + 2*zDownDerivative[0] + zDownDerivative[3] + zDownDerivative[6]))/2.;
+
+                zMinusTerm[3]=(-3*L24*(qCurrentDerivative[2] + zDownDerivative[2] + 2*(qCurrentDerivative[9] + zDownDerivative[9])))/2.;
+
+                zMinusTerm[4]=(3*L24*(qCurrentDerivative[1] + qCurrentDerivative[5] + 2*qCurrentDerivative[8] + zDownDerivative[1] + zDownDerivative[5] + 2*zDownDerivative[8]))/2.;
+                }
+
+            if(latticeTypes.data[izu] <= 0) //zPlus
+                {
+                zPlusTerm[0]=(3*L24*(2*qCurrentDerivative[2] + qCurrentDerivative[9] + 2*zUpDerivative[2] + zUpDerivative[9]))/2.;
+
+                zPlusTerm[1]=(3*L24*(qCurrentDerivative[4] + qCurrentDerivative[7] + zUpDerivative[4] + zUpDerivative[7]))/2.;
+
+                zPlusTerm[2]=(-3*L24*(2*qCurrentDerivative[0] + qCurrentDerivative[3] + qCurrentDerivative[6] + 2*zUpDerivative[0] + zUpDerivative[3] + zUpDerivative[6]))/2.;
+
+                zPlusTerm[3]=(3*L24*(qCurrentDerivative[2] + zUpDerivative[2] + 2*(qCurrentDerivative[9] + zUpDerivative[9])))/2.;
+
+                zPlusTerm[4]=(-3*L24*(qCurrentDerivative[1] + qCurrentDerivative[5] + 2*qCurrentDerivative[8] + zUpDerivative[1] + zUpDerivative[5] + 2*zUpDerivative[8]))/2.;
+                }
+
+            h_f.data[currentIndex] += xMinusTerm+xPlusTerm+yMinusTerm+yPlusTerm+zMinusTerm+zPlusTerm;
+            };
+        };
+    };
+
 void landauDeGennesLC::computeBoundaryForcesCPU(GPUArray<dVec> &forces,bool zeroOutForce)
     {
 
@@ -570,70 +688,75 @@ void landauDeGennesLC::computeBoundaryForcesCPU(GPUArray<dVec> &forces,bool zero
         }
     };
 
-void landauDeGennesLC::computeForceOneConstantGPU(GPUArray<dVec> &forces, bool zeroOutForce)
+void landauDeGennesLC::computeForceGPU(GPUArray<dVec> &forces,bool zeroOutForce)
     {
     int N = lattice->getNumberOfParticles();
     ArrayHandle<dVec> d_force(forces,access_location::device,access_mode::readwrite);
     ArrayHandle<dVec> d_spins(lattice->returnPositions(),access_location::device,access_mode::read);
     ArrayHandle<int>  d_latticeTypes(lattice->returnTypes(),access_location::device,access_mode::read);
 
-    forceTuner->begin();
-    gpu_qTensor_oneConstantForce(d_force.data,
-                              d_spins.data,
-                              d_latticeTypes.data,
-                              lattice->latticeIndex,
-                              A,B,C,L1,
-                              N,
-                              zeroOutForce,
-                              forceTuner->getParameter()
-                              );
+    switch (numberOfConstants)
+        {
+        case distortionEnergyType::oneConstant :
+            {
+            forceTuner->begin();
+            gpu_qTensor_oneConstantForce(d_force.data, d_spins.data, d_latticeTypes.data, lattice->latticeIndex,
+                                          A,B,C,L1,N,
+                                          zeroOutForce,forceTuner->getParameter());
+            break;
+            };
+        case distortionEnergyType::twoConstant :
+            {
+            computeFirstDerivatives();
+            ArrayHandle<cubicLatticeDerivativeVector> d_derivatives(forceCalculationAssist,access_location::device,access_mode::read);
+            forceTuner->begin();
+            gpu_qTensor_twoConstantForce(d_force.data, d_spins.data, d_latticeTypes.data, d_derivatives.data,
+                                        lattice->latticeIndex,
+                                        A,B,C,L1,L2,q0,N,
+                                        zeroOutForce,
+                                        forceTuner->getParameter());
+            break;
+            }
+        case distortionEnergyType::threeConstant :
+            {
+            computeFirstDerivatives();
+            ArrayHandle<cubicLatticeDerivativeVector> d_derivatives(forceCalculationAssist,access_location::device,access_mode::read);
+            forceTuner->begin();
+            gpu_qTensor_threeConstantForce(d_force.data,d_spins.data,d_latticeTypes.data,d_derivatives.data,
+                                      lattice->latticeIndex,
+                                      A,B,C,L1,L2,L3,
+                                      N, zeroOutForce,
+                                      forceTuner->getParameter());
+            break;
+            }
+        };
     forceTuner->end();
+    if(lattice->boundaries.getNumElements() >0)
+        {
+        computeBoundaryForcesGPU(forces,false);
+        };
+    if(useL24)
+        {
+        if(numberOfConstants==distortionEnergyType::oneConstant)
+            computeFirstDerivatives();
+        computeL24ForcesGPU(forces, false);
+        };
     };
 
-void landauDeGennesLC::computeForceTwoConstantGPU(GPUArray<dVec> &forces, bool zeroOutForce)
+void landauDeGennesLC::computeL24ForcesGPU(GPUArray<dVec> &forces,bool zeroOutForce)
     {
-    computeFirstDerivatives();
     int N = lattice->getNumberOfParticles();
     ArrayHandle<dVec> d_force(forces,access_location::device,access_mode::readwrite);
-    ArrayHandle<dVec> d_spins(lattice->returnPositions(),access_location::device,access_mode::read);
     ArrayHandle<int>  d_latticeTypes(lattice->returnTypes(),access_location::device,access_mode::read);
     ArrayHandle<cubicLatticeDerivativeVector> d_derivatives(forceCalculationAssist,access_location::device,access_mode::read);
-
-    forceTuner->begin();
-    gpu_qTensor_twoConstantForce(d_force.data,
-                              d_spins.data,
+    l24ForceTuner->begin();
+    gpu_qTensor_computeL24ForcesGPU(d_force.data,
                               d_latticeTypes.data,
                               d_derivatives.data,
                               lattice->latticeIndex,
-                              A,B,C,L1,L2,q0,
-                              N,
-                              zeroOutForce,
-                              forceTuner->getParameter()
-                              );
-    forceTuner->end();
-    };
-
-void landauDeGennesLC::computeForceThreeConstantGPU(GPUArray<dVec> &forces, bool zeroOutForce)
-    {
-    computeFirstDerivatives();
-    int N = lattice->getNumberOfParticles();
-    ArrayHandle<dVec> d_force(forces,access_location::device,access_mode::readwrite);
-    ArrayHandle<dVec> d_spins(lattice->returnPositions(),access_location::device,access_mode::read);
-    ArrayHandle<int>  d_latticeTypes(lattice->returnTypes(),access_location::device,access_mode::read);
-    ArrayHandle<cubicLatticeDerivativeVector> d_derivatives(forceCalculationAssist,access_location::device,access_mode::read);
-
-    forceTuner->begin();
-    gpu_qTensor_threeConstantForce(d_force.data,
-                              d_spins.data,
-                              d_latticeTypes.data,
-                              d_derivatives.data,
-                              lattice->latticeIndex,
-                              A,B,C,L1,L2,L3,
-                              N,
-                              zeroOutForce,
-                              forceTuner->getParameter()
-                              );
-    forceTuner->end();
+                              N,L24,zeroOutForce,
+                              boundaryForceTuner->getParameter());
+    l24ForceTuner->end();
     };
 
 void landauDeGennesLC::computeBoundaryForcesGPU(GPUArray<dVec> &forces,bool zeroOutForce)
@@ -759,6 +882,10 @@ void landauDeGennesLC::computeEnergyCPU()
                     break;
                     }
                 };
+            if(useL24)
+                {
+                distortionEnergy += 3*L24*(firstDerivativeX[1]*firstDerivativeY[0] - firstDerivativeX[0]*firstDerivativeY[1] + firstDerivativeX[3]*firstDerivativeY[1] + firstDerivativeX[4]*firstDerivativeY[2] - firstDerivativeX[1]*firstDerivativeY[3] - firstDerivativeX[2]*firstDerivativeY[4] + 2*firstDerivativeX[2]*firstDerivativeZ[0] + firstDerivativeY[4]*firstDerivativeZ[0] + firstDerivativeX[4]*firstDerivativeZ[1] + firstDerivativeY[2]*firstDerivativeZ[1] - (2*firstDerivativeX[0] + firstDerivativeX[3] + firstDerivativeY[1])*firstDerivativeZ[2] + firstDerivativeX[2]*firstDerivativeZ[3] + 2*firstDerivativeY[4]*firstDerivativeZ[3] - (firstDerivativeX[1] + firstDerivativeY[0] + 2*firstDerivativeY[3])*firstDerivativeZ[4]);
+                }
             }
         };
     energy = (phaseEnergy + distortionEnergy + anchoringEnergy) / LCSites;
