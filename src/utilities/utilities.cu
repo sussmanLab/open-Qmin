@@ -188,6 +188,50 @@ __global__ void gpu_dVec_dot_products_kernel(dVec *input1, dVec *input2, scalar 
     };
 
 /*!
+This kernel basically performs the operation of the "reduction3" kernel, but the shared memory gets
+dot products
+*/
+__global__ void gpu_unrolled_dVec_dot_products_kernel(dVec *input1, dVec *input2, scalar *output,int N)
+    {
+    extern __shared__ scalar sharedArray[];
+    unsigned int tidx = threadIdx.x;
+    unsigned int i = 2*blockDim.x * blockIdx.x + threadIdx.x;
+
+    int p1 = i / DIMENSION;
+    int d1 = i % DIMENSION;
+    int p2 = (i+blockDim.x) / DIMENSION;
+    int d2 = (i+blockDim.x) % DIMENSION;
+
+    if(i+blockDim.x < N)
+        sharedArray[tidx] = input1[p1][d1]*input2[p1][d1] + input1[p2][d2]*input2[p2][d2];
+    else if(i < N)
+        sharedArray[tidx] = input1[p1][d1]*input2[p1][d1];
+    else
+        sharedArray[tidx] = 0.0;
+    __syncthreads();
+
+    //reduce
+    for (int stride = blockDim.x/2;stride >32; stride >>=1)
+        {
+        if(tidx<stride)
+            sharedArray[tidx] += sharedArray[tidx+stride];
+        __syncthreads();
+        }
+    if(tidx < 32)
+        {
+        sharedArray[tidx] += sharedArray[tidx+32];
+        sharedArray[tidx] += sharedArray[tidx+16];
+        sharedArray[tidx] += sharedArray[tidx+8];
+        sharedArray[tidx] += sharedArray[tidx+4];
+        sharedArray[tidx] += sharedArray[tidx+2];
+        sharedArray[tidx] += sharedArray[tidx+1];
+        }
+    //write to the correct block of the output array
+    if (tidx==0)
+        output[blockIdx.x] = sharedArray[0];
+    };
+
+/*!
   A function of poorly written convenience...zero out an array on the device
   */
 __global__ void gpu_zero_array_kernel(dVec *arr,
@@ -258,7 +302,6 @@ __global__ void gpu_zero_array_kernel(int *arr,
     unsigned int idx = blockDim.x * blockIdx.x + threadIdx.x;
     if (idx >= N)
         return;
-
     arr[idx] = 0;
     return;
     };
@@ -468,16 +511,19 @@ takes the dot product of every element of the two input arrays and performs a re
 */
 bool gpu_dVec_dot_products(dVec *input1,dVec *input2, scalar *intermediate, scalar *output, int helperIdx, int N,int block_size)
     {
+    //int problemSize = DIMENSION*N;
+    //unsigned int nblocks  = problemSize/block_size + 1;
     unsigned int nblocks  = N/block_size + 1;
     //first do a block reduction of input
     unsigned int smem = block_size*sizeof(scalar);
 
     //Do a block reduction of the input array
+    //gpu_unrolled_dVec_dot_products_kernel<<<nblocks,block_size,smem>>>(input1,input2,intermediate, problemSize);
     gpu_dVec_dot_products_kernel<<<nblocks,block_size,smem>>>(input1,input2,intermediate, N);
     HANDLE_ERROR(cudaGetLastError());
 
     //sum reduce the temporary array, saving the result in the right slot of the output array
-    int nb=256;
+    int nb=1024;
     if(nblocks < nb) nb = 1;
     gpu_serial_reduction_kernel2<<<1,nb,nb*sizeof(scalar)>>>(intermediate,output,helperIdx,nblocks+1);
     HANDLE_ERROR(cudaGetLastError());

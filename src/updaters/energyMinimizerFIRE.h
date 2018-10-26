@@ -103,5 +103,9 @@ class energyMinimizerFIRE : public velocityVerlet
         GPUArray<scalar> sumReductionIntermediate;
         //!Utility array for simple reductions
         GPUArray<scalar> sumReductions;
+
+        //!kernel tuner for performance
+        shared_ptr<kernelTuner> dotProductTuner;
+
     };
 #endif

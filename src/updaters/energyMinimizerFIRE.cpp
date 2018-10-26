@@ -21,6 +21,7 @@ Initialize the minimizer with some default parameters. that do not depend on Ndo
 */
 void energyMinimizerFIRE::initializeParameters()
     {
+    dotProductTuner = make_shared<kernelTuner>(64,512,32,5,200000);
     sumReductions.resize(3);
     iterations = 0;
     Power = 0;
@@ -75,11 +76,12 @@ void energyMinimizerFIRE::fireStepGPU()
     ArrayHandle<scalar> d_intermediate(sumReductionIntermediate,access_location::device,access_mode::overwrite);
     {//scope for reduction / assist array
     ArrayHandle<scalar> d_assist(sumReductions,access_location::device,access_mode::overwrite);
-    int maxBlockSize = 128;
-    if(Ndof < maxBlockSize) maxBlockSize = 16;
+    dotProductTuner->begin();
+    int maxBlockSize = dotProductTuner->getParameter();
     gpu_dVec_dot_products(d_f.data,d_f.data,d_intermediate.data,d_assist.data,0,Ndof,maxBlockSize);
     gpu_dVec_dot_products(d_f.data,d_v.data,d_intermediate.data,d_assist.data,1,Ndof,maxBlockSize);
     gpu_dVec_dot_products(d_v.data,d_v.data,d_intermediate.data,d_assist.data,2,Ndof,maxBlockSize);
+    dotProductTuner->end();
     }//scope for reduction array
     ArrayHandle<scalar> h_assist(sumReductions,access_location::host,access_mode::read);
     scalar forceNorm = h_assist.data[0];

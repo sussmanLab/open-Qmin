@@ -228,7 +228,7 @@ __global__ void gpu_qTensor_oneConstantForce_kernel(dVec *d_force,
         xDown = d_spins[ixd]; xUp = d_spins[ixu];
         yDown = d_spins[iyd]; yUp = d_spins[iyu];
         zDown = d_spins[izd]; zUp = d_spins[izu];
-        dVec spatialTerm(0.0);
+        dVec spatialTerm;
         if(d_types[idx] == 0) // bulk is easy
             {
             spatialTerm = l*(6.0*qCurrent-xDown-xUp-yDown-yUp-zDown-zUp);
@@ -239,8 +239,13 @@ __global__ void gpu_qTensor_oneConstantForce_kernel(dVec *d_force,
             spatialTerm[3] += AxxAyy;
             spatialTerm[4] *= 2.0;
             }
-        else //near a boundary is less easy
+        else //near a boundary is less easy... ternary operators are slightly better than many ifs (particularly if boundaries are typically jagged)
             {
+            scalar xD = (d_types[ixd]<1) ? 1. : 0.;scalar xU = (d_types[ixu]<1) ? 1. : 0.;
+            scalar yD = (d_types[iyd]<1) ? 1. : 0.;scalar yU = (d_types[iyu]<1) ? 1. : 0.;
+            scalar zD = (d_types[izd]<1) ? 1. : 0.;scalar zU = (d_types[izu]<1) ? 1. : 0.;
+            spatialTerm = xD*(qCurrent - xDown) + xU*(qCurrent - xUp) + yD*(qCurrent - yDown) + yU*(qCurrent - yUp) + zD*(qCurrent - zDown) + zU*(qCurrent - zUp);
+            /*
             if(d_types[ixd] <=0)
                 spatialTerm += qCurrent - xDown;
             if(d_types[ixu] <=0)
@@ -253,6 +258,7 @@ __global__ void gpu_qTensor_oneConstantForce_kernel(dVec *d_force,
                 spatialTerm += qCurrent - zDown;
             if(d_types[izu] <=0)
                 spatialTerm += qCurrent - zUp;
+            */
             scalar AxxAyy = spatialTerm[0]+spatialTerm[3];
             spatialTerm[0] += AxxAyy;
             spatialTerm[1] *= 2.0;
