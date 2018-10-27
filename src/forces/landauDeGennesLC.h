@@ -12,6 +12,7 @@ class landauDeGennesLC : public baseLatticeForce
     {
     public:
 
+        landauDeGennesLC();
         landauDeGennesLC(scalar _A, scalar _B, scalar _C, scalar _L1);
         landauDeGennesLC(scalar _A, scalar _B, scalar _C, scalar _L1, scalar _L2,scalar _L3orWavenumber, distortionEnergyType _type);
 
@@ -21,6 +22,11 @@ class landauDeGennesLC : public baseLatticeForce
         virtual void setModel(shared_ptr<cubicLattice> _model);
         //select the force routing based on the number of elastic constants
         virtual void computeForceGPU(GPUArray<dVec> &forces,bool zeroOutForce = true);
+
+        void setPhaseConstants(scalar _a=-1, scalar _b =-12.325581395, scalar _c =  10.058139535){A=_a;B=_b;C=_c;};
+        void setElasticConstants(scalar _l1=2.32,scalar _l2=2.32, scalar _l3orq0=0){L1=_l1;L2=_l2;L3=_l3orq0; q0=_l3orq0;};
+        void setNumberOfConstants(distortionEnergyType _type){numberOfConstants = _type;};
+
 
         void setL24(scalar _l24){L24=_l24;useL24=true;};
 

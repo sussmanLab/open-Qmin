@@ -4,6 +4,11 @@
 #include "utilities.cuh"
 /*! \file landauDeGennesLC.cpp */
 
+landauDeGennesLC::landauDeGennesLC()
+    {
+    baseInitialization();
+    }
+
 landauDeGennesLC::landauDeGennesLC(double _A, double _B, double _C, double _L1) :
     A(_A), B(_B), C(_C), L1(_L1)
     {
