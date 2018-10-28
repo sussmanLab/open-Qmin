@@ -36,7 +36,7 @@ class energyMinimizerFIRE : public velocityVerlet
         //!Set the maximum number of iterations before terminating (or set to -1 to ignore)
         void setMaximumIterations(int maxIt){maxIterations = maxIt;};
         int getCurrentIterations(){return iterations;};
-        void setCurrentIterations(int &newIterations){iterations=newIterations;};
+        void setCurrentIterations(int newIterations){iterations=newIterations;};
         //!Set the force cutoff
         void setForceCutoff(scalar fc){forceCutoff = fc;};
         //!set the initial value of deltaT
