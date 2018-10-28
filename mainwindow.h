@@ -45,6 +45,8 @@ private slots:
     void on_fireParamButton_released();
     void on_addIterationsButton_released();
 
+    void on_drawStuffButton_released();
+
 private:
     Ui::MainWindow *ui;
 

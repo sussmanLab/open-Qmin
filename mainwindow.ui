@@ -1236,6 +1236,87 @@ border: 1px solid purple</string>
      </layout>
     </widget>
    </widget>
+   <widget class="OGLWidget" name="displayZone">
+    <property name="geometry">
+     <rect>
+      <x>640</x>
+      <y>20</y>
+      <width>351</width>
+      <height>281</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="drawStuffButton">
+    <property name="geometry">
+     <rect>
+      <x>760</x>
+      <y>310</y>
+      <width>114</width>
+      <height>32</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Draw stuff!</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="directorScaleBox">
+    <property name="geometry">
+     <rect>
+      <x>940</x>
+      <y>310</y>
+      <width>43</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>1.5</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_39">
+    <property name="geometry">
+     <rect>
+      <x>880</x>
+      <y>310</y>
+      <width>60</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>director scale</string>
+    </property>
+    <property name="wordWrap">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_40">
+    <property name="geometry">
+     <rect>
+      <x>660</x>
+      <y>310</y>
+      <width>60</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>lattice skip</string>
+    </property>
+    <property name="wordWrap">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="latticeSkipBox">
+    <property name="geometry">
+     <rect>
+      <x>710</x>
+      <y>310</y>
+      <width>43</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>5</string>
+    </property>
+   </widget>
    <widget class="QWidget" name="">
     <property name="geometry">
      <rect>
@@ -1256,7 +1337,7 @@ border: 1px solid purple</string>
      <item>
       <widget class="QPushButton" name="addIterationsButton">
        <property name="text">
-        <string>add iterations</string>
+        <string>minimize more!</string>
        </property>
       </widget>
      </item>
@@ -1277,6 +1358,12 @@ border: 1px solid purple</string>
    <zorder>fireParametersWidget</zorder>
    <zorder>addIterationsButton</zorder>
    <zorder>addIterationsBox</zorder>
+   <zorder>displayZone</zorder>
+   <zorder>drawStuffButton</zorder>
+   <zorder>directorScaleBox</zorder>
+   <zorder>label_39</zorder>
+   <zorder>label_40</zorder>
+   <zorder>latticeSkipBox</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
@@ -1346,6 +1433,13 @@ border: 1px solid purple</string>
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>OGLWidget</class>
+   <extends>QOpenGLWidget</extends>
+   <header>oglwidget.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>

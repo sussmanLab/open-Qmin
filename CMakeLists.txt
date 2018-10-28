@@ -11,6 +11,8 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 find_package(Qt5Widgets REQUIRED)
 find_package(Qt5OpenGL REQUIRED)
+find_package(Qt5 COMPONENTS Core Gui Widgets 3DCore 3DExtras 3DRender 3DInput)
+find_package(OpenGL)
 add_definitions( ${QT_DEFINITIONS} )
 
 set(CMAKE_CC_FLAGS "${CMAKE_CC_FLAGS} ")
@@ -42,7 +44,7 @@ message("culibs = " "${CUDA_LIBRARIES}")
 
 add_subdirectory(src)
 
-include_directories(inc ${CUDA_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS} src src/utilities src/simulation src/model src/forces src/updaters)
+include_directories(inc ${CUDA_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIRS} src src/utilities src/simulation src/model src/forces src/updaters)
 link_directories(${CUDA_LIBRARY_DIRS})
 
 set(myLibs
@@ -59,11 +61,17 @@ set(myLibs
 message("libraries = " "${myLibs}")
 
 qt5_wrap_ui(UI_HEADERS mainwindow.ui)
-set(SOURCES mainwindow.cpp)
+set(SOURCES mainwindow.cpp oglwidget.cpp)
 set(HEADERS
        mainwindow.h
-   )
+       oglwidget.h
+    )
 
 add_executable(landauDeGUI.out cubicLatticeNematic.cpp ${SOURCES} ${HEADERS} ${UI_HEADERS})
-target_link_libraries(landauDeGUI.out ${myLibs} ${CUDA_LIBRARIES} Qt5::Widgets)
+target_link_libraries(landauDeGUI.out ${myLibs} ${CUDA_LIBRARIES} ${OPENGL_LIBRARIES} Qt5::Widgets Qt5::Core
+    Qt5::Gui
+    Qt5::3DCore
+    Qt5::3DExtras
+    Qt5::3DRender
+    Qt5::3DInput)
 qt5_use_modules(landauDeGUI.out Widgets)
