@@ -2,6 +2,7 @@
 #define QTENSORFUNCTIONS_H
 
 #include "std_include.h"
+#include "symmetric3x3Eigensolver.h"
 
 /*!
 The Q-tensor has five independent components, which will get passed around in dVec structures...
@@ -120,6 +121,37 @@ HOSTDEVICE scalar determinantOfQ(dVec &q)
     return q[3]*(q[1]*q[1] - q[0]*q[0] - q[2]*q[2]) + 2*q[1]*q[2]*q[4] +
            q[0]*(q[1]*q[1] - q[3]*q[3] - q[4]*q[4]);
     };
+
+//!get the eigensystem associated with a Q tensor
+HOSTDEVICE void eigensystemOfQ(dVec &q, vector<scalar> &eVals,
+                                vector<scalar> &eVec1, vector<scalar> &eVec2, vector<scalar> &eVec3)
+    {
+
+    std::array<scalar, 3> evals;
+    std::array<std::array<scalar, 3>, 3> evecs;
+
+    NISymmetricEigensolver3x3 eigenSolver;
+    eigenSolver(q[0],q[1],q[2],q[3],q[4],-q[0]-q[3],evals,evecs);
+
+    eVals[0]=evals[0];eVals[1]=evals[1];eVals[2]=evals[2];
+
+    eVec1[0] = q[0]*evecs[0][0]+q[1]*evecs[0][1] + q[2]*evecs[0][2];
+    eVec1[1] = q[1]*evecs[0][0]+q[3]*evecs[0][1] + q[4]*evecs[0][2];
+    eVec1[2] = q[2]*evecs[0][0]+q[4]*evecs[0][1] + (-q[0]-q[3])*evecs[0][2];
+
+    eVec2[0] = q[0]*evecs[1][0]+q[1]*evecs[1][1] + q[2]*evecs[1][2];
+    eVec2[1] = q[1]*evecs[1][0]+q[3]*evecs[1][1] + q[4]*evecs[1][2];
+    eVec2[2] = q[2]*evecs[1][0]+q[4]*evecs[1][1] + (-q[0]-q[3])*evecs[1][2];
+
+    eVec3[0] = q[0]*evecs[2][0]+q[1]*evecs[2][1] + q[2]*evecs[2][2];
+    eVec3[1] = q[1]*evecs[2][0]+q[3]*evecs[2][1] + q[4]*evecs[2][2];
+    eVec3[2] = q[2]*evecs[2][0]+q[4]*evecs[2][1] + (-q[0]-q[3])*evecs[2][2];
+
+    printf("%f %f %f\n",eVals[0],eVals[1],eVals[2]);
+    printf("%f %f %f\t%f\n",eVec1[0],eVec1[1],eVec1[2],evecs[0][0]/eVec1[0]);
+    printf("%f %f %f\t%f\n",eVec2[0],eVec2[1],eVec2[2],evecs[1][0]/eVec2[0]);
+    printf("%f %f %f\t%f\n",eVec3[0],eVec3[1],eVec3[2],evecs[2][0]/eVec3[0]);
+    }
 
 //!Get the eigenvalues of a real symmetric traceless 3x3 matrix
 HOSTDEVICE void eigenvaluesOfQ(dVec &q,scalar &a,scalar &b,scalar &c)
