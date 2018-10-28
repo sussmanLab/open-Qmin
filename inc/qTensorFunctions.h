@@ -147,10 +147,10 @@ HOSTDEVICE void eigensystemOfQ(dVec &q, vector<scalar> &eVals,
     eVec3[1] = q[1]*evecs[2][0]+q[3]*evecs[2][1] + q[4]*evecs[2][2];
     eVec3[2] = q[2]*evecs[2][0]+q[4]*evecs[2][1] + (-q[0]-q[3])*evecs[2][2];
 
-    printf("%f %f %f\n",eVals[0],eVals[1],eVals[2]);
-    printf("%f %f %f\t%f\n",eVec1[0],eVec1[1],eVec1[2],evecs[0][0]/eVec1[0]);
-    printf("%f %f %f\t%f\n",eVec2[0],eVec2[1],eVec2[2],evecs[1][0]/eVec2[0]);
-    printf("%f %f %f\t%f\n",eVec3[0],eVec3[1],eVec3[2],evecs[2][0]/eVec3[0]);
+    //printf("%f %f %f\n",eVals[0],eVals[1],eVals[2]);
+    //printf("%f %f %f\t%f\n",eVec1[0],eVec1[1],eVec1[2],evecs[0][0]/eVec1[0]);
+    //printf("%f %f %f\t%f\n",eVec2[0],eVec2[1],eVec2[2],evecs[1][0]/eVec2[0]);
+    //printf("%f %f %f\t%f\n",eVec3[0],eVec3[1],eVec3[2],evecs[2][0]/eVec3[0]);
     }
 
 //!Get the eigenvalues of a real symmetric traceless 3x3 matrix
