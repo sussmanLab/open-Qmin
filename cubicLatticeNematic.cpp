@@ -190,6 +190,20 @@ int main(int argc, char*argv[])
 
         myfile.close();
         }
+        /*
+    ArrayHandle<dVec> pp(Configuration->returnPositions());
+    vector<scalar> eVals(3);
+    vector<scalar> eVec1(3);
+    vector<scalar> eVec2(3);
+    vector<scalar> eVec3(3);
+    printdVec(pp.data[10]);
+    eigensystemOfQ(pp.data[10],eVals,eVec1,eVec2,eVec3);
+
+    printdVec(Configuration->averagePosition());
+    dVec avePos=Configuration->averagePosition();
+    eigensystemOfQ(avePos,eVals,eVec1,eVec2,eVec3);
+    */
+
     /*
     if(GPU && Nconstants == 1)
         landauLCForceOneConstant->printTuners();
