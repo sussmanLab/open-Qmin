@@ -1,9 +1,14 @@
 #include "oglwidget.h"
 #include <QOpenGLFunctions>
 
+
 OGLWidget::OGLWidget(QWidget *parent)
     : QOpenGLWidget(parent)
-{}
+{
+    xRot = 0;
+    yRot = 0;
+    zRot = 0;
+}
 
 OGLWidget::~OGLWidget()
 {
@@ -25,17 +30,26 @@ void OGLWidget::setLines(vector<scalar3> &lineSegments, int3 sizes)
     lines =lineSegments;
     for (int ii = 0; ii < lines.size(); ++ii)
     {
-        lines[ii].x = 2*((lines[ii].x-0.5*sizes.x)/sizes.x);
-        lines[ii].y = 2*((lines[ii].y-0.5*sizes.y)/sizes.y);
-        lines[ii].z = 2*((lines[ii].z-0.5*sizes.z)/sizes.z);
+        lines[ii].x = zoom*((lines[ii].x-0.5*sizes.x)/sizes.x);
+        lines[ii].y = zoom*((lines[ii].y-0.5*sizes.y)/sizes.y);
+        lines[ii].z = zoom*((lines[ii].z-0.5*sizes.z)/sizes.z);
     }
 }
 
-void OGLWidget::paintGL()
+void OGLWidget::setDefects(vector<scalar3> &def, int3 sizes)
 {
+    defects =def;
+    for (int ii = 0; ii < defects.size(); ++ii)
+    {
+        defects[ii].x = zoom*((defects[ii].x-0.5*sizes.x)/sizes.x);
+        defects[ii].y = zoom*((defects[ii].y-0.5*sizes.y)/sizes.y);
+        defects[ii].z = zoom*((defects[ii].z-0.5*sizes.z)/sizes.z);
+    }
+}
 
+void OGLWidget::draw()
+{
     glBegin(GL_LINES);
-
     for (int ii = 0; ii < lines.size(); ++ii)
     {
         glColor3f(1.0, 0.0, 0.0);
@@ -43,36 +57,26 @@ void OGLWidget::paintGL()
     }
 
     glEnd();
-    // All lines lie in the xy plane.
-    /*
-    GLfloat z = 0.0f;
-    for(GLfloat angle = 0.0; angle <= PI; angle += PI/20.0)
-      {
-      // Top half of the circle
-      GLfloat x = 1.0f*sin(angle);
-      GLfloat y = 1.0f*cos(angle);
-      GLfloat z = sin(angle);
-      if(iterator %2 == 0 )
-        glColor3f(1.0, 0.0, 0.0);
-      else
-          glColor3f(0.0, 0.0, 1.0);
-      glVertex3f(x, y, z);    // First endpoint of line
-
-      // Bottom half of the circle
-      x = 1.0f*sin(angle + PI);
-      y = 1.0f*cos(angle + PI);
-      z = sin(angle+PI);
-      if(iterator %2 == 0 )
+    glEnable(GL_PROGRAM_POINT_SIZE);
+    glPointSize(20.0);
+    glBegin(GL_POINTS);
+    for (int ii = 0; ii < defects.size(); ++ii)
+    {
         glColor3f(0.0, 0.0, 1.0);
-      else
-          glColor3f(1.0, 0.0, 0.0);
-      glVertex3f(x, y, z);    // Second endpoint of line
-      }
+        glVertex3f(defects[ii].x,defects[ii].y,defects[ii].z);
+    }
 
-    // Done drawing points
     glEnd();
-    iterator += 1;
-    */
+}
+
+void OGLWidget::paintGL()
+{
+    glLoadIdentity();
+        glTranslatef(0.0, 0.0, -10.0);
+        glRotatef(xRot / 4.0, 1.0, 0.0, 0.0);
+        glRotatef(yRot / 4.0, 0.0, 1.0, 0.0);
+        glRotatef(zRot / 4.0, 0.0, 0.0, 1.0);
+    draw();
 }
 
 void OGLWidget::resizeGL(int w, int h)
@@ -84,4 +88,55 @@ void OGLWidget::resizeGL(int w, int h)
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     gluLookAt(0,0,5,0,0,0,0,1,0);
+}
+
+static void qNormalizeAngle(int &angle)
+{
+    while (angle < 0)
+        angle += 360 * 16;
+    while (angle > 360)
+        angle -= 360 * 16;
+}
+/*
+void OGLWidget::xRotationChanged(int angle)
+{
+}
+
+void OGLWidget::yRotationChanged(int angle)
+{
+}
+
+void OGLWidget::zRotationChanged(int angle)
+{
+}
+*/
+
+void OGLWidget::setXRotation(int angle)
+{
+    qNormalizeAngle(angle);
+    if (angle != xRot) {
+        xRot = angle;
+        //emit xRotationChanged(angle);
+        update();
+    }
+}
+
+void OGLWidget::setYRotation(int angle)
+{
+    qNormalizeAngle(angle);
+    if (angle != yRot) {
+        yRot = angle;
+        //emit yRotationChanged(angle);
+        update();
+    }
+}
+
+void OGLWidget::setZRotation(int angle)
+{
+    qNormalizeAngle(angle);
+    if (angle != zRot) {
+        zRot = angle;
+        //emit zRotationChanged(angle);
+        update();
+    }
 }

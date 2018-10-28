@@ -47,6 +47,14 @@ private slots:
 
     void on_drawStuffButton_released();
 
+    void on_xRotSlider_valueChanged(int value);
+
+    void on_yRotSlider_valueChanged(int value);
+
+    void on_zRotSlider_valueChanged(int value);
+
+    void on_zoomSlider_valueChanged(int value);
+
 private:
     Ui::MainWindow *ui;
 
@@ -65,6 +73,7 @@ public:
     double L2=2.32;
     double L3=2.32;
     double q0=0.05;
+    int zoom = 1;
 
     noiseSource noise;
 

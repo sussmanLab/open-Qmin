@@ -22,6 +22,10 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+MainWindow::~MainWindow()
+{
+    delete ui;
+}
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -38,7 +42,6 @@ MainWindow::MainWindow(QWidget *parent) :
     hideControls();
     QString printable = QStringLiteral("Welcome to landauDeGUI, a graphical interface to a continuum LdG liquid crystal simulation package!");
     ui->testingBox->setText(printable);
-
 }
 
 void MainWindow::hideControls()
@@ -55,9 +58,18 @@ void MainWindow::hideControls()
     ui->latticeSkipBox->hide();
     ui->label_39->hide();
     ui->directorScaleBox->hide();
+    ui->label_41->hide();ui->label_42->hide();ui->label_43->hide();ui->label_44->hide();ui->label_45->hide();
+    ui->xRotSlider->hide();
+    ui->yRotSlider->hide();
+    ui->zRotSlider->hide();
+    ui->zoomSlider->hide();
+    ui->visualProgressCheckBox->hide();
+    ui->defectThresholdBox->hide();
+    ui->defectDrawCheckBox->hide();
 }
 void MainWindow::showControls()
 {
+    ui->defectDrawCheckBox->show();
     ui->resetQTensorsButton->show();
     ui->minimizeButton->show();
     ui->addObjectButton->show();
@@ -70,7 +82,71 @@ void MainWindow::showControls()
     ui->latticeSkipBox->show();
     ui->label_39->show();
     ui->directorScaleBox->show();
+    ui->label_41->show();ui->label_42->show();ui->label_43->show();ui->label_44->show();ui->label_45->show();
+    ui->xRotSlider->show();
+    ui->yRotSlider->show();
+    ui->zRotSlider->show();
+    ui->zoomSlider->show();
+    ui->visualProgressCheckBox->show();
+    ui->defectThresholdBox->show();
 }
+
+void MainWindow::on_initializeButton_released()
+{
+    ui->initializationFrame->hide();
+    BoxX = ui->boxXLine->text().toInt();
+    BoxY = ui->boxYLine->text().toInt();
+    BoxZ = ui->boxZLine->text().toInt();
+    noise.Reproducible= ui->reproducibleButton->isChecked();
+    int gpu = ui->CPUORGPU->text().toInt();
+    GPU = false;
+    if(gpu >=0)
+        GPU = chooseGPU(gpu);
+    A=ui->initialPhaseA->text().toDouble();
+    B=ui->initialPhaseB->text().toDouble();
+    C=ui->initialPhaseC->text().toDouble();
+
+    simulationInitialize();
+    ui->progressBar->setValue(50);
+    scalar S0 = (-B+sqrt(B*B-24*A*C))/(6*C);
+    Configuration->setNematicQTensorRandomly(noise,S0);
+
+    landauLCForce->setPhaseConstants(A,B,C);
+    int nC = ui->nConstantsSpinBox->value();
+    switch(nC)
+    {
+        case 1:
+            ui->setDistortionConstants1->show();
+            break;
+        case 2:
+            ui->setDistortionConstants2->show();
+            break;
+        case 3:
+            ui->setDistortionConstants3->show();
+            break;
+    }
+
+    boundaryObject homeotropicBoundary(boundaryType::homeotropic,1.0,S0);
+    boundaryObject planarDegenerateBoundary(boundaryType::degeneratePlanar,.582,S0);
+
+    scalar3 left;
+    left.x = 0.3*BoxX;left.y = 0.5*BoxY;left.z = 0.5*BoxZ;
+    scalar3 right;
+    right.x = 0.7*BoxX;right.y = 0.5*BoxY;right.z = 0.5*BoxZ;
+    if(nC!= 2)
+        {
+            Configuration->createSimpleFlatWallZNormal(0, planarDegenerateBoundary);
+            Configuration->createSimpleSpherialColloid(left,0.18*BoxX, homeotropicBoundary);
+            Configuration->createSimpleSpherialColloid(right, 0.18*BoxX, homeotropicBoundary);
+        };
+
+
+    QString printable = QStringLiteral("N %8 Lx %1 Ly %2 Lz %3 gpu %4... A %5 B %6 C %7 ")
+                        .arg(BoxX).arg(BoxY).arg(BoxZ).arg(gpu).arg(A).arg(B).arg(C).arg(Configuration->getNumberOfParticles());
+    ui->testingBox->setText(printable);
+    ui->progressBar->setValue(100);
+}
+
 void MainWindow::simulationInitialize()
 {
      Configuration = make_shared<qTensorLatticeModel>(BoxX,BoxY,BoxZ);
@@ -86,11 +162,6 @@ void MainWindow::simulationInitialize()
      fire = make_shared<energyMinimizerFIRE>(Configuration);
      sim->addUpdater(fire,Configuration);
      on_fireParamButton_released();
-}
-
-MainWindow::~MainWindow()
-{
-    delete ui;
 }
 
 void MainWindow::on_setPhaseConstantsButton_released()
@@ -142,46 +213,6 @@ void MainWindow::on_setThreeConstants_released()
     showControls();
 }
 
-void MainWindow::on_initializeButton_released()
-{
-    ui->initializationFrame->hide();
-    BoxX = ui->boxXLine->text().toInt();
-    BoxY = ui->boxYLine->text().toInt();
-    BoxZ = ui->boxZLine->text().toInt();
-    noise.Reproducible= ui->reproducibleButton->isChecked();
-    int gpu = ui->CPUORGPU->text().toInt();
-    GPU = false;
-    if(gpu >=0)
-        GPU = chooseGPU(gpu);
-    A=ui->initialPhaseA->text().toDouble();
-    B=ui->initialPhaseB->text().toDouble();
-    C=ui->initialPhaseC->text().toDouble();
-
-    simulationInitialize();
-    ui->progressBar->setValue(50);
-    scalar S0 = (-B+sqrt(B*B-24*A*C))/(6*C);
-    Configuration->setNematicQTensorRandomly(noise,S0);
-
-    landauLCForce->setPhaseConstants(A,B,C);
-    int nC = ui->nConstantsSpinBox->value();
-    switch(nC)
-    {
-        case 1:
-            ui->setDistortionConstants1->show();
-            break;
-        case 2:
-            ui->setDistortionConstants2->show();
-            break;
-        case 3:
-            ui->setDistortionConstants3->show();
-            break;
-    }
-    QString printable = QStringLiteral("Lx %1 Ly %2 Lz %3 gpu %4... A %5 B %6 C %7 ")
-                        .arg(BoxX).arg(BoxY).arg(BoxZ).arg(gpu).arg(A).arg(B).arg(C);
-    ui->testingBox->setText(printable);
-    ui->progressBar->setValue(100);
-}
-
 void MainWindow::on_fireParamButton_released()
 {
     ui->fireParametersWidget->hide();
@@ -208,14 +239,28 @@ void MainWindow::on_fireParamButton_released()
 
 void MainWindow::on_minimizeButton_released()
 {
+    bool graphicalProgress = ui->visualProgressCheckBox->isChecked();
+
     ui->progressBar->setValue(0);
     clock_t t1 = clock();
     int initialIterations = fire->getCurrentIterations();
-    sim->performTimestep();
+    if(!graphicalProgress)
+        sim->performTimestep();
+    else
+    {
+        int stepsToTake = fire->getMaxIterations();
+        for (int ii = 1; ii <= 10; ++ii)
+        {
+            fire->setMaximumIterations(fire->getCurrentIterations()+stepsToTake/10);
+            sim->performTimestep();
+            on_drawStuffButton_released();
+        };
+    };
     int iterationsTaken = fire->getCurrentIterations() - initialIterations;
     ui->progressBar->setValue(50);
     clock_t t2 = clock();
     ui->progressBar->setValue(75);
+
     scalar E = sim->computePotentialEnergy();
     ui->progressBar->setValue(80);
     scalar time =1.0*(t2-t1)/(1.0*CLOCKS_PER_SEC)/iterationsTaken;
@@ -242,6 +287,8 @@ void MainWindow::on_resetQTensorsButton_released()
     QString printable = QStringLiteral("simulation energy per site at: %1...").arg(E);
     ui->testingBox->setText(printable);
     ui->progressBar->setValue(100);
+    if(ui->visualProgressCheckBox->isChecked())
+        on_drawStuffButton_released();
 }
 
 void MainWindow::on_addIterationsButton_released()
@@ -254,26 +301,32 @@ void MainWindow::on_addIterationsButton_released()
 
 void MainWindow::on_drawStuffButton_released()
 {
-     ui->progressBar->setValue(0);
     ArrayHandle<dVec> Q(Configuration->returnPositions());
+    ArrayHandle<int> types(Configuration->returnTypes());
 
     int skip = ui->latticeSkipBox->text().toInt();
     scalar scale = ui->directorScaleBox->text().toDouble();
+    bool defectDraw = ui->defectDrawCheckBox->isChecked();
+    scalar defectCutoff = ui->defectThresholdBox->text().toDouble();
 
     int N = Configuration->getNumberOfParticles();
     int n = (int)floor(N/skip);
     vector<scalar3> lineSegments;
+    vector<scalar3> defects;
 
-    int iter = 0;
+    vector<scalar> eVals(3);
+    vector<scalar> eVec1(3);
+    vector<scalar> eVec2(3);
+    vector<scalar> eVec3(3);
     for (int ii = 0; ii < N; ii += skip)
     {
-        if(iter+1 >=N)
-            break;
-        dVec val = Q.data[ii];
+        if(types.data[ii]>0)
+            continue;
+        eigensystemOfQ(Q.data[ii],eVals,eVec1,eVec2,eVec3);
         scalar3 director;
-        director.x = val[0];
-        director.y = val[1];
-        director.x = val[2];
+        director.x = eVec3[0];
+        director.y = eVec3[1];
+        director.x = eVec3[2];
         int3 pos = Configuration->latticeIndex.inverseIndex(ii);
         scalar3 lineSegment1;
         scalar3 lineSegment2;
@@ -288,11 +341,51 @@ void MainWindow::on_drawStuffButton_released()
         lineSegments.push_back(lineSegment1);
         lineSegments.push_back(lineSegment2);
     }
+    scalar e1,e2,e3;
+    if(defectDraw)
+    {
+        for (int ii = 0; ii < N; ++ii)
+        {
+            if(types.data[ii]>0)
+                continue;
+            eigenvaluesOfQ(Q.data[ii],e1,e2,e3);
+
+            int3 pos = Configuration->latticeIndex.inverseIndex(ii);
+            scalar3 p;p.x=pos.x;p.y=pos.y;p.z=pos.z;
+            if(max(max(e1,e2),e3) < defectCutoff)
+                {
+                defects.push_back(p);
+            }
+    }
+    }
      QString printable1 = QStringLiteral("drawing stuff ");
      ui->testingBox->setText(printable1);
-     ui->progressBar->setValue(20);
     ui->displayZone->setLines(lineSegments,Configuration->latticeIndex.sizes);
+    ui->displayZone->setDefects(defects,Configuration->latticeIndex.sizes);
 
     ui->displayZone->update();
-    ui->progressBar->setValue(100);
+}
+
+void MainWindow::on_xRotSlider_valueChanged(int value)
+{
+    ui->displayZone->setXRotation(value);
+}
+
+void MainWindow::on_yRotSlider_valueChanged(int value)
+{
+    ui->displayZone->setYRotation(value);
+}
+
+void MainWindow::on_zRotSlider_valueChanged(int value)
+{
+    ui->displayZone->setZRotation(value);
+}
+
+void MainWindow::on_zoomSlider_valueChanged(int value)
+{
+    zoom = value;
+    ui->displayZone->zoom = zoom;
+    ui->displayZone->setLines(ui->displayZone->lines,Configuration->latticeIndex.sizes);
+    on_drawStuffButton_released();
+//    ui->displayZone->update();
 }
