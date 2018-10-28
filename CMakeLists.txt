@@ -1,7 +1,17 @@
 cmake_minimum_required(VERSION 3.0.0)
-project(dDimensionalSimulations)
+project(landauDeGUI)
 
 add_definitions(-DDIMENSION=5)
+
+# Tell CMake to run moc when necessary:
+set(CMAKE_AUTOMOC ON)
+
+# As moc files are generated in the binary dir, tell CMake
+# to always look for includes there:
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+find_package(Qt5Widgets REQUIRED)
+find_package(Qt5OpenGL REQUIRED)
+add_definitions( ${QT_DEFINITIONS} )
 
 set(CMAKE_CC_FLAGS "${CMAKE_CC_FLAGS} ")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -std=c++11")
@@ -32,7 +42,7 @@ message("culibs = " "${CUDA_LIBRARIES}")
 
 add_subdirectory(src)
 
-include_directories(inc ${CUDA_INCLUDE_DIRS} src src/utilities src/simulation src/model src/forces src/updaters)
+include_directories(inc ${CUDA_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS} src src/utilities src/simulation src/model src/forces src/updaters)
 link_directories(${CUDA_LIBRARY_DIRS})
 
 set(myLibs
@@ -48,12 +58,12 @@ set(myLibs
     )
 message("libraries = " "${myLibs}")
 
-add_executable(simulationExecutable.out dDimensionalSimulation.cpp)
-if(${CMAKE_BUILD_TYPE} MATCHES "Debug")
-    target_link_libraries(simulationExecutable.out ${myLibs} ${CUDA_LIBRARIES} "/usr/local/cuda/lib64/libnvToolsExt.so")
-else()
-target_link_libraries(simulationExecutable.out ${myLibs} ${CUDA_LIBRARIES})
-endif(${CMAKE_BUILD_TYPE} MATCHES "Debug")
+qt5_wrap_ui(UI_HEADERS mainwindow.ui)
+set(SOURCES mainwindow.cpp)
+set(HEADERS
+       mainwindow.h
+   )
 
-add_executable(otherExecutable.out cubicLatticeNematic.cpp)
-target_link_libraries(otherExecutable.out ${myLibs} ${CUDA_LIBRARIES})
+add_executable(landauDeGUI.out cubicLatticeNematic.cpp ${SOURCES} ${HEADERS} ${UI_HEADERS})
+target_link_libraries(landauDeGUI.out ${myLibs} ${CUDA_LIBRARIES} Qt5::Widgets)
+qt5_use_modules(landauDeGUI.out Widgets)
