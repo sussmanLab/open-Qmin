@@ -114,13 +114,18 @@ int main(int argc, char*argv[])
 
     scalar3 left;
     left.x = 0.3*L;left.y = 0.5*L;left.z = 0.5*Lz;
+    scalar3 center;
+    left.x = 0.5*L;left.y = 0.5*L;left.z = 0.5*Lz;
     scalar3 right;
     right.x = 0.7*L;right.y = 0.5*L;right.z = 0.5*Lz;
     if(Nconstants!= 2)
         {
-        Configuration->createSimpleFlatWallZNormal(0, planarDegenerateBoundary);
+        Configuration->createSimpleFlatWallNormal(0,1, planarDegenerateBoundary);
+        Configuration->createSimpleFlatWallNormal(0,0, planarDegenerateBoundary);
+        Configuration->createSimpleFlatWallNormal(0,2, planarDegenerateBoundary);
         Configuration->createSimpleSpherialColloid(left,0.18*L, homeotropicBoundary);
         Configuration->createSimpleSpherialColloid(right, 0.18*L, homeotropicBoundary);
+        //Configuration->createSimpleSpherialColloid(center, 0.18*L, homeotropicBoundary);
         };
 
 
