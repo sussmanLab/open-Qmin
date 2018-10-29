@@ -19,8 +19,11 @@ void OGLWidget::initializeGL()
 {
     glClearColor(0,0,0,1);
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_LIGHT0);
-    glEnable(GL_LIGHTING);
+    //glEnable(GL_LIGHT0);
+    //glEnable(GL_LIGHTING);
+    glDisable(GL_LIGHT0);
+    glDisable(GL_LIGHTING);
+
     glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
     glEnable(GL_COLOR_MATERIAL);
 }
@@ -47,6 +50,26 @@ void OGLWidget::setDefects(vector<scalar3> &def, int3 sizes)
     }
 }
 
+void OGLWidget::setSpheres(int3 sizes)
+{
+    spherePositions.resize(baseSpherePositions.size());
+    sphereRadii.resize(baseSpherePositions.size());
+
+    for (int ii = 0; ii < baseSpherePositions.size(); ++ii)
+    {
+        spherePositions[ii].x = zoom*((baseSpherePositions[ii].x-0.5*sizes.x)/sizes.x);
+        spherePositions[ii].y = zoom*((baseSpherePositions[ii].y-0.5*sizes.y)/sizes.y);
+        spherePositions[ii].z = zoom*((baseSpherePositions[ii].z-0.5*sizes.z)/sizes.z);
+        sphereRadii[ii] = zoom*baseSphereRadii[ii]/sizes.x;
+    }
+}
+
+void OGLWidget::addSphere(scalar3 &pos,scalar &radii)
+{
+    baseSpherePositions.push_back(pos);
+    baseSphereRadii.push_back(radii);
+}
+
 void OGLWidget::draw()
 {
     glBegin(GL_LINES);
@@ -69,6 +92,58 @@ void OGLWidget::draw()
     glEnd();
 }
 
+void OGLWidget::drawSpheres()
+{
+    glEnable (GL_BLEND);
+
+    glBlendFunc (GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+    //zoom*((defects[ii].x-0.5*sizes.x)/sizes.x)
+    for (int ii = 0; ii < spherePositions.size(); ++ii)
+    {
+        glColor3f(0.4,0.4,0);
+        GLUquadric *quad;
+        quad = gluNewQuadric();
+        glTranslatef(spherePositions[ii].x,spherePositions[ii].y,spherePositions[ii].z);
+        gluSphere(quad,sphereRadii[ii],100,20);
+        glTranslatef(-spherePositions[ii].x,-spherePositions[ii].y,-spherePositions[ii].z);
+    }
+
+    glDisable (GL_BLEND);
+    /*
+     scalar minX=100; scalar minY=100;scalar minZ = 100;
+     scalar maxX=-100; scalar maxY=-100;scalar maxZ = -100;
+     for(int ii = 0; ii < lines.size();++ii)
+     {
+         if(lines[ii].x < minX) minX = lines[ii].x;
+         if(lines[ii].y < minY) minY = lines[ii].y;
+         if(lines[ii].z < minZ) minZ = lines[ii].z;
+         if(lines[ii].x > maxX) maxX = lines[ii].x;
+         if(lines[ii].y > maxY) maxY = lines[ii].y;
+         if(lines[ii].z > maxZ) maxZ = lines[ii].z;
+     }
+     glBegin(GL_TRIANGLES);
+
+     glColor3f(0.0, 0.5, 0.0);
+     glVertex3f(minX,minY,minZ);
+     glVertex3f(minX,maxY,minZ);
+     glVertex3f(maxX,maxY,minZ);
+
+     glVertex3f(minX,minY,minZ);
+     glVertex3f(maxX,minY,minZ);
+     glVertex3f(maxX,maxY,minZ);
+
+     glVertex3f(minX,minY,maxZ);
+     glVertex3f(minX,maxY,maxZ);
+     glVertex3f(maxX,maxY,maxZ);
+
+     glVertex3f(minX,minY,maxZ);
+     glVertex3f(maxX,minY,maxZ);
+     glVertex3f(maxX,maxY,maxZ);
+*/
+
+
+}
+
 void OGLWidget::paintGL()
 {
     glLoadIdentity();
@@ -77,6 +152,7 @@ void OGLWidget::paintGL()
         glRotatef(yRot / 4.0, 0.0, 1.0, 0.0);
         glRotatef(zRot / 4.0, 0.0, 0.0, 1.0);
     draw();
+    drawSpheres();
 }
 
 void OGLWidget::resizeGL(int w, int h)
@@ -87,7 +163,7 @@ void OGLWidget::resizeGL(int w, int h)
     gluPerspective(45, (float)w/h, 0.01, 100.0);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    gluLookAt(0,0,5,0,0,0,0,1,0);
+    gluLookAt(5,0,5,0,0,0,0,0,1);
 }
 
 static void qNormalizeAngle(int &angle)

@@ -928,8 +928,8 @@ border: 1px solid black
    <widget class="QPushButton" name="addObjectButton">
     <property name="geometry">
      <rect>
-      <x>40</x>
-      <y>260</y>
+      <x>360</x>
+      <y>420</y>
       <width>114</width>
       <height>32</height>
      </rect>
@@ -1070,7 +1070,7 @@ border: 1px solid purple</string>
       <string>Set parameters</string>
      </property>
     </widget>
-    <widget class="QWidget" name="">
+    <widget class="QWidget" name="layoutWidget">
      <property name="geometry">
       <rect>
        <x>27</x>
@@ -1503,7 +1503,7 @@ border: 1px solid purple</string>
      <string>show defects</string>
     </property>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -1529,6 +1529,270 @@ border: 1px solid purple</string>
      </item>
     </layout>
    </widget>
+   <widget class="QWidget" name="addObjectsWidget" native="true">
+    <property name="geometry">
+     <rect>
+      <x>200</x>
+      <y>80</y>
+      <width>471</width>
+      <height>221</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background: white; 
+border: 1px solid orange</string>
+    </property>
+    <widget class="QPushButton" name="addSphereButton">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>130</y>
+       <width>181</width>
+       <height>32</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background: rgb(187, 187, 187);
+border: 1px black solid</string>
+     </property>
+     <property name="text">
+      <string>Put a sphere in there!</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="finishedWithObjectsButton">
+     <property name="geometry">
+      <rect>
+       <x>190</x>
+       <y>170</y>
+       <width>114</width>
+       <height>32</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background: rgb(187, 187, 187);
+border: 1px black solid</string>
+     </property>
+     <property name="text">
+      <string>Done!</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_46">
+     <property name="geometry">
+      <rect>
+       <x>100</x>
+       <y>80</y>
+       <width>121</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>z</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_47">
+     <property name="geometry">
+      <rect>
+       <x>60</x>
+       <y>80</y>
+       <width>21</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>y</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_48">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>80</y>
+       <width>21</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>x</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="xSpherePosBox">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>100</y>
+       <width>31</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: 1px solid black</string>
+     </property>
+     <property name="text">
+      <string>0.5</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="ySpherePosBox">
+     <property name="geometry">
+      <rect>
+       <x>50</x>
+       <y>100</y>
+       <width>31</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: 1px solid black</string>
+     </property>
+     <property name="text">
+      <string>0.5</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="zSpherePosBox">
+     <property name="geometry">
+      <rect>
+       <x>90</x>
+       <y>100</y>
+       <width>31</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: 1px solid black</string>
+     </property>
+     <property name="text">
+      <string>0.5</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_49">
+     <property name="geometry">
+      <rect>
+       <x>140</x>
+       <y>80</y>
+       <width>121</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border : white</string>
+     </property>
+     <property name="text">
+      <string>r (all in units of Lx)</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="sphereRadiusBox">
+     <property name="geometry">
+      <rect>
+       <x>130</x>
+       <y>100</y>
+       <width>41</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: 1px solid black</string>
+     </property>
+     <property name="text">
+      <string>0.18</string>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="anchoringComboBox">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>20</y>
+       <width>251</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: 1px solid black</string>
+     </property>
+     <item>
+      <property name="text">
+       <string>homeotropic anchoring</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>planar degenerate anchoring</string>
+      </property>
+     </item>
+    </widget>
+    <widget class="QLabel" name="label_50">
+     <property name="geometry">
+      <rect>
+       <x>340</x>
+       <y>10</y>
+       <width>21</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>S0</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_51">
+     <property name="geometry">
+      <rect>
+       <x>300</x>
+       <y>10</y>
+       <width>21</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>W</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="boundaryEnergyBox">
+     <property name="geometry">
+      <rect>
+       <x>290</x>
+       <y>30</y>
+       <width>41</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: 1px solid black</string>
+     </property>
+     <property name="text">
+      <string>0.58</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="boundaryS0Box">
+     <property name="geometry">
+      <rect>
+       <x>340</x>
+       <y>30</y>
+       <width>41</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: 1px solid black</string>
+     </property>
+     <property name="text">
+      <string>0.53</string>
+     </property>
+    </widget>
+   </widget>
+   <zorder>layoutWidget</zorder>
    <zorder>setDistortionConstants1</zorder>
    <zorder>setPhaseConstants</zorder>
    <zorder>setDistortionConstants3</zorder>
@@ -1542,8 +1806,6 @@ border: 1px solid purple</string>
    <zorder>progressBar</zorder>
    <zorder>label_7</zorder>
    <zorder>fireParametersWidget</zorder>
-   <zorder>addIterationsButton</zorder>
-   <zorder>addIterationsBox</zorder>
    <zorder>displayZone</zorder>
    <zorder>drawStuffButton</zorder>
    <zorder>directorScaleBox</zorder>
@@ -1562,6 +1824,7 @@ border: 1px solid purple</string>
    <zorder>label_45</zorder>
    <zorder>defectThresholdBox</zorder>
    <zorder>defectDrawCheckBox</zorder>
+   <zorder>addObjectsWidget</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
@@ -1725,6 +1988,38 @@ border: 1px solid purple</string>
     <hint type="destinationlabel">
      <x>785</x>
      <y>205</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>addObjectButton</sender>
+   <signal>released()</signal>
+   <receiver>addObjectsWidget</receiver>
+   <slot>show()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>416</x>
+     <y>470</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>410</x>
+     <y>389</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>finishedWithObjectsButton</sender>
+   <signal>released()</signal>
+   <receiver>addObjectsWidget</receiver>
+   <slot>hide()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>416</x>
+     <y>429</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>410</x>
+     <y>389</y>
     </hint>
    </hints>
   </connection>

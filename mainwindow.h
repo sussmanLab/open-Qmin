@@ -55,6 +55,10 @@ private slots:
 
     void on_zoomSlider_valueChanged(int value);
 
+    void on_addSphereButton_released();
+
+    void on_finishedWithObjectsButton_released();
+
 private:
     Ui::MainWindow *ui;
 
@@ -74,6 +78,8 @@ public:
     double L3=2.32;
     double q0=0.05;
     int zoom = 1;
+    vector<scalar3> spherePositions;
+    vector<scalar> sphereRadii;
 
     noiseSource noise;
 

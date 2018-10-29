@@ -38,6 +38,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setDistortionConstants2->hide();
     ui->setDistortionConstants3->hide();
     ui->fireParametersWidget->hide();
+    ui->addObjectsWidget->hide();
 
     hideControls();
     QString printable = QStringLiteral("Welcome to landauDeGUI, a graphical interface to a continuum LdG liquid crystal simulation package!");
@@ -127,7 +128,7 @@ void MainWindow::on_initializeButton_released()
     }
 
     boundaryObject homeotropicBoundary(boundaryType::homeotropic,1.0,S0);
-    boundaryObject planarDegenerateBoundary(boundaryType::degeneratePlanar,.582,S0);
+    //boundaryObject planarDegenerateBoundary(boundaryType::degeneratePlanar,.582,S0);
 
     scalar3 left;
     left.x = 0.3*BoxX;left.y = 0.5*BoxY;left.z = 0.5*BoxZ;
@@ -135,9 +136,9 @@ void MainWindow::on_initializeButton_released()
     right.x = 0.7*BoxX;right.y = 0.5*BoxY;right.z = 0.5*BoxZ;
     if(nC!= 2)
         {
-            Configuration->createSimpleFlatWallZNormal(0, planarDegenerateBoundary);
-            Configuration->createSimpleSpherialColloid(left,0.18*BoxX, homeotropicBoundary);
-            Configuration->createSimpleSpherialColloid(right, 0.18*BoxX, homeotropicBoundary);
+            //Configuration->createSimpleFlatWallZNormal(0, planarDegenerateBoundary);
+            //Configuration->createSimpleSpherialColloid(left,0.18*BoxX, homeotropicBoundary);
+            //Configuration->createSimpleSpherialColloid(right, 0.18*BoxX, homeotropicBoundary);
         };
 
 
@@ -362,6 +363,7 @@ void MainWindow::on_drawStuffButton_released()
      ui->testingBox->setText(printable1);
     ui->displayZone->setLines(lineSegments,Configuration->latticeIndex.sizes);
     ui->displayZone->setDefects(defects,Configuration->latticeIndex.sizes);
+    ui->displayZone->setSpheres(Configuration->latticeIndex.sizes);
 
     ui->displayZone->update();
 }
@@ -388,4 +390,40 @@ void MainWindow::on_zoomSlider_valueChanged(int value)
     ui->displayZone->setLines(ui->displayZone->lines,Configuration->latticeIndex.sizes);
     on_drawStuffButton_released();
 //    ui->displayZone->update();
+}
+
+void MainWindow::on_addSphereButton_released()
+{
+    scalar3 spherePos;
+    spherePos.x = ui->xSpherePosBox->text().toDouble()*BoxX;
+    spherePos.y = ui->ySpherePosBox->text().toDouble()*BoxX;
+    spherePos.z = ui->zSpherePosBox->text().toDouble()*BoxX;
+    scalar rad = ui->sphereRadiusBox->text().toDouble()*BoxX;
+
+
+    scalar W0 = ui->boundaryEnergyBox->text().toDouble();
+    scalar s0b = ui->boundaryS0Box->text().toDouble();
+
+    QString homeotropic ="homeotropic anchoring";
+    QString planarDegenerate="planar degenerate anchoring";
+    if(ui->anchoringComboBox->currentText() ==homeotropic)
+        {
+        boundaryObject homeotropicBoundary(boundaryType::homeotropic,W0,s0b);
+        Configuration->createSimpleSpherialColloid(spherePos,rad, homeotropicBoundary);
+        }
+    else if(ui->anchoringComboBox->currentText() ==planarDegenerate)
+        {
+        boundaryObject planarDegenerateBoundary(boundaryType::degeneratePlanar,W0,s0b);
+        Configuration->createSimpleSpherialColloid(spherePos,rad, planarDegenerateBoundary);
+        }
+    spherePositions.push_back(spherePos);
+    sphereRadii.push_back(rad);
+    QString printable1 = QStringLiteral("sphere added ");
+    ui->testingBox->setText(printable1);
+    ui->displayZone->addSphere(spherePos,rad);
+}
+
+void MainWindow::on_finishedWithObjectsButton_released()
+{
+    on_drawStuffButton_released();
 }
