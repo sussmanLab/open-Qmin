@@ -33,7 +33,7 @@ class qTensorLatticeModel : public cubicLattice
         virtual void moveParticles(GPUArray<dVec> &displacements, scalar scale = 1.);
 
         //!initialize each d.o.f., also passing in the value of the nematicity
-        void setNematicQTensorRandomly(noiseSource &noise, scalar s0);
+        void setNematicQTensorRandomly(noiseSource &noise, scalar s0,bool globallyAligned = false);
 
         //!get field-averaged eigenvalues
         void getAverageEigenvalues()

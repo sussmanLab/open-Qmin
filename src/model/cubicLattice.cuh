@@ -29,10 +29,14 @@ bool gpu_set_random_spins(dVec *d_pos,
 
 //! set 5-d spins to be random nematic Q tensors with a given amplitude
 bool gpu_set_random_nematic_qTensors(dVec *d_pos,
+                        int *d_types,
                         curandState *rngs,
                         scalar amplitude,
                         int blockSize,
                         int nBlocks,
+                        bool globallyAligned,
+                        scalar theta,
+                        scalar phi,
                         int N
                         );
 
