@@ -168,7 +168,7 @@ HOSTDEVICE void eigensystemOfQ(dVec &q, vector<scalar> &eVals,
     vector<pair<scalar,int> > eigList(3);
     eigList[0] = make_pair(a1,0);
     eigList[1] = make_pair(a2,1);
-    eigList[2] = make_pair(a3,1);
+    eigList[2] = make_pair(a3,2);
     sort(eigList.begin(),eigList.end());
     eVec1[0] = evecs[eigList[0].second][0];
     eVec1[1] = evecs[eigList[0].second][1];
