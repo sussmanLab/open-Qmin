@@ -58,6 +58,10 @@ private slots:
 
     void on_finishedWithObjectsButton_released();
 
+    void on_actionReset_the_system_triggered();
+
+    void on_addWallButton_released();
+
 private:
     Ui::MainWindow *ui;
 

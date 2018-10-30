@@ -134,21 +134,6 @@ void MainWindow::on_initializeButton_released()
             break;
     }
 
-    //boundaryObject homeotropicBoundary(boundaryType::homeotropic,1.0,S0);
-    boundaryObject planarDegenerateBoundary(boundaryType::degeneratePlanar,.582,S0);
-
-    scalar3 left;
-    left.x = 0.3*BoxX;left.y = 0.5*BoxY;left.z = 0.5*BoxZ;
-    scalar3 right;
-    right.x = 0.7*BoxX;right.y = 0.5*BoxY;right.z = 0.5*BoxZ;
-    //if(nC!= 2)
-        {
-            Configuration->createSimpleFlatWallNormal(0,2, planarDegenerateBoundary);
-            //Configuration->createSimpleSpherialColloid(left,0.18*BoxX, homeotropicBoundary);
-            //Configuration->createSimpleSpherialColloid(right, 0.18*BoxX, homeotropicBoundary);
-        };
-
-
     QString printable = QStringLiteral("N %8 Lx %1 Ly %2 Lz %3 gpu %4... A %5 B %6 C %7 ")
                         .arg(BoxX).arg(BoxY).arg(BoxZ).arg(gpu).arg(A).arg(B).arg(C).arg(Configuration->getNumberOfParticles());
     ui->testingBox->setText(printable);
@@ -437,7 +422,52 @@ void MainWindow::on_addSphereButton_released()
     ui->displayZone->addSphere(spherePos,rad);
 }
 
+
+void MainWindow::on_addWallButton_released()
+{
+    scalar W0 = ui->boundaryEnergyBox->text().toDouble();
+    scalar s0b = ui->boundaryS0Box->text().toDouble();
+    QString X ="x";
+    QString Y ="y";
+    QString Z ="z";
+    int xyz=2;
+    if(ui->wallNormalBox->currentText()==X)
+           xyz=0;
+    if(ui->wallNormalBox->currentText()==Y)
+           xyz=1;
+    if(ui->wallNormalBox->currentText()==Z)
+           xyz=2;
+    QString homeotropic ="homeotropic anchoring";
+    QString planarDegenerate="planar degenerate anchoring";
+    int plane = ui->wallPlaneBox->text().toInt();
+    int wallType = 0;
+    if(ui->anchoringComboBox->currentText() ==homeotropic)
+        {
+        boundaryObject homeotropicBoundary(boundaryType::homeotropic,W0,s0b);
+        Configuration->createSimpleFlatWallNormal(plane,xyz,homeotropicBoundary);
+        }
+    else if(ui->anchoringComboBox->currentText() ==planarDegenerate)
+        {
+        boundaryObject planarDegenerateBoundary(boundaryType::degeneratePlanar,W0,s0b);
+        Configuration->createSimpleFlatWallNormal(plane,xyz,planarDegenerateBoundary);
+        wallType = 1;
+        }
+    int3 pnt; pnt.x = plane; pnt.y = xyz; pnt.z=wallType;
+    ui->displayZone->addWall(pnt);
+
+    QString printable1 = QStringLiteral("flat boundary added in direction %1 on plane %2").arg(xyz).arg(plane);
+    ui->testingBox->setText(printable1);
+}
+
 void MainWindow::on_finishedWithObjectsButton_released()
 {
     on_drawStuffButton_released();
+}
+
+void MainWindow::on_actionReset_the_system_triggered()
+{
+    hideControls();
+    ui->displayZone->clearObjects();
+    ui->addObjectsWidget->hide();
+    ui->initializationFrame->show();
 }

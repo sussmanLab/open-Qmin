@@ -166,6 +166,7 @@ int main(int argc, char*argv[])
 
         myfile.close();
         }
+    */
     /*
     ArrayHandle<dVec> pp(Configuration->returnPositions());
     vector<scalar> eVals(3);

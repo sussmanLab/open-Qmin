@@ -15,6 +15,14 @@ OGLWidget::~OGLWidget()
 
 }
 
+void OGLWidget::clearObjects()
+{
+    baseSpherePositions.clear();
+    baseSphereRadii.clear();
+    spherePositions.clear();
+    sphereRadii.clear();
+    walls.clear();
+}
 void OGLWidget::initializeGL()
 {
     glClearColor(0,0,0,1);
@@ -30,6 +38,7 @@ void OGLWidget::initializeGL()
 
 void OGLWidget::setLines(vector<scalar3> &lineSegments, int3 sizes)
 {
+    Sizes=sizes;
     lines =lineSegments;
     for (int ii = 0; ii < lines.size(); ++ii)
     {
@@ -41,6 +50,7 @@ void OGLWidget::setLines(vector<scalar3> &lineSegments, int3 sizes)
 
 void OGLWidget::setDefects(vector<scalar3> &def, int3 sizes)
 {
+    Sizes=sizes;
     defects =def;
     for (int ii = 0; ii < defects.size(); ++ii)
     {
@@ -70,6 +80,10 @@ void OGLWidget::addSphere(scalar3 &pos,scalar &radii)
     baseSphereRadii.push_back(radii);
 }
 
+void OGLWidget::addWall(int3 planeAndNormalAndType)
+{
+    walls.push_back(planeAndNormalAndType);
+}
 void OGLWidget::draw()
 {
     glBegin(GL_LINES);
@@ -107,43 +121,54 @@ void OGLWidget::drawSpheres()
         gluSphere(quad,sphereRadii[ii],100,20);
         glTranslatef(-spherePositions[ii].x,-spherePositions[ii].y,-spherePositions[ii].z);
     }
-
     glDisable (GL_BLEND);
-    /*
-     scalar minX=100; scalar minY=100;scalar minZ = 100;
-     scalar maxX=-100; scalar maxY=-100;scalar maxZ = -100;
-     for(int ii = 0; ii < lines.size();++ii)
-     {
-         if(lines[ii].x < minX) minX = lines[ii].x;
-         if(lines[ii].y < minY) minY = lines[ii].y;
-         if(lines[ii].z < minZ) minZ = lines[ii].z;
-         if(lines[ii].x > maxX) maxX = lines[ii].x;
-         if(lines[ii].y > maxY) maxY = lines[ii].y;
-         if(lines[ii].z > maxZ) maxZ = lines[ii].z;
-     }
-     glBegin(GL_TRIANGLES);
-
-     glColor3f(0.0, 0.5, 0.0);
-     glVertex3f(minX,minY,minZ);
-     glVertex3f(minX,maxY,minZ);
-     glVertex3f(maxX,maxY,minZ);
-
-     glVertex3f(minX,minY,minZ);
-     glVertex3f(maxX,minY,minZ);
-     glVertex3f(maxX,maxY,minZ);
-
-     glVertex3f(minX,minY,maxZ);
-     glVertex3f(minX,maxY,maxZ);
-     glVertex3f(maxX,maxY,maxZ);
-
-     glVertex3f(minX,minY,maxZ);
-     glVertex3f(maxX,minY,maxZ);
-     glVertex3f(maxX,maxY,maxZ);
-*/
-
-
 }
 
+void OGLWidget::drawWalls()
+{
+    glEnable (GL_BLEND);
+    glBlendFunc (GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+    float zTop = zoom*(0.5);
+    float yTop = zoom*Sizes.y/Sizes.z;
+    float xTop = zoom*Sizes.x/Sizes.z;
+    glBegin(GL_QUADS);
+    for(int ww = 0; ww < walls.size(); ++ww)
+    {
+        int3 wall = walls[ww];
+        int plane = wall.x;
+        float xPlane = zoom*((plane-0.5*Sizes.x)/Sizes.z);
+        float yPlane = zoom*((plane-0.5*Sizes.y)/Sizes.z);
+        float zPlane = zoom*((plane-0.5*Sizes.z)/Sizes.z);
+        int type = wall.z;
+        if (type == 0)
+            glColor4f(0.0, 0.0, 1.0,0.5);
+        else
+            glColor4f(.5,0.0,.5,0.5);
+        if(wall.y==0)//x-normal
+        {
+            glVertex3f(xPlane,yTop,-zTop);
+            glVertex3f(xPlane,yTop,zTop);
+            glVertex3f(xPlane,-yTop,zTop);
+            glVertex3f(xPlane,-yTop,-zTop);
+        }
+        if(wall.y==1)//y-normal
+        {
+            glVertex3f(xTop,yPlane,-zTop);
+            glVertex3f(xTop,yPlane,zTop);
+            glVertex3f(-yTop,yPlane,zTop);
+            glVertex3f(-xTop,yPlane,-zTop);
+        }
+        if(wall.y==2)//z-normal
+        {
+            glVertex3f(xTop,-yTop,zPlane);
+            glVertex3f(xTop,yTop,zPlane);
+            glVertex3f(-xTop,yTop,zPlane);
+            glVertex3f(-xTop,-yTop,zPlane);
+        }
+    }
+    glEnd();
+    glDisable (GL_BLEND);
+}
 void OGLWidget::paintGL()
 {
     glLoadIdentity();
@@ -153,6 +178,7 @@ void OGLWidget::paintGL()
         glRotatef(zRot / 4.0, 0.0, 0.0, 1.0);
     draw();
     drawSpheres();
+    drawWalls();
 }
 
 void OGLWidget::resizeGL(int w, int h)
