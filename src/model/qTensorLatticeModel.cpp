@@ -138,3 +138,57 @@ void qTensorLatticeModel::createSimpleFlatWallZNormal(int zPlane, boundaryObject
             }
     createBoundaryObject(boundSites,bObj.boundary,bObj.P1,bObj.P2);
     };
+
+void qTensorLatticeModel::createSimpleFlatWallNormal(int plane, int xyz, boundaryObject &bObj)
+    {
+    if (xyz <0 || xyz >2)
+        UNWRITTENCODE("NOT AN OPTION FOR A FLAT SIMPLE WALL");
+    dVec Qtensor(0.0);
+    scalar s0 = bObj.P2;
+    switch(bObj.boundary)
+        {
+        case boundaryType::homeotropic:
+            {
+            if(xyz ==0)
+                {Qtensor[0] = s0; Qtensor[3] = -0.5*s0;}
+            else if (xyz==1)
+                {Qtensor[0] = -0.5*s0; Qtensor[3] = s0;}
+            else
+                {Qtensor[0] = -0.5*s0; Qtensor[3] = -0.5*s0;}
+            break;
+            }
+        case boundaryType::degeneratePlanar:
+            {
+            Qtensor[0]=0.0; Qtensor[1] = 0.0; Qtensor[2] = 0.0;
+            Qtensor[xyz]=1.0;
+            break;
+            }
+        default:
+            UNWRITTENCODE("non-defined boundary type is attempting to create a boundary");
+        };
+
+    vector<int> boundSites;
+    ArrayHandle<dVec> pos(positions);
+    int currentSite;
+    int size1,size2;
+    if(xyz ==0)
+        {size1=latticeIndex.sizes.y;size2=latticeIndex.sizes.z;}
+    else if (xyz==1)
+        {size1=latticeIndex.sizes.x;size2=latticeIndex.sizes.z;}
+    else
+        {size1=latticeIndex.sizes.x;size2=latticeIndex.sizes.y;}
+    for (int xx = 0; xx < size1; ++xx)
+        for (int yy = 0; yy < size2; ++yy)
+            {
+            if(xyz ==0)
+                currentSite = latticeIndex(plane,xx,yy);
+            else if (xyz==1)
+                currentSite = latticeIndex(xx,plane,yy);
+            else
+                currentSite = latticeIndex(xx,yy,plane);
+
+            boundSites.push_back(currentSite);
+            pos.data[currentSite] = Qtensor;
+            }
+    createBoundaryObject(boundSites,bObj.boundary,bObj.P1,bObj.P2);
+    };

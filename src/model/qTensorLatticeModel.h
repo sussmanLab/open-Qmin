@@ -44,6 +44,9 @@ class qTensorLatticeModel : public cubicLattice
             printf("eigenvalues: %f\t%f\t%f\n",a,b,c);
             };
 
+        //!create a flat wall at the specified location, on either an x,y, or z plane, with anchoring given by the boundary object
+        void createSimpleFlatWallNormal(int plane, int xyz, boundaryObject &bObj);
+
         //!create a flat wall (with z-normal) at the specified location, with anchoring given by the boundary object
         void createSimpleFlatWallZNormal(int zPlane, boundaryObject &bObj);
 
