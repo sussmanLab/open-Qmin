@@ -120,9 +120,9 @@ int main(int argc, char*argv[])
     right.x = 0.7*L;right.y = 0.5*L;right.z = 0.5*Lz;
     if(Nconstants!= 2)
         {
-        Configuration->createSimpleFlatWallNormal(0,1, planarDegenerateBoundary);
-        Configuration->createSimpleFlatWallNormal(0,0, planarDegenerateBoundary);
-        Configuration->createSimpleFlatWallNormal(0,2, planarDegenerateBoundary);
+        Configuration->createSimpleFlatWallNormal(0,1, homeotropicBoundary);
+        Configuration->createSimpleFlatWallNormal(0,0, homeotropicBoundary);
+        Configuration->createSimpleFlatWallNormal(0,2, homeotropicBoundary);
         Configuration->createSimpleSpherialColloid(left,0.18*L, homeotropicBoundary);
         Configuration->createSimpleSpherialColloid(right, 0.18*L, homeotropicBoundary);
         //Configuration->createSimpleSpherialColloid(center, 0.18*L, homeotropicBoundary);
@@ -195,7 +195,7 @@ int main(int argc, char*argv[])
 
         myfile.close();
         }
-        /*
+    /*
     ArrayHandle<dVec> pp(Configuration->returnPositions());
     vector<scalar> eVals(3);
     vector<scalar> eVec1(3);
@@ -204,6 +204,7 @@ int main(int argc, char*argv[])
     printdVec(pp.data[10]);
     eigensystemOfQ(pp.data[10],eVals,eVec1,eVec2,eVec3);
 
+    cout << endl << endl;
     printdVec(Configuration->averagePosition());
     dVec avePos=Configuration->averagePosition();
     eigensystemOfQ(avePos,eVals,eVec1,eVec2,eVec3);
