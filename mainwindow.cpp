@@ -143,7 +143,7 @@ void MainWindow::on_initializeButton_released()
     right.x = 0.7*BoxX;right.y = 0.5*BoxY;right.z = 0.5*BoxZ;
     //if(nC!= 2)
         {
-            //Configuration->createSimpleFlatWallZNormal(0, planarDegenerateBoundary);
+            Configuration->createSimpleFlatWallNormal(0,2, planarDegenerateBoundary);
             //Configuration->createSimpleSpherialColloid(left,0.18*BoxX, homeotropicBoundary);
             //Configuration->createSimpleSpherialColloid(right, 0.18*BoxX, homeotropicBoundary);
         };

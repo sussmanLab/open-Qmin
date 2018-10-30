@@ -33,8 +33,8 @@ void OGLWidget::setLines(vector<scalar3> &lineSegments, int3 sizes)
     lines =lineSegments;
     for (int ii = 0; ii < lines.size(); ++ii)
     {
-        lines[ii].x = zoom*((lines[ii].x-0.5*sizes.x)/sizes.x);
-        lines[ii].y = zoom*((lines[ii].y-0.5*sizes.y)/sizes.y);
+        lines[ii].x = zoom*((lines[ii].x-0.5*sizes.x)/sizes.z);
+        lines[ii].y = zoom*((lines[ii].y-0.5*sizes.y)/sizes.z);
         lines[ii].z = zoom*((lines[ii].z-0.5*sizes.z)/sizes.z);
     }
 }
@@ -44,8 +44,8 @@ void OGLWidget::setDefects(vector<scalar3> &def, int3 sizes)
     defects =def;
     for (int ii = 0; ii < defects.size(); ++ii)
     {
-        defects[ii].x = zoom*((defects[ii].x-0.5*sizes.x)/sizes.x);
-        defects[ii].y = zoom*((defects[ii].y-0.5*sizes.y)/sizes.y);
+        defects[ii].x = zoom*((defects[ii].x-0.5*sizes.x)/sizes.z);
+        defects[ii].y = zoom*((defects[ii].y-0.5*sizes.y)/sizes.z);
         defects[ii].z = zoom*((defects[ii].z-0.5*sizes.z)/sizes.z);
     }
 }
@@ -57,8 +57,8 @@ void OGLWidget::setSpheres(int3 sizes)
 
     for (int ii = 0; ii < baseSpherePositions.size(); ++ii)
     {
-        spherePositions[ii].x = zoom*((baseSpherePositions[ii].x-0.5*sizes.x)/sizes.x);
-        spherePositions[ii].y = zoom*((baseSpherePositions[ii].y-0.5*sizes.y)/sizes.y);
+        spherePositions[ii].x = zoom*((baseSpherePositions[ii].x-0.5*sizes.x)/sizes.z);
+        spherePositions[ii].y = zoom*((baseSpherePositions[ii].y-0.5*sizes.y)/sizes.z);
         spherePositions[ii].z = zoom*((baseSpherePositions[ii].z-0.5*sizes.z)/sizes.z);
         sphereRadii[ii] = zoom*baseSphereRadii[ii]/sizes.x;
     }
