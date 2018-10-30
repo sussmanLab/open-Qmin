@@ -62,6 +62,8 @@ private slots:
 
     void on_addWallButton_released();
 
+    void on_reprodicbleRNGBox_stateChanged(int arg1);
+
 private:
     Ui::MainWindow *ui;
 

@@ -70,7 +70,7 @@ void OGLWidget::setSpheres(int3 sizes)
         spherePositions[ii].x = zoom*((baseSpherePositions[ii].x-0.5*sizes.x)/sizes.z);
         spherePositions[ii].y = zoom*((baseSpherePositions[ii].y-0.5*sizes.y)/sizes.z);
         spherePositions[ii].z = zoom*((baseSpherePositions[ii].z-0.5*sizes.z)/sizes.z);
-        sphereRadii[ii] = zoom*baseSphereRadii[ii]/sizes.x;
+        sphereRadii[ii] = zoom*baseSphereRadii[ii]/sizes.z;
     }
 }
 
@@ -94,13 +94,19 @@ void OGLWidget::draw()
     }
 
     glEnd();
-    glEnable(GL_PROGRAM_POINT_SIZE);
-    glPointSize(20.0);
-    glBegin(GL_POINTS);
+    //glEnable(GL_PROGRAM_POINT_SIZE);
+    //glPointSize(20.0);
+    //glBegin(GL_POINTS);
+    float empiricallyNiceRadius = 0.25/(pow(zoom,0.25));
     for (int ii = 0; ii < defects.size(); ++ii)
     {
         glColor3f(0.0, 0.0, 1.0);
-        glVertex3f(defects[ii].x,defects[ii].y,defects[ii].z);
+        GLUquadric *quad;
+        quad = gluNewQuadric();
+        glTranslatef(defects[ii].x,defects[ii].y,defects[ii].z);
+        gluSphere(quad,empiricallyNiceRadius,20,20);
+        glTranslatef(-defects[ii].x,-defects[ii].y,-defects[ii].z);
+        //glVertex3f(defects[ii].x,defects[ii].y,defects[ii].z);
     }
 
     glEnd();
@@ -114,7 +120,7 @@ void OGLWidget::drawSpheres()
     //zoom*((defects[ii].x-0.5*sizes.x)/sizes.x)
     for (int ii = 0; ii < spherePositions.size(); ++ii)
     {
-        glColor3f(0.4,0.4,0);
+        glColor4f(0.4,0.4,0,0.9);
         GLUquadric *quad;
         quad = gluNewQuadric();
         glTranslatef(spherePositions[ii].x,spherePositions[ii].y,spherePositions[ii].z);
@@ -141,7 +147,7 @@ void OGLWidget::drawWalls()
         float zPlane = zoom*((plane-0.5*Sizes.z)/Sizes.z);
         int type = wall.z;
         if (type == 0)
-            glColor4f(0.0, 0.0, 1.0,0.5);
+            glColor4f(0.4, 0.4, 0.0,0.5);
         else
             glColor4f(.5,0.0,.5,0.5);
         if(wall.y==0)//x-normal
@@ -173,9 +179,9 @@ void OGLWidget::paintGL()
 {
     glLoadIdentity();
         glTranslatef(0.0, 0.0, -10.0);
-        glRotatef(xRot / 4.0, 1.0, 0.0, 0.0);
-        glRotatef(yRot / 4.0, 0.0, 1.0, 0.0);
-        glRotatef(zRot / 4.0, 0.0, 0.0, 1.0);
+        glRotatef(xRot / 1.0, 1.0, 0.0, 0.0);
+        glRotatef(yRot / 1.0, 0.0, 1.0, 0.0);
+        glRotatef(zRot / 1.0, 0.0, 0.0, 1.0);
     draw();
     drawSpheres();
     drawWalls();

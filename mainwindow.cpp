@@ -60,7 +60,7 @@ void MainWindow::hideControls()
     ui->latticeSkipBox->hide();
     ui->label_39->hide();
     ui->directorScaleBox->hide();
-    ui->label_41->hide();ui->label_42->hide();ui->label_43->hide();ui->label_44->hide();ui->label_45->hide();ui->label_52->hide();
+    ui->label_41->hide();ui->label_42->hide();ui->label_43->hide();ui->label_44->hide();ui->label_45->hide();
     ui->xRotSlider->hide();
     ui->yRotSlider->hide();
     ui->zRotSlider->hide();
@@ -70,6 +70,7 @@ void MainWindow::hideControls()
     ui->defectDrawCheckBox->hide();
     ui->label_7->hide();
     ui->progressBar->hide();
+    ui->reprodicbleRNGBox->hide();
 }
 void MainWindow::showControls()
 {
@@ -93,9 +94,9 @@ void MainWindow::showControls()
     ui->zoomSlider->show();
     ui->visualProgressCheckBox->show();
     ui->defectThresholdBox->show();
-    ui->label_52->show();
     ui->label_7->show();
     ui->progressBar->show();
+    ui->reprodicbleRNGBox->show();
 }
 
 void MainWindow::on_initializeButton_released()
@@ -105,6 +106,7 @@ void MainWindow::on_initializeButton_released()
     BoxY = ui->boxYLine->text().toInt();
     BoxZ = ui->boxZLine->text().toInt();
     noise.Reproducible= ui->reproducibleButton->isChecked();
+    ui->reprodicbleRNGBox->setCheckState(ui->reproducibleButton->checkState());
     int gpu = ui->CPUORGPU->text().toInt();
     GPU = false;
     if(gpu >=0)
@@ -138,6 +140,7 @@ void MainWindow::on_initializeButton_released()
                         .arg(BoxX).arg(BoxY).arg(BoxZ).arg(gpu).arg(A).arg(B).arg(C).arg(Configuration->getNumberOfParticles());
     ui->testingBox->setText(printable);
     ui->progressBar->setValue(100);
+    on_drawStuffButton_released();
 }
 
 void MainWindow::simulationInitialize()
@@ -470,4 +473,11 @@ void MainWindow::on_actionReset_the_system_triggered()
     ui->displayZone->clearObjects();
     ui->addObjectsWidget->hide();
     ui->initializationFrame->show();
+}
+
+void MainWindow::on_reprodicbleRNGBox_stateChanged(int arg1)
+{
+    bool repro = ui->reprodicbleRNGBox->isChecked();
+    noise.Reproducible= repro;
+    sim->setReproducible(repro);
 }

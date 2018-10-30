@@ -34,6 +34,8 @@ public:
 
     vector<scalar3> spherePositions;
     vector<scalar> sphereRadii;
+
+    QPoint offset;
     /*
 public slots:
     // slots for xyz-rotation slider
