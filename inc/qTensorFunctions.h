@@ -160,7 +160,7 @@ HOSTDEVICE void eigensystemOfQ(dVec &q, vector<scalar> &eVals,
     eVec3[1] = q[1]*evecs[2][0]+q[3]*evecs[2][1] + q[4]*evecs[2][2];
     eVec3[2] = q[2]*evecs[2][0]+q[4]*evecs[2][1] + (-q[0]-q[3])*evecs[2][2];
 
-
+/*
     scalar a1 =  eigFromVecs(eVec1,evecs[0][0],evecs[0][1],evecs[0][2]);
     scalar a2 =  eigFromVecs(eVec2,evecs[1][0],evecs[1][1],evecs[1][2]);
     scalar a3 =  eigFromVecs(eVec3,evecs[2][0],evecs[2][1],evecs[2][2]);
@@ -181,6 +181,7 @@ HOSTDEVICE void eigensystemOfQ(dVec &q, vector<scalar> &eVals,
     eVec3[0] = evecs[eigList[2].second][0];
     eVec3[1] = evecs[eigList[2].second][1];
     eVec3[2] = evecs[eigList[2].second][2];
+    */
 
     //printf("%f %f %f\n",eVals[0],eVals[1],eVals[2]);
     //printf("%f %f %f\t%f\n",eVec1[0],eVec1[1],eVec1[2],evecs[0][0]/eVec1[0]);

@@ -1,3 +1,4 @@
+
 #include <QMainWindow>
 #include <QGuiApplication>
 
@@ -59,7 +60,7 @@ void MainWindow::hideControls()
     ui->latticeSkipBox->hide();
     ui->label_39->hide();
     ui->directorScaleBox->hide();
-    ui->label_41->hide();ui->label_42->hide();ui->label_43->hide();ui->label_44->hide();ui->label_45->hide();
+    ui->label_41->hide();ui->label_42->hide();ui->label_43->hide();ui->label_44->hide();ui->label_45->hide();ui->label_52->hide();
     ui->xRotSlider->hide();
     ui->yRotSlider->hide();
     ui->zRotSlider->hide();
@@ -67,6 +68,8 @@ void MainWindow::hideControls()
     ui->visualProgressCheckBox->hide();
     ui->defectThresholdBox->hide();
     ui->defectDrawCheckBox->hide();
+    ui->label_7->hide();
+    ui->progressBar->hide();
 }
 void MainWindow::showControls()
 {
@@ -90,6 +93,9 @@ void MainWindow::showControls()
     ui->zoomSlider->show();
     ui->visualProgressCheckBox->show();
     ui->defectThresholdBox->show();
+    ui->label_52->show();
+    ui->label_7->show();
+    ui->progressBar->show();
 }
 
 void MainWindow::on_initializeButton_released()
@@ -108,6 +114,7 @@ void MainWindow::on_initializeButton_released()
     C=ui->initialPhaseC->text().toDouble();
 
     simulationInitialize();
+    sim->setCPUOperation(!GPU);
     ui->progressBar->setValue(50);
     scalar S0 = (-B+sqrt(B*B-24*A*C))/(6*C);
     Configuration->setNematicQTensorRandomly(noise,S0);
@@ -127,14 +134,14 @@ void MainWindow::on_initializeButton_released()
             break;
     }
 
-    boundaryObject homeotropicBoundary(boundaryType::homeotropic,1.0,S0);
-    //boundaryObject planarDegenerateBoundary(boundaryType::degeneratePlanar,.582,S0);
+    //boundaryObject homeotropicBoundary(boundaryType::homeotropic,1.0,S0);
+    boundaryObject planarDegenerateBoundary(boundaryType::degeneratePlanar,.582,S0);
 
     scalar3 left;
     left.x = 0.3*BoxX;left.y = 0.5*BoxY;left.z = 0.5*BoxZ;
     scalar3 right;
     right.x = 0.7*BoxX;right.y = 0.5*BoxY;right.z = 0.5*BoxZ;
-    if(nC!= 2)
+    //if(nC!= 2)
         {
             //Configuration->createSimpleFlatWallZNormal(0, planarDegenerateBoundary);
             //Configuration->createSimpleSpherialColloid(left,0.18*BoxX, homeotropicBoundary);
@@ -155,7 +162,6 @@ void MainWindow::simulationInitialize()
      landauLCForce = make_shared<landauDeGennesLC>();
 
      sim->setConfiguration(Configuration);
-     sim->setCPUOperation(!GPU);
 
      landauLCForce->setPhaseConstants(A,B,C);
      landauLCForce->setModel(Configuration);
@@ -185,6 +191,7 @@ void MainWindow::on_setOneConstant_released()
     landauLCForce->setNumberOfConstants(distortionEnergyType::oneConstant);
     QString printable = QStringLiteral("One-elastic-constant approximation set: L1 %1").arg((L1));
     ui->testingBox->setText(printable);
+    landauLCForce->setModel(Configuration);
     showControls();
 }
 
@@ -198,6 +205,7 @@ void MainWindow::on_setTwoConstants_released()
     landauLCForce->setNumberOfConstants(distortionEnergyType::twoConstant);
     QString printable = QStringLiteral("Two-elastic-constant approximation set: Lx %1 Ly %2 q0 %3 ").arg(_l1).arg(_l2).arg(_q0);
     ui->testingBox->setText(printable);
+    landauLCForce->setModel(Configuration);
     showControls();
 }
 
@@ -211,6 +219,7 @@ void MainWindow::on_setThreeConstants_released()
     landauLCForce->setNumberOfConstants(distortionEnergyType::threeConstant);
     QString printable = QStringLiteral("three-elastic-constant approximation set: L1 %1 L2 %2 L3 %3 ").arg(_l1).arg(_l2).arg(_l3);
     ui->testingBox->setText(printable);
+    landauLCForce->setModel(Configuration);
     showControls();
 }
 
@@ -255,6 +264,7 @@ void MainWindow::on_minimizeButton_released()
             fire->setMaximumIterations(fire->getCurrentIterations()+stepsToTake/10);
             sim->performTimestep();
             on_drawStuffButton_released();
+            ui->progressBar->setValue(10*ii);
         };
     };
     int iterationsTaken = fire->getCurrentIterations() - initialIterations;
@@ -267,7 +277,7 @@ void MainWindow::on_minimizeButton_released()
     scalar time =1.0*(t2-t1)/(1.0*CLOCKS_PER_SEC)/iterationsTaken;
     scalar maxForce = fire->getMaxForce();
     QString printable = QStringLiteral("simulation energy per site at: %1...this took %2 for %3 steps...<f> = %4 ").arg(E)
-                .arg(time*fire->getCurrentIterations()).arg(fire->getCurrentIterations()).arg(maxForce);
+                .arg(time).arg(fire->getCurrentIterations()-initialIterations).arg(maxForce);
     ui->testingBox->setText(printable);
     ui->progressBar->setValue(100);
 }
@@ -319,8 +329,12 @@ void MainWindow::on_drawStuffButton_released()
     vector<scalar> eVec1(3);
     vector<scalar> eVec2(3);
     vector<scalar> eVec3(3);
-    for (int ii = 0; ii < N; ii += skip)
+    for (int xx = 0; xx < BoxX; xx += skip)
+         for (int yy = 0; yy < BoxY; yy += skip)
+              for (int zz = 0; zz < BoxZ; zz += skip)
     {
+        int3 curIdx; curIdx.x=xx;curIdx.y=yy;curIdx.z=zz;
+        int ii = Configuration->latticeSiteToLinearIndex(curIdx);
         if(types.data[ii]>0)
             continue;
         eigensystemOfQ(Q.data[ii],eVals,eVec1,eVec2,eVec3);

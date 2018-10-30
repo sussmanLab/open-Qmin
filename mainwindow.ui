@@ -338,7 +338,7 @@ background-color: qradialgradient(spread:pad, cx:0.5, cy:0.5, radius:0.5, fx:0.5
       <string notr="true">border: 1px red solid</string>
      </property>
      <property name="text">
-      <string>20</string>
+      <string>50</string>
      </property>
     </widget>
     <widget class="QLineEdit" name="boxYLine">
@@ -354,7 +354,7 @@ background-color: qradialgradient(spread:pad, cx:0.5, cy:0.5, radius:0.5, fx:0.5
       <string notr="true">border: 1px red solid</string>
      </property>
      <property name="text">
-      <string>20</string>
+      <string>50</string>
      </property>
     </widget>
     <widget class="QLineEdit" name="boxXLine">
@@ -370,7 +370,7 @@ background-color: qradialgradient(spread:pad, cx:0.5, cy:0.5, radius:0.5, fx:0.5
       <string notr="true">border: 1px red solid</string>
      </property>
      <property name="text">
-      <string>20</string>
+      <string>50</string>
      </property>
     </widget>
     <widget class="QLabel" name="label_9">
@@ -418,7 +418,7 @@ background-color: qradialgradient(spread:pad, cx:0.5, cy:0.5, radius:0.5, fx:0.5
       <string notr="true">border: 1px black solid</string>
      </property>
      <property name="text">
-      <string>-1</string>
+      <string>0</string>
      </property>
     </widget>
    </widget>
@@ -1314,7 +1314,7 @@ border: 1px solid purple</string>
      </rect>
     </property>
     <property name="text">
-     <string>5</string>
+     <string>3</string>
     </property>
    </widget>
    <widget class="QSlider" name="xRotSlider">
@@ -1487,7 +1487,7 @@ border: 1px solid purple</string>
      </rect>
     </property>
     <property name="text">
-     <string>0.0001</string>
+     <string>0.275</string>
     </property>
    </widget>
    <widget class="QCheckBox" name="defectDrawCheckBox">
@@ -1792,6 +1792,21 @@ border: 1px black solid</string>
      </property>
     </widget>
    </widget>
+   <widget class="QLabel" name="label_52">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>220</y>
+      <width>171</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>(that checkbox is broken?)</string>
+    </property>
+   </widget>
+   <zorder>fireParametersWidget</zorder>
+   <zorder>addObjectsWidget</zorder>
    <zorder>layoutWidget</zorder>
    <zorder>setDistortionConstants1</zorder>
    <zorder>setPhaseConstants</zorder>
@@ -1805,7 +1820,6 @@ border: 1px black solid</string>
    <zorder>resetQTensorsButton</zorder>
    <zorder>progressBar</zorder>
    <zorder>label_7</zorder>
-   <zorder>fireParametersWidget</zorder>
    <zorder>displayZone</zorder>
    <zorder>drawStuffButton</zorder>
    <zorder>directorScaleBox</zorder>
@@ -1824,7 +1838,7 @@ border: 1px black solid</string>
    <zorder>label_45</zorder>
    <zorder>defectThresholdBox</zorder>
    <zorder>defectDrawCheckBox</zorder>
-   <zorder>addObjectsWidget</zorder>
+   <zorder>label_52</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
@@ -1832,7 +1846,7 @@ border: 1px black solid</string>
      <x>0</x>
      <y>0</y>
      <width>1171</width>
-     <height>22</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuSet_constants">
