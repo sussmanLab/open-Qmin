@@ -36,7 +36,7 @@ bool gpu_set_random_spins(dVec *d_pos,
     return cudaSuccess;
     }
 
-__global__ void gpu_set_random_nematic_qTensors_kernel(dVec *pos, curandState *rngs,scalar amplitude, int N)
+__global__ void gpu_set_random_nematic_qTensors_kernel(dVec *pos, int *type, curandState *rngs,scalar amplitude, bool globallyAligned, scalar globalTheta, scalar globalPhi,int N)
     {
     unsigned int idx = blockDim.x * blockIdx.x + threadIdx.x;
     if (idx >= N)
@@ -46,30 +46,41 @@ __global__ void gpu_set_random_nematic_qTensors_kernel(dVec *pos, curandState *r
 
     scalar theta = acos(2.0*curand_uniform(&randState)-1);
     scalar phi = 2.0*PI*curand_uniform(&randState);
-    pos[idx][0] = amplitude*(sin(theta)*sin(theta)*cos(phi)*cos(phi)-1.0/3.0);
-    pos[idx][1] = amplitude*sin(theta)*sin(theta)*cos(phi)*sin(phi);
-    pos[idx][2] = amplitude*sin(theta)*cos(theta)*cos(phi);
-    pos[idx][3] = amplitude*(sin(theta)*sin(theta)*sin(phi)*sin(phi)-1.0/3.0);
-    pos[idx][4] = amplitude*sin(theta)*cos(theta)*sin(phi);
-
+    if(globallyAligned)
+        {
+        theta = globalTheta;
+        phi = globalPhi;
+        }
+    if(type[idx] <=0)
+        {
+        pos[idx][0] = amplitude*(sin(theta)*sin(theta)*cos(phi)*cos(phi)-1.0/3.0);
+        pos[idx][1] = amplitude*sin(theta)*sin(theta)*cos(phi)*sin(phi);
+        pos[idx][2] = amplitude*sin(theta)*cos(theta)*cos(phi);
+        pos[idx][3] = amplitude*(sin(theta)*sin(theta)*sin(phi)*sin(phi)-1.0/3.0);
+        pos[idx][4] = amplitude*sin(theta)*cos(theta)*sin(phi);
+        }
     rngs[idx] = randState;
     return;
     };
 
 bool gpu_set_random_nematic_qTensors(dVec *d_pos,
+                          int *d_types,
                           curandState *rngs,
                           scalar amplitude,
                           int blockSize,
                           int nBlocks,
+                          bool globallyAligned,
+                          scalar theta,
+                          scalar phi,
                           int N
                           )
     {
-    if(DIMENSION !=5)
+    if(DIMENSION <5)
         {
         printf("\nAttempting to initialize Q-tensors with incorrectly set dimension...change the root CMakeLists.txt file to have dimension 5 and recompile\n");
         throw std::exception();
         }
-    gpu_set_random_nematic_qTensors_kernel<<<nBlocks,blockSize>>>(d_pos,rngs,amplitude,N);
+    gpu_set_random_nematic_qTensors_kernel<<<nBlocks,blockSize>>>(d_pos,d_types, rngs,amplitude, globallyAligned, theta, phi,N);
     HANDLE_ERROR(cudaGetLastError());
     return cudaSuccess;
     }
