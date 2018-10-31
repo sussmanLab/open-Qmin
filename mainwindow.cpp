@@ -524,3 +524,22 @@ void MainWindow::on_reprodicbleRNGBox_stateChanged(int arg1)
     noise.Reproducible= repro;
     sim->setReproducible(repro);
 }
+
+void MainWindow::on_builtinBoundaryVisualizationBox_stateChanged(int arg1)
+{
+    if(!ui->builtinBoundaryVisualizationBox->isChecked())
+    {
+        vector<int3> bsites;
+        ArrayHandle<int> type(Configuration->returnTypes());
+        for (int ii = 0 ;ii <Configuration->getNumberOfParticles();++ii )
+            {
+            if (type.data[ii] >0)
+            bsites.push_back(Configuration->latticeIndex.inverseIndex(ii));
+            }
+
+        ui->displayZone->setAllBoundarySites(bsites);
+        ui->displayZone->drawBoundaries = false;
+    }
+    else
+        ui->displayZone->drawBoundaries = true;
+}

@@ -114,19 +114,21 @@ void OGLWidget::draw()
 
 void OGLWidget::drawBoundarySites()
 {
-    glEnable (GL_BLEND);
-    glBlendFunc (GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-    float empiricallyNiceRadius = 0.05/(pow(zoom,0.15));
+    //glEnable (GL_BLEND);
+    //glBlendFunc (GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+    float empiricallyNiceRadius = 0.25/(pow(zoom,0.15));
+     empiricallyNiceRadius = .1;
     for (int ii = 0; ii < boundarySites.size(); ++ii)
         {
-            glColor4f(0.4,0.4,0,0.9);
+            //glColor4f(0.4,0.4,0,0.9);
+            glColor3f(1.0, 1.0, 1.0);
             GLUquadric *quad;
             quad = gluNewQuadric();
             glTranslatef(boundarySites[ii].x,boundarySites[ii].y,boundarySites[ii].z);
             gluSphere(quad,empiricallyNiceRadius,10,10);
             glTranslatef(-boundarySites[ii].x,-boundarySites[ii].y,-boundarySites[ii].z);
         }
-        glDisable (GL_BLEND);
+        //glDisable (GL_BLEND);
 }
 
 void OGLWidget::drawSpheres()
@@ -213,7 +215,13 @@ void OGLWidget::paintGL()
 
 void OGLWidget::setAllBoundarySites(vector<int3> &sites)
 {
-    boundarySites = sites;
+    boundarySites.resize(sites.size());
+    for(int ii = 0; ii < sites.size();++ii)
+        {
+        boundarySites[ii].x = zoom*((sites[ii].x-0.5*Sizes.x)/Sizes.z);
+        boundarySites[ii].y = zoom*((sites[ii].y-0.5*Sizes.y)/Sizes.z);
+        boundarySites[ii].z = zoom*((sites[ii].z-0.5*Sizes.z)/Sizes.z);
+        };
 }
 void OGLWidget::resizeGL(int w, int h)
 {

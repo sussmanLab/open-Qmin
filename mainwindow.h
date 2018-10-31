@@ -64,6 +64,8 @@ private slots:
 
     void on_reprodicbleRNGBox_stateChanged(int arg1);
 
+    void on_builtinBoundaryVisualizationBox_stateChanged(int arg1);
+
 private:
     Ui::MainWindow *ui;
 
