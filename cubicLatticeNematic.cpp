@@ -166,6 +166,8 @@ int main(int argc, char*argv[])
 
         myfile.close();
         }
+    string fname="../data/boundaryInput.txt";
+    Configuration->createBoundaryFromFile(fname,true);
     */
     /*
     ArrayHandle<dVec> pp(Configuration->returnPositions());
