@@ -71,6 +71,7 @@ void MainWindow::hideControls()
     ui->label_7->hide();
     ui->progressBar->hide();
     ui->reprodicbleRNGBox->hide();
+    ui->globalAlignmentCheckBox->hide();
 }
 void MainWindow::showControls()
 {
@@ -97,24 +98,33 @@ void MainWindow::showControls()
     ui->label_7->show();
     ui->progressBar->show();
     ui->reprodicbleRNGBox->show();
+    ui->globalAlignmentCheckBox->show();
 }
 
 void MainWindow::on_initializeButton_released()
 {
-    ui->initializationFrame->hide();
     BoxX = ui->boxXLine->text().toInt();
     BoxY = ui->boxYLine->text().toInt();
     BoxZ = ui->boxZLine->text().toInt();
     noise.Reproducible= ui->reproducibleButton->isChecked();
-    ui->reprodicbleRNGBox->setCheckState(ui->reproducibleButton->checkState());
+    ui->initializationFrame->hide();
+    if(noise.Reproducible)
+        {
+        ui->reprodicbleRNGBox->setChecked(true);
+        }
+    else
+        {
+        ui->reprodicbleRNGBox->setChecked(false);
+        }
     int gpu = ui->CPUORGPU->text().toInt();
     GPU = false;
     if(gpu >=0)
+        {
         GPU = chooseGPU(gpu);
+        }
     A=ui->initialPhaseA->text().toDouble();
     B=ui->initialPhaseB->text().toDouble();
     C=ui->initialPhaseC->text().toDouble();
-
     simulationInitialize();
     sim->setCPUOperation(!GPU);
     ui->progressBar->setValue(50);
@@ -283,7 +293,8 @@ void MainWindow::on_resetQTensorsButton_released()
     ui->progressBar->setValue(40);
     scalar S0 = (-B+sqrt(B*B-24*A*C))/(6*C);
     ui->progressBar->setValue(60);
-    Configuration->setNematicQTensorRandomly(noise,S0);
+    bool globalAlignment = ui->globalAlignmentCheckBox->isChecked();
+    Configuration->setNematicQTensorRandomly(noise,S0,globalAlignment);
     ui->progressBar->setValue(70);
     scalar E = sim->computePotentialEnergy();
     ui->progressBar->setValue(80);
