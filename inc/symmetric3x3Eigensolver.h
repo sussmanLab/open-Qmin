@@ -146,11 +146,11 @@ void NISymmetricEigensolver3x3::operator() (scalar a00, scalar a01, scalar a02,
         vector<scalar> eVals(3);eVals[0] = eval[0];eVals[1]=eval[1];eVals[2]=eval[2];
         sort(eVals.begin(),eVals.end());
         eval[0]=eVals[0];eval[1]=eVals[1];eval[2]=eVals[2];
-        //ComputeEigenvector0(a00, a01, a02, a11, a12, a22, eVals[2], evec[2]);
-        //ComputeEigenvector0(a00, a01, a02, a11, a12, a22, eVals[1], evec[1]);
+        ComputeEigenvector0(a00, a01, a02, a11, a12, a22, eVals[2], evec[2]);
+        ComputeEigenvector0(a00, a01, a02, a11, a12, a22, eVals[1], evec[1]);
         ComputeEigenvector0(a00, a01, a02, a11, a12, a22, eVals[0], evec[0]);
-        ComputeEigenvector1(a00, a01, a02, a11, a12, a22, evec[0], eVals[1], evec[1]);
-        evec[2] = Cross(evec[0], evec[1]);
+        //ComputeEigenvector1(a00, a01, a02, a11, a12, a22, evec[0], eVals[1], evec[1]);
+        //evec[2] = Cross(evec[0], evec[1]);
 /*
         // Compute the eigenvectors so that the set {evec[0], evec[1], evec[2]}
         // is right handed and orthonormal.

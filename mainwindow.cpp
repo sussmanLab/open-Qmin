@@ -240,6 +240,8 @@ void MainWindow::on_minimizeButton_released()
     bool graphicalProgress = ui->visualProgressCheckBox->isChecked();
 
     ui->progressBar->setValue(0);
+    QString printable1 = QStringLiteral("minimizing");
+    ui->testingBox->setText(printable1);
     clock_t t1 = clock();
     int initialIterations = fire->getCurrentIterations();
     if(!graphicalProgress)
@@ -250,6 +252,8 @@ void MainWindow::on_minimizeButton_released()
         for (int ii = 1; ii <= 10; ++ii)
         {
             fire->setMaximumIterations(fire->getCurrentIterations()+stepsToTake/10);
+            QString printable2 = QStringLiteral("minimizing");
+            ui->testingBox->setText(printable2);
             sim->performTimestep();
             on_drawStuffButton_released();
             ui->progressBar->setValue(10*ii);
@@ -302,6 +306,10 @@ void MainWindow::on_drawStuffButton_released()
 {
     ArrayHandle<dVec> Q(Configuration->returnPositions());
     ArrayHandle<int> types(Configuration->returnTypes());
+    vector<scalar> eVals(3);
+    vector<scalar> eVec1(3);
+    vector<scalar> eVec2(3);
+    vector<scalar> eVec3(3);
 
     int skip = ui->latticeSkipBox->text().toInt();
     scalar scale = ui->directorScaleBox->text().toDouble();
@@ -312,11 +320,9 @@ void MainWindow::on_drawStuffButton_released()
     int n = (int)floor(N/skip);
     vector<scalar3> lineSegments;
     vector<scalar3> defects;
-
-    vector<scalar> eVals(3);
-    vector<scalar> eVec1(3);
-    vector<scalar> eVec2(3);
-    vector<scalar> eVec3(3);
+    scalar3 director;
+    QString printable1 = QStringLiteral("finding directors ");
+    ui->testingBox->setText(printable1);
     for (int xx = 0; xx < BoxX; xx += skip)
          for (int yy = 0; yy < BoxY; yy += skip)
               for (int zz = 0; zz < BoxZ; zz += skip)
@@ -326,10 +332,10 @@ void MainWindow::on_drawStuffButton_released()
         if(types.data[ii]>0)
             continue;
         eigensystemOfQ(Q.data[ii],eVals,eVec1,eVec2,eVec3);
-        scalar3 director;
-        director.x = eVec3[0];
-        director.y = eVec3[1];
-        director.x = eVec3[2];
+        director.x=eVec3[0];
+        director.y=eVec3[1];
+        director.z=eVec3[2];
+
         int3 pos = Configuration->latticeIndex.inverseIndex(ii);
         scalar3 lineSegment1;
         scalar3 lineSegment2;
@@ -347,6 +353,8 @@ void MainWindow::on_drawStuffButton_released()
     scalar e1,e2,e3;
     if(defectDraw)
     {
+        QString printable2 = QStringLiteral("finding defects ");
+        ui->testingBox->setText(printable2);
         for (int ii = 0; ii < N; ++ii)
         {
             if(types.data[ii]>0)
@@ -361,8 +369,8 @@ void MainWindow::on_drawStuffButton_released()
             }
     }
     }
-     QString printable1 = QStringLiteral("drawing stuff ");
-     ui->testingBox->setText(printable1);
+    QString printable3 = QStringLiteral("drawing stuff ");
+    ui->testingBox->setText(printable3);
     ui->displayZone->setLines(lineSegments,Configuration->latticeIndex.sizes);
     ui->displayZone->setDefects(defects,Configuration->latticeIndex.sizes);
     ui->displayZone->setSpheres(Configuration->latticeIndex.sizes);
