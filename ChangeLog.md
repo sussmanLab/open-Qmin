@@ -2,7 +2,12 @@
 
 ### Changes in progress
 
-* implement lattice calculations, where d-dimensional objects live on a 3D cubic lattice
+* lots
+
+### landauDeGUI version 0.5
+
+* functional Q-tensor on a cubic lattice solver
+* QT-based GUI
 
 ### dDimensionalSimulation version 0.1
 

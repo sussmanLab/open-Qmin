@@ -1,12 +1,9 @@
-# dDimensionalSimulation
+# landauDeGUI 
 
-Lorem ipsum... a repository that implements simulations in dimension d, where d is specified
-at compilation time. Alter the dimension by setting the number in the root CMakeLists.txt
+Lorem ipsum... a repository that provides a graphical user interface to code that 
+calculates liquid crystal stuff.
 
 # Basic compilation
 
-see "INSTALLATION.md" for a few more details.
+see "INSTALLATION.md" for a few more details. Not really written yet
 
-* $ cd build/
-* $ cmake ..
-* $ make

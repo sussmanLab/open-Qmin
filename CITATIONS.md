@@ -1,8 +1,8 @@
-# Citations for dDimensionalSimulation {#cite}
+# Citations for landauDeGUI {#cite}
 
 ## Primary code-base
 
-If you use dDimensionalSimulation for a publication or project, please cite:
+If you use landauDeGUI for a publication or project, please cite:
 
 Daniel M. Sussman for being so helpful. No current publications describe this repository.
 

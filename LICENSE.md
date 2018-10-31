@@ -1,6 +1,6 @@
 # Licensing information {#license}
 
-dDimensionalSimulation is released under the MIT license
+landauDeGUI is released under the MIT license
 
 Copyright (c) 2018 -  Daniel M. Sussman
 

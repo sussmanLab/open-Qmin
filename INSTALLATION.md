@@ -1,6 +1,7 @@
 # INSTALLATION {#install}
 
-A general CMake scheme is included with the repository. 
+CMake is used so that both the c++ and cuda code gets compiled nicely... 
+The cmake file probably needs help finding the right QT modules
 
 ## Basic compilation
 
@@ -10,17 +11,11 @@ A general CMake scheme is included with the repository.
 
 ## Changing the dimension
 
-Go into the CMakeLists.txt file in the root directory, locate the line that says
-"add_definitions(-DDIMENSION=3) "
-and change the 3 (or whatever other number happens to be there) to something else.
-This sets the dimensionality of the degrees of freedom, and by default also the 
-dimensionality of the space those d.o.f.s are in.
-
 # Requirements
 
 The current iteration of the code was written using some features of C++11, and was compiled using CUDA-8.0.
 
-Default compilation is via CMake, so you need that, too.
+Default compilation is via QT, so you need that, and CMake, too.
 
 
 # Sample programs
@@ -34,3 +29,4 @@ The requirements can be obtained by looking at the info on the following:
 
 CUDA: https://developer.nvidia.com/cuda-downloads
 CMAKE: https://cmake.org
+QT: https://www.qt.io/
