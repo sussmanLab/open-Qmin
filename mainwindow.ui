@@ -1910,6 +1910,22 @@ border: 1px black solid</string>
      <string>Global alignment on reset</string>
     </property>
    </widget>
+   <widget class="QCheckBox" name="builtinBoundaryVisualizationBox">
+    <property name="geometry">
+     <rect>
+      <x>950</x>
+      <y>470</y>
+      <width>221</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Built-in boundary visualization</string>
+    </property>
+    <property name="checked">
+     <bool>true</bool>
+    </property>
+   </widget>
    <zorder>fireParametersWidget</zorder>
    <zorder>layoutWidget</zorder>
    <zorder>setDistortionConstants1</zorder>
@@ -1945,6 +1961,7 @@ border: 1px black solid</string>
    <zorder>reprodicbleRNGBox</zorder>
    <zorder>globalAlignmentCheckBox</zorder>
    <zorder>initializationFrame</zorder>
+   <zorder>builtinBoundaryVisualizationBox</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
@@ -1952,7 +1969,7 @@ border: 1px black solid</string>
      <x>0</x>
      <y>0</y>
      <width>1171</width>
-     <height>20</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuSet_constants">

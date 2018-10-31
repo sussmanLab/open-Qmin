@@ -82,6 +82,7 @@ void MainWindow::hideControls()
     ui->progressBar->hide();
     ui->reprodicbleRNGBox->hide();
     ui->globalAlignmentCheckBox->hide();
+    ui->builtinBoundaryVisualizationBox->hide();
 }
 void MainWindow::showControls()
 {
@@ -109,6 +110,7 @@ void MainWindow::showControls()
     ui->progressBar->show();
     ui->reprodicbleRNGBox->show();
     ui->globalAlignmentCheckBox->show();
+    ui->builtinBoundaryVisualizationBox->show();
 }
 
 void MainWindow::on_initializeButton_released()
@@ -397,10 +399,17 @@ void MainWindow::on_drawStuffButton_released()
     }
     QString printable3 = QStringLiteral("drawing stuff ");
     ui->testingBox->setText(printable3);
-    ui->displayZone->setLines(lineSegments,Configuration->latticeIndex.sizes);
-    ui->displayZone->setDefects(defects,Configuration->latticeIndex.sizes);
-    ui->displayZone->setSpheres(Configuration->latticeIndex.sizes);
-
+    bool goodVisualization = ui->builtinBoundaryVisualizationBox->isChecked();
+    if(goodVisualization)
+        {
+        ui->displayZone->setLines(lineSegments,Configuration->latticeIndex.sizes);
+        ui->displayZone->setDefects(defects,Configuration->latticeIndex.sizes);
+        ui->displayZone->setSpheres(Configuration->latticeIndex.sizes);
+        }
+    else
+        {
+        ui->displayZone->drawBoundaries = false;
+        };
     ui->displayZone->update();
 }
 

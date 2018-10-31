@@ -14,6 +14,8 @@ public:
     OGLWidget(QWidget *parent = 0);
     ~OGLWidget();
 
+    bool drawBoundaries = true;
+    void setAllBoundarySites(vector<int3> &sites);
     void clearObjects();
     void setLines(vector<scalar3> &lineSegments, int3 sizes);
     void setDefects(vector<scalar3> &def, int3 sizes);
@@ -29,6 +31,7 @@ public:
     vector<scalar3> defects;
     int zoom=5;
     vector<int3> walls;
+    vector<int3> boundarySites;
     vector<scalar3> baseSpherePositions;
     vector<scalar> baseSphereRadii;
 
@@ -57,6 +60,7 @@ protected:
     void draw();
     void drawSpheres();
     void drawWalls();
+    void drawBoundarySites();
     int iterator = 0;
 
 

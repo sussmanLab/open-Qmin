@@ -112,6 +112,23 @@ void OGLWidget::draw()
     glEnd();
 }
 
+void OGLWidget::drawBoundarySites()
+{
+    glEnable (GL_BLEND);
+    glBlendFunc (GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+    float empiricallyNiceRadius = 0.05/(pow(zoom,0.15));
+    for (int ii = 0; ii < boundarySites.size(); ++ii)
+        {
+            glColor4f(0.4,0.4,0,0.9);
+            GLUquadric *quad;
+            quad = gluNewQuadric();
+            glTranslatef(boundarySites[ii].x,boundarySites[ii].y,boundarySites[ii].z);
+            gluSphere(quad,empiricallyNiceRadius,10,10);
+            glTranslatef(-boundarySites[ii].x,-boundarySites[ii].y,-boundarySites[ii].z);
+        }
+        glDisable (GL_BLEND);
+}
+
 void OGLWidget::drawSpheres()
 {
     glEnable (GL_BLEND);
@@ -183,10 +200,21 @@ void OGLWidget::paintGL()
         glRotatef(yRot / 1.0, 0.0, 1.0, 0.0);
         glRotatef(zRot / 1.0, 0.0, 0.0, 1.0);
     draw();
-    drawSpheres();
-    drawWalls();
+    if(drawBoundaries)
+        {
+        drawSpheres();
+        drawWalls();
+        }
+    else
+        {
+        drawBoundarySites();
+        }
 }
 
+void OGLWidget::setAllBoundarySites(vector<int3> &sites)
+{
+    boundarySites = sites;
+}
 void OGLWidget::resizeGL(int w, int h)
 {
     glViewport(0,0,w,h);
