@@ -92,6 +92,8 @@ public:
     shared_ptr<Simulation> sim;
     shared_ptr<landauDeGennesLC> landauLCForce;
     shared_ptr<energyMinimizerFIRE> fire;
+
+    vector<QString> computationalNames;
 };
 
 #endif // MAINWINDOW_H

@@ -66,26 +66,10 @@ border: 1px solid red</string>
       <string>Select initial parameters:</string>
      </property>
     </widget>
-    <widget class="QLabel" name="label_13">
-     <property name="geometry">
-      <rect>
-       <x>240</x>
-       <y>80</y>
-       <width>81</width>
-       <height>16</height>
-      </rect>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">border: white</string>
-     </property>
-     <property name="text">
-      <string>(-1 == CPU)</string>
-     </property>
-    </widget>
     <widget class="QCheckBox" name="reproducibleButton">
      <property name="geometry">
       <rect>
-       <x>200</x>
+       <x>190</x>
        <y>150</y>
        <width>151</width>
        <height>20</height>
@@ -121,7 +105,7 @@ background-color: qradialgradient(spread:pad, cx:0.5, cy:0.5, radius:0.5, fx:0.5
     <widget class="QSpinBox" name="nConstantsSpinBox">
      <property name="geometry">
       <rect>
-       <x>340</x>
+       <x>330</x>
        <y>100</y>
        <width>51</width>
        <height>21</height>
@@ -146,7 +130,7 @@ background-color: qradialgradient(spread:pad, cx:0.5, cy:0.5, radius:0.5, fx:0.5
     <widget class="QLabel" name="label_23">
      <property name="geometry">
       <rect>
-       <x>200</x>
+       <x>190</x>
        <y>100</y>
        <width>131</width>
        <height>31</height>
@@ -389,36 +373,40 @@ background-color: qradialgradient(spread:pad, cx:0.5, cy:0.5, radius:0.5, fx:0.5
       <string>Lx:</string>
      </property>
     </widget>
-    <widget class="QLabel" name="label_12">
+    <widget class="QComboBox" name="detectedGPUBox">
      <property name="geometry">
       <rect>
-       <x>201</x>
-       <y>61</y>
-       <width>37</width>
-       <height>18</height>
+       <x>190</x>
+       <y>60</y>
+       <width>201</width>
+       <height>23</height>
       </rect>
      </property>
-     <property name="styleSheet">
-      <string notr="true">border :white</string>
+     <property name="autoFillBackground">
+      <bool>false</bool>
      </property>
-     <property name="text">
-      <string>GPU</string>
+     <property name="styleSheet">
+      <string notr="true">border: 1px solid gray;
+padding: 1px 18px 1px 3px;
+background: white;
+color: black
+</string>
      </property>
     </widget>
-    <widget class="QLineEdit" name="CPUORGPU">
+    <widget class="QLabel" name="label_52">
      <property name="geometry">
       <rect>
-       <x>246</x>
-       <y>61</y>
-       <width>114</width>
-       <height>18</height>
+       <x>190</x>
+       <y>40</y>
+       <width>141</width>
+       <height>20</height>
       </rect>
      </property>
      <property name="styleSheet">
-      <string notr="true">border: 1px black solid</string>
+      <string notr="true">border: white</string>
      </property>
      <property name="text">
-      <string>0</string>
+      <string>Computational unit:</string>
      </property>
     </widget>
    </widget>

@@ -223,6 +223,21 @@ __host__ inline bool chooseGPU(int USE_GPU,bool verbose = false)
     return true;
     };
 
+//!Get basic stats about the chosen GPU (if it exists)
+__host__ inline bool getAvailableGPUs(vector<string> &devices)
+    {
+    int nDev;
+    cudaGetDeviceCount(&nDev);
+    for (int ii=0; ii < nDev; ++ii)
+        {
+        cudaDeviceProp prop;
+        cudaGetDeviceProperties(&prop,ii);
+        string curName(prop.name);
+        devices.push_back(curName);
+        };
+    return true;
+    };
+
 /** @} */ //end of group declaration
 #undef HOSTDEVICE
 #endif

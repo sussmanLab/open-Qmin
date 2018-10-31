@@ -41,6 +41,16 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->fireParametersWidget->hide();
     ui->addObjectsWidget->hide();
 
+    vector<string> deviceNames;
+    getAvailableGPUs(deviceNames);
+    deviceNames.push_back("CPU");
+    computationalNames.resize(deviceNames.size());
+    for(int ii = 0; ii < computationalNames.size(); ++ii)
+        {
+        computationalNames[ii] = QString::fromStdString(deviceNames[ii]);
+        ui->detectedGPUBox->insertItem(ii,computationalNames[ii]);
+        }
+
     hideControls();
     QString printable = QStringLiteral("Welcome to landauDeGUI, a graphical interface to a continuum LdG liquid crystal simulation package!");
     ui->testingBox->setText(printable);
@@ -116,12 +126,17 @@ void MainWindow::on_initializeButton_released()
         {
         ui->reprodicbleRNGBox->setChecked(false);
         }
-    int gpu = ui->CPUORGPU->text().toInt();
-    GPU = false;
-    if(gpu >=0)
+
+    int compDevice = ui->detectedGPUBox->currentIndex();
+    if(compDevice==computationalNames.size()-1)//CPU branch
         {
-        GPU = chooseGPU(gpu);
+        GPU = false;
         }
+    else//gpu branch
+        {
+        GPU = chooseGPU(compDevice);
+        }
+
     A=ui->initialPhaseA->text().toDouble();
     B=ui->initialPhaseB->text().toDouble();
     C=ui->initialPhaseC->text().toDouble();
@@ -147,7 +162,7 @@ void MainWindow::on_initializeButton_released()
     }
 
     QString printable = QStringLiteral("N %8 Lx %1 Ly %2 Lz %3 gpu %4... A %5 B %6 C %7 ")
-                        .arg(BoxX).arg(BoxY).arg(BoxZ).arg(gpu).arg(A).arg(B).arg(C).arg(Configuration->getNumberOfParticles());
+                        .arg(BoxX).arg(BoxY).arg(BoxZ).arg(compDevice).arg(A).arg(B).arg(C).arg(Configuration->getNumberOfParticles());
     ui->testingBox->setText(printable);
     ui->progressBar->setValue(100);
     on_drawStuffButton_released();
