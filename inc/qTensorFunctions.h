@@ -147,6 +147,10 @@ HOSTDEVICE void eigensystemOfQ(dVec &q, vector<scalar> &eVals,
     eigenSolver(q[0],q[1],q[2],q[3],q[4],-q[0]-q[3],evals,evecs);
 
     eVals[0]=evals[0];eVals[1]=evals[1];eVals[2]=evals[2];
+    eVec1[0]=evecs[0][0];eVec1[1]=evecs[0][1];eVec1[2]=evecs[0][2];
+    eVec2[0]=evecs[1][0];eVec2[1]=evecs[1][1];eVec2[2]=evecs[1][2];
+    eVec3[0]=evecs[2][0];eVec3[1]=evecs[2][1];eVec3[2]=evecs[2][2];
+/*
 
     eVec1[0] = q[0]*evecs[0][0]+q[1]*evecs[0][1] + q[2]*evecs[0][2];
     eVec1[1] = q[1]*evecs[0][0]+q[3]*evecs[0][1] + q[4]*evecs[0][2];
@@ -180,12 +184,14 @@ HOSTDEVICE void eigensystemOfQ(dVec &q, vector<scalar> &eVals,
     eVec3[0] = evecs[eigList[2].second][0];
     eVec3[1] = evecs[eigList[2].second][1];
     eVec3[2] = evecs[eigList[2].second][2];
-    /*
+
+
     printf("%f %f %f\n",eVals[0],eVals[1],eVals[2]);
-    printf("%f %f %f\t%f\n",eVec1[0],eVec1[1],eVec1[2],eigList[0].first);
-    printf("%f %f %f\t%f\n",eVec2[0],eVec2[1],eVec2[2],eigList[1].first);
-    printf("%f %f %f\t%f\n",eVec3[0],eVec3[1],eVec3[2],eigList[2].first);
+    printf("%f %f %f\t\n",eVec1[0],eVec1[1],eVec1[2]);
+    printf("%f %f %f\t\n",eVec2[0],eVec2[1],eVec2[2]);
+    printf("%f %f %f\t\n",eVec3[0],eVec3[1],eVec3[2]);
     */
+
     }
 
 //!Get the eigenvalues of a real symmetric traceless 3x3 matrix

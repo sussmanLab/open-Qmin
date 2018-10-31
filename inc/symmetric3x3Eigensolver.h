@@ -143,7 +143,15 @@ void NISymmetricEigensolver3x3::operator() (scalar a00, scalar a01, scalar a02,
         eval[0] = q + p * beta0;
         eval[1] = q + p * beta1;
         eval[2] = q + p * beta2;
-
+        vector<scalar> eVals(3);eVals[0] = eval[0];eVals[1]=eval[1];eVals[2]=eval[2];
+        sort(eVals.begin(),eVals.end());
+        eval[0]=eVals[0];eval[1]=eVals[1];eval[2]=eVals[2];
+        //ComputeEigenvector0(a00, a01, a02, a11, a12, a22, eVals[2], evec[2]);
+        //ComputeEigenvector0(a00, a01, a02, a11, a12, a22, eVals[1], evec[1]);
+        ComputeEigenvector0(a00, a01, a02, a11, a12, a22, eVals[0], evec[0]);
+        ComputeEigenvector1(a00, a01, a02, a11, a12, a22, evec[0], eVals[1], evec[1]);
+        evec[2] = Cross(evec[0], evec[1]);
+/*
         // Compute the eigenvectors so that the set {evec[0], evec[1], evec[2]}
         // is right handed and orthonormal.
         if (halfDet >= (scalar)0)
@@ -158,6 +166,7 @@ void NISymmetricEigensolver3x3::operator() (scalar a00, scalar a01, scalar a02,
             ComputeEigenvector1(a00, a01, a02, a11, a12, a22, evec[0], eval[1], evec[1]);
             evec[2] = Cross(evec[0], evec[1]);
         }
+*/
     }
     else
     {
@@ -165,9 +174,32 @@ void NISymmetricEigensolver3x3::operator() (scalar a00, scalar a01, scalar a02,
         eval[0] = a00;
         eval[1] = a11;
         eval[2] = a22;
-        evec[0] = { (scalar)1, (scalar)0, (scalar)0 };
-        evec[1] = { (scalar)0, (scalar)1, (scalar)0 };
-        evec[2] = { (scalar)0, (scalar)0, (scalar)1 };
+        //evec[0] = { (scalar)1, (scalar)0, (scalar)0 };
+        //evec[1] = { (scalar)0, (scalar)1, (scalar)0 };
+        //evec[2] = { (scalar)0, (scalar)0, (scalar)1 };
+        vector<scalar> eVals(3);eVals[0] = eval[0];eVals[1]=eval[1];eVals[2]=eval[2];
+        sort(eVals.begin(),eVals.end());
+        if(eVals[0] == a00)
+            evec[0] = { (scalar)1, (scalar)0, (scalar)0 };
+        else if (eVals[0] == a11)
+            evec[0] = { (scalar)0, (scalar)1, (scalar)0 };
+        else if (eVals[0] == a22)
+            evec[0] = { (scalar)0, (scalar)0, (scalar)1 };
+
+        if(eVals[1] == a00)
+            evec[1] = { (scalar)1, (scalar)0, (scalar)0 };
+        else if (eVals[1] == a11)
+            evec[1] = { (scalar)0, (scalar)1, (scalar)0 };
+        else if (eVals[1] == a22)
+            evec[1] = { (scalar)0, (scalar)0, (scalar)1 };
+
+        if(eVals[2] == a00)
+            evec[2] = { (scalar)1, (scalar)0, (scalar)0 };
+        else if (eVals[2] == a11)
+            evec[2] = { (scalar)0, (scalar)1, (scalar)0 };
+        else if (eVals[2] == a22)
+            evec[2] = { (scalar)0, (scalar)0, (scalar)1 };
+        eval[0]=eVals[0];eval[1]=eVals[1];eval[2]=eVals[2];
     }
 
     // The preconditioning scaled the matrix A, which scales the eigenvalues.
@@ -175,6 +207,11 @@ void NISymmetricEigensolver3x3::operator() (scalar a00, scalar a01, scalar a02,
     eval[0] *= maxAbsElement;
     eval[1] *= maxAbsElement;
     eval[2] *= maxAbsElement;
+    /*
+    printf("\n\n %f %f %f\n %f %f %f \n %f %f %f \n\n\n",evec[0][0],evec[0][1],evec[0][2],
+                                                         evec[1][0],evec[1][1],evec[1][2],
+                                                         evec[2][0],evec[2][1],evec[2][2]);
+    */
 }
 
 std::array<scalar, 3> NISymmetricEigensolver3x3::Multiply(
