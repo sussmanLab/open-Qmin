@@ -2,7 +2,7 @@
 /*! \file simpleModel.cu */
 
 /*!
-    \addtogroup utilityKernels
+    \addtogroup modelKernels
     @{
 */
 

@@ -3,6 +3,8 @@
 
 #include "cubicLattice.h"
 #include "qTensorFunctions.h"
+#include "qTensorLatticeModel.cuh"
+
 /*! \file qTensorLatticeModel.h */
 
 //! Each site on the underlying lattice gets a local Q-tensor
@@ -55,5 +57,10 @@ class qTensorLatticeModel : public cubicLattice
 
         //!create a spherical colloid with anchoring given by the boundary object (with surface normal the director direction)
         void createSimpleSpherialColloid(scalar3 center, scalar radius, boundaryObject &bObj);
+
+        //!scalars that can represent different defect measures
+        GPUArray<scalar> defectMeasures;
+        //!compute different measures of whether a site is a defect
+        void computeDefectMeasures(int defectType);
     };
 #endif

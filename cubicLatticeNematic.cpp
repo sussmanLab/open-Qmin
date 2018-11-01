@@ -169,6 +169,9 @@ int main(int argc, char*argv[])
     string fname="../data/boundaryInput.txt";
     Configuration->createBoundaryFromFile(fname,true);
     */
+    //Configuration->computeDefectMeasures(0);
+    //Configuration->computeDefectMeasures(1);
+    //Configuration->computeDefectMeasures(2);
     /*
     ArrayHandle<dVec> pp(Configuration->returnPositions());
     vector<scalar> eVals(3);
