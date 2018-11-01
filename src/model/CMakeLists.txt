@@ -9,4 +9,5 @@ add_library(model
     qTensorLatticeModel.cpp)
 cuda_add_library(modelGPU
     simpleModel.cu
-    cubicLattice.cu)
+    cubicLattice.cu
+    qTensorLatticeModel.cu)

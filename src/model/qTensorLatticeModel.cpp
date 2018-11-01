@@ -11,6 +11,7 @@ qTensorLatticeModel::qTensorLatticeModel(int l, bool _useGPU)
     : cubicLattice(l,false,_useGPU)
     {
     normalizeSpins = false;
+    defectMeasures.resize(N);
     if(DIMENSION !=5)
         {
         printf("\nAttempting to run a simulation with incorrectly set dimension... change the root CMakeLists.txt file to have dimension 5 and recompile\n");
@@ -22,6 +23,7 @@ qTensorLatticeModel::qTensorLatticeModel(int lx,int ly,int lz, bool _useGPU)
     : cubicLattice(lx,ly,lz,false,_useGPU)
     {
     normalizeSpins = false;
+    defectMeasures.resize(N);
     if(DIMENSION !=5)
         {
         printf("\nAttempting to run a simulation with incorrectly set dimension... change the root CMakeLists.txt file to have dimension 5 and recompile\n");
@@ -29,6 +31,48 @@ qTensorLatticeModel::qTensorLatticeModel(int lx,int ly,int lz, bool _useGPU)
         }
     };
 
+/*!
+defectType==0 stores the largest eigenvalue of Q at each site
+defectType==1 stores the determinant of Q each site
+defectType==0 stores the (Tr(Q^2))^3-54 det(Q)^2 at each site
+*/
+void qTensorLatticeModel::computeDefectMeasures(int defectType)
+    {
+    if(!useGPU)
+        {
+        ArrayHandle<dVec> Q(positions,access_location::host,access_mode::read);
+        ArrayHandle<int> t(types,access_location::host,access_mode::read);
+        ArrayHandle<scalar> defects(defectMeasures,access_location::host,access_mode::overwrite);
+        scalar a,b,c;
+        for(int pp = 0; pp < N; ++pp)
+            {
+            if(t.data[pp] >0)
+                continue;
+            if(defectType==0)
+                {
+                eigenvaluesOfQ(Q.data[pp],a,b,c);
+                defects.data[pp] = max(max(a,b),c);
+                }
+            if(defectType==1)
+                {
+                defects.data[pp] = determinantOfQ(Q.data[pp]);
+                }
+            if(defectType==2)
+                {
+                scalar trQ2 = TrQ2(Q.data[pp]);
+                scalar det = determinantOfQ(Q.data[pp]);
+                defects.data[pp] = trQ2*trQ2*trQ2 - 54.0*det*det;
+                }
+            }
+        }//end CPU
+    else
+        {
+            ArrayHandle<int> t(types,access_location::device,access_mode::read);
+            ArrayHandle<dVec> pos(positions,access_location::device,access_mode::read);
+            ArrayHandle<scalar> defects(defectMeasures,access_location::device,access_mode::overwrite);
+            gpu_get_qtensor_DefectMeasures(pos.data,defects.data,t.data,defectType,N);
+        }
+    }
 void qTensorLatticeModel::setNematicQTensorRandomly(noiseSource &noise,scalar S0, bool globallyAligned)
     {
     scalar amplitude =  3./2.*S0;
