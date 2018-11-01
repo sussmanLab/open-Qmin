@@ -66,6 +66,8 @@ private slots:
 
     void on_importFileNowButton_released();
 
+    void on_saveFileNowButton_released();
+
 private:
     Ui::MainWindow *ui;
 

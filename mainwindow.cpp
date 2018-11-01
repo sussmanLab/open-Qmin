@@ -41,7 +41,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->fireParametersWidget->hide();
     ui->addObjectsWidget->hide();
     ui->fileImportWidget->hide();
-
+    ui->fileSaveWidget->hide();
     vector<string> deviceNames;
     getAvailableGPUs(deviceNames);
     deviceNames.push_back("CPU");
@@ -583,5 +583,27 @@ void MainWindow::on_importFileNowButton_released()
     //string fn = "/Users/dmsussma/repos/dDimSim/data/boundaryInput.txt";
     Configuration->createBoundaryFromFile(fn,true);cout.flush();
     QString printable1 = QStringLiteral("boundary imported from file");
+    ui->testingBox->setText(printable1);
+}
+
+void MainWindow::on_saveFileNowButton_released()
+{
+    QString fname = ui->saveFileNameBox->text();
+    string fileName = fname.toStdString();
+
+    ArrayHandle<dVec> pp(Configuration->returnPositions());
+    ArrayHandle<int> tt(Configuration->returnTypes());
+    ofstream myfile;
+    myfile.open (fileName.c_str());
+    for (int ii = 0; ii < Configuration->getNumberOfParticles();++ii)
+        {
+        int3 pos = Configuration->latticeIndex.inverseIndex(ii);
+        myfile << pos.x <<"\t"<<pos.y<<"\t"<<pos.z<<"\t"<<pp.data[ii][0]<<"\t"<<pp.data[ii][1]<<"\t"<<
+                pp.data[ii][2]<<"\t"<<pp.data[ii][3]<<"\t"<<pp.data[ii][4]<<"\t"<<tt.data[ii]<<"\n";
+        };
+
+    myfile.close();
+
+    QString printable1 = QStringLiteral("File saved");
     ui->testingBox->setText(printable1);
 }

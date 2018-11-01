@@ -169,7 +169,9 @@ void qTensorLatticeModel::createBoundaryFromFile(string fname, bool verbose)
     vector<int> boundSites;
     int3 sitePos;
     ArrayHandle<dVec> pos(positions);
-    while (getline(inFile,line))
+    int entriesRead = 0;
+    int maxEntries = iVar2;
+    while (getline(inFile,line) && entriesRead < maxEntries)
         {
         istringstream linestream(line);
         linestream >> iVar1 >> iVar2 >> iVar3 >> Qtensor[0] >> Qtensor[1] >> Qtensor[2] >>Qtensor[3] >> Qtensor[4];
@@ -184,6 +186,7 @@ void qTensorLatticeModel::createBoundaryFromFile(string fname, bool verbose)
             printf("(%i,%i,%i) %f %f %f %f %f\n",sitePos.x,sitePos.y,sitePos.z,
                                                 Qtensor[0],Qtensor[1],Qtensor[2],Qtensor[3],Qtensor[4]);
         */
+        entriesRead += 1;
         };
     if(verbose)
         printf("object with %lu sites created\n",boundSites.size());

@@ -47,7 +47,7 @@ border: 1px solid red</string>
     <widget class="QLabel" name="label_8">
      <property name="geometry">
       <rect>
-       <x>120</x>
+       <x>130</x>
        <y>10</y>
        <width>171</width>
        <height>20</height>
@@ -63,7 +63,7 @@ border: 1px solid red</string>
       <string notr="true">border: white</string>
      </property>
      <property name="text">
-      <string>Select initial parameters:</string>
+      <string>System initialization</string>
      </property>
     </widget>
     <widget class="QCheckBox" name="reproducibleButton">
@@ -73,7 +73,7 @@ border: 1px solid red</string>
      <property name="geometry">
       <rect>
        <x>190</x>
-       <y>150</y>
+       <y>170</y>
        <width>151</width>
        <height>20</height>
       </rect>
@@ -92,7 +92,7 @@ border: 1px solid red</string>
      <property name="geometry">
       <rect>
        <x>200</x>
-       <y>190</y>
+       <y>200</y>
        <width>161</width>
        <height>51</height>
       </rect>
@@ -109,7 +109,7 @@ background-color: qradialgradient(spread:pad, cx:0.5, cy:0.5, radius:0.5, fx:0.5
      <property name="geometry">
       <rect>
        <x>330</x>
-       <y>100</y>
+       <y>120</y>
        <width>51</width>
        <height>21</height>
       </rect>
@@ -134,7 +134,7 @@ background-color: qradialgradient(spread:pad, cx:0.5, cy:0.5, radius:0.5, fx:0.5
      <property name="geometry">
       <rect>
        <x>190</x>
-       <y>100</y>
+       <y>120</y>
        <width>131</width>
        <height>31</height>
       </rect>
@@ -317,7 +317,7 @@ background-color: qradialgradient(spread:pad, cx:0.5, cy:0.5, radius:0.5, fx:0.5
       <rect>
        <x>60</x>
        <y>120</y>
-       <width>123</width>
+       <width>41</width>
        <height>18</height>
       </rect>
      </property>
@@ -333,7 +333,7 @@ background-color: qradialgradient(spread:pad, cx:0.5, cy:0.5, radius:0.5, fx:0.5
       <rect>
        <x>60</x>
        <y>90</y>
-       <width>123</width>
+       <width>41</width>
        <height>18</height>
       </rect>
      </property>
@@ -349,7 +349,7 @@ background-color: qradialgradient(spread:pad, cx:0.5, cy:0.5, radius:0.5, fx:0.5
       <rect>
        <x>60</x>
        <y>60</y>
-       <width>123</width>
+       <width>31</width>
        <height>18</height>
       </rect>
      </property>
@@ -380,7 +380,7 @@ background-color: qradialgradient(spread:pad, cx:0.5, cy:0.5, radius:0.5, fx:0.5
      <property name="geometry">
       <rect>
        <x>190</x>
-       <y>60</y>
+       <y>80</y>
        <width>201</width>
        <height>23</height>
       </rect>
@@ -401,15 +401,18 @@ color: black
       <rect>
        <x>190</x>
        <y>40</y>
-       <width>141</width>
-       <height>20</height>
+       <width>201</width>
+       <height>31</height>
       </rect>
      </property>
      <property name="styleSheet">
       <string notr="true">border: white</string>
      </property>
      <property name="text">
-      <string>Computational unit:</string>
+      <string>available compute units (autodetected)</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
      </property>
     </widget>
    </widget>
@@ -997,9 +1000,9 @@ border: 1px solid purple</string>
     <widget class="QLabel" name="label_28">
      <property name="geometry">
       <rect>
-       <x>140</x>
+       <x>100</x>
        <y>10</y>
-       <width>171</width>
+       <width>261</width>
        <height>20</height>
       </rect>
      </property>
@@ -1013,7 +1016,7 @@ border: 1px solid purple</string>
       <string notr="true">border: white</string>
      </property>
      <property name="text">
-      <string>Select FIRE parameters</string>
+      <string>Select FIRE  minimization parameters</string>
      </property>
     </widget>
     <widget class="QLabel" name="label_35">
@@ -1430,6 +1433,9 @@ border: 1px solid purple</string>
     </property>
     <property name="text">
      <string>display progress visually</string>
+    </property>
+    <property name="checked">
+     <bool>true</bool>
     </property>
    </widget>
    <widget class="QLabel" name="label_45">
@@ -1973,6 +1979,22 @@ border: 1px black solid</string>
       <string>Cancel</string>
      </property>
     </widget>
+    <widget class="QLabel" name="label_59">
+     <property name="geometry">
+      <rect>
+       <x>80</x>
+       <y>10</y>
+       <width>311</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>file name of custom boundary conditions to import</string>
+     </property>
+    </widget>
    </widget>
    <widget class="QLabel" name="label_42">
     <property name="geometry">
@@ -2039,12 +2061,84 @@ border: 1px black solid</string>
      <string>Pi</string>
     </property>
    </widget>
+   <widget class="QWidget" name="fileSaveWidget" native="true">
+    <property name="geometry">
+     <rect>
+      <x>200</x>
+      <y>110</y>
+      <width>471</width>
+      <height>121</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background: white; border: 1px solid black</string>
+    </property>
+    <widget class="QPushButton" name="saveFileNowButton">
+     <property name="geometry">
+      <rect>
+       <x>180</x>
+       <y>70</y>
+       <width>114</width>
+       <height>32</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background:rgb(148, 148, 148)</string>
+     </property>
+     <property name="text">
+      <string>Save</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="saveFileNameBox">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>30</y>
+       <width>441</width>
+       <height>21</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="cancelFileISave">
+     <property name="geometry">
+      <rect>
+       <x>370</x>
+       <y>80</y>
+       <width>80</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Cancel</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_58">
+     <property name="geometry">
+      <rect>
+       <x>210</x>
+       <y>10</y>
+       <width>71</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>file name</string>
+     </property>
+    </widget>
+   </widget>
+   <zorder>fileImportWidget</zorder>
+   <zorder>fileSaveWidget</zorder>
    <zorder>fireParametersWidget</zorder>
-   <zorder>layoutWidget</zorder>
    <zorder>setDistortionConstants1</zorder>
    <zorder>setPhaseConstants</zorder>
    <zorder>setDistortionConstants3</zorder>
    <zorder>setDistortionConstants2</zorder>
+   <zorder>addObjectsWidget</zorder>
+   <zorder>initializationFrame</zorder>
+   <zorder>layoutWidget</zorder>
    <zorder>testingBox</zorder>
    <zorder>minimizationParametersButton</zorder>
    <zorder>addObjectButton</zorder>
@@ -2068,13 +2162,10 @@ border: 1px black solid</string>
    <zorder>label_45</zorder>
    <zorder>defectThresholdBox</zorder>
    <zorder>defectDrawCheckBox</zorder>
-   <zorder>addObjectsWidget</zorder>
    <zorder>reprodicbleRNGBox</zorder>
    <zorder>globalAlignmentCheckBox</zorder>
-   <zorder>initializationFrame</zorder>
    <zorder>builtinBoundaryVisualizationBox</zorder>
    <zorder>boundaryFromFileButton</zorder>
-   <zorder>fileImportWidget</zorder>
    <zorder>label_42</zorder>
    <zorder>label_12</zorder>
    <zorder>label_13</zorder>
@@ -2105,20 +2196,22 @@ border: 1px black solid</string>
     <addaction name="actionphase_constants"/>
     <addaction name="menudistortion_energy_constants"/>
    </widget>
-   <widget class="QMenu" name="menuother_stuff">
-    <property name="title">
-     <string>other stuff</string>
-    </property>
-   </widget>
    <widget class="QMenu" name="menuRe_initialize">
     <property name="title">
      <string>System setup</string>
     </property>
     <addaction name="actionReset_the_system"/>
    </widget>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionsave_configuration"/>
+    <addaction name="actionexit"/>
+   </widget>
+   <addaction name="menuFile"/>
    <addaction name="menuRe_initialize"/>
    <addaction name="menuSet_constants"/>
-   <addaction name="menuother_stuff"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -2157,6 +2250,16 @@ border: 1px black solid</string>
   <action name="actionReset_the_system">
    <property name="text">
     <string>Reset the system</string>
+   </property>
+  </action>
+  <action name="actionsave_configuration">
+   <property name="text">
+    <string>save configuration</string>
+   </property>
+  </action>
+  <action name="actionexit">
+   <property name="text">
+    <string>exit</string>
    </property>
   </action>
  </widget>
@@ -2323,5 +2426,56 @@ border: 1px black solid</string>
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionexit</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>591</x>
+     <y>283</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cancelFileISave</sender>
+   <signal>released()</signal>
+   <receiver>fileSaveWidget</receiver>
+   <slot>hide()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>529</x>
+     <y>392</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>355</x>
+     <y>362</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionsave_configuration</sender>
+   <signal>triggered()</signal>
+   <receiver>fileSaveWidget</receiver>
+   <slot>show()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>355</x>
+     <y>362</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
+ <slots>
+  <slot>exitProgram()</slot>
+ </slots>
 </ui>
