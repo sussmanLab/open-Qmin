@@ -14,6 +14,8 @@ Q = (q[1]    q[3]        q[4]    )
 This file implements handy manipulations and functions of the Q-tensor as laid out this way
  */
 
+#pragma hd_warning_disable
+#pragma diag_suppress 2739
 
 #ifdef NVCC
 #define HOSTDEVICE __host__ __device__ inline

@@ -18,7 +18,7 @@
     <property name="geometry">
      <rect>
       <x>0</x>
-      <y>460</y>
+      <y>470</y>
       <width>801</width>
       <height>41</height>
      </rect>
@@ -67,6 +67,9 @@ border: 1px solid red</string>
      </property>
     </widget>
     <widget class="QCheckBox" name="reproducibleButton">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <property name="geometry">
       <rect>
        <x>190</x>
@@ -916,8 +919,8 @@ border: 1px solid black
    <widget class="QPushButton" name="addObjectButton">
     <property name="geometry">
      <rect>
-      <x>390</x>
-      <y>390</y>
+      <x>360</x>
+      <y>420</y>
       <width>151</width>
       <height>32</height>
      </rect>
@@ -1308,33 +1311,20 @@ border: 1px solid purple</string>
    <widget class="QSlider" name="xRotSlider">
     <property name="geometry">
      <rect>
-      <x>760</x>
-      <y>380</y>
+      <x>750</x>
+      <y>440</y>
       <width>160</width>
       <height>22</height>
      </rect>
     </property>
-    <property name="maximum">
-     <number>359</number>
-    </property>
-    <property name="orientation">
-     <enum>Qt::Horizontal</enum>
-    </property>
-    <property name="tickInterval">
-     <number>0</number>
-    </property>
-   </widget>
-   <widget class="QSlider" name="yRotSlider">
-    <property name="geometry">
-     <rect>
-      <x>760</x>
-      <y>410</y>
-      <width>160</width>
-      <height>22</height>
-     </rect>
+    <property name="minimum">
+     <number>1</number>
     </property>
     <property name="maximum">
      <number>359</number>
+    </property>
+    <property name="value">
+     <number>45</number>
     </property>
     <property name="orientation">
      <enum>Qt::Horizontal</enum>
@@ -1346,14 +1336,20 @@ border: 1px solid purple</string>
    <widget class="QSlider" name="zRotSlider">
     <property name="geometry">
      <rect>
-      <x>760</x>
-      <y>440</y>
+      <x>750</x>
+      <y>410</y>
       <width>160</width>
       <height>22</height>
      </rect>
     </property>
+    <property name="minimum">
+     <number>1</number>
+    </property>
     <property name="maximum">
      <number>359</number>
+    </property>
+    <property name="value">
+     <number>135</number>
     </property>
     <property name="orientation">
      <enum>Qt::Horizontal</enum>
@@ -1365,40 +1361,27 @@ border: 1px solid purple</string>
    <widget class="QLabel" name="label_41">
     <property name="geometry">
      <rect>
-      <x>680</x>
-      <y>380</y>
-      <width>60</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>x rotation</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_42">
-    <property name="geometry">
-     <rect>
-      <x>680</x>
-      <y>410</y>
-      <width>60</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>y rotation</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_43">
-    <property name="geometry">
-     <rect>
-      <x>680</x>
+      <x>690</x>
       <y>440</y>
       <width>60</width>
       <height>16</height>
      </rect>
     </property>
     <property name="text">
-     <string>z rotation</string>
+     <string>phi</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_43">
+    <property name="geometry">
+     <rect>
+      <x>690</x>
+      <y>410</y>
+      <width>60</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>theta</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_44">
@@ -1521,7 +1504,7 @@ border: 1px solid purple</string>
     <property name="geometry">
      <rect>
       <x>200</x>
-      <y>80</y>
+      <y>30</y>
       <width>471</width>
       <height>331</height>
      </rect>
@@ -1884,8 +1867,8 @@ border: 1px black solid</string>
    <widget class="QCheckBox" name="reprodicbleRNGBox">
     <property name="geometry">
      <rect>
-      <x>170</x>
-      <y>420</y>
+      <x>10</x>
+      <y>360</y>
       <width>141</width>
       <height>21</height>
      </rect>
@@ -1929,9 +1912,9 @@ border: 1px black solid</string>
    <widget class="QPushButton" name="boundaryFromFileButton">
     <property name="geometry">
      <rect>
-      <x>310</x>
-      <y>420</y>
-      <width>301</width>
+      <x>290</x>
+      <y>380</y>
+      <width>291</width>
       <height>32</height>
      </rect>
     </property>
@@ -1951,7 +1934,7 @@ border: 1px black solid</string>
     <property name="styleSheet">
      <string notr="true">background: white; border: 1px solid black</string>
     </property>
-    <widget class="QPushButton" name="pushButton">
+    <widget class="QPushButton" name="importFileNowButton">
      <property name="geometry">
       <rect>
        <x>180</x>
@@ -1977,6 +1960,84 @@ border: 1px black solid</string>
       </rect>
      </property>
     </widget>
+    <widget class="QPushButton" name="cancelFileImport">
+     <property name="geometry">
+      <rect>
+       <x>370</x>
+       <y>80</y>
+       <width>80</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Cancel</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QLabel" name="label_42">
+    <property name="geometry">
+     <rect>
+      <x>690</x>
+      <y>380</y>
+      <width>241</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>view from sphere given by (theta,phi):</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_12">
+    <property name="geometry">
+     <rect>
+      <x>740</x>
+      <y>410</y>
+      <width>16</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>0</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_13">
+    <property name="geometry">
+     <rect>
+      <x>740</x>
+      <y>440</y>
+      <width>16</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>0</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_56">
+    <property name="geometry">
+     <rect>
+      <x>910</x>
+      <y>440</y>
+      <width>21</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>2Pi</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_57">
+    <property name="geometry">
+     <rect>
+      <x>910</x>
+      <y>410</y>
+      <width>21</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Pi</string>
+    </property>
    </widget>
    <zorder>fireParametersWidget</zorder>
    <zorder>layoutWidget</zorder>
@@ -1998,10 +2059,8 @@ border: 1px black solid</string>
    <zorder>label_40</zorder>
    <zorder>latticeSkipBox</zorder>
    <zorder>xRotSlider</zorder>
-   <zorder>yRotSlider</zorder>
    <zorder>zRotSlider</zorder>
    <zorder>label_41</zorder>
-   <zorder>label_42</zorder>
    <zorder>label_43</zorder>
    <zorder>label_44</zorder>
    <zorder>zoomSlider</zorder>
@@ -2016,6 +2075,11 @@ border: 1px black solid</string>
    <zorder>builtinBoundaryVisualizationBox</zorder>
    <zorder>boundaryFromFileButton</zorder>
    <zorder>fileImportWidget</zorder>
+   <zorder>label_42</zorder>
+   <zorder>label_12</zorder>
+   <zorder>label_13</zorder>
+   <zorder>label_56</zorder>
+   <zorder>label_57</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
@@ -2023,7 +2087,7 @@ border: 1px black solid</string>
      <x>0</x>
      <y>0</y>
      <width>1184</width>
-     <height>22</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuSet_constants">
@@ -2235,11 +2299,27 @@ border: 1px black solid</string>
    <hints>
     <hint type="sourcelabel">
      <x>460</x>
-     <y>470</y>
+     <y>467</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1300</x>
-     <y>220</y>
+     <x>435</x>
+     <y>332</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cancelFileImport</sender>
+   <signal>released()</signal>
+   <receiver>fileImportWidget</receiver>
+   <slot>hide()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>609</x>
+     <y>362</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>435</x>
+     <y>332</y>
     </hint>
    </hints>
   </connection>

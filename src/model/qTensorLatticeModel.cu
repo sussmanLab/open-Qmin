@@ -1,5 +1,6 @@
 #include "qTensorLatticeModel.cuh"
-#include "qTensorfunctions.h"
+#include "../../inc/qTensorFunctions.h"
+//#incldue "qTensorfunctions.h"
 /*! \file qTensorLatticeModel.cu */
 
 /*!

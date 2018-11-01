@@ -65,10 +65,12 @@ void NISymmetricEigensolver3x3::operator() (scalar a00, scalar a01, scalar a02,
     // Precondition the matrix by factoring out the maximum absolute value
     // of the components.  This guards against floating-point overflow when
     // computing the eigenvalues.
-    scalar max0 = std::max(std::abs(a00), std::abs(a01));
-    scalar max1 = std::max(std::abs(a02), std::abs(a11));
-    scalar max2 = std::max(std::abs(a12), std::abs(a22));
-    scalar maxAbsElement = std::max(std::max(max0, max1), max2);
+    scalar max0 = (std::abs(a00)> std::abs(a01)) ? std::abs(a00) : std::abs(a01);
+    scalar max1 = (std::abs(a02)> std::abs(a11)) ? std::abs(a02) : std::abs(a11);
+    scalar max2 = (std::abs(a12)> std::abs(a22)) ? std::abs(a12) : std::abs(a22);
+    scalar maxAbsElement = (max0>max1) ? max0 : max1;
+    maxAbsElement = (max2>maxAbsElement) ? max2 : maxAbsElement;
+
     if (maxAbsElement == (scalar)0)
     {
         // A is the zero matrix.
@@ -128,7 +130,10 @@ void NISymmetricEigensolver3x3::operator() (scalar a00, scalar a01, scalar a02,
         // if the input is larger than 1 in magnitude.  To avoid this problem
         // due to rounding errors, the halfDet/ value is clamped to [-1,1].
         scalar halfDet = det * (scalar)0.5;
-        halfDet = std::min(std::max(halfDet, (scalar)-1), (scalar)1);
+        if(halfDet <-1.)
+            halfDet = -1.;
+        if(halfDet > 1.)
+            halfDet = 1.;
 
         // The eigenvalues of B are ordered as beta0 <= beta1 <= beta2.  The
         // number of digits in twoThirdsPi is chosen so that, whether float or
@@ -144,7 +149,10 @@ void NISymmetricEigensolver3x3::operator() (scalar a00, scalar a01, scalar a02,
         eval[1] = q + p * beta1;
         eval[2] = q + p * beta2;
         vector<scalar> eVals(3);eVals[0] = eval[0];eVals[1]=eval[1];eVals[2]=eval[2];
-        sort(eVals.begin(),eVals.end());
+        eVals[0] = (eval[0] < eval[1]) ? (eval[0]< eval[2] ? eval[0] : eval[2])  : ((eval[1]< eval[2]) ? eval[1] : eval[2]);
+        eVals[1] = (eval[0] < eval[1]) ? (eval[1]< eval[2] ? eval[1] : eval[2])  : ((eval[0]< eval[2]) ? eval[0] : eval[2]);
+        eVals[2] = (eval[0] > eval[1]) ? (eval[0] > eval[2] ? eval[0] : eval[2])  : ((eval[1] > eval[2]) ? eval[1] : eval[2]);
+        //sort(eVals.begin(),eVals.end());
         eval[0]=eVals[0];eval[1]=eVals[1];eval[2]=eVals[2];
         ComputeEigenvector0(a00, a01, a02, a11, a12, a22, eVals[2], evec[2]);
         ComputeEigenvector0(a00, a01, a02, a11, a12, a22, eVals[1], evec[1]);
@@ -178,7 +186,10 @@ void NISymmetricEigensolver3x3::operator() (scalar a00, scalar a01, scalar a02,
         //evec[1] = { (scalar)0, (scalar)1, (scalar)0 };
         //evec[2] = { (scalar)0, (scalar)0, (scalar)1 };
         vector<scalar> eVals(3);eVals[0] = eval[0];eVals[1]=eval[1];eVals[2]=eval[2];
-        sort(eVals.begin(),eVals.end());
+        eVals[0] = (eval[0] < eval[1]) ? (eval[0]< eval[2] ? eval[0] : eval[2])  : ((eval[1]< eval[2]) ? eval[1] : eval[2]);
+        eVals[1] = (eval[0] < eval[1]) ? (eval[1]< eval[2] ? eval[1] : eval[2])  : ((eval[0]< eval[2]) ? eval[0] : eval[2]);
+        eVals[2] = (eval[0] > eval[1]) ? (eval[0] > eval[2] ? eval[0] : eval[2])  : ((eval[1] > eval[2]) ? eval[1] : eval[2]);
+        //sort(eVals.begin(),eVals.end());
         if(eVals[0] == a00)
             evec[0] = { (scalar)1, (scalar)0, (scalar)0 };
         else if (eVals[0] == a11)
@@ -374,7 +385,7 @@ void NISymmetricEigensolver3x3::ComputeEigenvector1(scalar a00, scalar a01,
     scalar maxAbsComp;
     if (absM00 >= absM11)
     {
-        maxAbsComp = std::max(absM00, absM01);
+        maxAbsComp = (absM00 > absM01) ? absM00 : absM01;
         if (maxAbsComp > (scalar)0)
         {
             if (absM00 >= absM01)
@@ -398,7 +409,7 @@ void NISymmetricEigensolver3x3::ComputeEigenvector1(scalar a00, scalar a01,
     }
     else
     {
-        maxAbsComp = std::max(absM11, absM01);
+        maxAbsComp = (absM11 > absM01) ? absM11 : absM01;
         if (maxAbsComp > (scalar)0)
         {
             if (absM11 >= absM01)

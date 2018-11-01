@@ -73,13 +73,13 @@ void MainWindow::hideControls()
     ui->addIterationsBox->hide();
     ui->displayZone->hide();
     ui->drawStuffButton->hide();
-    ui->label_40->hide();
+    ui->label_40->hide(); ui->label_42->hide();
     ui->latticeSkipBox->hide();
     ui->label_39->hide();
     ui->directorScaleBox->hide();
-    ui->label_41->hide();ui->label_42->hide();ui->label_43->hide();ui->label_44->hide();ui->label_45->hide();
+    ui->label_41->hide();ui->label_43->hide();ui->label_44->hide();ui->label_45->hide();
+    ui->label_12->hide();ui->label_13->hide();ui->label_56->hide();ui->label_57->hide();
     ui->xRotSlider->hide();
-    ui->yRotSlider->hide();
     ui->zRotSlider->hide();
     ui->zoomSlider->hide();
     ui->visualProgressCheckBox->hide();
@@ -105,11 +105,11 @@ void MainWindow::showControls()
     ui->drawStuffButton->show();
     ui->label_40->show();
     ui->latticeSkipBox->show();
-    ui->label_39->show();
+    ui->label_39->show();ui->label_42->show();
+    ui->label_12->show();ui->label_13->show();ui->label_56->show();ui->label_57->show();
     ui->directorScaleBox->show();
-    ui->label_41->show();ui->label_42->show();ui->label_43->show();ui->label_44->show();ui->label_45->show();
+    ui->label_41->show();ui->label_43->show();ui->label_44->show();ui->label_45->show();
     ui->xRotSlider->show();
-    ui->yRotSlider->show();
     ui->zRotSlider->show();
     ui->zoomSlider->show();
     ui->visualProgressCheckBox->show();
@@ -193,6 +193,7 @@ void MainWindow::simulationInitialize()
      fire = make_shared<energyMinimizerFIRE>(Configuration);
      sim->addUpdater(fire,Configuration);
      on_fireParamButton_released();
+     ui->reproducibleButton->setEnabled(true);
 }
 
 void MainWindow::on_setPhaseConstantsButton_released()
@@ -392,19 +393,17 @@ void MainWindow::on_drawStuffButton_released()
     {
         QString printable2 = QStringLiteral("finding defects ");
         ui->testingBox->setText(printable2);
+        Configuration->computeDefectMeasures(0);
+        ArrayHandle<scalar> defectStrength(Configuration->defectMeasures);
+
         for (int ii = 0; ii < N; ++ii)
         {
-            if(types.data[ii]>0)
+            if(types.data[ii]>0 || defectStrength.data[ii]>defectCutoff)
                 continue;
-            eigenvaluesOfQ(Q.data[ii],e1,e2,e3);
-
             int3 pos = Configuration->latticeIndex.inverseIndex(ii);
             scalar3 p;p.x=pos.x;p.y=pos.y;p.z=pos.z;
-            if(max(max(e1,e2),e3) < defectCutoff)
-                {
-                defects.push_back(p);
-            }
-    }
+            defects.push_back(p);
+        }
     }
     QString printable3 = QStringLiteral("drawing stuff ");
     ui->testingBox->setText(printable3);
@@ -438,11 +437,6 @@ void MainWindow::on_drawStuffButton_released()
 void MainWindow::on_xRotSlider_valueChanged(int value)
 {
     ui->displayZone->setXRotation(value);
-}
-
-void MainWindow::on_yRotSlider_valueChanged(int value)
-{
-    ui->displayZone->setYRotation(value);
 }
 
 void MainWindow::on_zRotSlider_valueChanged(int value)
@@ -531,6 +525,8 @@ void MainWindow::on_addWallButton_released()
 void MainWindow::on_finishedWithObjectsButton_released()
 {
     on_drawStuffButton_released();
+    QString printable1 = QStringLiteral("finished adding objects...for now");
+    ui->testingBox->setText(printable1);
 }
 
 void MainWindow::on_actionReset_the_system_triggered()
@@ -540,6 +536,8 @@ void MainWindow::on_actionReset_the_system_triggered()
     ui->addObjectsWidget->hide();
     ui->initializationFrame->show();
     ui->builtinBoundaryVisualizationBox->setChecked(true);
+    QString printable1 = QStringLiteral("system reset");
+    ui->testingBox->setText(printable1);
 }
 
 void MainWindow::on_reprodicbleRNGBox_stateChanged(int arg1)
@@ -573,14 +571,17 @@ void MainWindow::on_builtinBoundaryVisualizationBox_released()
         ui->displayZone->drawBoundaries = true;
         }
         */
+    QString printable1 = QStringLiteral("Changing style of boundary visualization");
+    ui->testingBox->setText(printable1);
 }
 
-void MainWindow::on_pushButton_released()
+void MainWindow::on_importFileNowButton_released()
 {
     ui->fileImportWidget->hide();
     QString fname = ui->fileNameBox->text();
     string fn = fname.toStdString();
     //string fn = "/Users/dmsussma/repos/dDimSim/data/boundaryInput.txt";
     Configuration->createBoundaryFromFile(fn,true);cout.flush();
-
+    QString printable1 = QStringLiteral("boundary imported from file");
+    ui->testingBox->setText(printable1);
 }

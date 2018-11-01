@@ -5,9 +5,9 @@
 OGLWidget::OGLWidget(QWidget *parent)
     : QOpenGLWidget(parent)
 {
-    xRot = 0;
+    xRot = 45;
     yRot = 0;
-    zRot = 0;
+    zRot = 135;
 }
 
 OGLWidget::~OGLWidget()
@@ -29,8 +29,8 @@ void OGLWidget::initializeGL()
     glEnable(GL_DEPTH_TEST);
     //glEnable(GL_LIGHT0);
     //glEnable(GL_LIGHTING);
-    glDisable(GL_LIGHT0);
-    glDisable(GL_LIGHTING);
+    //glDisable(GL_LIGHT0);
+    //glDisable(GL_LIGHTING);
 
     glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
     glEnable(GL_COLOR_MATERIAL);
@@ -119,7 +119,7 @@ void OGLWidget::drawBoundarySites()
     float empiricallyNiceRadius = 0.25/(pow(zoom,0.15));
     for (int ii = 0; ii < boundarySites.size(); ++ii)
         {
-            glColor4f(1.0, 1.0, 1.0,0.2);
+            glColor4f(0.8,0.8,0.8,0.2);
             GLUquadric *quad;
             quad = gluNewQuadric();
             glTranslatef(boundarySites[ii].x,boundarySites[ii].y,boundarySites[ii].z);
@@ -192,13 +192,41 @@ void OGLWidget::drawWalls()
     glEnd();
     glDisable (GL_BLEND);
 }
+
+void OGLWidget::resizeGL(int w, int h)
+{
+    glViewport(0,0,w,h);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluPerspective(45, (float)w/h, 0.01, 100.0);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    gluLookAt(10,10,0,0,0,0,0,0,1);
+}
+
 void OGLWidget::paintGL()
 {
+    //glLoadIdentity();
+    //glTranslatef(0.0, 0.0, -10.0);
+    //glRotatef(xRot / 16.0, 1.0, 0.0, 0.0);
+    //glRotatef(yRot / 16.0, 0.0, 1.0, 0.0);
+    //glRotatef(zRot / 16.0, 0.0, 0.0, 1.0);
+    scalar scale = 1./32.;
+    scalar dirx,diry,dirz;
+    scalar xr = scale*xRot;
+    scalar yr = scale*yRot;
+    scalar zr = scale*zRot;
+
+
+    scalar theta = zRot*1.0*PI/360.;
+    scalar phi = xRot*2.0*PI/360.;
+    dirx = sin(theta)*cos(phi);
+    diry = sin(theta)*sin(phi);
+    dirz = cos(theta);
+
     glLoadIdentity();
-        glTranslatef(0.0, 0.0, -10.0);
-        glRotatef(xRot / 1.0, 1.0, 0.0, 0.0);
-        glRotatef(yRot / 1.0, 0.0, 1.0, 0.0);
-        glRotatef(zRot / 1.0, 0.0, 0.0, 1.0);
+    //gluLookAt(10,10,10,0,0,0,dirx,diry,dirz);
+    gluLookAt(10*dirx,10*diry,10*dirz,0,0,0,0,0,1);
 //    draw();
     if(drawBoundaries)
         {
@@ -223,23 +251,13 @@ void OGLWidget::setAllBoundarySites(vector<int3> &sites)
         boundarySites[ii].z = zoom*((sites[ii].z-0.5*Sizes.z)/Sizes.z);
         };
 }
-void OGLWidget::resizeGL(int w, int h)
-{
-    glViewport(0,0,w,h);
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    gluPerspective(45, (float)w/h, 0.01, 100.0);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    gluLookAt(5,0,5,0,0,0,0,0,1);
-}
 
 static void qNormalizeAngle(int &angle)
 {
     while (angle < 0)
-        angle += 360 * 16;
+        angle += 360;
     while (angle > 360)
-        angle -= 360 * 16;
+        angle -= 360;
 }
 /*
 void OGLWidget::xRotationChanged(int angle)

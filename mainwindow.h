@@ -48,8 +48,6 @@ private slots:
 
     void on_xRotSlider_valueChanged(int value);
 
-    void on_yRotSlider_valueChanged(int value);
-
     void on_zRotSlider_valueChanged(int value);
 
     void on_zoomSlider_valueChanged(int value);
@@ -66,7 +64,7 @@ private slots:
 
     void on_builtinBoundaryVisualizationBox_released();
 
-    void on_pushButton_released();
+    void on_importFileNowButton_released();
 
 private:
     Ui::MainWindow *ui;
