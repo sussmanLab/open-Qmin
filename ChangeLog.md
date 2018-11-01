@@ -2,7 +2,10 @@
 
 ### Changes in progress
 
-* lots
+* various boundary conditions implemented
+* 1- 2- and 3- constant approximation to the distortion term implemented
+* semi-reasonable visualizations added
+
 
 ### landauDeGUI version 0.5
 
