@@ -40,6 +40,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setDistortionConstants3->hide();
     ui->fireParametersWidget->hide();
     ui->addObjectsWidget->hide();
+    ui->fileImportWidget->hide();
 
     vector<string> deviceNames;
     getAvailableGPUs(deviceNames);
@@ -50,7 +51,13 @@ MainWindow::MainWindow(QWidget *parent) :
         computationalNames[ii] = QString::fromStdString(deviceNames[ii]);
         ui->detectedGPUBox->insertItem(ii,computationalNames[ii]);
         }
+    if(computationalNames.size()==1)//default to smaller simulations
+    {
+        ui->boxXLine->setText("20");
+        ui->boxYLine->setText("20");
+        ui->boxZLine->setText("20");
 
+    }
     hideControls();
     QString printable = QStringLiteral("Welcome to landauDeGUI, a graphical interface to a continuum LdG liquid crystal simulation package!");
     ui->testingBox->setText(printable);
@@ -83,6 +90,7 @@ void MainWindow::hideControls()
     ui->reprodicbleRNGBox->hide();
     ui->globalAlignmentCheckBox->hide();
     ui->builtinBoundaryVisualizationBox->hide();
+    ui->boundaryFromFileButton->hide();
 }
 void MainWindow::showControls()
 {
@@ -111,6 +119,7 @@ void MainWindow::showControls()
     ui->reprodicbleRNGBox->show();
     ui->globalAlignmentCheckBox->show();
     ui->builtinBoundaryVisualizationBox->show();
+    ui->boundaryFromFileButton->show();
 }
 
 void MainWindow::on_initializeButton_released()
@@ -399,16 +408,29 @@ void MainWindow::on_drawStuffButton_released()
     }
     QString printable3 = QStringLiteral("drawing stuff ");
     ui->testingBox->setText(printable3);
+    ui->displayZone->setLines(lineSegments,Configuration->latticeIndex.sizes);
+    ui->displayZone->setDefects(defects,Configuration->latticeIndex.sizes);
     bool goodVisualization = ui->builtinBoundaryVisualizationBox->isChecked();
     if(goodVisualization)
         {
-        ui->displayZone->setLines(lineSegments,Configuration->latticeIndex.sizes);
-        ui->displayZone->setDefects(defects,Configuration->latticeIndex.sizes);
         ui->displayZone->setSpheres(Configuration->latticeIndex.sizes);
+        vector<int3> bsites;
+        ui->displayZone->setAllBoundarySites(bsites);
+        ui->displayZone->drawBoundaries = true;
         }
     else
         {
+        vector<int3> bsites;
+        ArrayHandle<int> type(Configuration->returnTypes());
+        for (int ii = 0 ;ii <Configuration->getNumberOfParticles();++ii )
+            {
+            if (type.data[ii] >0)
+                bsites.push_back(Configuration->latticeIndex.inverseIndex(ii));
+            }
+
+        ui->displayZone->setAllBoundarySites(bsites);
         ui->displayZone->drawBoundaries = false;
+        //printf("%lu sites\n",bsites.size());cout.flush();
         };
     ui->displayZone->update();
 }
@@ -433,6 +455,7 @@ void MainWindow::on_zoomSlider_valueChanged(int value)
     zoom = value;
     ui->displayZone->zoom = zoom;
     ui->displayZone->setLines(ui->displayZone->lines,Configuration->latticeIndex.sizes);
+    on_builtinBoundaryVisualizationBox_released();
     on_drawStuffButton_released();
 //    ui->displayZone->update();
 }
@@ -516,6 +539,7 @@ void MainWindow::on_actionReset_the_system_triggered()
     ui->displayZone->clearObjects();
     ui->addObjectsWidget->hide();
     ui->initializationFrame->show();
+    ui->builtinBoundaryVisualizationBox->setChecked(true);
 }
 
 void MainWindow::on_reprodicbleRNGBox_stateChanged(int arg1)
@@ -525,8 +549,9 @@ void MainWindow::on_reprodicbleRNGBox_stateChanged(int arg1)
     sim->setReproducible(repro);
 }
 
-void MainWindow::on_builtinBoundaryVisualizationBox_stateChanged(int arg1)
+void MainWindow::on_builtinBoundaryVisualizationBox_released()
 {
+    /*
     if(!ui->builtinBoundaryVisualizationBox->isChecked())
     {
         vector<int3> bsites;
@@ -534,12 +559,28 @@ void MainWindow::on_builtinBoundaryVisualizationBox_stateChanged(int arg1)
         for (int ii = 0 ;ii <Configuration->getNumberOfParticles();++ii )
             {
             if (type.data[ii] >0)
-            bsites.push_back(Configuration->latticeIndex.inverseIndex(ii));
+                bsites.push_back(Configuration->latticeIndex.inverseIndex(ii));
             }
 
         ui->displayZone->setAllBoundarySites(bsites);
         ui->displayZone->drawBoundaries = false;
+        printf("%lu sites\n",bsites.size());cout.flush();
     }
     else
+        {
+        vector<int3> bsites;
+        ui->displayZone->setAllBoundarySites(bsites);
         ui->displayZone->drawBoundaries = true;
+        }
+        */
+}
+
+void MainWindow::on_pushButton_released()
+{
+    ui->fileImportWidget->hide();
+    QString fname = ui->fileNameBox->text();
+    string fn = fname.toStdString();
+    //string fn = "/Users/dmsussma/repos/dDimSim/data/boundaryInput.txt";
+    Configuration->createBoundaryFromFile(fn,true);cout.flush();
+
 }

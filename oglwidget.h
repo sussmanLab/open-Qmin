@@ -4,8 +4,10 @@
 #include <QWidget>
 #include <QMainWindow>
 #include <QOpenGLWidget>
-#include "/home/user/CGAL/CGAL-4.9/include/CGAL/glu.h"
-#include "/home/user/CGAL/CGAL-4.9/include/CGAL/gl.h"
+#include "glu.h"
+#include "gl.h"
+//#include "/home/user/CGAL/CGAL-4.9/include/CGAL/glu.h"
+//#include "/home/user/CGAL/CGAL-4.9/include/CGAL/gl.h"
 #include "std_include.h"
 
 class OGLWidget : public QOpenGLWidget
@@ -31,7 +33,7 @@ public:
     vector<scalar3> defects;
     int zoom=5;
     vector<int3> walls;
-    vector<int3> boundarySites;
+    vector<scalar3> boundarySites;
     vector<scalar3> baseSpherePositions;
     vector<scalar> baseSphereRadii;
 

@@ -135,9 +135,11 @@ void qTensorLatticeModel::createBoundaryFromFile(string fname, bool verbose)
         int currentSite = latticeIndex(sitePos);
         boundSites.push_back(currentSite);
         pos.data[currentSite] = Qtensor;
+        /*
         if(verbose)
             printf("(%i,%i,%i) %f %f %f %f %f\n",sitePos.x,sitePos.y,sitePos.z,
                                                 Qtensor[0],Qtensor[1],Qtensor[2],Qtensor[3],Qtensor[4]);
+        */
         };
     if(verbose)
         printf("object with %lu sites created\n",boundSites.size());

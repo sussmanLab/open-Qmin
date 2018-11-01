@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1171</width>
+    <width>1184</width>
     <height>567</height>
    </rect>
   </property>
@@ -916,14 +916,14 @@ border: 1px solid black
    <widget class="QPushButton" name="addObjectButton">
     <property name="geometry">
      <rect>
-      <x>360</x>
-      <y>420</y>
-      <width>114</width>
+      <x>390</x>
+      <y>390</y>
+      <width>151</width>
       <height>32</height>
      </rect>
     </property>
     <property name="text">
-     <string>Add an object</string>
+     <string>Add a simple object</string>
     </property>
    </widget>
    <widget class="QPushButton" name="minimizeButton">
@@ -1913,18 +1913,70 @@ border: 1px black solid</string>
    <widget class="QCheckBox" name="builtinBoundaryVisualizationBox">
     <property name="geometry">
      <rect>
-      <x>950</x>
+      <x>920</x>
       <y>470</y>
-      <width>221</width>
+      <width>251</width>
       <height>21</height>
      </rect>
     </property>
     <property name="text">
-     <string>Built-in boundary visualization</string>
+     <string>show built-in boundary visualization</string>
     </property>
     <property name="checked">
      <bool>true</bool>
     </property>
+   </widget>
+   <widget class="QPushButton" name="boundaryFromFileButton">
+    <property name="geometry">
+     <rect>
+      <x>310</x>
+      <y>420</y>
+      <width>301</width>
+      <height>32</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Add object from carefully prepared text file</string>
+    </property>
+   </widget>
+   <widget class="QWidget" name="fileImportWidget" native="true">
+    <property name="geometry">
+     <rect>
+      <x>200</x>
+      <y>240</y>
+      <width>471</width>
+      <height>121</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background: white; border: 1px solid black</string>
+    </property>
+    <widget class="QPushButton" name="pushButton">
+     <property name="geometry">
+      <rect>
+       <x>180</x>
+       <y>70</y>
+       <width>114</width>
+       <height>32</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background:rgb(148, 148, 148)</string>
+     </property>
+     <property name="text">
+      <string>Import</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="fileNameBox">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>30</y>
+       <width>441</width>
+       <height>21</height>
+      </rect>
+     </property>
+    </widget>
    </widget>
    <zorder>fireParametersWidget</zorder>
    <zorder>layoutWidget</zorder>
@@ -1962,13 +2014,15 @@ border: 1px black solid</string>
    <zorder>globalAlignmentCheckBox</zorder>
    <zorder>initializationFrame</zorder>
    <zorder>builtinBoundaryVisualizationBox</zorder>
+   <zorder>boundaryFromFileButton</zorder>
+   <zorder>fileImportWidget</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1171</width>
+     <width>1184</width>
      <height>22</height>
     </rect>
    </property>
@@ -2170,6 +2224,22 @@ border: 1px black solid</string>
     <hint type="destinationlabel">
      <x>410</x>
      <y>332</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>boundaryFromFileButton</sender>
+   <signal>released()</signal>
+   <receiver>fileImportWidget</receiver>
+   <slot>show()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>460</x>
+     <y>470</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1300</x>
+     <y>220</y>
     </hint>
    </hints>
   </connection>
