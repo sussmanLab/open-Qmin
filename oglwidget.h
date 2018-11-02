@@ -13,6 +13,7 @@
 
 class OGLWidget : public QOpenGLWidget
 {
+    Q_OBJECT
 public:
     OGLWidget(QWidget *parent = 0);
     ~OGLWidget();
@@ -39,6 +40,10 @@ public:
 
     vector<scalar3> spherePositions;
     vector<scalar> sphereRadii;
+
+signals:
+    void xRotationChanged(int XR);
+    void zRotationChanged(int ZR);
 
 protected:
     void initializeGL();

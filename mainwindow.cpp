@@ -42,6 +42,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->addObjectsWidget->hide();
     ui->fileImportWidget->hide();
     ui->fileSaveWidget->hide();
+
+    connect(ui->displayZone,SIGNAL(xRotationChanged(int)),ui->xRotSlider,SLOT(setValue(int)));
+    connect(ui->displayZone,SIGNAL(zRotationChanged(int)),ui->zRotSlider,SLOT(setValue(int)));
+
     vector<string> deviceNames;
     getAvailableGPUs(deviceNames);
     deviceNames.push_back("CPU");

@@ -243,6 +243,7 @@ void OGLWidget::setXRotation(int angle)
     qNormalizeAngle(angle);
     if (angle != xRot) {
         xRot = angle;
+        emit xRotationChanged(xRot);
         update();
     }
 }
@@ -252,6 +253,7 @@ void OGLWidget::setZRotation(int angle)
     qNormalizeAngle(angle);
     if (angle != zRot) {
         zRot = angle;
+        emit zRotationChanged(zRot);
         update();
     }
 }
