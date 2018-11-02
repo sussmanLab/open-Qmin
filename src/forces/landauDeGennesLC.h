@@ -50,6 +50,10 @@ class landauDeGennesLC : public baseLatticeForce
                 };
             if(useL24)
                 computeL24ForcesCPU(forces, false);
+            if(computeEfieldContribution)
+                computeEorHFieldForcesCPU(forces,false, Efield,deltaEpsilon,epsilon0);
+            if(computeHfieldContribution)
+                computeEorHFieldForcesCPU(forces,false,Hfield,deltaChi,mu0);
             };
 
         //!Precompute the first derivatives at all of the LC Sites
@@ -60,6 +64,12 @@ class landauDeGennesLC : public baseLatticeForce
 
         virtual void computeL24ForcesCPU(GPUArray<dVec> &forces,bool zeroOutForce);
         virtual void computeL24ForcesGPU(GPUArray<dVec> &forces,bool zeroOutForce);
+
+        virtual void computeEorHFieldForcesCPU(GPUArray<dVec> &forces,bool zeroOutForce,
+                                    scalar3 field, scalar anisotropicSusceptibility,scalar vacuumPermeability);
+
+        virtual void computeEorHFieldForcesGPU(GPUArray<dVec> &forces,bool zeroOutForce,
+                            scalar3 field, scalar anisotropicSusceptibility,scalar vacuumPermeability);
 
         virtual void computeForceOneConstantCPU(GPUArray<dVec> &forces,bool zeroOutForce);
         virtual void computeForceTwoConstantCPU(GPUArray<dVec> &forces,bool zeroOutForce);
@@ -91,6 +101,22 @@ class landauDeGennesLC : public baseLatticeForce
                 l24ForceTuner->printTimingData();
                 };
             }
+        void setEField(scalar3 field, scalar eps, scalar eps0,scalar deltaEps)
+            {
+            computeEfieldContribution = true;
+            Efield = field;
+            epsilon =eps;
+            epsilon0=eps0;
+            deltaEpsilon=deltaEps;
+            }
+        void setHField(scalar3 field, scalar chi, scalar _mu0,scalar _deltaChi)
+            {
+            computeHfieldContribution = true;
+            Hfield = field;
+            Chi =chi;
+            mu0=_mu0;
+            deltaChi=_deltaChi;
+            }
     protected:
         //!constants, etc.
         scalar A;
@@ -102,11 +128,25 @@ class landauDeGennesLC : public baseLatticeForce
         scalar L24;
         scalar q0;
 
+        scalar3 Efield;
+        scalar deltaEpsilon;
+        scalar epsilon0;
+        scalar epsilon;
+        scalar3 Hfield;
+        scalar deltaChi;
+        scalar Chi;
+        scalar mu0;
+
 
         //!number of elastic constants
         distortionEnergyType numberOfConstants;
-        //!independently of numberOfConstants, should L24 term be computed?
+        //!switches for extra parts of the energy/force calculations
         bool useL24;
+        bool computeEfieldContribution;
+        bool computeHfieldContribution;
+
+
+
         //!for 2- and 3- constant approximations, the force calculation is helped by first pre-computing first derivatives
         GPUArray<cubicLatticeDerivativeVector> forceCalculationAssist;
         /*
@@ -121,6 +161,8 @@ class landauDeGennesLC : public baseLatticeForce
         shared_ptr<kernelTuner> boundaryForceTuner;
         //!performance for the l24 force kernel
         shared_ptr<kernelTuner> l24ForceTuner;
+        //!performance for the E/H field force kernel
+        shared_ptr<kernelTuner> fieldForceTuner;
     };
 
 #endif

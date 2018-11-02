@@ -28,11 +28,14 @@ void landauDeGennesLC::baseInitialization()
     {
     useNeighborList=false;
     useL24 = false;
+    computeEfieldContribution=false;
+    computeHfieldContribution=false;
     forceTuner = make_shared<kernelTuner>(32,256,32,10,200000);
     boundaryForceTuner = make_shared<kernelTuner>(32,256,32,10,200000);
     l24ForceTuner = make_shared<kernelTuner>(32,256,32,10,200000);
+    fieldForceTuner = make_shared<kernelTuner>(32,256,32,10,200000);
     forceAssistTuner = make_shared<kernelTuner>(32,256,32,10,200000);
-    energyComponents.resize(3);
+    energyComponents.resize(5);
     }
 
 void landauDeGennesLC::setModel(shared_ptr<cubicLattice> _model)
@@ -523,6 +526,35 @@ void landauDeGennesLC::computeForceThreeConstantCPU(GPUArray<dVec> &forces, bool
         };
     };
 
+void landauDeGennesLC::computeEorHFieldForcesCPU(GPUArray<dVec> &forces,bool zeroOutForce,
+                    scalar3 field, scalar anisotropicSusceptibility,scalar vacuumPermeability)
+    {
+    ArrayHandle<dVec> h_f(forces);
+    if(zeroOutForce)
+        for(int pp = 0; pp < lattice->getNumberOfParticles(); ++pp)
+            h_f.data[pp] = make_dVec(0.0);
+    ArrayHandle<dVec> Qtensors(lattice->returnPositions());
+    ArrayHandle<int> latticeTypes(lattice->returnTypes());
+    //the current scheme for getting the six nearest neighbors
+    int neighNum;
+    vector<int> neighbors;
+    int currentIndex;
+    scalar fieldProduct = anisotropicSusceptibility*vacuumPermeability;
+    dVec fieldForce(0.);
+    fieldForce[0] = -0.5*fieldProduct*(field.x*field.x-field.z*field.z);
+    fieldForce[1] = -fieldProduct*field.x*field.y;
+    fieldForce[2] = -fieldProduct*field.x*field.z;
+    fieldForce[3] = -0.5*fieldProduct*(field.y*field.y-field.z*field.z);
+    fieldForce[4] = -fieldProduct*field.y*field.z;
+    for (int i = 0; i < lattice->getNumberOfParticles(); ++i)
+        {
+        currentIndex = lattice->getNeighbors(i,neighbors,neighNum);
+        if(latticeTypes.data[currentIndex] > 0)//skip boundary sites
+            continue;
+        h_f.data[currentIndex] -= fieldForce;
+        };
+    };
+
 void landauDeGennesLC::computeL24ForcesCPU(GPUArray<dVec> &forces,bool zeroOutForce)
 {
     //start by precomputing first d_derivatives if we're not in the 2 or 3 constant approx.
@@ -747,6 +779,24 @@ void landauDeGennesLC::computeForceGPU(GPUArray<dVec> &forces,bool zeroOutForce)
             computeFirstDerivatives();
         computeL24ForcesGPU(forces, false);
         };
+    if(computeEfieldContribution)
+        computeEorHFieldForcesGPU(forces,false,Efield,deltaEpsilon,epsilon0);
+    if(computeEfieldContribution)
+        computeEorHFieldForcesGPU(forces,false,Hfield,deltaChi,mu0);
+    };
+
+void landauDeGennesLC::computeEorHFieldForcesGPU(GPUArray<dVec> &forces,bool zeroOutForce,
+                        scalar3 field, scalar anisotropicSusceptibility,scalar vacuumPermeability)
+    {
+    int N = lattice->getNumberOfParticles();
+    ArrayHandle<dVec> d_force(forces,access_location::device,access_mode::readwrite);
+    ArrayHandle<int>  d_latticeTypes(lattice->returnTypes(),access_location::device,access_mode::read);
+    fieldForceTuner->begin();
+    gpu_qTensor_computeUniformFieldForcesGPU(d_force.data,
+                              d_latticeTypes.data,
+                              N,field,anisotropicSusceptibility,vacuumPermeability,zeroOutForce,
+                              boundaryForceTuner->getParameter());
+    fieldForceTuner->end();
     };
 
 void landauDeGennesLC::computeL24ForcesGPU(GPUArray<dVec> &forces,bool zeroOutForce)
@@ -790,6 +840,8 @@ void landauDeGennesLC::computeEnergyCPU()
     scalar phaseEnergy = 0.0;
     scalar distortionEnergy = 0.0;
     scalar anchoringEnergy = 0.0;
+    scalar eFieldEnergy = 0.0;
+    scalar hFieldEnergy = 0.0;
     energy=0.0;
     ArrayHandle<dVec> Qtensors(lattice->returnPositions());
     ArrayHandle<int> latticeTypes(lattice->returnTypes());
@@ -892,10 +944,28 @@ void landauDeGennesLC::computeEnergyCPU()
                 {
                 distortionEnergy += 3*L24*(firstDerivativeX[1]*firstDerivativeY[0] - firstDerivativeX[0]*firstDerivativeY[1] + firstDerivativeX[3]*firstDerivativeY[1] + firstDerivativeX[4]*firstDerivativeY[2] - firstDerivativeX[1]*firstDerivativeY[3] - firstDerivativeX[2]*firstDerivativeY[4] + 2*firstDerivativeX[2]*firstDerivativeZ[0] + firstDerivativeY[4]*firstDerivativeZ[0] + firstDerivativeX[4]*firstDerivativeZ[1] + firstDerivativeY[2]*firstDerivativeZ[1] - (2*firstDerivativeX[0] + firstDerivativeX[3] + firstDerivativeY[1])*firstDerivativeZ[2] + firstDerivativeX[2]*firstDerivativeZ[3] + 2*firstDerivativeY[4]*firstDerivativeZ[3] - (firstDerivativeX[1] + firstDerivativeY[0] + 2*firstDerivativeY[3])*firstDerivativeZ[4]);
                 }
+            if(computeEfieldContribution)
+                {
+                eFieldEnergy+=epsilon0*(-0.5*Efield.x*Efield.x*(epsilon + deltaEpsilon*qCurrent[0]) -
+                              deltaEpsilon*Efield.x*Efield.y*qCurrent[1] - deltaEpsilon*Efield.x*Efield.z*qCurrent[2] -
+                              0.5*Efield.z*Efield.z*(epsilon - deltaEpsilon*qCurrent[0] - deltaEpsilon*qCurrent[3]) -
+                              0.5*Efield.y*Efield.y*(epsilon + deltaEpsilon*qCurrent[3]) - deltaEpsilon*Efield.y*Efield.z*qCurrent[4]);
+                }
+            if(computeHfieldContribution)
+                {
+                hFieldEnergy+=mu0*(-0.5*Hfield.x*Hfield.x*(Chi + deltaChi*qCurrent[0]) -
+                              deltaChi*Hfield.x*Hfield.y*qCurrent[1] - deltaChi*Hfield.x*Hfield.z*qCurrent[2] -
+                              0.5*Hfield.z*Hfield.z*(Chi - deltaChi*qCurrent[0] - deltaChi*qCurrent[3]) -
+                              0.5*Hfield.y*Hfield.y*(Chi + deltaChi*qCurrent[3]) - deltaChi*Hfield.y*Hfield.z*qCurrent[4]);
+                }
+
             }
+
         };
-    energy = (phaseEnergy + distortionEnergy + anchoringEnergy) / LCSites;
+    energy = (phaseEnergy + distortionEnergy + anchoringEnergy + eFieldEnergy + hFieldEnergy) / LCSites;
     energyComponents[0] = phaseEnergy;
     energyComponents[1] = distortionEnergy;
     energyComponents[2] = anchoringEnergy;
+    energyComponents[3] = eFieldEnergy;
+    energyComponents[4] = hFieldEnergy;
     };

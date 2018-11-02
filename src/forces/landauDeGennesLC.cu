@@ -532,6 +532,32 @@ __global__ void gpu_qTensor_threeConstantForce_kernel(dVec *d_force,
         d_force[idx] += force;
     }
 
+__global__ void gpu_qTensor_uniformFieldForcekernel(dVec *d_force,
+                                                    int *d_types,
+                                                    int N,
+                                                    scalar3 field,
+                                                    scalar anisotropicSusceptibility,
+                                                    scalar vacuumPermeability,
+                                                    bool zeroForce)
+    {
+    unsigned int idx = blockDim.x * blockIdx.x + threadIdx.x;
+    if (idx >= N)
+        return;
+    if(d_types[idx]>0)
+        return;
+    scalar fieldProduct = anisotropicSusceptibility*vacuumPermeability;
+    dVec fieldForce(0.);
+    fieldForce[0] = -0.5*fieldProduct*(field.x*field.x-field.z*field.z);
+    fieldForce[1] = -fieldProduct*field.x*field.y;
+    fieldForce[2] = -fieldProduct*field.x*field.z;
+    fieldForce[3] = -0.5*fieldProduct*(field.y*field.y-field.z*field.z);
+    fieldForce[4] = -fieldProduct*field.y*field.z;
+    if(zeroForce)
+        d_force[idx] = fieldForce;
+    else
+        d_force[idx] -= fieldForce;
+    }
+
 __global__ void gpu_qTensor_l24Force_kernel(dVec *d_force,
                                 int *d_types,
                                 cubicLatticeDerivativeVector *d_derivatives,
@@ -760,4 +786,21 @@ bool gpu_qTensor_computeL24ForcesGPU(dVec *d_force,
     HANDLE_ERROR(cudaGetLastError());
     return cudaSuccess;
     };
+bool gpu_qTensor_computeUniformFieldForcesGPU(dVec * d_force,
+                                       int *d_types,
+                                       int N,
+                                       scalar3 field,
+                                       scalar anisotropicSusceptibility,
+                                       scalar vacuumPermeability,
+                                       bool zeroOutForce,
+                                       int maxBlockSize)
+    {
+    unsigned int block_size = maxBlockSize;
+    unsigned int nblocks = N/block_size+1;
+    gpu_qTensor_uniformFieldForcekernel<<<nblocks,block_size>>>(d_force,d_types,N,field,anisotropicSusceptibility,
+                                                                vacuumPermeability, zeroOutForce);
+    HANDLE_ERROR(cudaGetLastError());
+    return cudaSuccess;
+    };;
+
 /** @} */ //end of group declaration
