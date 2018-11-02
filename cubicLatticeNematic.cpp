@@ -1,5 +1,8 @@
 #include <QApplication>
 #include <QMainWindow>
+#include <QSplashScreen>
+#include <QDesktopWidget>
+#include <QTimer>
 #include <QGuiApplication>
 
 #include <Qt3DCore/QEntity>
@@ -21,63 +24,22 @@
 #include <QPropertyAnimation>
 #include "mainwindow.h"
 
-Qt3DCore::QEntity *createScene()
-{
-    // Root entity
-    Qt3DCore::QEntity *rootEntity = new Qt3DCore::QEntity;
-
-    // Material
-    Qt3DRender::QMaterial *material = new Qt3DExtras::QPhongMaterial(rootEntity);
-
-    // Torus
-    Qt3DCore::QEntity *torusEntity = new Qt3DCore::QEntity(rootEntity);
-    Qt3DExtras::QTorusMesh *torusMesh = new Qt3DExtras::QTorusMesh;
-    torusMesh->setRadius(5);
-    torusMesh->setMinorRadius(1);
-    torusMesh->setRings(100);
-    torusMesh->setSlices(20);
-
-    Qt3DCore::QTransform *torusTransform = new Qt3DCore::QTransform;
-    torusTransform->setScale3D(QVector3D(1.5, 1, 0.5));
-    torusTransform->setRotation(QQuaternion::fromAxisAndAngle(QVector3D(1, 0, 0), 45.0f));
-
-    torusEntity->addComponent(torusMesh);
-    torusEntity->addComponent(torusTransform);
-    torusEntity->addComponent(material);
-
-    // Sphere
-    Qt3DCore::QEntity *sphereEntity = new Qt3DCore::QEntity(rootEntity);
-    Qt3DExtras::QSphereMesh *sphereMesh = new Qt3DExtras::QSphereMesh;
-    sphereMesh->setRadius(3);
-
-
-    sphereEntity->addComponent(sphereMesh);
-    sphereEntity->addComponent(material);
-
-    return rootEntity;
-}
-
-
 int main(int argc, char*argv[])
 {
     QApplication a(argc, argv);
+
+    QSplashScreen *splash = new QSplashScreen;
+    splash->setPixmap(QPixmap("../landauDeGUI/examples/splashWithText.jpeg"));
+    splash->show();
+
     MainWindow w;
+    QRect screenGeometry = QApplication::desktop()->screenGeometry();
+    int x = (screenGeometry.width()-w.width())/2;
+    int y = (screenGeometry.height()-w.height())/2;
+    w.move(x,y);
+    QTimer::singleShot(1500,splash,SLOT(close()));
+    QTimer::singleShot(1500,&w,SLOT(show()));
 
-    Qt3DExtras::Qt3DWindow view;
-
-       Qt3DCore::QEntity *scene = createScene();
-
-       // Camera
-       Qt3DRender::QCamera *camera = view.camera();
-       camera->lens()->setPerspectiveProjection(45.0f, 16.0f/9.0f, 0.1f, 1000.0f);
-       camera->setPosition(QVector3D(0, 0, 40.0f));
-       camera->setViewCenter(QVector3D(0, 0, 0));
-
-    view.setRootEntity(scene);
-
-
-    w.show();
-  //    view.show();
     return a.exec();
     /*
 

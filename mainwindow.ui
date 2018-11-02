@@ -380,7 +380,7 @@ background-color: qradialgradient(spread:pad, cx:0.5, cy:0.5, radius:0.5, fx:0.5
      <property name="geometry">
       <rect>
        <x>190</x>
-       <y>80</y>
+       <y>70</y>
        <width>201</width>
        <height>23</height>
       </rect>
@@ -409,7 +409,7 @@ color: black
       <string notr="true">border: white</string>
      </property>
      <property name="text">
-      <string>available compute units (autodetected)</string>
+      <string>available compute units</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>
