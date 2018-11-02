@@ -2,6 +2,7 @@
 #define OGLWIDGET_H
 
 #include <QWidget>
+#include <QMouseEvent>
 #include <QMainWindow>
 #include <QOpenGLWidget>
 //#include "glu.h"
@@ -26,12 +27,11 @@ public:
     void addSphere(scalar3 &pos, scalar &radii);
     void addWall(int3 planeAndNormalAndType);
     void setXRotation(int angle);
-    void setYRotation(int angle);
     void setZRotation(int angle);
 
     vector<scalar3> lines;
     vector<scalar3> defects;
-    int zoom=5;
+    int zoom=4;
     vector<int3> walls;
     vector<scalar3> boundarySites;
     vector<scalar3> baseSpherePositions;
@@ -39,21 +39,6 @@ public:
 
     vector<scalar3> spherePositions;
     vector<scalar> sphereRadii;
-
-    QPoint offset;
-    /*
-public slots:
-    // slots for xyz-rotation slider
-    void setXRotation(int angle);
-    void setYRotation(int angle);
-    void setZRotation(int angle);
-    */
-//signals:
-    // signaling rotation from mouse movement
-//    void xRotationChanged(int angle);
-//    void yRotationChanged(int angle);
-//    void zRotationChanged(int angle);
-
 
 protected:
     void initializeGL();
@@ -63,15 +48,14 @@ protected:
     void drawSpheres();
     void drawWalls();
     void drawBoundarySites();
+    void mousePressEvent(QMouseEvent *event);
+    void mouseMoveEvent(QMouseEvent *event);
+    QPoint lastPos;
     int iterator = 0;
 
-
     int xRot;
-    int yRot;
     int zRot;
     int3 Sizes;
-
-
 };
 
 #endif // OGLWIDGET_H

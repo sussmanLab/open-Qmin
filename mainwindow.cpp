@@ -46,12 +46,12 @@ MainWindow::MainWindow(QWidget *parent) :
     getAvailableGPUs(deviceNames);
     deviceNames.push_back("CPU");
     computationalNames.resize(deviceNames.size());
-    for(int ii = 0; ii < computationalNames.size(); ++ii)
+    for(unsigned int ii = 0; ii < computationalNames.size(); ++ii)
         {
         computationalNames[ii] = QString::fromStdString(deviceNames[ii]);
         ui->detectedGPUBox->insertItem(ii,computationalNames[ii]);
         }
-    if(computationalNames.size()==1)//default to smaller simulations
+    if(computationalNames.size()==1)//default to smaller simulations if only CPU is available
     {
         ui->boxXLine->setText("20");
         ui->boxYLine->setText("20");
@@ -65,6 +65,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
 void MainWindow::hideControls()
 {
+    ui->label_41->hide();ui->label_43->hide();ui->label_44->hide();ui->label_45->hide(); ui->label_40->hide(); ui->label_42->hide();
+    ui->label_12->hide();ui->label_13->hide();ui->label_56->hide();ui->label_57->hide(); ui->label_7->hide(); ui->label_39->hide();
     ui->resetQTensorsButton->hide();
     ui->minimizeButton->hide();
     ui->addObjectButton->hide();
@@ -73,19 +75,14 @@ void MainWindow::hideControls()
     ui->addIterationsBox->hide();
     ui->displayZone->hide();
     ui->drawStuffButton->hide();
-    ui->label_40->hide(); ui->label_42->hide();
     ui->latticeSkipBox->hide();
-    ui->label_39->hide();
     ui->directorScaleBox->hide();
-    ui->label_41->hide();ui->label_43->hide();ui->label_44->hide();ui->label_45->hide();
-    ui->label_12->hide();ui->label_13->hide();ui->label_56->hide();ui->label_57->hide();
     ui->xRotSlider->hide();
     ui->zRotSlider->hide();
     ui->zoomSlider->hide();
     ui->visualProgressCheckBox->hide();
     ui->defectThresholdBox->hide();
     ui->defectDrawCheckBox->hide();
-    ui->label_7->hide();
     ui->progressBar->hide();
     ui->reprodicbleRNGBox->hide();
     ui->globalAlignmentCheckBox->hide();
@@ -94,6 +91,9 @@ void MainWindow::hideControls()
 }
 void MainWindow::showControls()
 {
+    ui->label_41->show();ui->label_43->show();ui->label_44->show();ui->label_45->show();
+    ui->label_39->show();ui->label_42->show();ui->label_40->show();ui->label_7->show();
+    ui->label_12->show();ui->label_13->show();ui->label_56->show();ui->label_57->show();
     ui->defectDrawCheckBox->show();
     ui->resetQTensorsButton->show();
     ui->minimizeButton->show();
@@ -102,19 +102,14 @@ void MainWindow::showControls()
     ui->addIterationsButton->show();
     ui->addIterationsBox->show();
     ui->displayZone->show();
-    ui->drawStuffButton->show();
-    ui->label_40->show();
+    ui->drawStuffButton->show();    
     ui->latticeSkipBox->show();
-    ui->label_39->show();ui->label_42->show();
-    ui->label_12->show();ui->label_13->show();ui->label_56->show();ui->label_57->show();
     ui->directorScaleBox->show();
-    ui->label_41->show();ui->label_43->show();ui->label_44->show();ui->label_45->show();
     ui->xRotSlider->show();
     ui->zRotSlider->show();
     ui->zoomSlider->show();
     ui->visualProgressCheckBox->show();
     ui->defectThresholdBox->show();
-    ui->label_7->show();
     ui->progressBar->show();
     ui->reprodicbleRNGBox->show();
     ui->globalAlignmentCheckBox->show();
@@ -388,7 +383,6 @@ void MainWindow::on_drawStuffButton_released()
         lineSegments.push_back(lineSegment1);
         lineSegments.push_back(lineSegment2);
     }
-    scalar e1,e2,e3;
     if(defectDraw)
     {
         QString printable2 = QStringLiteral("finding defects ");
@@ -413,23 +407,11 @@ void MainWindow::on_drawStuffButton_released()
     if(goodVisualization)
         {
         ui->displayZone->setSpheres(Configuration->latticeIndex.sizes);
-        vector<int3> bsites;
-        ui->displayZone->setAllBoundarySites(bsites);
         ui->displayZone->drawBoundaries = true;
         }
     else
         {
-        vector<int3> bsites;
-        ArrayHandle<int> type(Configuration->returnTypes());
-        for (int ii = 0 ;ii <Configuration->getNumberOfParticles();++ii )
-            {
-            if (type.data[ii] >0)
-                bsites.push_back(Configuration->latticeIndex.inverseIndex(ii));
-            }
-
-        ui->displayZone->setAllBoundarySites(bsites);
         ui->displayZone->drawBoundaries = false;
-        //printf("%lu sites\n",bsites.size());cout.flush();
         };
     ui->displayZone->update();
 }
@@ -451,7 +433,6 @@ void MainWindow::on_zoomSlider_valueChanged(int value)
     ui->displayZone->setLines(ui->displayZone->lines,Configuration->latticeIndex.sizes);
     on_builtinBoundaryVisualizationBox_released();
     on_drawStuffButton_released();
-//    ui->displayZone->update();
 }
 
 void MainWindow::on_addSphereButton_released()
@@ -560,7 +541,7 @@ void MainWindow::on_reprodicbleRNGBox_stateChanged(int arg1)
 
 void MainWindow::on_builtinBoundaryVisualizationBox_released()
 {
-    /*
+
     if(!ui->builtinBoundaryVisualizationBox->isChecked())
     {
         vector<int3> bsites;
@@ -573,7 +554,6 @@ void MainWindow::on_builtinBoundaryVisualizationBox_released()
 
         ui->displayZone->setAllBoundarySites(bsites);
         ui->displayZone->drawBoundaries = false;
-        printf("%lu sites\n",bsites.size());cout.flush();
     }
     else
         {
@@ -581,7 +561,7 @@ void MainWindow::on_builtinBoundaryVisualizationBox_released()
         ui->displayZone->setAllBoundarySites(bsites);
         ui->displayZone->drawBoundaries = true;
         }
-        */
+
     QString printable1 = QStringLiteral("Changing style of boundary visualization");
     ui->testingBox->setText(printable1);
 }

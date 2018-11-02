@@ -6,7 +6,6 @@ OGLWidget::OGLWidget(QWidget *parent)
     : QOpenGLWidget(parent)
 {
     xRot = 45;
-    yRot = 0;
     zRot = 135;
 }
 
@@ -27,10 +26,6 @@ void OGLWidget::initializeGL()
 {
     glClearColor(0,0,0,1);
     glEnable(GL_DEPTH_TEST);
-    //glEnable(GL_LIGHT0);
-    //glEnable(GL_LIGHTING);
-    //glDisable(GL_LIGHT0);
-    //glDisable(GL_LIGHTING);
 
     glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
     glEnable(GL_COLOR_MATERIAL);
@@ -94,9 +89,6 @@ void OGLWidget::draw()
     }
 
     glEnd();
-    //glEnable(GL_PROGRAM_POINT_SIZE);
-    //glPointSize(20.0);
-    //glBegin(GL_POINTS);
     float empiricallyNiceRadius = 0.25/(pow(zoom,0.25));
     for (int ii = 0; ii < defects.size(); ++ii)
     {
@@ -106,7 +98,6 @@ void OGLWidget::draw()
         glTranslatef(defects[ii].x,defects[ii].y,defects[ii].z);
         gluSphere(quad,empiricallyNiceRadius,20,20);
         glTranslatef(-defects[ii].x,-defects[ii].y,-defects[ii].z);
-        //glVertex3f(defects[ii].x,defects[ii].y,defects[ii].z);
     }
 
     glEnd();
@@ -134,7 +125,6 @@ void OGLWidget::drawSpheres()
     glEnable (GL_BLEND);
 
     glBlendFunc (GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-    //zoom*((defects[ii].x-0.5*sizes.x)/sizes.x)
     for (int ii = 0; ii < spherePositions.size(); ++ii)
     {
         glColor4f(0.4,0.4,0,0.9);
@@ -201,22 +191,12 @@ void OGLWidget::resizeGL(int w, int h)
     gluPerspective(45, (float)w/h, 0.01, 100.0);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    gluLookAt(10,10,0,0,0,0,0,0,1);
+    gluLookAt(5,5,0,0,0,0,0,0,1);
 }
 
 void OGLWidget::paintGL()
 {
-    //glLoadIdentity();
-    //glTranslatef(0.0, 0.0, -10.0);
-    //glRotatef(xRot / 16.0, 1.0, 0.0, 0.0);
-    //glRotatef(yRot / 16.0, 0.0, 1.0, 0.0);
-    //glRotatef(zRot / 16.0, 0.0, 0.0, 1.0);
-    scalar scale = 1./32.;
     scalar dirx,diry,dirz;
-    scalar xr = scale*xRot;
-    scalar yr = scale*yRot;
-    scalar zr = scale*zRot;
-
 
     scalar theta = zRot*1.0*PI/360.;
     scalar phi = xRot*2.0*PI/360.;
@@ -225,9 +205,7 @@ void OGLWidget::paintGL()
     dirz = cos(theta);
 
     glLoadIdentity();
-    //gluLookAt(10,10,10,0,0,0,dirx,diry,dirz);
-    gluLookAt(10*dirx,10*diry,10*dirz,0,0,0,0,0,1);
-//    draw();
+    gluLookAt(8*dirx,8*diry,8*dirz,0,0,0,0,0,1);
     if(drawBoundaries)
         {
         draw();
@@ -259,36 +237,12 @@ static void qNormalizeAngle(int &angle)
     while (angle > 360)
         angle -= 360;
 }
-/*
-void OGLWidget::xRotationChanged(int angle)
-{
-}
-
-void OGLWidget::yRotationChanged(int angle)
-{
-}
-
-void OGLWidget::zRotationChanged(int angle)
-{
-}
-*/
 
 void OGLWidget::setXRotation(int angle)
 {
     qNormalizeAngle(angle);
     if (angle != xRot) {
         xRot = angle;
-        //emit xRotationChanged(angle);
-        update();
-    }
-}
-
-void OGLWidget::setYRotation(int angle)
-{
-    qNormalizeAngle(angle);
-    if (angle != yRot) {
-        yRot = angle;
-        //emit yRotationChanged(angle);
         update();
     }
 }
@@ -298,7 +252,25 @@ void OGLWidget::setZRotation(int angle)
     qNormalizeAngle(angle);
     if (angle != zRot) {
         zRot = angle;
-        //emit zRotationChanged(angle);
         update();
     }
+}
+
+void OGLWidget::mousePressEvent(QMouseEvent *event)
+{
+    lastPos = event->pos();
+}
+
+void OGLWidget::mouseMoveEvent(QMouseEvent *event)
+{
+    int dx = event->x() - lastPos.x();
+    int dy = event->y() - lastPos.y();
+
+    if(event->buttons() & Qt::LeftButton)
+    {
+        setXRotation(xRot + 1.*dx);
+        setZRotation(zRot + 1.*dy);
+    }
+
+    lastPos =event->pos();
 }
