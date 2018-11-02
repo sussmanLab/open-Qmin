@@ -415,6 +415,113 @@ color: black
       <bool>true</bool>
      </property>
     </widget>
+    <widget class="QLabel" name="label_60">
+     <property name="geometry">
+      <rect>
+       <x>110</x>
+       <y>70</y>
+       <width>41</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: red</string>
+     </property>
+     <property name="text">
+      <string>L </string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="boxLSize">
+     <property name="geometry">
+      <rect>
+       <x>100</x>
+       <y>90</y>
+       <width>41</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: 1px red solid</string>
+     </property>
+     <property name="text">
+      <string>50</string>
+     </property>
+    </widget>
+    <widget class="Line" name="line">
+     <property name="geometry">
+      <rect>
+       <x>80</x>
+       <y>60</y>
+       <width>12</width>
+       <height>2</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: black</string>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Plain</enum>
+     </property>
+     <property name="lineWidth">
+      <number>10</number>
+     </property>
+     <property name="midLineWidth">
+      <number>-2</number>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+    <widget class="Line" name="line_2">
+     <property name="geometry">
+      <rect>
+       <x>80</x>
+       <y>140</y>
+       <width>12</width>
+       <height>2</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: black</string>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Plain</enum>
+     </property>
+     <property name="lineWidth">
+      <number>10</number>
+     </property>
+     <property name="midLineWidth">
+      <number>-2</number>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+    <widget class="Line" name="line_5">
+     <property name="geometry">
+      <rect>
+       <x>90</x>
+       <y>60</y>
+       <width>2</width>
+       <height>80</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: black</string>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Plain</enum>
+     </property>
+     <property name="lineWidth">
+      <number>10</number>
+     </property>
+     <property name="midLineWidth">
+      <number>1</number>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+    </widget>
    </widget>
    <widget class="QWidget" name="setDistortionConstants3" native="true">
     <property name="geometry">
@@ -2280,6 +2387,80 @@ border: 1px black solid</string>
    </slots>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>reproducibleButton</tabstop>
+  <tabstop>boxXLine</tabstop>
+  <tabstop>boxYLine</tabstop>
+  <tabstop>boxZLine</tabstop>
+  <tabstop>initialPhaseB</tabstop>
+  <tabstop>initialPhaseC</tabstop>
+  <tabstop>initialPhaseA</tabstop>
+  <tabstop>nConstantsSpinBox</tabstop>
+  <tabstop>initializeButton</tabstop>
+  <tabstop>detectedGPUBox</tabstop>
+  <tabstop>setThreeConstants</tabstop>
+  <tabstop>threeConstantL1Box</tabstop>
+  <tabstop>threeConstantL2Box</tabstop>
+  <tabstop>threeConstantL3Box</tabstop>
+  <tabstop>setTwoConstants</tabstop>
+  <tabstop>twoConstantL1Box</tabstop>
+  <tabstop>twoConstantL2Box</tabstop>
+  <tabstop>twoConstantQ0Box</tabstop>
+  <tabstop>setPhaseConstantsButton</tabstop>
+  <tabstop>phaseABox</tabstop>
+  <tabstop>phaseBBox</tabstop>
+  <tabstop>phaseCBox</tabstop>
+  <tabstop>setOneConstant</tabstop>
+  <tabstop>oneConstantL1Box</tabstop>
+  <tabstop>minimizationParametersButton</tabstop>
+  <tabstop>addObjectButton</tabstop>
+  <tabstop>minimizeButton</tabstop>
+  <tabstop>resetQTensorsButton</tabstop>
+  <tabstop>maxIterationsBox</tabstop>
+  <tabstop>fireParamButton</tabstop>
+  <tabstop>dtBox</tabstop>
+  <tabstop>alphaDecBox</tabstop>
+  <tabstop>dtMaxBox</tabstop>
+  <tabstop>alphaMinBox</tabstop>
+  <tabstop>dtIncBox</tabstop>
+  <tabstop>nMinBox</tabstop>
+  <tabstop>dtDecBox</tabstop>
+  <tabstop>forceCutoffBox</tabstop>
+  <tabstop>alphaStartBox</tabstop>
+  <tabstop>drawStuffButton</tabstop>
+  <tabstop>directorScaleBox</tabstop>
+  <tabstop>latticeSkipBox</tabstop>
+  <tabstop>xRotSlider</tabstop>
+  <tabstop>zRotSlider</tabstop>
+  <tabstop>zoomSlider</tabstop>
+  <tabstop>visualProgressCheckBox</tabstop>
+  <tabstop>defectThresholdBox</tabstop>
+  <tabstop>defectDrawCheckBox</tabstop>
+  <tabstop>addIterationsBox</tabstop>
+  <tabstop>addIterationsButton</tabstop>
+  <tabstop>addSphereButton</tabstop>
+  <tabstop>finishedWithObjectsButton</tabstop>
+  <tabstop>xSpherePosBox</tabstop>
+  <tabstop>ySpherePosBox</tabstop>
+  <tabstop>zSpherePosBox</tabstop>
+  <tabstop>sphereRadiusBox</tabstop>
+  <tabstop>anchoringComboBox</tabstop>
+  <tabstop>boundaryEnergyBox</tabstop>
+  <tabstop>boundaryS0Box</tabstop>
+  <tabstop>addWallButton</tabstop>
+  <tabstop>wallNormalBox</tabstop>
+  <tabstop>wallPlaneBox</tabstop>
+  <tabstop>reprodicbleRNGBox</tabstop>
+  <tabstop>globalAlignmentCheckBox</tabstop>
+  <tabstop>builtinBoundaryVisualizationBox</tabstop>
+  <tabstop>boundaryFromFileButton</tabstop>
+  <tabstop>importFileNowButton</tabstop>
+  <tabstop>fileNameBox</tabstop>
+  <tabstop>cancelFileImport</tabstop>
+  <tabstop>saveFileNowButton</tabstop>
+  <tabstop>saveFileNameBox</tabstop>
+  <tabstop>cancelFileISave</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>
@@ -2386,7 +2567,7 @@ border: 1px black solid</string>
    <hints>
     <hint type="sourcelabel">
      <x>416</x>
-     <y>313</y>
+     <y>352</y>
     </hint>
     <hint type="destinationlabel">
      <x>410</x>
@@ -2401,8 +2582,8 @@ border: 1px black solid</string>
    <slot>show()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>460</x>
-     <y>467</y>
+     <x>440</x>
+     <y>427</y>
     </hint>
     <hint type="destinationlabel">
      <x>435</x>
@@ -2449,12 +2630,12 @@ border: 1px black solid</string>
    <slot>hide()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>529</x>
-     <y>392</y>
+     <x>609</x>
+     <y>232</y>
     </hint>
     <hint type="destinationlabel">
-     <x>355</x>
-     <y>362</y>
+     <x>435</x>
+     <y>202</y>
     </hint>
    </hints>
   </connection>
@@ -2469,8 +2650,8 @@ border: 1px black solid</string>
      <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>355</x>
-     <y>362</y>
+     <x>435</x>
+     <y>202</y>
     </hint>
    </hints>
   </connection>

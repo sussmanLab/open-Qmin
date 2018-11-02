@@ -178,7 +178,7 @@ void OGLWidget::drawWalls()
         {
             glVertex3f(xTop,yPlane,-zTop);
             glVertex3f(xTop,yPlane,zTop);
-            glVertex3f(-yTop,yPlane,zTop);
+            glVertex3f(-xTop,yPlane,zTop);
             glVertex3f(-xTop,yPlane,-zTop);
         }
         if(wall.y==2)//z-normal

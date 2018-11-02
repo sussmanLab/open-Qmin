@@ -68,6 +68,8 @@ private slots:
 
     void on_saveFileNowButton_released();
 
+    void on_boxLSize_textEdited(const QString &arg1);
+
 private:
     Ui::MainWindow *ui;
 

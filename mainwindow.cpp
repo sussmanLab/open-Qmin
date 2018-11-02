@@ -517,6 +517,17 @@ void MainWindow::on_addWallButton_released()
         }
     int3 pnt; pnt.x = plane; pnt.y = xyz; pnt.z=wallType;
     ui->displayZone->addWall(pnt);
+    if(pnt.x ==0)
+    {
+        int3 PntPeriodicCopy;PntPeriodicCopy.y=pnt.y;PntPeriodicCopy.z=pnt.z;
+        if(xyz==0)
+            PntPeriodicCopy.x = Configuration->latticeIndex.sizes.x;
+        if(xyz==1)
+            PntPeriodicCopy.x = Configuration->latticeIndex.sizes.y;
+        if(xyz==2)
+            PntPeriodicCopy.x = Configuration->latticeIndex.sizes.z;
+        ui->displayZone->addWall(PntPeriodicCopy);
+    }
 
     QString printable1 = QStringLiteral("flat boundary added in direction %1 on plane %2").arg(xyz).arg(plane);
     ui->testingBox->setText(printable1);
@@ -607,3 +618,10 @@ void MainWindow::on_saveFileNowButton_released()
     QString printable1 = QStringLiteral("File saved");
     ui->testingBox->setText(printable1);
 }
+
+void MainWindow::on_boxLSize_textEdited(const QString &arg1)
+{
+    ui->boxXLine->setText(arg1);
+    ui->boxYLine->setText(arg1);
+    ui->boxZLine->setText(arg1);
+};
