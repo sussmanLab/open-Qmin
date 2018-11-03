@@ -82,9 +82,14 @@ class simpleModel
         //!Are the forces current? set to false after every call to moveParticles. set to true after the SIMULATION calls computeForces
         bool forcesComputed;
 
+        //!allow for setting multiple threads
+        virtual void setNThreads(int n){nThreads = n;};
+
     protected:
         //!The number of particles
         int N;
+        //!number of threads to use
+        int nThreads=1;
         //!particle  positions
         GPUArray<dVec> positions;
         //!particle velocities
@@ -97,7 +102,7 @@ class simpleModel
         GPUArray<scalar> masses;
         //!particle types
         GPUArray<int> types;
-        
+
         //!Whether the GPU should be used to compute anything
         bool useGPU;
 

@@ -76,7 +76,8 @@ class Simulation : public basicSimulation, public enable_shared_from_this<Simula
         //!Enforce reproducible dynamics
         void setReproducible(bool reproducible);
 
-
+        //!work with openMP threads
+        void setNThreads(int n);
     };
 typedef shared_ptr<Simulation> SimulationPtr;
 #endif

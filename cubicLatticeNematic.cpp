@@ -39,6 +39,7 @@ int main(int argc, char*argv[])
     ValueArg<int> programSwitchArg("z","programSwitch","an integer controlling program branch",false,0,"int",cmd);
     ValueArg<int> constantSwitchArg("k","numberOfConstants","an integer controlling the force approximation",false,1,"int",cmd);
     ValueArg<int> gpuSwitchArg("g","USEGPU","an integer controlling which gpu to use... g < 0 uses the cpu",false,-1,"int",cmd);
+    ValueArg<int> threadSwitchArg("t","threads","how many threads to request for openMP ",false,1,"int",cmd);
     ValueArg<int> maxIterationsSwitchArg("i","iterations","number of timestep iterations",false,100,"int",cmd);
     ValueArg<scalar> lengthSwitchArg("l","sideLength","size of simulation domain",false,10.0,"double",cmd);
     ValueArg<scalar> dtSwitchArg("e","timeStepSize","size of Delta t",false,0.001,"double",cmd);
@@ -50,6 +51,7 @@ int main(int argc, char*argv[])
     int programSwitch = programSwitchArg.getValue();
     int Nconstants = constantSwitchArg.getValue();
     int maximumIterations = maxIterationsSwitchArg.getValue();
+    int nThreads = threadSwitchArg.getValue();
     scalar L = lengthSwitchArg.getValue();
     scalar dt = dtSwitchArg.getValue();
 
@@ -107,7 +109,7 @@ int main(int argc, char*argv[])
             cout << " you have asked for a force calculation ("<<Nconstants<<") which has not been coded" << endl;
             break;
         }
-
+    sim->setNThreads(nThreads);
 
     boundaryObject homeotropicBoundary(boundaryType::homeotropic,1.0,S0);
     boundaryObject planarDegenerateBoundary(boundaryType::degeneratePlanar,.582,S0);

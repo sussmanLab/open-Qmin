@@ -4,7 +4,8 @@ project(dDimensionalSimulations)
 add_definitions(-DDIMENSION=5)
 
 set(CMAKE_CC_FLAGS "${CMAKE_CC_FLAGS} ")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -std=c++11")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -std=c++11 -DSINGLETHREADED -Xpreprocessor -fopenmp")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -std=c++11 -Xpreprocessor -fopenmp")
 set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS}
                                         -arch=sm_30
                                         -gencode=arch=compute_30,code=sm_30
@@ -56,4 +57,4 @@ target_link_libraries(simulationExecutable.out ${myLibs} ${CUDA_LIBRARIES})
 endif(${CMAKE_BUILD_TYPE} MATCHES "Debug")
 
 add_executable(otherExecutable.out cubicLatticeNematic.cpp)
-target_link_libraries(otherExecutable.out ${myLibs} ${CUDA_LIBRARIES})
+target_link_libraries(otherExecutable.out ${myLibs} ${CUDA_LIBRARIES} gomp)

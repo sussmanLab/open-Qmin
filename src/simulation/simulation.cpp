@@ -81,6 +81,22 @@ void Simulation::setReproducible(bool reproducible)
         };
     };
 
+void Simulation::setNThreads(int n)
+    {
+    auto Conf = configuration.lock();
+    Conf->setNThreads(n);
+    for (int f = 0; f < forceComputers.size(); ++f)
+        {
+        auto frc = forceComputers[f].lock();
+        frc->setNThreads(n);
+        };
+    for (int u = 0; u < updaters.size(); ++u)
+        {
+        auto upd = updaters[u].lock();
+        upd->setNThreads(n);
+        };
+    }
+
 /*!
 Calls all force computers, and evaluate the self force calculation if the model demands it
 */
