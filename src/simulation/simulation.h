@@ -62,13 +62,6 @@ class Simulation : public basicSimulation, public enable_shared_from_this<Simula
         //!compute the pressure tensor
         virtual void computePressureTensor(MatrixDxD &P);
 
-/*
-        //!A neighbor list assisting the simulation
-        cellListGPU *cellList;;
-        //!Pass in a reference to the box
-        void setCellList(cellListGPU &_cl){cellList = &_cl;};
-*/
-
         //!Set the simulation timestep
         void setIntegrationTimestep(scalar dt);
         //!turn on CPU-only mode for all components

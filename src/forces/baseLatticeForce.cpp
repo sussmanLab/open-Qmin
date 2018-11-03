@@ -17,13 +17,15 @@ void baseLatticeForce::computeForceCPU(GPUArray<dVec> &forces, bool zeroOutForce
         for(int pp = 0; pp < lattice->getNumberOfParticles(); ++pp)
             h_f.data[pp] = make_dVec(0.0);
     ArrayHandle<dVec> spins(lattice->returnPositions());
-    //the current scheme for getting the six nearest neighbors
-    int neighNum;
-    vector<int> neighbors;
-    int si,sj;
-    dVec spinI, spinJ;
+
+    #include "ompParallelLoopDirective.h"
     for (int i = 0; i < lattice->getNumberOfParticles(); ++i)
         {
+        //the current scheme for getting the six nearest neighbors
+        int neighNum;
+        vector<int> neighbors(6);
+        int si,sj;
+        dVec spinI, spinJ;
         si = lattice->getNeighbors(i,neighbors,neighNum);
         spinI = spins.data[si];
         for (int j = 0; j < neighNum; ++j)

@@ -1,7 +1,7 @@
 #ifndef BASICSIMULATION_H
 #define BASICSIMULATION_H
 /*! \file basicSimulation.h */
-//!Basic simulations just know that there are virtual functions that implement computeForces, movePartilces, and have a simulation domain
+//!Basic simulations just know that there are virtual functions that implement computeForces, moveParticles, and have a simulation domain
 
 #include "gpuarray.h"
 #include "periodicBoundaryConditions.h"

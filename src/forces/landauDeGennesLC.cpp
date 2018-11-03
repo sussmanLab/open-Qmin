@@ -85,13 +85,11 @@ void landauDeGennesLC::computeFirstDerivatives()
         ArrayHandle<cubicLatticeDerivativeVector> h_derivatives(forceCalculationAssist);
         ArrayHandle<dVec> Qtensors(lattice->returnPositions(),access_location::host,access_mode::read);
         ArrayHandle<int>  h_latticeTypes(lattice->returnTypes(),access_location::host,access_mode::read);
-        #ifndef SINGLETHREADED
-        #pragma omp parallel for num_threads(nThreads)
-        #endif
+        #include "ompParallelLoopDirective.h"
         for (int i = 0; i < N; ++i)
             {
             int neighNum;
-            vector<int> neighbors;
+            vector<int> neighbors(6);
             int idx;
             dVec qCurrent, xDown, xUp, yDown,yUp,zDown,zUp;
             idx = lattice->getNeighbors(i,neighbors,neighNum);
@@ -204,13 +202,11 @@ void landauDeGennesLC::computeForceOneConstantCPU(GPUArray<dVec> &forces, bool z
     scalar b = B/3.0;
     scalar c = 0.25*C;
     scalar l = 2.0*L1;
-    #ifndef SINGLETHREADED
-    #pragma omp parallel for num_threads(nThreads)
-    #endif
+    #include "ompParallelLoopDirective.h"
     for (int i = 0; i < lattice->getNumberOfParticles(); ++i)
         {
         int neighNum;
-        vector<int> neighbors;
+        vector<int> neighbors(6);
         int currentIndex;
         dVec qCurrent, xDown, xUp, yDown,yUp,zDown,zUp;
         currentIndex = lattice->getNeighbors(i,neighbors,neighNum);
@@ -282,14 +278,12 @@ void landauDeGennesLC::computeForceTwoConstantCPU(GPUArray<dVec> &forces, bool z
     scalar a = 0.5*A;
     scalar b = B/3.0;
     scalar c = 0.25*C;
-    #ifndef SINGLETHREADED
-    #pragma omp parallel for num_threads(nThreads)
-    #endif
+    #include "ompParallelLoopDirective.h"
     for (int i = 0; i < lattice->getNumberOfParticles(); ++i)
         {
         //the current scheme for getting the six nearest neighbors
         int neighNum;
-        vector<int> neighbors;
+        vector<int> neighbors(6);
         int currentIndex;
         dVec qCurrent, xDown, xUp, yDown,yUp,zDown,zUp;
         currentIndex = lattice->getNeighbors(i,neighbors,neighNum);
@@ -417,14 +411,12 @@ void landauDeGennesLC::computeForceThreeConstantCPU(GPUArray<dVec> &forces, bool
     scalar a = 0.5*A;
     scalar b = B/3.0;
     scalar c = 0.25*C;
-    #ifndef SINGLETHREADED
-    #pragma omp parallel for num_threads(nThreads)
-    #endif
+    #include "ompParallelLoopDirective.h"
     for (int i = 0; i < lattice->getNumberOfParticles(); ++i)
         {
         //the current scheme for getting the six nearest neighbors
         int neighNum;
-        vector<int> neighbors;
+        vector<int> neighbors(6);
         int currentIndex;
         dVec qCurrent, xDown, xUp, yDown,yUp,zDown,zUp;
         currentIndex = lattice->getNeighbors(i,neighbors,neighNum);
@@ -549,7 +541,7 @@ void landauDeGennesLC::computeEorHFieldForcesCPU(GPUArray<dVec> &forces,bool zer
     ArrayHandle<int> latticeTypes(lattice->returnTypes());
     //the current scheme for getting the six nearest neighbors
     int neighNum;
-    vector<int> neighbors;
+    vector<int> neighbors(6);
     int currentIndex;
     scalar fieldProduct = anisotropicSusceptibility*vacuumPermeability;
     dVec fieldForce(0.);
@@ -558,9 +550,7 @@ void landauDeGennesLC::computeEorHFieldForcesCPU(GPUArray<dVec> &forces,bool zer
     fieldForce[2] = -fieldProduct*field.x*field.z;
     fieldForce[3] = -0.5*fieldProduct*(field.y*field.y-field.z*field.z);
     fieldForce[4] = -fieldProduct*field.y*field.z;
-    #ifndef SINGLETHREADED
-    #pragma omp parallel for num_threads(nThreads)
-    #endif
+    #include "ompParallelLoopDirective.h"
     for (int i = 0; i < lattice->getNumberOfParticles(); ++i)
         {
         currentIndex = lattice->getNeighbors(i,neighbors,neighNum);
@@ -583,14 +573,12 @@ void landauDeGennesLC::computeL24ForcesCPU(GPUArray<dVec> &forces,bool zeroOutFo
     ArrayHandle<int> latticeTypes(lattice->returnTypes());
     ArrayHandle<cubicLatticeDerivativeVector> h_derivatives(forceCalculationAssist,access_location::host,access_mode::read);
 
-    #ifndef SINGLETHREADED
-    #pragma omp parallel for num_threads(nThreads)
-    #endif
+    #include "ompParallelLoopDirective.h"
     for (int i = 0; i < lattice->getNumberOfParticles(); ++i)
         {
         //the current scheme for getting the six nearest neighbors
         int neighNum;
-        vector<int> neighbors;
+        vector<int> neighbors(6);
         int currentIndex;
         currentIndex = lattice->getNeighbors(i,neighbors,neighNum);
         if(latticeTypes.data[currentIndex] <= 0)
@@ -704,14 +692,12 @@ void landauDeGennesLC::computeBoundaryForcesCPU(GPUArray<dVec> &forces,bool zero
     ArrayHandle<dVec> Qtensors(lattice->returnPositions());
     ArrayHandle<int> latticeTypes(lattice->returnTypes());
     ArrayHandle<boundaryObject> bounds(lattice->boundaries);
-    #ifndef SINGLETHREADED
-    #pragma omp parallel for num_threads(nThreads)
-    #endif
+    #include "ompParallelLoopDirective.h"
     for (int i = 0; i < lattice->getNumberOfParticles(); ++i)
         {
         //the current scheme for getting the six nearest neighbors
         int neighNum;
-        vector<int> neighbors;
+        vector<int> neighbors(6);
         int currentIndex;
         dVec qCurrent,xDown,xUp,yDown,yUp,zDown,zUp,tempForce;
         currentIndex = lattice->getNeighbors(i,neighbors,neighNum);
@@ -872,14 +858,12 @@ void landauDeGennesLC::computeEnergyCPU()
     scalar c = 0.25*C;
     scalar l = L1;
     int LCSites = 0;
-    #ifndef SINGLETHREADED
-    #pragma omp parallel for num_threads(nThreads)
-    #endif
+    #include "ompParallelLoopDirective.h"
     for (int i = 0; i < lattice->getNumberOfParticles(); ++i)
         {
         //the current scheme for getting the six nearest neighbors
         int neighNum;
-        vector<int> neighbors;
+        vector<int> neighbors(6);
         int currentIndex;
         dVec qCurrent, xDown, xUp, yDown,yUp,zDown,zUp;
         currentIndex = lattice->getNeighbors(i,neighbors,neighNum);
