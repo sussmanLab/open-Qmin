@@ -858,7 +858,6 @@ void landauDeGennesLC::computeEnergyCPU()
     scalar c = 0.25*C;
     scalar l = L1;
     int LCSites = 0;
-    #include "ompParallelLoopDirective.h"
     for (int i = 0; i < lattice->getNumberOfParticles(); ++i)
         {
         //the current scheme for getting the six nearest neighbors
