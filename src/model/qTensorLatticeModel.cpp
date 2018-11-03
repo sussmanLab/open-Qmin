@@ -43,9 +43,12 @@ void qTensorLatticeModel::computeDefectMeasures(int defectType)
         ArrayHandle<dVec> Q(positions,access_location::host,access_mode::read);
         ArrayHandle<int> t(types,access_location::host,access_mode::read);
         ArrayHandle<scalar> defects(defectMeasures,access_location::host,access_mode::overwrite);
-        scalar a,b,c;
+        #ifndef SINGLETHREADED
+        #pragma omp parallel for num_threads(nThreads)
+        #endif
         for(int pp = 0; pp < N; ++pp)
             {
+            scalar a,b,c;
             if(t.data[pp] >0)
                 continue;
             if(defectType==0)

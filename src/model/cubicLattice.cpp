@@ -56,6 +56,9 @@ void cubicLattice::moveParticles(GPUArray<dVec> &displacements, scalar scale)
         {//cpu branch
         ArrayHandle<dVec> h_disp(displacements, access_location::host,access_mode::read);
         ArrayHandle<dVec> h_pos(positions);
+        #ifndef SINGLETHREADED
+        #pragma omp parallel for num_threads(nThreads)
+        #endif
         for(int pp = 0; pp < N; ++pp)
             {
             h_pos.data[pp] += scale*h_disp.data[pp];

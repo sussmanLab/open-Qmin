@@ -142,6 +142,9 @@ void energyMinimizerFIRE::fireStepCPU()
     if(forceNorm > 0.)
         scaling = sqrt(velocityNorm/forceNorm);
     //adjust the velocity according to the FIRE algorithm
+    #ifndef SINGLETHREADED
+    #pragma omp parallel for num_threads(nThreads)
+    #endif
     for (int i = 0; i < Ndof; ++i)
         {
         h_v.data[i] = (1.0-alpha)*h_v.data[i] + alpha*scaling*h_f.data[i];

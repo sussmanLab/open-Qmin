@@ -68,7 +68,11 @@ class updater
         //!allow all updaters to potentially implement an internal time scale
         virtual void setDeltaT(scalar dt){deltaT = dt;};
 
+        //!allow for setting multiple threads
+        virtual void setNThreads(int n){nThreads = n;};
     protected:
+        //!number of threads to use
+        int nThreads=1;
         //!The period of the updater... the updater will work every Period timesteps
         int Period;
         //!The phase of the updater... the updater will work every Period timesteps offset by a phase

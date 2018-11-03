@@ -61,6 +61,10 @@ class force
 
         //!tell the force to use a neighbor list
         void setNeighborList(shared_ptr<neighborList> _neighbor){neighbors = _neighbor;useNeighborList = true;};
+        //!allow for setting multiple threads
+        virtual void setNThreads(int n){nThreads = n;};
+        //!number of threads to use if compiled with openmp
+        int nThreads=1;
     };
 
 typedef shared_ptr<force> ForcePtr;

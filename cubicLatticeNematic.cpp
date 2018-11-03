@@ -43,7 +43,48 @@ int main(int argc, char*argv[])
     return a.exec();
     /*
 
+    scalar a = -1;
+    scalar b = -2.12/0.172;
+    scalar c = 1.73/0.172;
+    scalar l = 2.32;
+    scalar l2 = 1.32;
+    scalar l3 = 1.82;
+    scalar q0 =0.01;
 
+    scalar S0 = (-b+sqrt(b*b-24*a*c))/(6*c);
+    cout << "S0 set at " << S0 << endl;
+    noiseSource noise(true);
+    scalar Lz=0.5*L;
+    shared_ptr<qTensorLatticeModel> Configuration = make_shared<qTensorLatticeModel>(L,L,Lz);
+    Configuration->setNematicQTensorRandomly(noise,S0);
+
+    shared_ptr<Simulation> sim = make_shared<Simulation>();
+    sim->setConfiguration(Configuration);
+
+    shared_ptr<landauDeGennesLC> landauLCForceOneConstant = make_shared<landauDeGennesLC>(a,b,c,l);
+    shared_ptr<landauDeGennesLC> landauLCForceTwoConstant = make_shared<landauDeGennesLC>
+                                                (a,b,c,l,l2,q0,distortionEnergyType::twoConstant);
+    shared_ptr<landauDeGennesLC> landauLCForceThreeConstant = make_shared<landauDeGennesLC>
+                                                (a,b,c,l,l2,l3,distortionEnergyType::threeConstant);
+    switch(Nconstants)
+        {
+        case 1 :
+            landauLCForceOneConstant->setModel(Configuration);
+            sim->addForce(landauLCForceOneConstant);
+            break;
+        case 2 :
+            landauLCForceTwoConstant->setModel(Configuration);
+            sim->addForce(landauLCForceTwoConstant);
+            break;
+        case 3 :
+            landauLCForceThreeConstant->setModel(Configuration);
+            sim->addForce(landauLCForceThreeConstant);
+            break;
+        default:
+            cout << " you have asked for a force calculation ("<<Nconstants<<") which has not been coded" << endl;
+            break;
+        }
+    sim->setNThreads(nThreads);
 
     boundaryObject homeotropicBoundary(boundaryType::homeotropic,1.0,S0);
     boundaryObject planarDegenerateBoundary(boundaryType::degeneratePlanar,.582,S0);
