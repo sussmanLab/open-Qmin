@@ -31,12 +31,13 @@ void basePairwiseForce::computeForceCPU(GPUArray<dVec> &forces, bool zeroOutForc
     ArrayHandle<int> h_n(neighbors->particleIndices);
     ArrayHandle<dVec> h_nv(neighbors->neighborVectors);
     ArrayHandle<scalar> h_nd(neighbors->neighborDistances);
-    dVec relativeDistance;
-    scalar dnorm;
-    dVec f;
     energy = 0.0;
+    #include "ompParallelLoopDirective.h"
     for (int p1 = 0; p1 < model->getNumberOfParticles();++p1)
         {
+        dVec relativeDistance;
+        scalar dnorm;
+        dVec f;
         int neigh = h_npp.data[p1];
         //loop over all neighbors
         for (int nn = 0 ; nn < neigh; ++nn)
@@ -88,4 +89,3 @@ MatrixDxD basePairwiseForce::computePressureTensor()
 
     return P;
     };
-
