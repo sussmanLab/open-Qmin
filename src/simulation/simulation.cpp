@@ -85,12 +85,12 @@ void Simulation::setNThreads(int n)
     {
     auto Conf = configuration.lock();
     Conf->setNThreads(n);
-    for (int f = 0; f < forceComputers.size(); ++f)
+    for (unsigned int f = 0; f < forceComputers.size(); ++f)
         {
         auto frc = forceComputers[f].lock();
         frc->setNThreads(n);
         };
-    for (int u = 0; u < updaters.size(); ++u)
+    for (unsigned int u = 0; u < updaters.size(); ++u)
         {
         auto upd = updaters[u].lock();
         upd->setNThreads(n);
@@ -105,7 +105,7 @@ void Simulation::computeForces()
     auto Conf = configuration.lock();
     if(Conf->selfForceCompute)
         Conf->computeForces(true);
-    for (int f = 0; f < forceComputers.size(); ++f)
+    for (unsigned int f = 0; f < forceComputers.size(); ++f)
         {
         auto frc = forceComputers[f].lock();
         bool zeroForces = (f==0 && !Conf->selfForceCompute);

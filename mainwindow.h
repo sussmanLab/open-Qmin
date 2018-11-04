@@ -70,6 +70,8 @@ private slots:
 
     void on_boxLSize_textEdited(const QString &arg1);
 
+    void on_multithreadingButton_released();
+
 private:
     Ui::MainWindow *ui;
 

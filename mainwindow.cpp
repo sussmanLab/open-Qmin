@@ -42,6 +42,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->addObjectsWidget->hide();
     ui->fileImportWidget->hide();
     ui->fileSaveWidget->hide();
+    ui->multithreadingWidget->hide();
 
     connect(ui->displayZone,SIGNAL(xRotationChanged(int)),ui->xRotSlider,SLOT(setValue(int)));
     connect(ui->displayZone,SIGNAL(zRotationChanged(int)),ui->zRotSlider,SLOT(setValue(int)));
@@ -63,7 +64,7 @@ MainWindow::MainWindow(QWidget *parent) :
         ui->boxXLine->setText("20");
         ui->boxYLine->setText("20");
         ui->boxZLine->setText("20");
-
+        ui->boxLSize->setText("20");
     }
     hideControls();
     QString printable = QStringLiteral("Welcome to landauDeGUI, a graphical interface to a continuum LdG liquid crystal simulation package!");
@@ -307,8 +308,8 @@ void MainWindow::on_minimizeButton_released()
     ui->progressBar->setValue(80);
     scalar time =1.0*(t2-t1)/(1.0*CLOCKS_PER_SEC)/iterationsTaken;
     scalar maxForce = fire->getMaxForce();
-    QString printable = QStringLiteral("simulation energy per site at: %1...this took %2 for %3 steps...<f> = %4 ").arg(E)
-                .arg(time).arg(fire->getCurrentIterations()-initialIterations).arg(maxForce);
+    QString printable = QStringLiteral("simulation energy per site at: %1...this took %2 total time for %3 steps...<f> = %4 ").arg(E)
+                .arg(time*iterationsTaken).arg(iterationsTaken).arg(maxForce);
     ui->testingBox->setText(printable);
     ui->progressBar->setValue(100);
 }
@@ -322,12 +323,14 @@ void MainWindow::on_resetQTensorsButton_released()
     ui->progressBar->setValue(40);
     scalar S0 = (-B+sqrt(B*B-24*A*C))/(6*C);
     ui->progressBar->setValue(60);
+    if(noise.Reproducible)
+        noise.setReproducibleSeed(13377);
     bool globalAlignment = ui->globalAlignmentCheckBox->isChecked();
     Configuration->setNematicQTensorRandomly(noise,S0,globalAlignment);
     ui->progressBar->setValue(70);
     scalar E = sim->computePotentialEnergy();
     ui->progressBar->setValue(80);
-    QString printable = QStringLiteral("simulation energy per site at: %1...").arg(E);
+    QString printable = QStringLiteral("system reset... simulation energy per site at: %1...").arg(E);
     ui->testingBox->setText(printable);
     ui->progressBar->setValue(100);
     if(ui->visualProgressCheckBox->isChecked())
@@ -543,6 +546,8 @@ void MainWindow::on_reprodicbleRNGBox_stateChanged(int arg1)
 {
     bool repro = ui->reprodicbleRNGBox->isChecked();
     noise.Reproducible= repro;
+    if(repro)
+        noise.setReproducibleSeed(13377);
     sim->setReproducible(repro);
 }
 
@@ -612,3 +617,12 @@ void MainWindow::on_boxLSize_textEdited(const QString &arg1)
     ui->boxYLine->setText(arg1);
     ui->boxZLine->setText(arg1);
 };
+
+void MainWindow::on_multithreadingButton_released()
+{
+    ui->multithreadingWidget->hide();
+    int nThreads = ui->multithreadingBox->text().toInt();
+    sim->setNThreads(nThreads);
+    QString printable1 = QStringLiteral("requesting %1 threads").arg(nThreads);
+    ui->testingBox->setText(printable1);
+}

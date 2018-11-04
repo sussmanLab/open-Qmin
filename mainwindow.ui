@@ -2236,6 +2236,48 @@ border: 1px black solid</string>
      </property>
     </widget>
    </widget>
+   <widget class="QWidget" name="multithreadingWidget" native="true">
+    <property name="geometry">
+     <rect>
+      <x>320</x>
+      <y>210</y>
+      <width>211</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background: white; border: 1px solid red</string>
+    </property>
+    <widget class="QLineEdit" name="multithreadingBox">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>20</y>
+       <width>31</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>1</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="multithreadingButton">
+     <property name="geometry">
+      <rect>
+       <x>90</x>
+       <y>10</y>
+       <width>114</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background:grey; border: 1px solid black</string>
+     </property>
+     <property name="text">
+      <string>Request threads</string>
+     </property>
+    </widget>
+   </widget>
    <zorder>fileImportWidget</zorder>
    <zorder>fileSaveWidget</zorder>
    <zorder>fireParametersWidget</zorder>
@@ -2278,6 +2320,7 @@ border: 1px black solid</string>
    <zorder>label_13</zorder>
    <zorder>label_56</zorder>
    <zorder>label_57</zorder>
+   <zorder>multithreadingWidget</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
@@ -2285,7 +2328,7 @@ border: 1px black solid</string>
      <x>0</x>
      <y>0</y>
      <width>1184</width>
-     <height>20</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuSet_constants">
@@ -2308,6 +2351,7 @@ border: 1px black solid</string>
      <string>System setup</string>
     </property>
     <addaction name="actionReset_the_system"/>
+    <addaction name="actionCPU_multi_threading"/>
    </widget>
    <widget class="QMenu" name="menuFile">
     <property name="title">
@@ -2367,6 +2411,11 @@ border: 1px black solid</string>
   <action name="actionexit">
    <property name="text">
     <string>exit</string>
+   </property>
+  </action>
+  <action name="actionCPU_multi_threading">
+   <property name="text">
+    <string>CPU multi-threading</string>
    </property>
   </action>
  </widget>
@@ -2652,6 +2701,22 @@ border: 1px black solid</string>
     <hint type="destinationlabel">
      <x>435</x>
      <y>202</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionCPU_multi_threading</sender>
+   <signal>triggered()</signal>
+   <receiver>multithreadingWidget</receiver>
+   <slot>show()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>425</x>
+     <y>275</y>
     </hint>
    </hints>
   </connection>
