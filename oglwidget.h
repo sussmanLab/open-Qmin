@@ -5,10 +5,10 @@
 #include <QMouseEvent>
 #include <QMainWindow>
 #include <QOpenGLWidget>
-//#include "glu.h"
-//#include "gl.h"
-#include "/home/user/CGAL/CGAL-4.9/include/CGAL/glu.h"
-#include "/home/user/CGAL/CGAL-4.9/include/CGAL/gl.h"
+#include "glu.h"
+#include "gl.h"
+//#include "/home/user/CGAL/CGAL-4.9/include/CGAL/glu.h"
+//#include "/home/user/CGAL/CGAL-4.9/include/CGAL/gl.h"
 #include "std_include.h"
 
 class OGLWidget : public QOpenGLWidget

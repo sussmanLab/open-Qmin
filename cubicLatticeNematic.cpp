@@ -23,24 +23,48 @@
 
 #include <QPropertyAnimation>
 #include "mainwindow.h"
+#include <tclap/CmdLine.h>
 
+using namespace TCLAP;
 int main(int argc, char*argv[])
 {
-    QApplication a(argc, argv);
+    //First, we set up a basic command line parser with some message and version
+    CmdLine cmd("dDimSim applied to a lattice of XY-spins", ' ', "V0.1");
 
-    QSplashScreen *splash = new QSplashScreen;
-    splash->setPixmap(QPixmap("../landauDeGUI/examples/splashWithText.jpeg"));
-    splash->show();
+    //define the various command line strings that can be passed in...
+    //ValueArg<T> variableName("shortflag","longFlag","description",required or not, default value,"value type",CmdLine object to add to
+    ValueArg<int> programSwitchArg("z","programSwitch","an integer controlling program branch",false,0,"int",cmd);
+    SwitchArg nonvisualSwitch("v","nonVisualMode","run without the GUI", cmd, false);
 
-    MainWindow w;
-    QRect screenGeometry = QApplication::desktop()->screenGeometry();
-    int x = (screenGeometry.width()-w.width())/2;
-    int y = (screenGeometry.height()-w.height())/2;
-    w.move(x,y);
-    QTimer::singleShot(1500,splash,SLOT(close()));
-    QTimer::singleShot(1500,&w,SLOT(show()));
 
-    return a.exec();
+    //parse the arguments
+    cmd.parse( argc, argv );
+    //define variables that correspond to the command line parameters
+    int programSwitch = programSwitchArg.getValue();
+    bool nonvisualMode = nonvisualSwitch.getValue();
+
+
+
+    if(!nonvisualMode)
+        {
+        QApplication a(argc, argv);
+        QSplashScreen *splash = new QSplashScreen;
+        splash->setPixmap(QPixmap("../landauDeGUI/examples/splashWithText.jpeg"));
+        splash->show();
+        MainWindow w;
+        QRect screenGeometry = QApplication::desktop()->screenGeometry();
+        int x = (screenGeometry.width()-w.width())/2;
+        int y = (screenGeometry.height()-w.height())/2;
+        w.move(x,y);
+        QTimer::singleShot(1500,splash,SLOT(close()));
+        QTimer::singleShot(1500,&w,SLOT(show()));
+        return a.exec();
+        }
+    else
+        {//headless mode
+        cout << "non-visual mode activated" << endl;
+        return 0;
+        }
     /*
 
     scalar a = -1;

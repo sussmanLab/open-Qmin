@@ -47,7 +47,10 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->displayZone,SIGNAL(zRotationChanged(int)),ui->zRotSlider,SLOT(setValue(int)));
 
     vector<string> deviceNames;
-    getAvailableGPUs(deviceNames);
+    int nDev;
+    cudaGetDeviceCount(&nDev);
+    if(nDev >0)
+        getAvailableGPUs(deviceNames);
     deviceNames.push_back("CPU");
     computationalNames.resize(deviceNames.size());
     for(unsigned int ii = 0; ii < computationalNames.size(); ++ii)
