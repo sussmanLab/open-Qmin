@@ -21,6 +21,8 @@ class cubicLattice : public simpleModel
 
         //!move the degrees of freedom
         virtual void moveParticles(GPUArray<dVec> &displacements,scalar scale = 1.);
+        //!move a different GPU array according to the same rules
+        virtual void moveParticles(GPUArray<dVec> &dofs,GPUArray<dVec> &displacements,scalar scale = 1.);
 
         //!initialize each d.o.f. to be a unit spin on the sphere
         void setSpinsRandomly(noiseSource &noise);

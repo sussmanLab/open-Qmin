@@ -50,6 +50,31 @@ void cubicLattice::initializeNSites()
     fillGPUArrayWithVector(zeroes,velocities);
     };
 
+void cubicLattice::moveParticles(GPUArray<dVec> &dofs,GPUArray<dVec> &displacements,scalar scale)
+    {
+    if(!useGPU)
+        {//cpu branch
+        ArrayHandle<dVec> h_disp(displacements, access_location::host,access_mode::read);
+        ArrayHandle<dVec> h_pos(dofs);
+        #include "ompParallelLoopDirective.h"
+        for(int pp = 0; pp < N; ++pp)
+            {
+            h_pos.data[pp] += scale*h_disp.data[pp];
+            if(normalizeSpins)
+                {
+                scalar nrm = norm(h_pos.data[pp]);
+                h_pos.data[pp] = (1/nrm)*h_pos.data[pp];
+                }
+            }
+        }
+    else
+        {//gpu branch
+        ArrayHandle<dVec> d_disp(displacements,access_location::device,access_mode::read);
+        ArrayHandle<dVec> d_pos(dofs,access_location::device,access_mode::readwrite);
+        gpu_update_spins(d_disp.data,d_pos.data,scale,N,normalizeSpins);
+        };
+    };
+
 void cubicLattice::moveParticles(GPUArray<dVec> &displacements, scalar scale)
     {
     if(!useGPU)
@@ -69,11 +94,10 @@ void cubicLattice::moveParticles(GPUArray<dVec> &displacements, scalar scale)
         }
     else
         {//gpu branch
-        ArrayHandle<dVec> d_disp(displacements,access_location::device,access_mode::readwrite);
+        ArrayHandle<dVec> d_disp(displacements,access_location::device,access_mode::read);
         ArrayHandle<dVec> d_pos(positions,access_location::device,access_mode::readwrite);
         gpu_update_spins(d_disp.data,d_pos.data,scale,N,normalizeSpins);
         };
-
     };
 
 void cubicLattice::setSpinsRandomly(noiseSource &noise)
