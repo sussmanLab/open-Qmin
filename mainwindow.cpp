@@ -113,7 +113,7 @@ void MainWindow::showControls()
     ui->addIterationsButton->show();
     ui->addIterationsBox->show();
     ui->displayZone->show();
-    ui->drawStuffButton->show();    
+    ui->drawStuffButton->show();
     ui->latticeSkipBox->show();
     ui->directorScaleBox->show();
     ui->xRotSlider->show();
@@ -652,6 +652,7 @@ void MainWindow::on_nesterovParamButton_released()
     ui->progressBar->setValue(0);
     scalar dt = ui->nesterovDtBox->text().toDouble();
     scalar mu = ui->nesterovMomentumBox->text().toDouble();
+    nesterov->scheduledMomentum = ui->scheduleMomentumCheckbox->isChecked();
     scalar forceCutoff=ui->nesterovForceCutoffBox->text().toDouble();
     maximumIterations = ui->nesterovMaxIterationsBox->text().toInt();
     nesterov->setCurrentIterations(0);
@@ -662,4 +663,10 @@ void MainWindow::on_nesterovParamButton_released()
                                     .arg(maximumIterations).arg(nesterov->getMaxIterations());
     ui->testingBox->setText(printable);
     ui->progressBar->setValue(100);
+}
+
+void MainWindow::on_scheduleMomentumCheckbox_released()
+{
+    bool checkBoxChecked = ui->scheduleMomentumCheckbox->isChecked();
+    ui->nesterovMomentumBox->setEnabled(!checkBoxChecked);
 }

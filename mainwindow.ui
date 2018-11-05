@@ -2387,7 +2387,7 @@ border: 1px solid purple</string>
       </rect>
      </property>
      <property name="text">
-      <string>0.01</string>
+      <string>0.005</string>
      </property>
     </widget>
     <widget class="QLabel" name="label_63">
@@ -2467,34 +2467,6 @@ border: 1px solid purple</string>
       <string>0.000000000001</string>
      </property>
     </widget>
-    <widget class="QLabel" name="label_66">
-     <property name="geometry">
-      <rect>
-       <x>140</x>
-       <y>40</y>
-       <width>181</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <weight>50</weight>
-       <bold>false</bold>
-      </font>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">border: white</string>
-     </property>
-     <property name="text">
-      <string>(typically fussier than FIRE, but very straightforward)</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-     <property name="wordWrap">
-      <bool>true</bool>
-     </property>
-    </widget>
     <widget class="QLabel" name="label_67">
      <property name="geometry">
       <rect>
@@ -2511,12 +2483,24 @@ border: 1px solid purple</string>
       <string>(0--&gt;gradient descent)</string>
      </property>
     </widget>
+    <widget class="QCheckBox" name="scheduleMomentumCheckbox">
+     <property name="geometry">
+      <rect>
+       <x>170</x>
+       <y>40</y>
+       <width>181</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Scheduled momentum</string>
+     </property>
+    </widget>
    </widget>
    <zorder>addObjectsWidget</zorder>
    <zorder>initializationFrame</zorder>
    <zorder>fileSaveWidget</zorder>
    <zorder>fireParametersWidget</zorder>
-   <zorder>nesterovWidget</zorder>
    <zorder>setPhaseConstants</zorder>
    <zorder>setDistortionConstants3</zorder>
    <zorder>setDistortionConstants2</zorder>
@@ -2557,6 +2541,7 @@ border: 1px solid purple</string>
    <zorder>label_57</zorder>
    <zorder>nesterovMinimizationButton</zorder>
    <zorder>setDistortionConstants1</zorder>
+   <zorder>nesterovWidget</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
@@ -2564,7 +2549,7 @@ border: 1px solid purple</string>
      <x>0</x>
      <y>0</y>
      <width>1184</width>
-     <height>20</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuSet_constants">

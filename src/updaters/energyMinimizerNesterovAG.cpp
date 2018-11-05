@@ -24,6 +24,8 @@ void energyMinimizerNesterovAG::initializeParameters()
     setNesterovAGParameters();
     setMaximumIterations(1000);
     setGPU(false);
+    lambda  = 1.;
+    scheduledMomentum = false;
     };
 
 void energyMinimizerNesterovAG::initializeFromModel()
@@ -78,7 +80,7 @@ void energyMinimizerNesterovAG::nesterovStepCPU()
         forceNorm += dot(negativeGrad.data[nn],negativeGrad.data[nn]);
         oldAltPos = altPos.data[nn];
         altPos.data[nn] = positions.data[nn] + deltaT*negativeGrad.data[nn];
-        positions.data[nn] = altPos.data[nn] + mu*(altPos.data[nn]-oldAltPos);
+        positions.data[nn] = altPos.data[nn] +mu*(altPos.data[nn] - oldAltPos);
         }
     forceMax = sqrt(forceNorm)/Ndof;
     };
@@ -90,6 +92,14 @@ void energyMinimizerNesterovAG::minimize()
     forceMax = 110.0;
     while( (iterations < maxIterations) && (forceMax > forceCutoff) )
         {
+        scalar oldLambda = lambda;
+        lambda = 0.5*(1.0+sqrt(1.0+4.0*oldLambda*oldLambda));
+        gamma = (1 - oldLambda)/lambda;
+        if(scheduledMomentum)
+            {
+            mu = 1.+gamma;
+            //printf("momentum at %f\n",mu);
+            };
         iterations +=1;
         if(useGPU)
             nesterovStepGPU();

@@ -75,6 +75,8 @@ private slots:
 
     void on_nesterovParamButton_released();
 
+    void on_scheduleMomentumCheckbox_released();
+
 private:
     Ui::MainWindow *ui;
 

@@ -33,6 +33,7 @@ class energyMinimizerNesterovAG : public equationOfMotion
         //!Set the force cutoff
         void setForceCutoff(scalar fc){forceCutoff = fc;};
 
+        bool scheduledMomentum;
     protected:
         void nesterovStepCPU();
         void nesterovStepGPU();
@@ -40,6 +41,10 @@ class energyMinimizerNesterovAG : public equationOfMotion
         scalar forceMax;
         //!The cutoff value of the maximum force
         scalar forceCutoff;
+
+        scalar lambda;
+        scalar gamma;
+
 
         GPUArray<dVec> alternateSequence;
         //!Utility array for simple reductions
