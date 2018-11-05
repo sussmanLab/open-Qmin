@@ -199,9 +199,6 @@ void MainWindow::simulationInitialize()
      landauLCForce->setPhaseConstants(A,B,C);
      landauLCForce->setModel(Configuration);
      sim->addForce(landauLCForce);
-     fire = make_shared<energyMinimizerFIRE>(Configuration);
-     nesterov = make_shared<energyMinimizerNesterovAG>(Configuration);
-     sim->addUpdater(fire,Configuration);
      on_fireParamButton_released();
      ui->reproducibleButton->setEnabled(true);
 }
@@ -261,7 +258,9 @@ void MainWindow::on_setThreeConstants_released()
 void MainWindow::on_fireParamButton_released()
 {
     sim->clearUpdaters();
+    fire = make_shared<energyMinimizerFIRE>(Configuration);
     sim->addUpdater(fire,Configuration);
+    sim->setCPUOperation(!GPU);
     ui->fireParametersWidget->hide();
     ui->progressBar->setValue(0);
     scalar dt = ui->dtBox->text().toDouble();
@@ -298,7 +297,7 @@ void MainWindow::on_minimizeButton_released()
         sim->performTimestep();
     else
     {
-        int stepsToTake = fire->getMaxIterations();
+        int stepsToTake = upd->getMaxIterations();
         for (int ii = 1; ii <= 10; ++ii)
         {
             upd->setMaximumIterations(upd->getCurrentIterations()+stepsToTake/10);
@@ -350,8 +349,9 @@ void MainWindow::on_resetQTensorsButton_released()
 void MainWindow::on_addIterationsButton_released()
 {
     int additionalIterations = ui->addIterationsBox->text().toInt();
-    maximumIterations += additionalIterations;
+    maximumIterations = additionalIterations;
     auto upd = sim->updaters[0].lock();
+    upd->setCurrentIterations(0);
     upd->setMaximumIterations(maximumIterations);
     on_minimizeButton_released();
 }
@@ -646,7 +646,9 @@ void MainWindow::on_nesterovParamButton_released()
 {
     ui->nesterovWidget->hide();
     sim->clearUpdaters();
+    nesterov = make_shared<energyMinimizerNesterovAG>(Configuration);
     sim->addUpdater(nesterov,Configuration);
+    sim->setCPUOperation(!GPU);
     ui->progressBar->setValue(0);
     scalar dt = ui->nesterovDtBox->text().toDouble();
     scalar mu = ui->nesterovMomentumBox->text().toDouble();
@@ -656,7 +658,8 @@ void MainWindow::on_nesterovParamButton_released()
     nesterov->setNesterovAGParameters(dt,mu,forceCutoff);
     nesterov->setMaximumIterations(maximumIterations);
 
-    QString printable = QStringLiteral("nesterov minimization parameters set, force cutoff of %1 dt of %2 and momentum %3 chosen").arg(forceCutoff).arg(dt).arg(mu);
+    QString printable = QStringLiteral("nesterov minimization parameters set, force cutoff of %1 dt of %2 and momentum %3 chosen for %4 steps %5").arg(forceCutoff).arg(dt).arg(mu)
+                                    .arg(maximumIterations).arg(nesterov->getMaxIterations());
     ui->testingBox->setText(printable);
     ui->progressBar->setValue(100);
 }
