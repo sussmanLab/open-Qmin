@@ -33,11 +33,6 @@ class energyMinimizerFIRE : public velocityVerlet
         //!Set a lot of parameters!
         void setFIREParameters(scalar deltaT, scalar alphaStart, scalar deltaTMax, scalar deltaTInc, scalar deltaTDec, scalar alphaDec, int nMin, scalar forceCutoff, scalar _alphaMin = 0.75);
 
-        //!Set the maximum number of iterations before terminating (or set to -1 to ignore)
-        void setMaximumIterations(int maxIt){maxIterations = maxIt;};
-        int getCurrentIterations(){return iterations;};
-        int getMaxIterations(){return maxIterations;};
-        void setCurrentIterations(int newIterations){iterations=newIterations;};
         //!Set the force cutoff
         void setForceCutoff(scalar fc){forceCutoff = fc;};
         //!set the initial value of deltaT
@@ -68,13 +63,9 @@ class energyMinimizerFIRE : public velocityVerlet
         virtual void performUpdate(){minimize();};
 
         //!Return the maximum force
-        scalar getMaxForce(){return forceMax;};
+        virtual scalar getMaxForce(){return forceMax;};
 
     protected:
-        //!The number of iterations performed
-        int iterations;
-        //!The maximum number of iterations allowed
-        int maxIterations;
         //!The cutoff value of the maximum force
         scalar forceMax;
         //!The cutoff value of the maximum force

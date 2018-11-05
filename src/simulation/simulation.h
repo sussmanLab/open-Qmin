@@ -50,6 +50,13 @@ class Simulation : public basicSimulation, public enable_shared_from_this<Simula
         //!Clear out the vector of updaters
         void clearUpdaters(){updaters.clear();};
 
+        //!A utility function that just checks the first updater for a max force
+        scalar getMaxForce()
+            {
+            auto upd = updaters[0].lock();
+            return upd->getMaxForce();
+            };
+
         //!compute the potential energy associated with all of the forces
         virtual scalar computePotentialEnergy();
         //!compute the kinetic energy

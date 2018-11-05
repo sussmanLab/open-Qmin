@@ -4,15 +4,33 @@
 
 /*! \file energyMinimizerNesterovAG.cpp */
 
-void energyMinimizerNesterovAG::initializeFromModel()
+energyMinimizerNesterovAG::energyMinimizerNesterovAG(shared_ptr<simpleModel> system)
     {
-    iterations = 0;
-    Ndof = model->getNumberOfParticles();
-    alternateSequence = model->returnPositions();
+    setModel(system);
+    initializeParameters();
+    initializeFromModel();
+    };
+
+/*!
+Initialize the minimizer with some default parameters. that do not depend on Ndof
+*/
+void energyMinimizerNesterovAG::initializeParameters()
+    {
     dotProductTuner = make_shared<kernelTuner>(64,512,32,5,200000);
     minimizationTuner= make_shared<kernelTuner>(64,512,32,5,200000);
     sumReductions.resize(3);
+    iterations = 0;
+    forceMax = 100.;
+    setNesterovAGParameters();
+    setMaximumIterations(1000);
+    setGPU(false);
+    };
+
+void energyMinimizerNesterovAG::initializeFromModel()
+    {
+    Ndof = model->getNumberOfParticles();
     sumReductionIntermediate.resize(Ndof);
+    alternateSequence = model->returnPositions();
     };
 
 void energyMinimizerNesterovAG::nesterovStepGPU()
@@ -70,7 +88,6 @@ void energyMinimizerNesterovAG::minimize()
     if (Ndof != model->getNumberOfParticles())
         initializeFromModel();
     forceMax = 110.0;
-    cout << "attempting minimization " <<iterations <<" out of " << maxIterations << " maximum attempts" << endl;
     while( (iterations < maxIterations) && (forceMax > forceCutoff) )
         {
         iterations +=1;

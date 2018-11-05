@@ -70,6 +70,14 @@ class updater
 
         //!allow for setting multiple threads
         virtual void setNThreads(int n){nThreads = n;};
+
+        virtual scalar getMaxForce(){return 0.0;};
+
+        //!Set the maximum number of iterations before terminating (or set to -1 to ignore)
+        void setMaximumIterations(int maxIt){maxIterations = maxIt;};
+        int getCurrentIterations(){return iterations;};
+        int getMaxIterations(){return maxIterations;};
+        void setCurrentIterations(int newIterations){iterations=newIterations;};
     protected:
         //!number of threads to use
         int nThreads=1;
@@ -85,6 +93,10 @@ class updater
         bool reproducible;
         //!The internal time step size
         scalar deltaT;
+        //!The number of iterations performed
+        int iterations;
+        //!The maximum number of iterations allowed
+        int maxIterations;
     };
 
 typedef shared_ptr<updater> UpdaterPtr;

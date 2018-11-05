@@ -8,6 +8,13 @@
 class energyMinimizerNesterovAG : public equationOfMotion
     {
     public:
+        //!The basic constructor
+        energyMinimizerNesterovAG(){initializeParameters();};
+        //!The basic constructor that feeds in a target system to minimize
+        energyMinimizerNesterovAG(shared_ptr<simpleModel> system);
+
+        //!Sets a bunch of default parameters that do not depend on the number of degrees of freedom
+        virtual void initializeParameters();
         virtual void initializeFromModel();
 
         //!Minimize to either the force tolerance or the maximum number of iterations
@@ -23,8 +30,6 @@ class energyMinimizerNesterovAG : public equationOfMotion
 
         //!Return the maximum force
         scalar getMaxForce(){return forceMax;};
-        //!Set the maximum number of iterations before terminating (or set to -1 to ignore)
-        void setMaximumIterations(int maxIt){maxIterations = maxIt;};
         //!Set the force cutoff
         void setForceCutoff(scalar fc){forceCutoff = fc;};
 
@@ -33,10 +38,6 @@ class energyMinimizerNesterovAG : public equationOfMotion
         void nesterovStepGPU();
         scalar mu;
         scalar forceMax;
-        //!The number of iterations performed
-        int iterations;
-        //!The maximum number of iterations allowed
-        int maxIterations;
         //!The cutoff value of the maximum force
         scalar forceCutoff;
 

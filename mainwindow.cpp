@@ -44,6 +44,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->fileImportWidget->hide();
     ui->fileSaveWidget->hide();
     ui->multithreadingWidget->hide();
+    ui->nesterovWidget->hide();
 
     connect(ui->displayZone,SIGNAL(xRotationChanged(int)),ui->xRotSlider,SLOT(setValue(int)));
     connect(ui->displayZone,SIGNAL(zRotationChanged(int)),ui->zRotSlider,SLOT(setValue(int)));
@@ -97,6 +98,7 @@ void MainWindow::hideControls()
     ui->globalAlignmentCheckBox->hide();
     ui->builtinBoundaryVisualizationBox->hide();
     ui->boundaryFromFileButton->hide();
+    ui->nesterovMinimizationButton->hide();
 }
 void MainWindow::showControls()
 {
@@ -124,6 +126,7 @@ void MainWindow::showControls()
     ui->globalAlignmentCheckBox->show();
     ui->builtinBoundaryVisualizationBox->show();
     ui->boundaryFromFileButton->show();
+    ui->nesterovMinimizationButton->show();
 }
 
 void MainWindow::on_initializeButton_released()
@@ -197,6 +200,7 @@ void MainWindow::simulationInitialize()
      landauLCForce->setModel(Configuration);
      sim->addForce(landauLCForce);
      fire = make_shared<energyMinimizerFIRE>(Configuration);
+     nesterov = make_shared<energyMinimizerNesterovAG>(Configuration);
      sim->addUpdater(fire,Configuration);
      on_fireParamButton_released();
      ui->reproducibleButton->setEnabled(true);
@@ -256,6 +260,8 @@ void MainWindow::on_setThreeConstants_released()
 
 void MainWindow::on_fireParamButton_released()
 {
+    sim->clearUpdaters();
+    sim->addUpdater(fire,Configuration);
     ui->fireParametersWidget->hide();
     ui->progressBar->setValue(0);
     scalar dt = ui->dtBox->text().toDouble();
@@ -281,12 +287,13 @@ void MainWindow::on_fireParamButton_released()
 void MainWindow::on_minimizeButton_released()
 {
     bool graphicalProgress = ui->visualProgressCheckBox->isChecked();
+    auto upd = sim->updaters[0].lock();
 
     ui->progressBar->setValue(0);
     QString printable1 = QStringLiteral("minimizing");
     ui->testingBox->setText(printable1);
     auto t1 = chrono::system_clock::now();
-    int initialIterations = fire->getCurrentIterations();
+    int initialIterations = upd->getCurrentIterations();
     if(!graphicalProgress)
         sim->performTimestep();
     else
@@ -294,7 +301,7 @@ void MainWindow::on_minimizeButton_released()
         int stepsToTake = fire->getMaxIterations();
         for (int ii = 1; ii <= 10; ++ii)
         {
-            fire->setMaximumIterations(fire->getCurrentIterations()+stepsToTake/10);
+            upd->setMaximumIterations(upd->getCurrentIterations()+stepsToTake/10);
             QString printable2 = QStringLiteral("minimizing");
             ui->testingBox->setText(printable2);
             sim->performTimestep();
@@ -302,7 +309,7 @@ void MainWindow::on_minimizeButton_released()
             ui->progressBar->setValue(10*ii);
         };
     };
-    int iterationsTaken = fire->getCurrentIterations() - initialIterations;
+    int iterationsTaken = upd->getCurrentIterations() - initialIterations;
     ui->progressBar->setValue(50);
     auto t2 = chrono::system_clock::now();
     chrono::duration<scalar> diff = t2-t1;
@@ -310,7 +317,7 @@ void MainWindow::on_minimizeButton_released()
 
     scalar E = sim->computePotentialEnergy();
     ui->progressBar->setValue(80);
-    scalar maxForce = fire->getMaxForce();
+    scalar maxForce = sim->getMaxForce();
     QString printable = QStringLiteral("simulation energy per site at: %1...this took %2 total time for %3 steps...<f> = %4 ").arg(E)
                 .arg(diff.count()).arg(iterationsTaken).arg(maxForce);
     ui->testingBox->setText(printable);
@@ -344,7 +351,8 @@ void MainWindow::on_addIterationsButton_released()
 {
     int additionalIterations = ui->addIterationsBox->text().toInt();
     maximumIterations += additionalIterations;
-    fire->setMaximumIterations(maximumIterations);
+    auto upd = sim->updaters[0].lock();
+    upd->setMaximumIterations(maximumIterations);
     on_minimizeButton_released();
 }
 
@@ -632,4 +640,23 @@ void MainWindow::on_multithreadingButton_released()
     else
         printable1 = QStringLiteral("requesting %1 threads").arg(nThreads);
     ui->testingBox->setText(printable1);
+}
+
+void MainWindow::on_nesterovParamButton_released()
+{
+    ui->nesterovWidget->hide();
+    sim->clearUpdaters();
+    sim->addUpdater(nesterov,Configuration);
+    ui->progressBar->setValue(0);
+    scalar dt = ui->nesterovDtBox->text().toDouble();
+    scalar mu = ui->nesterovMomentumBox->text().toDouble();
+    scalar forceCutoff=ui->nesterovForceCutoffBox->text().toDouble();
+    maximumIterations = ui->nesterovMaxIterationsBox->text().toInt();
+    nesterov->setCurrentIterations(0);
+    nesterov->setNesterovAGParameters(dt,mu,forceCutoff);
+    nesterov->setMaximumIterations(maximumIterations);
+
+    QString printable = QStringLiteral("nesterov minimization parameters set, force cutoff of %1 dt of %2 and momentum %3 chosen").arg(forceCutoff).arg(dt).arg(mu);
+    ui->testingBox->setText(printable);
+    ui->progressBar->setValue(100);
 }

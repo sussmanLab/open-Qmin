@@ -26,8 +26,6 @@ class energyMinimizerAdam : public equationOfMotion
 
         //!Return the maximum force
         scalar getMaxForce(){return forceMax;};
-        //!Set the maximum number of iterations before terminating (or set to -1 to ignore)
-        void setMaximumIterations(int maxIt){maxIterations = maxIt;};
         //!Set the force cutoff
         void setForceCutoff(scalar fc){forceCutoff = fc;};
 
@@ -40,10 +38,6 @@ class energyMinimizerAdam : public equationOfMotion
         scalar beta2t;
         scalar epsilon;
         scalar forceMax;
-        //!The number of iterations performed
-        int iterations;
-        //!The maximum number of iterations allowed
-        int maxIterations;
         //!The cutoff value of the maximum force
         scalar forceCutoff;
         scalar alpha;

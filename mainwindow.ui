@@ -1023,7 +1023,7 @@ border: 1px solid black
      </rect>
     </property>
     <property name="text">
-     <string>Set minimization parameters</string>
+     <string>FIRE up an energy minimization</string>
     </property>
    </widget>
    <widget class="QPushButton" name="addObjectButton">
@@ -2278,15 +2278,203 @@ border: 1px black solid</string>
      </property>
     </widget>
    </widget>
-   <zorder>fileImportWidget</zorder>
-   <zorder>fileSaveWidget</zorder>
-   <zorder>fireParametersWidget</zorder>
+   <widget class="QPushButton" name="nesterovMinimizationButton">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>80</y>
+      <width>191</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>I've got a NAGging feeling...</string>
+    </property>
+   </widget>
+   <widget class="QWidget" name="nesterovWidget" native="true">
+    <property name="geometry">
+     <rect>
+      <x>200</x>
+      <y>260</y>
+      <width>431</width>
+      <height>181</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background: white; 
+border: 1px solid purple</string>
+    </property>
+    <widget class="QLabel" name="label_61">
+     <property name="geometry">
+      <rect>
+       <x>80</x>
+       <y>110</y>
+       <width>131</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>maximum iterations</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="nesterovMaxIterationsBox">
+     <property name="geometry">
+      <rect>
+       <x>219</x>
+       <y>110</y>
+       <width>116</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>1000</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="nesterovParamButton">
+     <property name="geometry">
+      <rect>
+       <x>160</x>
+       <y>140</y>
+       <width>114</width>
+       <height>32</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background: light gray</string>
+     </property>
+     <property name="text">
+      <string>Set parameters</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_62">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>10</y>
+       <width>401</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>Select Nesterov Accelerated Gradient minimization parameters</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="nesterovDtBox">
+     <property name="geometry">
+      <rect>
+       <x>60</x>
+       <y>50</y>
+       <width>121</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>0.001</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_63">
+     <property name="geometry">
+      <rect>
+       <x>22</x>
+       <y>50</y>
+       <width>21</width>
+       <height>19</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>dt</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="nesterovMomentumBox">
+     <property name="geometry">
+      <rect>
+       <x>289</x>
+       <y>50</y>
+       <width>122</width>
+       <height>19</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>0.1</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_64">
+     <property name="geometry">
+      <rect>
+       <x>216</x>
+       <y>50</y>
+       <width>68</width>
+       <height>19</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>mu</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_65">
+     <property name="geometry">
+      <rect>
+       <x>217</x>
+       <y>80</y>
+       <width>68</width>
+       <height>19</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>forceCutoff</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="nesterovForceCutoffBox">
+     <property name="geometry">
+      <rect>
+       <x>290</x>
+       <y>80</y>
+       <width>122</width>
+       <height>19</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>0.000000000001</string>
+     </property>
+    </widget>
+   </widget>
    <zorder>setDistortionConstants1</zorder>
    <zorder>setPhaseConstants</zorder>
    <zorder>setDistortionConstants3</zorder>
    <zorder>setDistortionConstants2</zorder>
+   <zorder>multithreadingWidget</zorder>
    <zorder>addObjectsWidget</zorder>
    <zorder>initializationFrame</zorder>
+   <zorder>fileImportWidget</zorder>
+   <zorder>fileSaveWidget</zorder>
+   <zorder>fireParametersWidget</zorder>
    <zorder>layoutWidget</zorder>
    <zorder>testingBox</zorder>
    <zorder>minimizationParametersButton</zorder>
@@ -2320,7 +2508,8 @@ border: 1px black solid</string>
    <zorder>label_13</zorder>
    <zorder>label_56</zorder>
    <zorder>label_57</zorder>
-   <zorder>multithreadingWidget</zorder>
+   <zorder>nesterovMinimizationButton</zorder>
+   <zorder>nesterovWidget</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
@@ -2328,7 +2517,7 @@ border: 1px black solid</string>
      <x>0</x>
      <y>0</y>
      <width>1184</width>
-     <height>22</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuSet_constants">
@@ -2717,6 +2906,22 @@ border: 1px black solid</string>
     <hint type="destinationlabel">
      <x>425</x>
      <y>275</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>nesterovMinimizationButton</sender>
+   <signal>released()</signal>
+   <receiver>nesterovWidget</receiver>
+   <slot>show()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>105</x>
+     <y>127</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>415</x>
+     <y>457</y>
     </hint>
    </hints>
   </connection>

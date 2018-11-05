@@ -8,6 +8,7 @@
 #include "qTensorLatticeModel.h"
 #include "landauDeGennesLC.h"
 #include "energyMinimizerFIRE.h"
+#include "energyMinimizerNesterovAG.h"
 #include "energyMinimizerAdam.h"
 #include "noiseSource.h"
 #include "indexer.h"
@@ -72,6 +73,8 @@ private slots:
 
     void on_multithreadingButton_released();
 
+    void on_nesterovParamButton_released();
+
 private:
     Ui::MainWindow *ui;
 
@@ -100,6 +103,7 @@ public:
     shared_ptr<Simulation> sim;
     shared_ptr<landauDeGennesLC> landauLCForce;
     shared_ptr<energyMinimizerFIRE> fire;
+    shared_ptr<energyMinimizerNesterovAG> nesterov;
 
     vector<QString> computationalNames;
 };
