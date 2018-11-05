@@ -6,7 +6,7 @@
 *_store
 *.dsym
 *.sh
-./CMakeLists.txt.user
+CMakeLists.txt.user
 CMakeCache*
 CMakeFiles/*
 Makefile

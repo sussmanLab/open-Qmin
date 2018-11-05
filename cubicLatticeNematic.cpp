@@ -29,21 +29,76 @@ using namespace TCLAP;
 int main(int argc, char*argv[])
 {
     //First, we set up a basic command line parser with some message and version
-    CmdLine cmd("dDimSim applied to a lattice of XY-spins", ' ', "V0.1");
+    CmdLine cmd("dDimSim applied to a lattice of XY-spins", ' ', "V0.5");
 
     //define the various command line strings that can be passed in...
     //ValueArg<T> variableName("shortflag","longFlag","description",required or not, default value,"value type",CmdLine object to add to
-    ValueArg<int> programSwitchArg("z","programSwitch","an integer controlling program branch",false,0,"int",cmd);
+    //ValueArg<int> programSwitchArg("z","programSwitch","an integer controlling program branch",false,0,"int",cmd);
     SwitchArg nonvisualSwitch("v","nonVisualMode","run without the GUI", cmd, false);
+    SwitchArg reproducibleSwitch("r","reproducible","reproducible random number generation", cmd, true);
 
+    ValueArg<scalar> aSwitchArg("a","phaseConstantA","value of phase constant A",false,0.172,"scalar",cmd);
+    ValueArg<scalar> bSwitchArg("b","phaseConstantB","value of phase constant B",false,2.12,"scalar",cmd);
+    ValueArg<scalar> cSwitchArg("c","phaseConstantC","value of phase constant C",false,1.73,"scalar",cmd);
+
+    ValueArg<scalar> dtSwitchArg("e","deltaT","step size for minimizer",false,0.0005,"scalar",cmd);
+
+    ValueArg<int> gpuSwitchArg("g","GPU","which gpu to use",false,0,"int",cmd);
+    ValueArg<int> iterationsSwitchArg("i","iterations","number of minimization steps",false,100,"int",cmd);
+    ValueArg<int> kSwitchArg("k","nConstants","approximation for distortion term",false,1,"int",cmd);
+
+    ValueArg<scalar> l1SwitchArg("","L1","value of L1 term",false,2.32,"scalar",cmd);
+    ValueArg<scalar> l2SwitchArg("","L2","value of L2 term",false,2.32,"scalar",cmd);
+    ValueArg<scalar> l3SwitchArg("","L3","value of L3 term",false,2.32,"scalar",cmd);
+
+    ValueArg<int> lSwitchArg("l","boxL","number of lattice sites for cubic box",false,50,"int",cmd);
+    ValueArg<int> lxSwitchArg("","Lx","number of lattice sites in x direction",false,50,"int",cmd);
+    ValueArg<int> lySwitchArg("","Ly","number of lattice sites in y direction",false,50,"int",cmd);
+    ValueArg<int> lzSwitchArg("","Lz","number of lattice sites in z direction",false,50,"int",cmd);
+
+    ValueArg<scalar> q0SwitchArg("q","q0","value of desired q0",false,.05,"scalar",cmd);
+
+    ValueArg<int> threadsSwitchArg("t","threads","number of threads to request",false,1,"int",cmd);
 
     //parse the arguments
     cmd.parse( argc, argv );
     //define variables that correspond to the command line parameters
-    int programSwitch = programSwitchArg.getValue();
     bool nonvisualMode = nonvisualSwitch.getValue();
+    bool reproducible = reproducibleSwitch.getValue();
+    int gpu = gpuSwitchArg.getValue();
+    int nDev;
+    cudaGetDeviceCount(&nDev);
+    if(nDev == 0)
+        gpu = -1;
+    bool GPU = false;
+    if(gpu >= 0)
+        GPU = chooseGPU(gpu);
 
+    scalar phaseA = aSwitchArg.getValue();
+    scalar phaseB = bSwitchArg.getValue();
+    scalar phaseC = cSwitchArg.getValue();
 
+    int boxL = lSwitchArg.getValue();
+    int boxLx = lxSwitchArg.getValue();
+    int boxLy = lySwitchArg.getValue();
+    int boxLz = lzSwitchArg.getValue();
+    if(boxL != 50)
+        {
+        boxLx = boxL;
+        boxLy = boxL;
+        boxLz = boxL;
+        }
+
+    int nConstants = kSwitchArg.getValue();
+    scalar L1 = l1SwitchArg.getValue();
+    scalar L2 = l2SwitchArg.getValue();
+    scalar L3 = l3SwitchArg.getValue();
+    scalar q0 = q0SwitchArg.getValue();
+
+    int nThreads = threadsSwitchArg.getValue();
+
+    scalar dt = dtSwitchArg.getValue();
+    int maximumIterations = iterationsSwitchArg.getValue();
 
     if(!nonvisualMode)
         {
@@ -56,13 +111,65 @@ int main(int argc, char*argv[])
         int x = (screenGeometry.width()-w.width())/2;
         int y = (screenGeometry.height()-w.height())/2;
         w.move(x,y);
-        QTimer::singleShot(1500,splash,SLOT(close()));
-        QTimer::singleShot(1500,&w,SLOT(show()));
+        QTimer::singleShot(750,splash,SLOT(close()));
+        QTimer::singleShot(750,&w,SLOT(show()));
         return a.exec();
         }
     else
         {//headless mode
         cout << "non-visual mode activated" << endl;
+        scalar a = -1;
+        scalar b = -phaseB/phaseA;
+        scalar c = phaseC/phaseA;
+        noiseSource noise(reproducible);
+        printf("setting a rectilinear lattice of size (%i,%i,%i)\n",boxLx,boxLy,boxLz);
+        shared_ptr<qTensorLatticeModel> Configuration = make_shared<qTensorLatticeModel>(boxLx,boxLy,boxLz);
+        shared_ptr<Simulation> sim = make_shared<Simulation>();
+        shared_ptr<landauDeGennesLC> landauLCForce = make_shared<landauDeGennesLC>();
+        sim->setConfiguration(Configuration);
+
+        landauLCForce->setPhaseConstants(a,b,c);
+        if(nConstants ==1)
+            {
+            landauLCForce->setElasticConstants(L1,0,0);
+            landauLCForce->setNumberOfConstants(distortionEnergyType::oneConstant);
+            }
+        if(nConstants ==2)
+            {
+            landauLCForce->setElasticConstants(L1,L2,q0);
+            landauLCForce->setNumberOfConstants(distortionEnergyType::twoConstant);
+            }
+        if(nConstants ==3)
+            {
+            landauLCForce->setElasticConstants(L1,L2,L3);
+            landauLCForce->setNumberOfConstants(distortionEnergyType::threeConstant);
+            }
+        landauLCForce->setModel(Configuration);
+        sim->addForce(landauLCForce);
+
+        shared_ptr<energyMinimizerFIRE> fire =  make_shared<energyMinimizerFIRE>(Configuration);
+        sim->addUpdater(fire,Configuration);
+        scalar alphaStart=.99; scalar deltaTMax=100*dt; scalar deltaTInc=1.1; scalar deltaTDec=0.95;
+        scalar alphaDec=0.9; int nMin=4; scalar forceCutoff=1e-12; scalar alphaMin = 0.7;
+        fire->setFIREParameters(dt,alphaStart,deltaTMax,deltaTInc,deltaTDec,alphaDec,nMin,forceCutoff,alphaMin);
+        fire->setMaximumIterations(maximumIterations);
+
+        sim->setCPUOperation(!GPU);
+        sim->setNThreads(nThreads);
+        scalar S0 = (-b+sqrt(b*b-24*a*c))/(6*c);
+        printf("setting random configuration with S0 = %f\n",S0);
+        Configuration->setNematicQTensorRandomly(noise,S0);
+
+
+        auto t1 = chrono::system_clock::now();
+        sim->performTimestep();
+        auto t2 = chrono::system_clock::now();
+        chrono::duration<scalar> diff = t2-t1;
+
+        scalar E = sim->computePotentialEnergy();
+        scalar maxForce = fire->getMaxForce();
+        printf("minimized to %f\t E=%f\t time taken = %fs\n",maxForce,E,diff.count());
+
         return 0;
         }
     /*

@@ -19,6 +19,7 @@
 #include <Qt3DExtras/QTorusMesh>
 
 #include <QPropertyAnimation>
+#include <chrono>
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
@@ -151,10 +152,12 @@ void MainWindow::on_initializeButton_released()
         GPU = chooseGPU(compDevice);
         }
 
+    simulationInitialize();
+
     A=ui->initialPhaseA->text().toDouble();
     B=ui->initialPhaseB->text().toDouble();
     C=ui->initialPhaseC->text().toDouble();
-    simulationInitialize();
+
     sim->setCPUOperation(!GPU);
     ui->progressBar->setValue(50);
     scalar S0 = (-B+sqrt(B*B-24*A*C))/(6*C);
@@ -282,7 +285,7 @@ void MainWindow::on_minimizeButton_released()
     ui->progressBar->setValue(0);
     QString printable1 = QStringLiteral("minimizing");
     ui->testingBox->setText(printable1);
-    clock_t t1 = clock();
+    auto t1 = chrono::system_clock::now();
     int initialIterations = fire->getCurrentIterations();
     if(!graphicalProgress)
         sim->performTimestep();
@@ -301,15 +304,15 @@ void MainWindow::on_minimizeButton_released()
     };
     int iterationsTaken = fire->getCurrentIterations() - initialIterations;
     ui->progressBar->setValue(50);
-    clock_t t2 = clock();
+    auto t2 = chrono::system_clock::now();
+    chrono::duration<scalar> diff = t2-t1;
     ui->progressBar->setValue(75);
 
     scalar E = sim->computePotentialEnergy();
     ui->progressBar->setValue(80);
-    scalar time =1.0*(t2-t1)/(1.0*CLOCKS_PER_SEC)/iterationsTaken;
     scalar maxForce = fire->getMaxForce();
     QString printable = QStringLiteral("simulation energy per site at: %1...this took %2 total time for %3 steps...<f> = %4 ").arg(E)
-                .arg(time*iterationsTaken).arg(iterationsTaken).arg(maxForce);
+                .arg(diff.count()).arg(iterationsTaken).arg(maxForce);
     ui->testingBox->setText(printable);
     ui->progressBar->setValue(100);
 }
@@ -347,8 +350,8 @@ void MainWindow::on_addIterationsButton_released()
 
 void MainWindow::on_drawStuffButton_released()
 {
-    ArrayHandle<dVec> Q(Configuration->returnPositions());
-    ArrayHandle<int> types(Configuration->returnTypes());
+    ArrayHandle<dVec> Q(Configuration->returnPositions(),access_location::host,access_mode::read);
+    ArrayHandle<int> types(Configuration->returnTypes(),access_location::host,access_mode::read);
     vector<scalar> eVals(3);
     vector<scalar> eVec1(3);
     vector<scalar> eVec2(3);
@@ -398,7 +401,7 @@ void MainWindow::on_drawStuffButton_released()
         QString printable2 = QStringLiteral("finding defects ");
         ui->testingBox->setText(printable2);
         Configuration->computeDefectMeasures(0);
-        ArrayHandle<scalar> defectStrength(Configuration->defectMeasures);
+        ArrayHandle<scalar> defectStrength(Configuration->defectMeasures,access_location::host,access_mode::read);
 
         for (int ii = 0; ii < N; ++ii)
         {
@@ -557,7 +560,7 @@ void MainWindow::on_builtinBoundaryVisualizationBox_released()
     if(!ui->builtinBoundaryVisualizationBox->isChecked())
     {
         vector<int3> bsites;
-        ArrayHandle<int> type(Configuration->returnTypes());
+        ArrayHandle<int> type(Configuration->returnTypes(),access_location::host,access_mode::read);
         for (int ii = 0 ;ii <Configuration->getNumberOfParticles();++ii )
             {
             if (type.data[ii] >0)
@@ -623,6 +626,10 @@ void MainWindow::on_multithreadingButton_released()
     ui->multithreadingWidget->hide();
     int nThreads = ui->multithreadingBox->text().toInt();
     sim->setNThreads(nThreads);
-    QString printable1 = QStringLiteral("requesting %1 threads").arg(nThreads);
+    QString printable1;
+    if(nThreads ==1 )
+        printable1 = QStringLiteral("requesting single-threaded operation");
+    else
+        printable1 = QStringLiteral("requesting %1 threads").arg(nThreads);
     ui->testingBox->setText(printable1);
 }

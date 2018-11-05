@@ -9,29 +9,9 @@ set(CMAKE_AUTOMOC ON)
 # As moc files are generated in the binary dir, tell CMake
 # to always look for includes there:
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
-if(APPLE)
-set(Qt5_DIR "/Users/dmsussma/Qt/5.11.2/clang_64/lib/cmake/Qt5")
-elseif(UNIX)
-set(Qt5_DIR "/home/user/Qt/5.11.2/gcc_64/lib/cmake/Qt5")
-endif()
 
-#set(Qt5Core_DIR "/home/user/Qt/5.11.2/gcc_64/lib/cmake/Qt5Core")
-#set(Qt5Gui_DIR "/home/user/Qt/5.11.2/gcc_64/lib/cmake/Qt5Gui")
-#set(Qt5Widgets_DIR "/home/user/Qt/5.11.2/gcc_64/lib/cmake/Qt5Widgets")
-#set(Qt53DCore_DIR "/home/user/Qt/5.11.2/gcc_64/lib/cmake/Qt53DCore")
-#set(Qt53DRender_DIR "/home/user/Qt/5.11.2/gcc_64/lib/cmake/Qt53DRender")
-#set(Qt53DInput_DIR "/home/user/Qt/5.11.2/gcc_64/lib/cmake/Qt53DInput")
-#set(Qt53DExtras_DIR "/home/user/Qt/5.11.2/gcc_64/lib/cmake/Qt53DExtras")
-#find_package(Qt5Widgets REQUIRED)
-#find_package(Qt5OpenGL REQUIRED)
-find_package(Qt5 COMPONENTS Core Gui Widgets 3DCore 3DExtras 3DRender 3DInput)
-find_package(OpenGL)
-add_definitions( ${QT_DEFINITIONS} )
-
-set(CMAKE_CC_FLAGS "${CMAKE_CC_FLAGS} ")
+set(CMAKE_CC_FLAGS "${CMAKE_CC_FLAGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -std=c++11")
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -std=c++11 -DSINGLETHREADED -Xpreprocessor -fopenmp")
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -std=c++11 -Xpreprocessor -fopenmp")
 set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} --expt-relaxed-constexpr
                                         -arch=sm_30
                                         -gencode=arch=compute_30,code=sm_30
@@ -43,11 +23,38 @@ set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} --expt-relaxed-constexpr
                                         ")
                                         #")#-gencode arch=compute_30,code=sm_30 -Wno-deprecated-gpu-targets ")#-Xptxas -O3 -Xcompiler -O3")
 
+if(APPLE)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Xpreprocessor -fopenmp")
+    set(Qt5_DIR "/Users/dmsussma/Qt/5.11.2/clang_64/lib/cmake/Qt5")
+    find_package(Qt5OpenGL REQUIRED)
+    find_package(Qt5 COMPONENTS Core Gui Widgets 3DCore 3DExtras 3DRender 3DInput OpenGL)
+    find_package(OpenGL)
+elseif(UNIX)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
+    set(Qt5_DIR "/home/user/Qt/5.11.2/gcc_64/lib/cmake/Qt5")
+    set(Qt5Core_DIR "/home/user/Qt/5.11.2/gcc_64/lib/cmake/Qt5Core")
+    set(Qt5Gui_DIR "/home/user/Qt/5.11.2/gcc_64/lib/cmake/Qt5Gui")
+    set(Qt5Widgets_DIR "/home/user/Qt/5.11.2/gcc_64/lib/cmake/Qt5Widgets")
+    set(Qt53DCore_DIR "/home/user/Qt/5.11.2/gcc_64/lib/cmake/Qt53DCore")
+    set(Qt53DRender_DIR "/home/user/Qt/5.11.2/gcc_64/lib/cmake/Qt53DRender")
+    set(Qt53DInput_DIR "/home/user/Qt/5.11.2/gcc_64/lib/cmake/Qt53DInput")
+    set(Qt53DExtras_DIR "/home/user/Qt/5.11.2/gcc_64/lib/cmake/Qt53DExtras")
+    find_package(Qt5Widgets REQUIRED)
+    find_package(Qt5OpenGL REQUIRED)
+    find_package(Qt5 COMPONENTS Core Gui Widgets 3DCore 3DExtras 3DRender 3DInput OpenGL)
+    find_package(OpenGL)
+endif()
+
+add_definitions( ${QT_DEFINITIONS} )
+
+
+
 find_package(CUDA REQUIRED)
 
 if(${CMAKE_BUILD_TYPE} MATCHES "Debug")
     add_definitions(-DDEBUGFLAGUP)
     set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -g -lineinfo -Xptxas --generate-line-info")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -lineinfo")
 endif(${CMAKE_BUILD_TYPE} MATCHES "Debug")
 
 message("cxx flags = " "${CMAKE_CXX_FLAGS}")
@@ -83,6 +90,7 @@ set(HEADERS
     )
 
 add_executable(landauDeGUI.out cubicLatticeNematic.cpp ${SOURCES} ${HEADERS} ${UI_HEADERS})
+
 target_link_libraries(landauDeGUI.out ${myLibs} ${CUDA_LIBRARIES} ${OPENGL_LIBRARIES} gomp Qt5::Widgets Qt5::Core
     Qt5::Gui
     Qt5::3DCore
