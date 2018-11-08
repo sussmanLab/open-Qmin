@@ -71,9 +71,6 @@ int main(int argc, char*argv[])
     if(nDev == 0)
         gpu = -1;
     bool GPU = false;
-    if(gpu >= 0)
-        GPU = chooseGPU(gpu);
-
     scalar phaseA = aSwitchArg.getValue();
     scalar phaseB = bSwitchArg.getValue();
     scalar phaseC = cSwitchArg.getValue();
@@ -118,6 +115,8 @@ int main(int argc, char*argv[])
     else
         {//headless mode
         cout << "non-visual mode activated" << endl;
+        if(gpu >= 0)
+            GPU = chooseGPU(gpu);
         scalar a = -1;
         scalar b = -phaseB/phaseA;
         scalar c = phaseC/phaseA;
