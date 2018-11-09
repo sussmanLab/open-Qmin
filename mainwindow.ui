@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1184</width>
+    <width>1172</width>
     <height>567</height>
    </rect>
   </property>
@@ -1095,7 +1095,7 @@ border: 1px solid black
     <property name="geometry">
      <rect>
       <x>230</x>
-      <y>10</y>
+      <y>30</y>
       <width>431</width>
       <height>271</height>
      </rect>
@@ -2497,8 +2497,275 @@ border: 1px solid purple</string>
      </property>
     </widget>
    </widget>
-   <zorder>addObjectsWidget</zorder>
+   <widget class="QWidget" name="applyFieldWidget" native="true">
+    <property name="geometry">
+     <rect>
+      <x>210</x>
+      <y>50</y>
+      <width>471</width>
+      <height>251</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background: white; border: 1px solid black</string>
+    </property>
+    <widget class="QLabel" name="label_66">
+     <property name="geometry">
+      <rect>
+       <x>150</x>
+       <y>10</y>
+       <width>191</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>Set constant applied field</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="fieldTypeComboBox">
+     <property name="geometry">
+      <rect>
+       <x>200</x>
+       <y>50</y>
+       <width>78</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <item>
+      <property name="text">
+       <string>E field</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>H field</string>
+      </property>
+     </item>
+    </widget>
+    <widget class="QLineEdit" name="fieldXBox">
+     <property name="geometry">
+      <rect>
+       <x>90</x>
+       <y>90</y>
+       <width>71</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>0</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="fieldYBox">
+     <property name="geometry">
+      <rect>
+       <x>210</x>
+       <y>90</y>
+       <width>71</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>0</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="fieldZBox">
+     <property name="geometry">
+      <rect>
+       <x>330</x>
+       <y>90</y>
+       <width>71</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>0</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="fieldXLabel">
+     <property name="geometry">
+      <rect>
+       <x>70</x>
+       <y>90</y>
+       <width>16</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>Ex</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="fieldYLabel">
+     <property name="geometry">
+      <rect>
+       <x>190</x>
+       <y>90</y>
+       <width>16</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>Ey</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="fieldZLabel">
+     <property name="geometry">
+      <rect>
+       <x>310</x>
+       <y>90</y>
+       <width>16</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>Ez</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="deltaEpsilonLabel">
+     <property name="geometry">
+      <rect>
+       <x>280</x>
+       <y>150</y>
+       <width>41</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>Delta epsilon</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="QLabel" name="epsilonLabel">
+     <property name="geometry">
+      <rect>
+       <x>15</x>
+       <y>150</y>
+       <width>51</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>epsilon</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="eBox">
+     <property name="geometry">
+      <rect>
+       <x>60</x>
+       <y>150</y>
+       <width>71</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>0</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="e0Box">
+     <property name="geometry">
+      <rect>
+       <x>200</x>
+       <y>150</y>
+       <width>71</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>0.0000052</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="deBox">
+     <property name="geometry">
+      <rect>
+       <x>330</x>
+       <y>150</y>
+       <width>71</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>0</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="epsilon0Label">
+     <property name="geometry">
+      <rect>
+       <x>145</x>
+       <y>150</y>
+       <width>51</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>epsilon0</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="setFieldButton">
+     <property name="geometry">
+      <rect>
+       <x>180</x>
+       <y>200</y>
+       <width>114</width>
+       <height>32</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background:rgb(148, 148, 148)</string>
+     </property>
+     <property name="text">
+      <string>Set field</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="cancelFieldButton">
+     <property name="geometry">
+      <rect>
+       <x>370</x>
+       <y>210</y>
+       <width>80</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Cancel</string>
+     </property>
+    </widget>
+   </widget>
    <zorder>initializationFrame</zorder>
+   <zorder>addObjectsWidget</zorder>
    <zorder>fileSaveWidget</zorder>
    <zorder>fireParametersWidget</zorder>
    <zorder>setPhaseConstants</zorder>
@@ -2542,19 +2809,20 @@ border: 1px solid purple</string>
    <zorder>nesterovMinimizationButton</zorder>
    <zorder>setDistortionConstants1</zorder>
    <zorder>nesterovWidget</zorder>
+   <zorder>applyFieldWidget</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1184</width>
-     <height>22</height>
+     <width>1172</width>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuSet_constants">
     <property name="title">
-     <string>Change constants</string>
+     <string>Change forces</string>
     </property>
     <widget class="QMenu" name="menudistortion_energy_constants">
      <property name="title">
@@ -2566,6 +2834,7 @@ border: 1px solid purple</string>
     </widget>
     <addaction name="actionphase_constants"/>
     <addaction name="menudistortion_energy_constants"/>
+    <addaction name="actionAdd_a_E_H_field"/>
    </widget>
    <widget class="QMenu" name="menuRe_initialize">
     <property name="title">
@@ -2637,6 +2906,11 @@ border: 1px solid purple</string>
   <action name="actionCPU_multi_threading">
    <property name="text">
     <string>CPU multi-threading</string>
+   </property>
+  </action>
+  <action name="actionAdd_a_E_H_field">
+   <property name="text">
+    <string>Add a E/H field</string>
    </property>
   </action>
  </widget>
@@ -2954,6 +3228,22 @@ border: 1px solid purple</string>
     <hint type="destinationlabel">
      <x>415</x>
      <y>457</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionAdd_a_E_H_field</sender>
+   <signal>triggered()</signal>
+   <receiver>applyFieldWidget</receiver>
+   <slot>show()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>445</x>
+     <y>207</y>
     </hint>
    </hints>
   </connection>

@@ -45,6 +45,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->fileSaveWidget->hide();
     ui->multithreadingWidget->hide();
     ui->nesterovWidget->hide();
+    ui->applyFieldWidget->hide();
 
     connect(ui->displayZone,SIGNAL(xRotationChanged(int)),ui->xRotSlider,SLOT(setValue(int)));
     connect(ui->displayZone,SIGNAL(zRotationChanged(int)),ui->zRotSlider,SLOT(setValue(int)));
@@ -669,4 +670,61 @@ void MainWindow::on_scheduleMomentumCheckbox_released()
 {
     bool checkBoxChecked = ui->scheduleMomentumCheckbox->isChecked();
     ui->nesterovMomentumBox->setEnabled(!checkBoxChecked);
+}
+
+void MainWindow::on_cancelFieldButton_released()
+{
+    ui->applyFieldWidget->hide();
+}
+
+void MainWindow::on_setFieldButton_released()
+{
+    QString Ef ="E field";
+    QString Hf ="H field";
+    scalar3 field;
+    field.x = ui->fieldXBox->text().toDouble();
+    field.y = ui->fieldYBox->text().toDouble();
+    field.z = ui->fieldZBox->text().toDouble();
+    scalar epsilon = ui->eBox->text().toDouble();
+    scalar epsilon0 = ui->e0Box->text().toDouble();
+    scalar deltaEpsilon = ui->deBox->text().toDouble();
+
+    QString printable;
+    if(ui->fieldTypeComboBox->currentText()==Ef)
+        {
+        landauLCForce->setEField(field,epsilon,epsilon0,deltaEpsilon);
+        printable=QStringLiteral("E field set (%1 %2 %3) %4 %5 %6").arg(field.x).arg(field.y).arg(field.z).arg(epsilon).arg(epsilon0).arg(deltaEpsilon);
+        }
+    if(ui->fieldTypeComboBox->currentText()==Hf)
+        {
+        landauLCForce->setHField(field,epsilon,epsilon0,deltaEpsilon);
+        printable=QStringLiteral("H field set (%1 %2 %3) %4 %5 %6").arg(field.x).arg(field.y).arg(field.z).arg(epsilon).arg(epsilon0).arg(deltaEpsilon);
+        }
+    ui->applyFieldWidget->hide();
+    ui->testingBox->setText(printable);
+    ui->progressBar->setValue(100);
+}
+
+void MainWindow::on_fieldTypeComboBox_currentTextChanged(const QString &arg1)
+{
+    QString Ef ="E field";
+    QString Hf ="H field";
+    if(arg1==Ef)
+        {
+        ui->fieldXLabel->setText("Ex");
+        ui->fieldYLabel->setText("Ey");
+        ui->fieldZLabel->setText("Ez");
+        ui->epsilonLabel->setText("epsilon");
+        ui->epsilon0Label->setText("epsilon0");
+        ui->deltaEpsilonLabel->setText("Delta epsilon");
+        }
+    if(arg1==Hf)
+        {
+        ui->fieldXLabel->setText("Hx");
+        ui->fieldYLabel->setText("Hy");
+        ui->fieldZLabel->setText("Hz");
+        ui->epsilonLabel->setText("chi");
+        ui->epsilon0Label->setText("mu0");
+        ui->deltaEpsilonLabel->setText("Delta chi");
+        }
 }

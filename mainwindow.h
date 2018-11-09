@@ -77,6 +77,12 @@ private slots:
 
     void on_scheduleMomentumCheckbox_released();
 
+    void on_cancelFieldButton_released();
+
+    void on_setFieldButton_released();
+
+    void on_fieldTypeComboBox_currentTextChanged(const QString &arg1);
+
 private:
     Ui::MainWindow *ui;
 
