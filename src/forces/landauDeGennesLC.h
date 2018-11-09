@@ -100,7 +100,7 @@ class landauDeGennesLC : public baseLatticeForce
                 printf("L24ForceTuner\n");
                 l24ForceTuner->printTimingData();
                 };
-            }
+            };
         void setEField(scalar3 field, scalar eps, scalar eps0,scalar deltaEps)
             {
             computeEfieldContribution = true;
@@ -108,7 +108,7 @@ class landauDeGennesLC : public baseLatticeForce
             epsilon =eps;
             epsilon0=eps0;
             deltaEpsilon=deltaEps;
-            }
+            };
         void setHField(scalar3 field, scalar chi, scalar _mu0,scalar _deltaChi)
             {
             computeHfieldContribution = true;
@@ -116,7 +116,7 @@ class landauDeGennesLC : public baseLatticeForce
             Chi =chi;
             mu0=_mu0;
             deltaChi=_deltaChi;
-            }
+            };
     protected:
         //!constants, etc.
         scalar A;
@@ -144,8 +144,6 @@ class landauDeGennesLC : public baseLatticeForce
         bool useL24;
         bool computeEfieldContribution;
         bool computeHfieldContribution;
-
-
 
         //!for 2- and 3- constant approximations, the force calculation is helped by first pre-computing first derivatives
         GPUArray<cubicLatticeDerivativeVector> forceCalculationAssist;

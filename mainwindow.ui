@@ -1017,7 +1017,7 @@ border: 1px solid black
     <property name="geometry">
      <rect>
       <x>0</x>
-      <y>40</y>
+      <y>30</y>
       <width>201</width>
       <height>32</height>
      </rect>
@@ -1056,7 +1056,7 @@ border: 1px solid black
     <property name="geometry">
      <rect>
       <x>30</x>
-      <y>290</y>
+      <y>240</y>
       <width>151</width>
       <height>32</height>
      </rect>
@@ -1981,7 +1981,7 @@ border: 1px black solid</string>
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>360</y>
+      <y>310</y>
       <width>141</width>
       <height>21</height>
      </rect>
@@ -1997,7 +1997,7 @@ border: 1px black solid</string>
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>330</y>
+      <y>280</y>
       <width>181</width>
       <height>21</height>
      </rect>
@@ -2282,7 +2282,7 @@ border: 1px black solid</string>
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>80</y>
+      <y>70</y>
       <width>191</width>
       <height>31</height>
      </rect>
@@ -2593,7 +2593,7 @@ border: 1px solid purple</string>
       </rect>
      </property>
      <property name="text">
-      <string>0</string>
+      <string>1.0</string>
      </property>
     </widget>
     <widget class="QLabel" name="fieldXLabel">
@@ -2647,9 +2647,9 @@ border: 1px solid purple</string>
     <widget class="QLabel" name="deltaEpsilonLabel">
      <property name="geometry">
       <rect>
-       <x>280</x>
+       <x>290</x>
        <y>150</y>
-       <width>41</width>
+       <width>51</width>
        <height>31</height>
       </rect>
      </property>
@@ -2689,7 +2689,7 @@ border: 1px solid purple</string>
       </rect>
      </property>
      <property name="text">
-      <string>0</string>
+      <string>1.0</string>
      </property>
     </widget>
     <widget class="QLineEdit" name="e0Box">
@@ -2763,6 +2763,35 @@ border: 1px solid purple</string>
       <string>Cancel</string>
      </property>
     </widget>
+    <zorder>label_66</zorder>
+    <zorder>fieldTypeComboBox</zorder>
+    <zorder>fieldXBox</zorder>
+    <zorder>fieldYBox</zorder>
+    <zorder>fieldZBox</zorder>
+    <zorder>fieldXLabel</zorder>
+    <zorder>fieldYLabel</zorder>
+    <zorder>fieldZLabel</zorder>
+    <zorder>deltaEpsilonLabel</zorder>
+    <zorder>epsilonLabel</zorder>
+    <zorder>eBox</zorder>
+    <zorder>e0Box</zorder>
+    <zorder>epsilon0Label</zorder>
+    <zorder>setFieldButton</zorder>
+    <zorder>cancelFieldButton</zorder>
+    <zorder>deBox</zorder>
+   </widget>
+   <widget class="QPushButton" name="computeEnergyButton">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>360</y>
+      <width>141</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Compute energy</string>
+    </property>
    </widget>
    <zorder>initializationFrame</zorder>
    <zorder>addObjectsWidget</zorder>
@@ -2810,6 +2839,7 @@ border: 1px solid purple</string>
    <zorder>setDistortionConstants1</zorder>
    <zorder>nesterovWidget</zorder>
    <zorder>applyFieldWidget</zorder>
+   <zorder>computeEnergyButton</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">

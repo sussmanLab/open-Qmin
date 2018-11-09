@@ -100,6 +100,7 @@ void MainWindow::hideControls()
     ui->builtinBoundaryVisualizationBox->hide();
     ui->boundaryFromFileButton->hide();
     ui->nesterovMinimizationButton->hide();
+    ui->computeEnergyButton->hide();
 }
 void MainWindow::showControls()
 {
@@ -128,6 +129,7 @@ void MainWindow::showControls()
     ui->builtinBoundaryVisualizationBox->show();
     ui->boundaryFromFileButton->show();
     ui->nesterovMinimizationButton->show();
+    ui->computeEnergyButton->show();
 }
 
 void MainWindow::on_initializeButton_released()
@@ -315,10 +317,9 @@ void MainWindow::on_minimizeButton_released()
     chrono::duration<scalar> diff = t2-t1;
     ui->progressBar->setValue(75);
 
-    scalar E = sim->computePotentialEnergy();
     ui->progressBar->setValue(80);
     scalar maxForce = sim->getMaxForce();
-    QString printable = QStringLiteral("simulation energy per site at: %1...this took %2 total time for %3 steps...<f> = %4 ").arg(E)
+    QString printable = QStringLiteral("minimization iterations took %2 total time for %3 steps...<f> = %4 ")
                 .arg(diff.count()).arg(iterationsTaken).arg(maxForce);
     ui->testingBox->setText(printable);
     ui->progressBar->setValue(100);
@@ -337,10 +338,9 @@ void MainWindow::on_resetQTensorsButton_released()
         noise.setReproducibleSeed(13377);
     bool globalAlignment = ui->globalAlignmentCheckBox->isChecked();
     Configuration->setNematicQTensorRandomly(noise,S0,globalAlignment);
-    ui->progressBar->setValue(70);
-    scalar E = sim->computePotentialEnergy();
+
     ui->progressBar->setValue(80);
-    QString printable = QStringLiteral("system reset... simulation energy per site at: %1...").arg(E);
+    QString printable = QStringLiteral("Qtensor values reset at S0=%1...").arg(S0);
     ui->testingBox->setText(printable);
     ui->progressBar->setValue(100);
     if(ui->visualProgressCheckBox->isChecked())
@@ -727,4 +727,19 @@ void MainWindow::on_fieldTypeComboBox_currentTextChanged(const QString &arg1)
         ui->epsilon0Label->setText("mu0");
         ui->deltaEpsilonLabel->setText("Delta chi");
         }
+}
+
+void MainWindow::on_computeEnergyButton_released()
+{
+     ui->progressBar->setValue(0);
+    landauLCForce->computeEnergy();
+     ui->progressBar->setValue(90);
+    scalar totalEnergy = 0.0;
+    for(int ii = 0; ii < landauLCForce->energyComponents.size();++ii)
+        totalEnergy+=landauLCForce->energyComponents[ii];
+    QString energyString = QStringLiteral("Total energy: %1, components:  ").arg(totalEnergy);
+    for(int ii = 0; ii < landauLCForce->energyComponents.size();++ii)
+        energyString += QStringLiteral(" %1,  ").arg(landauLCForce->energyComponents[ii]);
+    ui->testingBox->setText(energyString);
+    ui->progressBar->setValue(100);
 }

@@ -83,6 +83,8 @@ private slots:
 
     void on_fieldTypeComboBox_currentTextChanged(const QString &arg1);
 
+    void on_computeEnergyButton_released();
+
 private:
     Ui::MainWindow *ui;
 
