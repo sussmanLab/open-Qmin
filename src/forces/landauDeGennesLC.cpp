@@ -9,7 +9,7 @@ landauDeGennesLC::landauDeGennesLC()
     baseInitialization();
     }
 
-landauDeGennesLC::landauDeGennesLC(double _A, double _B, double _C, double _L1) :
+landauDeGennesLC::landauDeGennesLC(scalar _A, scalar _B, scalar _C, scalar _L1) :
     A(_A), B(_B), C(_C), L1(_L1)
     {
     baseInitialization();

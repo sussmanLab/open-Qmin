@@ -8,8 +8,8 @@ on the machine running it, although CUDA is still required for compilation).
 
 Some doxygen documentation has bee written, but lots of stuff is still to be written. In any
 event, executing the command
-"doxygen landauDeGUI_documentation"
-from the "doc/" directory will produce a set of html documentation files that may (or may not!)
+"doxygen doc/landauDeGUI_documentation"
+from the root directory will produce a set of html documentation files that may (or may not!)
 be helpful.
 
 # Running in non-visual mode

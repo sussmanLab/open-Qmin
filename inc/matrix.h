@@ -9,7 +9,7 @@
 #define HOSTDEVICE inline __attribute__((always_inline))
 #endif
 
-/*! \file Matrix.h */
+/*! \file matrix.h */
 //!contains a {{x11,x12},{x21,x22}} set, and matrix manipulations, and a (d x d) structure
 /*!
 Matrix2x2 provides a simple interface for operations using 2x2 matrices. In particular, it implement

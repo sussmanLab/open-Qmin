@@ -5,7 +5,7 @@
 #include "indexer.h"
 #include "latticeBoundaries.h"
 
-/*! \file cubicLattic.h
+/*! \file cubicLattice.h
 \brief puts degrees of freedom on a cubic lattice... probably for spin-like models
 */
 

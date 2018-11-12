@@ -504,10 +504,13 @@ bool gpu_zero_array(int *arr,
 
 /*!
 takes the dot product of every element of the two input arrays and performs a reduction on the sum
+\param input1 vector 1...wow!
+\param input2 vector 2...wow!
 \param intermediate an array that input is block-reduced to
 \param output the intermediate array will be sum reduced and stored in one of the components of output
 \param helperIdx the location in output to store the answer
 \param N the size of the input and  intermediate arrays
+\param block_size the...block size. doxygen is annoying sometimes
 */
 bool gpu_dVec_dot_products(dVec *input1,dVec *input2, scalar *intermediate, scalar *output, int helperIdx, int N,int block_size)
     {
@@ -538,6 +541,7 @@ intermediate array, then launches a second kernel to sum reduce intermediate int
 \param output the intermediate array will be sum reduced and stored in one of the components of output
 \param helperIdx the location in output to store the answer
 \param N the size of the input and  intermediate arrays
+\param block_size the...block size. doxygen is annoying sometimes
 */
 bool gpu_parallel_reduction(scalar *input, scalar *intermediate, scalar *output, int helperIdx, int N,int block_size)
     {

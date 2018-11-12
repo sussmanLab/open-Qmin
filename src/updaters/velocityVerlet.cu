@@ -37,6 +37,7 @@ __global__ void gpu_displacement_vv_kernel(dVec *d_displacement, dVec *d_velocit
 /*!
 \param d_velocity dVec array of velocity
 \param d_force dVec array of force
+\param d_mass scalar array of mass
 \param deltaT time step
 \param N      the length of the arrays
 \post v = v + 0.5*deltaT*force
@@ -60,7 +61,8 @@ bool gpu_update_velocity(dVec *d_velocity, dVec *d_force, scalar *d_mass,scalar 
 \param d_displacement dVec array of displacements
 \param d_velocity dVec array of velocities
 \param d_force dVec array of forces
-\param Dscalar deltaT the current time step
+\param d_mass scalar array of mass
+\param deltaT time step
 \param N      the length of the arrays
 \post displacement = dt*velocity + 0.5 *dt^2*force
 */

@@ -7,8 +7,7 @@
 
 /*!
 \param a the approximate side length of the cells
-\param points the positions of points to populate the cell list with
-\param bx the period box for the system
+\param _box the period box for the system
  */
 hyperrectangularCellList::hyperrectangularCellList(scalar a, BoxPtr _box)
     {

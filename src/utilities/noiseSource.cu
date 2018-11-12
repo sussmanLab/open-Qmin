@@ -41,3 +41,4 @@ bool gpu_initialize_RNG_array(curandState *states,
     HANDLE_ERROR(cudaGetLastError());
     return cudaSuccess;
     };
+/** @} */ //end of group declaration

@@ -7,7 +7,7 @@
 #include "std_include.h"
 
 
-/*! \file orthorhombicCellList.h */
+/*! \file hyperrectangularCellList.h */
 //! Construct simple cell/bucket structures on the CPU or GPU given a hyper-rectangular domain with PBCs
 //
 /*!

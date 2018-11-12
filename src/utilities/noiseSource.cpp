@@ -39,7 +39,7 @@ scalar noiseSource::getRealNormal(scalar mean, scalar std)
 
 /*!
 \param globalSeed the global seed to use
-\param offset the value of the offset that should be sent to the cuda RNG...
+\param tempSeed a value of the offset that should be sent to the cuda RNG...
 This is one part of what would be required to support reproducibly being able to load a state
 from a databse and continue the dynamics in the same way every time. This is not currently supported.
 */
