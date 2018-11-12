@@ -2,8 +2,7 @@ pages:
   stage: build
   image: alpine
   script:
-    - apk update && apk add doxygen
-    - apk add --update --no-cache graphviz font-bitstream-type1
+    - apk add --update doxygen ttf-freefont graphviz
     - doxygen doc/landauDeGUI_documentation
     - mv doc/doxygenOutput/html/ public/
   artifacts:
