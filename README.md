@@ -25,3 +25,24 @@ will output a list of possible command line options.
 # Basic compilation
 
 see "INSTALLATION.md" for a few more details.
+
+## Project information
+Here are some convenient links to a variety of general information about the landau deGUI project; all
+of the below can also be accessed from the @ref projectInfo tab (links work on the gitlab.io
+documenation website)
+
+[Basic class overview](@ref basicinfo)
+
+[Installation guide](@ref install)
+
+[Sample code snippets](@ref code)
+
+[Contributing to cellGPU](@ref contrib)
+
+[Citations](@ref cite)
+
+[Open-source information](@ref license)
+
+[cellGPU version information](@ref changelog)
+
+[Contributors](@ref contributorList)
