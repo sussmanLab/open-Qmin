@@ -35,8 +35,6 @@ documenation website)
 
 [Installation guide](@ref install)
 
-[Sample code snippets](@ref code)
-
 [Contributing to cellGPU](@ref contrib)
 
 [Citations](@ref cite)
