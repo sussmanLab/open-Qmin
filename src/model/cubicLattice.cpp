@@ -143,61 +143,101 @@ int cubicLattice::latticeSiteToLinearIndex(const int3 &target)
         return latticeIndex(target);
         }
     }
-
-int cubicLattice::getNeighbors(int target, vector<int> &neighbors, int &neighs)
+/*!
+returns, in the vector "neighbors" a list of lattice neighbors of the target site.
+If stencilType ==0 (the default), the result will be
+neighs = 6;
+neighbors = {xMinus, xPlus, yMinus, yPlus, zMinus, zPlus};
+If stencilType ==1 neighbors will be suitable for computing mixed first partial derivatives \partial_a \partial b F:
+neighs = 18;
+neighbors = {xMinus, xPlus, yMinus, yPlus, zMinus, zPlus,
+            xMinus_yMinus,xMinus_yPlus,xMinus_zMinus,xMinus_zPlus,xPlus_yMinus,xPlus_yPlus,xPlus_zMinus,xPlus_zPlus,
+            yMinus_zMinus,yMinuz_zPlus,yPlus_zMinus,yPlus_zPlus}
+*/
+int cubicLattice::getNeighbors(int target, vector<int> &neighbors, int &neighs, int stencilType)
     {
-    neighs = 6;
-    if(neighbors.size()!=neighs) neighbors.resize(neighs);
-    if(!sliceSites)
+    if(stencilType==0)
         {
-        int3 position = latticeIndex.inverseIndex(target);
-        if(position.x >0 && position.x < latticeIndex.sizes.x-1)
+        neighs = 6;
+        if(neighbors.size()!=neighs) neighbors.resize(neighs);
+        if(!sliceSites)
             {
-            neighbors[0] = latticeIndex(position.x-1,position.y,position.z);
-            neighbors[1] = latticeIndex(position.x+1,position.y,position.z);
+            int3 position = latticeIndex.inverseIndex(target);
+            if(position.x >0 && position.x < latticeIndex.sizes.x-1)
+                {
+                neighbors[0] = latticeIndex(position.x-1,position.y,position.z);
+                neighbors[1] = latticeIndex(position.x+1,position.y,position.z);
+                }
+            else if(position.x ==0)
+                {
+                neighbors[0] = latticeIndex(latticeIndex.sizes.x-1,position.y,position.z);
+                neighbors[1] = latticeIndex(1,position.y,position.z);
+                }
+            else
+                {
+                neighbors[0] = latticeIndex(latticeIndex.sizes.x-2,position.y,position.z);
+                neighbors[1] = latticeIndex(0,position.y,position.z);
+                };
+            if(position.y >0 && position.y < latticeIndex.sizes.y-1)
+                {
+                neighbors[2] = latticeIndex(position.x,position.y-1,position.z);
+                neighbors[3] = latticeIndex(position.x,position.y+1,position.z);
+                }
+            else if(position.y ==0)
+                {
+                neighbors[2] = latticeIndex(position.x,latticeIndex.sizes.y-1,position.z);
+                neighbors[3] = latticeIndex(position.x,1 ,position.z);
+                }
+            else
+                {
+                neighbors[2] = latticeIndex(position.x,latticeIndex.sizes.y-2,position.z);
+                neighbors[3] = latticeIndex(position.x,0,position.z);
+                };
+            if(position.z >0 && position.z < latticeIndex.sizes.z-1)
+                {
+                neighbors[4] = latticeIndex(position.x,position.y,position.z-1);
+                neighbors[5] = latticeIndex(position.x,position.y,position.z+1);
+                }
+            else if(position.z ==0)
+                {
+                neighbors[4] = latticeIndex(position.x,position.y,latticeIndex.sizes.z-1);
+                neighbors[5] = latticeIndex(position.x,position.y,1);
+                }
+            else
+                {
+                neighbors[4] = latticeIndex(position.x,position.y,latticeIndex.sizes.z-2);
+                neighbors[5] = latticeIndex(position.x,position.y,0);
+                };
             }
-        else if(position.x ==0)
-            {
-            neighbors[0] = latticeIndex(latticeIndex.sizes.x-1,position.y,position.z);
-            neighbors[1] = latticeIndex(1,position.y,position.z);
-            }
-        else
-            {
-            neighbors[0] = latticeIndex(latticeIndex.sizes.x-2,position.y,position.z);
-            neighbors[1] = latticeIndex(0,position.y,position.z);
-            };
-        if(position.y >0 && position.y < latticeIndex.sizes.y-1)
-            {
-            neighbors[2] = latticeIndex(position.x,position.y-1,position.z);
-            neighbors[3] = latticeIndex(position.x,position.y+1,position.z);
-            }
-        else if(position.y ==0)
-            {
-            neighbors[2] = latticeIndex(position.x,latticeIndex.sizes.y-1,position.z);
-            neighbors[3] = latticeIndex(position.x,1 ,position.z);
-            }
-        else
-            {
-            neighbors[2] = latticeIndex(position.x,latticeIndex.sizes.y-2,position.z);
-            neighbors[3] = latticeIndex(position.x,0,position.z);
-            };
-        if(position.z >0 && position.z < latticeIndex.sizes.z-1)
-            {
-            neighbors[4] = latticeIndex(position.x,position.y,position.z-1);
-            neighbors[5] = latticeIndex(position.x,position.y,position.z+1);
-            }
-        else if(position.z ==0)
-            {
-            neighbors[4] = latticeIndex(position.x,position.y,latticeIndex.sizes.z-1);
-            neighbors[5] = latticeIndex(position.x,position.y,1);
-            }
-        else
-            {
-            neighbors[4] = latticeIndex(position.x,position.y,latticeIndex.sizes.z-2);
-            neighbors[5] = latticeIndex(position.x,position.y,0);
-            };
         return target;
         };
+    if(stencilType==1)
+        {
+        neighs = 18;
+        if(neighbors.size()!=neighs) neighbors.resize(neighs);
+        neighbors[0] = latticeIndex(wrap(position.x-1,latticeSizes.x),position.y,position.z);
+        neighbors[1] = latticeIndex(wrap(position.x+1,latticeSizes.x),position.y,position.z);
+        neighbors[2] = latticeIndex(position.x,wrap(position.y-1,latticeSizes.y),position.z);
+        neighbors[3] = latticeIndex(position.x,wrap(position.y+1,latticeSizes.y),position.z);
+        neighbors[4] = latticeIndex(position.x,position.y,wrap(position.z-1,latticeSizes.z));
+        neighbors[5] = latticeIndex(position.x,position.y,wrap(position.z+1,latticeSizes.z));
+
+        neighbors[6] = latticeIndex(wrap(position.x-1,latticeSizes.x),wrap(position.y-1,latticeSizes.y),position.z);
+        neighbors[7] = latticeIndex(wrap(position.x-1,latticeSizes.x),wrap(position.y+1,latticeSizes.y),position.z);
+        neighbors[8] = latticeIndex(wrap(position.x-1,latticeSizes.x),position.y,wrap(position.z-1,latticeSizes.z));
+        neighbors[9] = latticeIndex(wrap(position.x-1,latticeSizes.x),position.y,wrap(position.z+1,latticeSizes.z));
+        neighbors[10] = latticeIndex(wrap(position.x+1,latticeSizes.x),wrap(position.y-1,latticeSizes.y),position.z);
+        neighbors[11] = latticeIndex(wrap(position.x+1,latticeSizes.x),wrap(position.y+1,latticeSizes.y),position.z);
+        neighbors[12] = latticeIndex(wrap(position.x+1,latticeSizes.x),position.y,wrap(position.z-1,latticeSizes.z));
+        neighbors[13] = latticeIndex(wrap(position.x+1,latticeSizes.x),position.y,wrap(position.z+1,latticeSizes.z));
+
+        neighbors[14] = latticeIndex(position.x,wrap(position.y-1,latticeSizes.y),wrap(position.z-1,latticeSizes.z));
+        neighbors[15] = latticeIndex(position.x,wrap(position.y-1,latticeSizes.y),wrap(position.z+1,latticeSizes.z));
+        neighbors[16] = latticeIndex(position.x,wrap(position.y+1,latticeSizes.y),wrap(position.z-1,latticeSizes.z));
+        neighbors[17] = latticeIndex(position.x,wrap(position.y+1,latticeSizes.y),wrap(position.z+1,latticeSizes.z));
+        return target;
+        }
+
     return target; //nope
     };
 

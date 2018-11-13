@@ -28,7 +28,7 @@ class cubicLattice : public simpleModel
         void setSpinsRandomly(noiseSource &noise);
 
         //! return the integer corresponding to the given site, along with the indices of the six nearest neighbors
-        int getNeighbors(int target, vector<int> &neighbors, int &neighs);
+        int getNeighbors(int target, vector<int> &neighbors, int &neighs, int stencilType = 0);
         //!decide to slice sites
         void sliceIndices(bool _s=true){sliceSites = _s;};
         //!given a triple, determine what
