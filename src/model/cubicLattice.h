@@ -36,6 +36,13 @@ class cubicLattice : public simpleModel
         //!indexer for lattice sites
         Index3D latticeIndex;
 
+        //!indexer for neighbors
+        Index2D neighborIndex;
+        //!List of neighboring lattice sites
+        GPUArray<int> neighboringSites;
+        //!store the neighbors of each lattice site. The i'th neighbor of site j is given by neighboringSites[neighborIndex(i,j)]
+        virtual void fillNeighboLists(int stencilType = 0);
+
         //!return the mean spin
         virtual dVec averagePosition()
             {

@@ -25,7 +25,7 @@ class landauDeGennesLC : public baseLatticeForce
 
         void setPhaseConstants(scalar _a=-1, scalar _b =-12.325581395, scalar _c =  10.058139535){A=_a;B=_b;C=_c;};
         void setElasticConstants(scalar _l1=2.32,scalar _l2=2.32, scalar _l3orq0=0){L1=_l1;L2=_l2;L3=_l3orq0; q0=_l3orq0;};
-        void setNumberOfConstants(distortionEnergyType _type){numberOfConstants = _type;};
+        void setNumberOfConstants(distortionEnergyType _type);
 
 
         void setL24(scalar _l24){L24=_l24;useL24=true;};

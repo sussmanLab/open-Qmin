@@ -203,7 +203,9 @@ __global__ void gpu_qTensor_firstDerivatives_kernel(cubicLatticeDerivativeVector
 __global__ void gpu_qTensor_oneConstantForce_kernel(dVec *d_force,
                                 dVec *d_spins,
                                 int *d_types,
+                                int *d_latticeNeighbors,
                                 Index3D latticeIndex,
+                                Index2D neighborIndex,
                                 scalar a,scalar b,scalar c,scalar l,
                                 int N,
                                 bool zeroForce)
@@ -224,7 +226,13 @@ __global__ void gpu_qTensor_oneConstantForce_kernel(dVec *d_force,
 
         //get neighbor indices and data
         int ixd, ixu,iyd,iyu,izd,izu;
-        gpu_get_six_neighbors(target,ixd, ixu,iyd,iyu,izd,izu,latticeIndex,latticeSizes);
+        ixd =d_latticeNeighbors[neighborIndex(0,idx)];
+        ixu =d_latticeNeighbors[neighborIndex(1,idx)];
+        iyd =d_latticeNeighbors[neighborIndex(2,idx)];
+        iyu =d_latticeNeighbors[neighborIndex(3,idx)];
+        izd =d_latticeNeighbors[neighborIndex(4,idx)];
+        izu =d_latticeNeighbors[neighborIndex(5,idx)];
+
         xDown = d_spins[ixd]; xUp = d_spins[ixu];
         yDown = d_spins[iyd]; yUp = d_spins[iyu];
         zDown = d_spins[izd]; zUp = d_spins[izu];
@@ -711,7 +719,9 @@ bool gpu_qTensor_firstDerivatives(cubicLatticeDerivativeVector *d_derivatives,
 bool gpu_qTensor_oneConstantForce(dVec *d_force,
                                 dVec *d_spins,
                                 int *d_types,
+                                int *d_latticeNeighbors,
                                 Index3D latticeIndex,
+                                Index2D neighborIndex,
                                 scalar A,scalar B,scalar C,scalar L,
                                 int N,
                                 bool zeroForce,
@@ -723,8 +733,9 @@ bool gpu_qTensor_oneConstantForce(dVec *d_force,
     scalar b = B/3.0;
     scalar c = 0.25*C;
     scalar l = 2.0*L;
-    gpu_qTensor_oneConstantForce_kernel<<<nblocks,block_size>>>(d_force,d_spins,d_types,latticeIndex,
-                                                             a,b,c,l,N,zeroForce);
+    gpu_qTensor_oneConstantForce_kernel<<<nblocks,block_size>>>(d_force,d_spins,d_types,d_latticeNeighbors,
+                                                                latticeIndex,neighborIndex,
+                                                                a,b,c,l,N,zeroForce);
     HANDLE_ERROR(cudaGetLastError());
     return cudaSuccess;
     }
