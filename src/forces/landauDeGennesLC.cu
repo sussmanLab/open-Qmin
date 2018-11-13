@@ -206,7 +206,7 @@ __global__ void gpu_qTensor_oneConstantForce_kernel(dVec *d_force,
                                 int *d_latticeNeighbors,
                                 Index3D latticeIndex,
                                 Index2D neighborIndex,
-                                scalar a,scalar b,scalar c,scalar l,
+                                scalar a,scalar b,scalar c,scalar L1,
                                 int N,
                                 bool zeroForce)
     {
@@ -236,10 +236,10 @@ __global__ void gpu_qTensor_oneConstantForce_kernel(dVec *d_force,
         xDown = d_spins[ixd]; xUp = d_spins[ixu];
         yDown = d_spins[iyd]; yUp = d_spins[iyu];
         zDown = d_spins[izd]; zUp = d_spins[izu];
-        dVec spatialTerm;
+        dVec spatialTerm(0.0);
         if(d_types[idx] == 0) // bulk is easy
             {
-            spatialTerm = l*(6.0*qCurrent-xDown-xUp-yDown-yUp-zDown-zUp);
+            spatialTerm = L1*(6.0*qCurrent-xDown-xUp-yDown-yUp-zDown-zUp);
             scalar AxxAyy = spatialTerm[0]+spatialTerm[3];
             spatialTerm[0] += AxxAyy;
             spatialTerm[1] *= 2.0;
@@ -273,7 +273,7 @@ __global__ void gpu_qTensor_oneConstantForce_kernel(dVec *d_force,
             spatialTerm[2] *= 2.0;
             spatialTerm[3] += AxxAyy;
             spatialTerm[4] *= 2.0;
-            spatialTerm = l*spatialTerm;
+            spatialTerm = L1*spatialTerm;
             };
         force -= spatialTerm;
         };
@@ -732,7 +732,7 @@ bool gpu_qTensor_oneConstantForce(dVec *d_force,
     scalar a = 0.5*A;
     scalar b = B/3.0;
     scalar c = 0.25*C;
-    scalar l = 2.0*L;
+    scalar l = L;
     gpu_qTensor_oneConstantForce_kernel<<<nblocks,block_size>>>(d_force,d_spins,d_types,d_latticeNeighbors,
                                                                 latticeIndex,neighborIndex,
                                                                 a,b,c,l,N,zeroForce);

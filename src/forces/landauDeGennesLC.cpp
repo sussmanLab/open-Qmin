@@ -238,7 +238,7 @@ void landauDeGennesLC::computeForceOneConstantCPU(GPUArray<dVec> &forces, bool z
             //use the neighbors to compute the distortion
             if(latticeTypes.data[currentIndex] == 0) // if it's in the bulk, things are easy
                 {
-                dVec spatialTerm = l*(6.0*qCurrent-xDown-xUp-yDown-yUp-zDown-zUp);
+                dVec spatialTerm = L1*(6.0*qCurrent-xDown-xUp-yDown-yUp-zDown-zUp);
                 scalar AxxAyy = spatialTerm[0]+spatialTerm[3];
                 spatialTerm[0] += AxxAyy;
                 spatialTerm[1] *= 2.0;
