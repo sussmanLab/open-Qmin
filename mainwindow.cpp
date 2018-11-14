@@ -613,12 +613,13 @@ void MainWindow::on_saveFileNowButton_released()
     for (int ii = 0; ii < Configuration->getNumberOfParticles();++ii)
         {
         int3 pos = Configuration->latticeIndex.inverseIndex(ii);
-        myfile << pos.x <<"\t"<<pos.y<<"\t"<<pos.z<<"\t"<<pp.data[ii][0]<<"\t"<<pp.data[ii][1]<<"\t"<<
-                pp.data[ii][2]<<"\t"<<pp.data[ii][3]<<"\t"<<pp.data[ii][4]<<"\t"<<tt.data[ii]<<"\n";
+        myfile << pos.x <<"\t"<<pos.y<<"\t"<<pos.z;
+        for (int dd = 0; dd <DIMENSION; ++dd)
+            myfile <<"\t"<<pp.data[ii][dd];
+        myfile << "\t"<<tt.data[ii]<<"\n";
         };
 
     myfile.close();
-
     QString printable1 = QStringLiteral("File saved");
     ui->testingBox->setText(printable1);
     ui->fileSaveWidget->hide();

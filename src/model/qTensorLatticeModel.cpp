@@ -95,11 +95,11 @@ void qTensorLatticeModel::setNematicQTensorRandomly(noiseSource &noise,scalar S0
                 }
             if(t.data[pp] <=0)
                 {
-                pos.data[pp][0] = amplitude*(sin(theta)*sin(theta)*cos(phi)*cos(phi)-1.0/3.0);
-                pos.data[pp][1] = amplitude*sin(theta)*sin(theta)*cos(phi)*sin(phi);
-                pos.data[pp][2] = amplitude*sin(theta)*cos(theta)*cos(phi);
-                pos.data[pp][3] = amplitude*(sin(theta)*sin(theta)*sin(phi)*sin(phi)-1.0/3.0);
-                pos.data[pp][4] = amplitude*sin(theta)*cos(theta)*sin(phi);
+                scalar3 n;
+                n.x = cos(phi)*sin(theta);
+                n.y = sin(phi)*sin(theta);
+                n.z = cos(theta);
+                qTensorFromDirector(n, S0, pos.data[pp]);
                 };
             };
         }
@@ -112,13 +112,28 @@ void qTensorLatticeModel::setNematicQTensorRandomly(noiseSource &noise,scalar S0
         noise.initialize(N);
         noise.initializeGPURNGs();
         ArrayHandle<curandState> d_curandRNGs(noise.RNGs,access_location::device,access_mode::readwrite);
-        gpu_set_random_nematic_qTensors(pos.data,t.data,d_curandRNGs.data, amplitude, blockSize,nBlocks,globallyAligned,globalTheta,globalPhi,N);
+        gpu_set_random_nematic_qTensors(pos.data,t.data,d_curandRNGs.data, S0, blockSize,nBlocks,globallyAligned,globalTheta,globalPhi,N);
         }
     };
 
 void qTensorLatticeModel::moveParticles(GPUArray<dVec> &displacements,scalar scale)
     {
-    cubicLattice::moveParticles(displacements,scale);
+    if(!useGPU)
+        {//cpu branch
+        ArrayHandle<dVec> h_disp(displacements, access_location::host,access_mode::read);
+        ArrayHandle<dVec> h_pos(positions);
+        #include "ompParallelLoopDirective.h"
+        for(int pp = 0; pp < N; ++pp)
+            {
+            h_pos.data[pp] += h_disp.data[pp];
+            }
+        }
+    else
+        {//gpu branch
+        ArrayHandle<dVec> d_disp(displacements,access_location::device,access_mode::read);
+        ArrayHandle<dVec> d_pos(positions,access_location::device,access_mode::readwrite);
+        gpu_update_qTensor(d_disp.data,d_pos.data,N);
+        };
     };
 
 /*!
