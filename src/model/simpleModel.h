@@ -54,7 +54,7 @@ class simpleModel
         scalar setVelocitiesMaxwellBoltzmann(scalar T,noiseSource &noise);
 
         //!compute the current KE
-        virtual scalar computeKineticEnergy();
+        virtual scalar computeKineticEnergy(bool verbose = false);
         //!compute the dimension-dependent instantaneous temperature
         virtual scalar computeInstantaneousTemperature(bool fixedMomentum=true);
 

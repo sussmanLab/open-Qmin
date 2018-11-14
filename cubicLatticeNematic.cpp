@@ -165,7 +165,7 @@ int main(int argc, char*argv[])
         auto t2 = chrono::system_clock::now();
         chrono::duration<scalar> diff = t2-t1;
 
-        scalar E = sim->computePotentialEnergy();
+        scalar E = sim->computePotentialEnergy(true);
         scalar maxForce = fire->getMaxForce();
         printf("minimized to %f\t E=%f\t time taken = %fs\n",maxForce,E,diff.count());
 

@@ -59,7 +59,7 @@ void baseLatticeForce::computeForceGPU(GPUArray<dVec> &forces, bool zeroOutForce
     };
 
 //!As an example of usage, we'll implement an n-Vector model force w/ nearest-neighbor interactions
-void baseLatticeForce::computeEnergyCPU()
+void baseLatticeForce::computeEnergyCPU(bool verbose)
     {
     energy=0.0;
     ArrayHandle<dVec> spins(lattice->returnPositions());

@@ -32,7 +32,7 @@ class force
         virtual void setModel(shared_ptr<simpleModel> _model){model=_model;};
 
         //!compute the energy associated with this force
-        virtual scalar computeEnergy(){return 0.;};
+        virtual scalar computeEnergy(bool verbose = false){return 0.;};
 
         //! compute the system-averaged pressure tensor; return identity if the force hasn't defined this yet
         virtual MatrixDxD computePressureTensor(){MatrixDxD temp; return temp;};

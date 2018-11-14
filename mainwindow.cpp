@@ -621,6 +621,7 @@ void MainWindow::on_saveFileNowButton_released()
 
     QString printable1 = QStringLiteral("File saved");
     ui->testingBox->setText(printable1);
+    ui->fileSaveWidget->hide();
 }
 
 void MainWindow::on_boxLSize_textEdited(const QString &arg1)

@@ -123,19 +123,19 @@ void Simulation::moveParticles(GPUArray<dVec> &displacements)
     Conf->moveParticles(displacements);
     };
 
-scalar Simulation::computeKineticEnergy()
+scalar Simulation::computeKineticEnergy(bool verbose)
     {
     auto Conf = configuration.lock();
-    return Conf->computeKineticEnergy();
+    return Conf->computeKineticEnergy(verbose);
     }
 
-scalar Simulation::computePotentialEnergy()
+scalar Simulation::computePotentialEnergy(bool verbose)
     {
     scalar PE = 0.0;
     for (int f = 0; f < forceComputers.size(); ++f)
         {
         auto frc = forceComputers[f].lock();
-        PE += frc->computeEnergy();
+        PE += frc->computeEnergy(verbose);
         };
     return PE;
     };

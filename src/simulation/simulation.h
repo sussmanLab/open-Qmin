@@ -58,13 +58,13 @@ class Simulation : public basicSimulation, public enable_shared_from_this<Simula
             };
 
         //!compute the potential energy associated with all of the forces
-        virtual scalar computePotentialEnergy();
+        virtual scalar computePotentialEnergy(bool verbose = false);
         //!compute the kinetic energy
-        virtual scalar computeKineticEnergy();
+        virtual scalar computeKineticEnergy(bool verbose = false);
         //!compute the total energy
-        virtual scalar computeEnergy()
+        virtual scalar computeEnergy(bool verbose = false)
             {
-            return computeKineticEnergy() + computePotentialEnergy();
+            return computeKineticEnergy(verbose) + computePotentialEnergy(verbose);
             };
         //!compute the pressure tensor
         virtual void computePressureTensor(MatrixDxD &P);

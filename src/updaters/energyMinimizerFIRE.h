@@ -93,6 +93,8 @@ class energyMinimizerFIRE : public velocityVerlet
         //!The smallest value of alpha
         scalar alphaMin;
 
+        //!a multiplicative factor
+        scalar scaling;
         //!Utility array for simple reductions
         GPUArray<scalar> sumReductionIntermediate;
         //!Utility array for simple reductions

@@ -88,7 +88,7 @@ void energyMinimizerFIRE::fireStepGPU()
     Power = h_assist.data[1];
     scalar velocityNorm = h_assist.data[2];
     forceMax = sqrt(forceNorm) / (scalar)Ndof;
-    scalar scaling = 0.0;
+    scaling = 0.0;
     if(forceNorm > 0.)
         scaling = sqrt(velocityNorm/forceNorm);
     gpu_update_velocity_FIRE(d_v.data,d_f.data,alpha,scaling,Ndof);
@@ -138,7 +138,7 @@ void energyMinimizerFIRE::fireStepCPU()
         velocityNorm += dot(h_v.data[i],h_v.data[i]);
         };
     forceMax = sqrt(forceNorm) / (scalar)Ndof;
-    scalar scaling = 0.0;
+    scaling = 0.0;
     if(forceNorm > 0.)
         scaling = sqrt(velocityNorm/forceNorm);
     //adjust the velocity according to the FIRE algorithm
@@ -191,9 +191,9 @@ void energyMinimizerFIRE::minimize()
         integrateEquationOfMotion();
         fireStep();
         if(iterations%1000 == 999)
-            printf("step %i max force:%.3g \tpower: %.3g\t alpha %.3g\t dt %g \n",iterations,forceMax,Power,alpha,deltaT);cout.flush();
+            printf("step %i max force:%.3g \tpower: %.3g\t alpha %.3g\t dt %g \t scaling %.3g \n",iterations,forceMax,Power,alpha,deltaT,scaling);cout.flush();
         };
-        printf("fire finished: step %i max force:%.3g \tpower: %.3g\t alpha %.3g\t dt %g \n",iterations,forceMax,Power,alpha,deltaT);cout.flush();
+        printf("fire finished: step %i max force:%.3g \tpower: %.3g\t alpha %.3g\t dt %g \tscaling %.3g \n",iterations,forceMax,Power,alpha,deltaT,scaling);cout.flush();
     };
 
 

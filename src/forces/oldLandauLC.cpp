@@ -223,24 +223,17 @@ void landauDeGennesLC::computeForceOneConstantCPU(GPUArray<dVec> &forces, bool z
         if(latticeTypes.data[currentIndex] <= 0)
             {
             qCurrent = Qtensors.data[currentIndex];
+            xDown = Qtensors.data[latticeNeighbors.data[lattice->neighborIndex(0,currentIndex)]];
+            xUp   = Qtensors.data[latticeNeighbors.data[lattice->neighborIndex(1,currentIndex)]];
+            yDown = Qtensors.data[latticeNeighbors.data[lattice->neighborIndex(2,currentIndex)]];
+            yUp   = Qtensors.data[latticeNeighbors.data[lattice->neighborIndex(3,currentIndex)]];
+            zDown = Qtensors.data[latticeNeighbors.data[lattice->neighborIndex(4,currentIndex)]];
+            zUp   = Qtensors.data[latticeNeighbors.data[lattice->neighborIndex(5,currentIndex)]];
+
             //compute the phase terms depending only on the current site
             h_f.data[currentIndex] -= a*derivativeTrQ2(qCurrent);
             h_f.data[currentIndex] -= b*derivativeTrQ3(qCurrent);
             h_f.data[currentIndex] -= c*derivativeTrQ2Squared(qCurrent);
-
-            int n0,n1,n2,n3,n4,n5;
-            n0 =latticeNeighbors.data[lattice->neighborIndex(0,currentIndex)];
-            n1 =latticeNeighbors.data[lattice->neighborIndex(1,currentIndex)];
-            n2 =latticeNeighbors.data[lattice->neighborIndex(2,currentIndex)];
-            n3 =latticeNeighbors.data[lattice->neighborIndex(3,currentIndex)];
-            n4 =latticeNeighbors.data[lattice->neighborIndex(4,currentIndex)];
-            n5 =latticeNeighbors.data[lattice->neighborIndex(5,currentIndex)];
-            xDown = Qtensors.data[n0];
-            xUp   = Qtensors.data[n1];
-            yDown = Qtensors.data[n2];
-            yUp   = Qtensors.data[n3];
-            zDown = Qtensors.data[n4];
-            zUp   = Qtensors.data[n5];
 
             //use the neighbors to compute the distortion
             if(latticeTypes.data[currentIndex] == 0) // if it's in the bulk, things are easy
@@ -257,74 +250,32 @@ void landauDeGennesLC::computeForceOneConstantCPU(GPUArray<dVec> &forces, bool z
             else
                 {//distortion term first
                 dVec spatialTerm(0.0);
-                dVec deriv;
-                if(latticeTypes.data[n0] >0)//xDown is a boundary
-                    {
-                    deriv = (xUp-qCurrent);
-                    scalar crossTerm = deriv[0]+deriv[3];
-                    deriv[0] += crossTerm;
-                    deriv[1] *= 2.0;
-                    deriv[2] *= 2.0;
-                    deriv[3] += crossTerm;
-                    deriv[4] *= 2.0;
-                    spatialTerm += deriv;
-                    }
-                if(latticeTypes.data[n1] >0)//xUp is a boundary
-                    {
-                    deriv = (xDown-qCurrent);//negative derivative and negative nu_x cancel
-                    scalar crossTerm = deriv[0]+deriv[3];
-                    deriv[0] += crossTerm;
-                    deriv[1] *= 2.0;
-                    deriv[2] *= 2.0;
-                    deriv[3] += crossTerm;
-                    deriv[4] *= 2.0;
-                    spatialTerm += deriv;
-                    }
-                if(latticeTypes.data[n2] >0)//ydown
-                    {
-                    deriv = (yUp-qCurrent);
-                    scalar crossTerm = deriv[0]+deriv[3];
-                    deriv[0] += crossTerm;
-                    deriv[1] *= 2.0;
-                    deriv[2] *= 2.0;
-                    deriv[3] += crossTerm;
-                    deriv[4] *= 2.0;
-                    spatialTerm += deriv;
-                    }
-                if(latticeTypes.data[n3] >0)
-                    {
-                    deriv = (yDown-qCurrent);//negative derivative and negative nu_y cancel
-                    scalar crossTerm = deriv[0]+deriv[3];
-                    deriv[0] += crossTerm;
-                    deriv[1] *= 2.0;
-                    deriv[2] *= 2.0;
-                    deriv[3] += crossTerm;
-                    deriv[4] *= 2.0;
-                    spatialTerm += deriv;
-                    }
-                if(latticeTypes.data[n4] >0)//zDown is boundary
-                    {
-                    deriv = (zUp-qCurrent);
-                    scalar crossTerm = deriv[0]+deriv[3];
-                    deriv[0] += crossTerm;
-                    deriv[1] *= 2.0;
-                    deriv[2] *= 2.0;
-                    deriv[3] += crossTerm;
-                    deriv[4] *= 2.0;
-                    spatialTerm += deriv;
-                    }
-                if(latticeTypes.data[n5] >0)
-                    {
-                    deriv = (zDown-qCurrent);//negative derivative and negative nu_z cancel
-                    scalar crossTerm = deriv[0]+deriv[3];
-                    deriv[0] += crossTerm;
-                    deriv[1] *= 2.0;
-                    deriv[2] *= 2.0;
-                    deriv[3] += crossTerm;
-                    deriv[4] *= 2.0;
-                    spatialTerm += deriv;
-                    }
-                h_f.data[currentIndex] += L1*spatialTerm;
+                int n0,n1,n2,n3,n4,n5;
+                n0 =latticeNeighbors.data[lattice->neighborIndex(0,currentIndex)];
+                n1 =latticeNeighbors.data[lattice->neighborIndex(1,currentIndex)];
+                n2 =latticeNeighbors.data[lattice->neighborIndex(2,currentIndex)];
+                n3 =latticeNeighbors.data[lattice->neighborIndex(3,currentIndex)];
+                n4 =latticeNeighbors.data[lattice->neighborIndex(4,currentIndex)];
+                n5 =latticeNeighbors.data[lattice->neighborIndex(5,currentIndex)];
+                if(latticeTypes.data[n0] <=0)
+                    spatialTerm += qCurrent - xDown;
+                if(latticeTypes.data[n1] <=0)
+                    spatialTerm += qCurrent - xUp;
+                if(latticeTypes.data[n2] <=0)
+                    spatialTerm += qCurrent - yDown;
+                if(latticeTypes.data[n2] <=0)
+                    spatialTerm += qCurrent - yUp;
+                if(latticeTypes.data[n4] <=0)
+                    spatialTerm += qCurrent - zDown;
+                if(latticeTypes.data[n5] <=0)
+                    spatialTerm += qCurrent - zUp;
+                scalar AxxAyy = spatialTerm[0]+spatialTerm[3];
+                spatialTerm[0] += AxxAyy;
+                spatialTerm[1] *= 2.0;
+                spatialTerm[2] *= 2.0;
+                spatialTerm[3] += AxxAyy;
+                spatialTerm[4] *= 2.0;
+                h_f.data[currentIndex] -= l*spatialTerm;
                 }
             };
         };
@@ -909,7 +860,7 @@ void landauDeGennesLC::computeBoundaryForcesGPU(GPUArray<dVec> &forces,bool zero
     boundaryForceTuner->end();
     };
 
-void landauDeGennesLC::computeEnergyCPU(bool verbose)
+void landauDeGennesLC::computeEnergyCPU()
     {
     scalar phaseEnergy = 0.0;
     scalar distortionEnergy = 0.0;
@@ -1043,6 +994,5 @@ void landauDeGennesLC::computeEnergyCPU(bool verbose)
     energyComponents[3] = eFieldEnergy;
     energyComponents[4] = hFieldEnergy;
 
-    if(verbose)
-        printf("%f %f %f %f %f\n",phaseEnergy , distortionEnergy , anchoringEnergy , eFieldEnergy , hFieldEnergy);
+    printf("%f %f %f %f %f\n",phaseEnergy , distortionEnergy , anchoringEnergy , eFieldEnergy , hFieldEnergy);
     };

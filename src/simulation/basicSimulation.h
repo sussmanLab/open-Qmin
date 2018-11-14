@@ -18,7 +18,7 @@ class basicSimulation
         //!Call the configuration to move particles around
         virtual void moveParticles(GPUArray<dVec> &displacements)=0;
         //!compute the potential energy associated with all of the forces
-        virtual scalar computePotentialEnergy()=0;
+        virtual scalar computePotentialEnergy(bool verbose =false){return 0.0;};
         //!This changes the contents of the Box pointed to by Box to match that of _box
         void setBox(BoxPtr _box);
 
@@ -44,7 +44,7 @@ class basicSimulation
         virtual void setCurrentTimestep(int _cTime){integerTimestep =_cTime;};
 
         //!for debugging...
-        virtual scalar computeKineticEnergy()=0;
+        virtual scalar computeKineticEnergy(bool verbose =false){return 0.0;};
 
     protected:
         //! Determines how frequently the spatial sorter be called...once per sortPeriod Timesteps. When sortPeriod < 0 no sorting occurs

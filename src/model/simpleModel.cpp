@@ -40,7 +40,7 @@ void simpleModel::initializeSimpleModel(int n)
     fillGPUArrayWithVector(halves,radii);
     };
 
-scalar simpleModel::computeKineticEnergy()
+scalar simpleModel::computeKineticEnergy(bool verbose)
     {
     ArrayHandle<scalar> h_m(masses,access_location::host,access_mode::read);
     ArrayHandle<dVec> h_v(velocities);

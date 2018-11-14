@@ -23,16 +23,16 @@ class baseLatticeForce : public force
 
         void setJ(scalar _j){J=_j;};
 
-        virtual scalar computeEnergy()
+        virtual scalar computeEnergy(bool verbose = false)
             {
             if(useGPU)
-                computeEnergyGPU();
+                computeEnergyGPU(verbose);
             else
-                computeEnergyCPU();
+                computeEnergyCPU(verbose);
             return energy;
             };
-        virtual void computeEnergyCPU();
-        virtual void computeEnergyGPU(){printf("gpu energy calculation of lattice model being done on the cpu");energy = 0.0;};
+        virtual void computeEnergyCPU(bool verbose = false);
+        virtual void computeEnergyGPU(bool verbose = false){printf("gpu energy calculation of lattice model being done on the cpu");energy = 0.0;};
 
         //! virtual function to allow the model to be a derived class
         virtual void setModel(shared_ptr<cubicLattice> _model){lattice=_model;model = _model;};
