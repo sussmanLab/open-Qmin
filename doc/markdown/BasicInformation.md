@@ -3,6 +3,17 @@
 landau deGUI is an extension of a standard d-Dimensional molecular dynamics simulation package
 written by DMS, and much of the class structure reflects this...
 
+A pdf with details of the physics will eventually be written and linked to here...
+
+# Running in non-visual mode
+
+By default, once compiled landauDeGUI will launch a GUI that will let you initialize and interact
+with a simulation of Q-tensors living on a 3D cubic lattice. It can also be launched from the command
+line with the additional flag "-v" (no arguments)... a long sequence of other command line flags and
+arguments can then be appended to control the program behavior. In this way landauDeGUI can be used
+on a cluster. If default compilation has been done, then from the build directory executing:
+./landauDeGUI.out --help
+will output a list of possible command line options.
 
 
 ## Directory structure of the project

@@ -2,6 +2,9 @@
 
 ### Changes in progress
 
+* Switching away from pre-discretized gradients and towards EL framework
+
+### landauDeGUI version 0.6
 * various boundary conditions implemented
 * 1- 2- and 3- constant approximation to the distortion term implemented
 * semi-reasonable visualizations added
