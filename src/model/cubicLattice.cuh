@@ -9,7 +9,7 @@
 
 /** @addtogroup modelKernels model Kernels
  * @{
- * \brief CUDA kernels and callers
+ * \brief CUDA kernels and callers for model classes
  */
 
 //! move spins

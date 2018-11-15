@@ -7,7 +7,7 @@
 /*! \file landauDeGennesLC.cuh */
 /** @addtogroup forceKernels force Kernels
  * @{
- * \brief CUDA kernels and callers
+ * \brief CUDA kernels and callers for force calculations
  */
 
 bool gpu_qTensor_oneConstantForce(dVec *d_force,

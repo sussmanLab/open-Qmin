@@ -10,7 +10,7 @@
 
 /** @addtogroup modelKernels model Kernels
  * @{
- * \brief CUDA kernels and callers
+ * \brief CUDA kernels and callers for model classes
  */
 
 //!move a qTensor, project it back to a traceless configuration
