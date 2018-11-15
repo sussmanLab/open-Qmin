@@ -3,7 +3,6 @@
 /*! \file landauDeGennesLC.cu */
 /** @addtogroup forceKernels force Kernels
  * @{
- * \brief CUDA kernels and callers
  */
 
 __device__ void gpu_get_six_neighbors(int3 &target, int &ixd, int &ixu,int &iyd, int &iyu,int &izd, int &izu,
