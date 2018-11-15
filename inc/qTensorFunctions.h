@@ -73,11 +73,11 @@ HOSTDEVICE scalar TrQ2Squared(dVec &q)
 HOSTDEVICE dVec derivativeTrQ2(dVec &q)
     {
     dVec ans;
-    ans[0] = 2*(2*q[0] + q[3]);
-    ans[1] = 4*q[1];
-    ans[2] = 4*q[2];
-    ans[3] = 2*(q[0] + 2*q[3]);
-    ans[4] = 4*q[4];
+    ans[0] = 2.*(2*q[0] + q[3]);
+    ans[1] = 4.*q[1];
+    ans[2] = 4.*q[2];
+    ans[3] = 2.*(q[0] + 2*q[3]);
+    ans[4] = 4.*q[4];
     return ans;
     };
 
@@ -96,14 +96,29 @@ HOSTDEVICE dVec derivativeTrQ3(dVec &q)
 //!derivative of (Tr(Q^2))^2 w/r/t q[0] .. q[4]
 HOSTDEVICE dVec derivativeTrQ2Squared(dVec &q)
     {
+    scalar squares = q[0]*q[0]+q[1]*q[1]+q[2]*q[2]+q[3]*q[3]+q[4]*q[4]+q[0]*q[3];
     dVec ans;
-    ans[0] = 8*(2*q[0] + q[3])*(q[0]*q[0] + q[1]*q[1] + q[2]*q[2] + q[3]*q[3] + q[4]*q[4] + q[0]*q[3]);
-    ans[1] = 16*q[1]*(q[0]*q[0] + q[1]*q[1] + q[2]*q[2] + q[3]*q[3] + q[4]*q[4] + q[0]*q[3]);
-    ans[2] = 16*q[2]*(q[0]*q[0] + q[1]*q[1] + q[2]*q[2] + q[3]*q[3] + q[4]*q[4] + q[0]*q[3]);
-    ans[3] = 8*(q[0] + 2*q[3])*(q[0]*q[0] + q[1]*q[1] + q[2]*q[2] + q[3]*q[3] + q[4]*q[4] + q[0]*q[3]);
-    ans[4] = 16*(q[0]*q[0] + q[1]*q[1] + q[2]*q[2] + q[3]*q[3] + q[4]*q[4] + q[0]*q[3])*q[4];
+    ans[0] = 8.0*(2.0*q[0]+q[3])*squares;
+    ans[1] = 16*q[1]*squares;
+    ans[2] = 16*q[2]*squares;
+    ans[3] = 8.0*(q[0]+2.0*q[3])*squares;
+    ans[4] = 16*q[4]*squares;
     return ans;
     };
+
+//!Phase components combined into one for computational efficiency
+HOSTDEVICE dVec allPhaseComponentForces(dVec &q, scalar &a, scalar &b, scalar &c)
+    {
+    scalar squares = q[0]*q[0]+q[1]*q[1]+q[2]*q[2]+q[3]*q[3]+q[4]*q[4]+q[0]*q[3];
+    
+    dVec ans;
+    ans[0] = -a*2.*(2. *q[0] + q[3]) +b*3.0*(-q[1]*q[1] + q[3]*q[3] + q[4]*q[4] + 2*q[0]*q[3]) - c*8.0*(2.0*q[0]+q[3])*squares;
+    ans[1] = -a*4.*q[1]             -b*6.*(q[0]*q[1] + q[1]*q[3] + q[2]*q[4]) - c*16.*q[1]*squares;
+    ans[2] = -a*4.*q[2]             +b*6.*q[2]*q[3] + 6.*q[1]*q[4] - c*16.*q[2]*squares;
+    ans[3] = -a*2.*(q[0] + 2.*q[3]) +b*3.*(q[0]*q[0] - q[1]*q[1] + q[2]*q[2] + 2.*q[0]*q[3]) - c*8.0*(q[0]+2.0*q[3])*squares;
+    ans[4] = -a*4.*q[4]             -b*6.*q[1]*q[2] - 6.*q[0]*q[4] - c*16.*q[4]*squares;
+    return ans;
+    }
 
 //!Q_{jk}Q_{ki}
 HOSTDEVICE dVec QjkQki(dVec &q)

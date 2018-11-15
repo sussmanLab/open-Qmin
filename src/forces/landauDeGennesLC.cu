@@ -22,6 +22,7 @@ __device__ void gpu_phase_force(dVec &qCurrent, scalar &a, scalar &b, scalar &c,
     force -= a*derivativeTrQ2(qCurrent);
     force -= b*derivativeTrQ3(qCurrent);
     force -= c*derivativeTrQ2Squared(qCurrent);
+    //force += allPhaseComponentForces(qCurrent,a,b,c);
     }
 
 __global__ void gpu_qTensor_computeBoundaryForcesGPU_kernel(dVec *d_force,
@@ -249,33 +250,38 @@ __global__ void gpu_qTensor_oneConstantForce_kernel(dVec *d_force,
             }
         else //near a boundary is less easy... ternary operators are slightly better than many ifs (particularly if boundaries are typically jagged)
             {
-            scalar xD = (d_types[ixd]<1) ? 1. : 0.;scalar xU = (d_types[ixu]<1) ? 1. : 0.;
-            scalar yD = (d_types[iyd]<1) ? 1. : 0.;scalar yU = (d_types[iyu]<1) ? 1. : 0.;
-            scalar zD = (d_types[izd]<1) ? 1. : 0.;scalar zU = (d_types[izu]<1) ? 1. : 0.;
-            spatialTerm = xD*(qCurrent - xDown) + xU*(qCurrent - xUp) + yD*(qCurrent - yDown) + yU*(qCurrent - yUp) + zD*(qCurrent - zDown) + zU*(qCurrent - zUp);
-            /*
-            if(d_types[ixd] <=0)
-                spatialTerm += qCurrent - xDown;
-            if(d_types[ixu] <=0)
-                spatialTerm += qCurrent - xUp;
-            if(d_types[iyd] <=0)
-                spatialTerm += qCurrent - yDown;
-            if(d_types[iyu] <=0)
-                spatialTerm += qCurrent - yUp;
-            if(d_types[izd] <=0)
-                spatialTerm += qCurrent - zDown;
-            if(d_types[izu] <=0)
-                spatialTerm += qCurrent - zUp;
-            */
-            scalar AxxAyy = spatialTerm[0]+spatialTerm[3];
-            spatialTerm[0] += AxxAyy;
+            if(d_types[ixd]>0)//xDown is a boundary
+                {
+                spatialTerm -= (xUp-qCurrent);
+                }
+            if(d_types[ixu] >0)//xUp is a boundary
+                {
+                spatialTerm -= (xDown-qCurrent);//negative derivative and negative nu_x cancel
+                }
+            if(d_types[iyd]>1)//ydown
+                {
+                spatialTerm -= (yUp-qCurrent);
+                }
+            if(d_types[iyu] >0)
+                {
+                spatialTerm -= (yDown-qCurrent);//negative derivative and negative nu_y cancel
+                }
+            if(d_types[izd] >0)//zDown is boundary
+                {
+                spatialTerm -= (zUp-qCurrent);
+                }
+            if(d_types[izu] >0)
+                {
+                spatialTerm -= (zDown-qCurrent);//negative derivative and negative nu_z cancel
+                }
+            scalar crossTerm = spatialTerm[0]+spatialTerm[3];
+            spatialTerm[0] += crossTerm;
             spatialTerm[1] *= 2.0;
             spatialTerm[2] *= 2.0;
-            spatialTerm[3] += AxxAyy;
+            spatialTerm[3] += crossTerm;
             spatialTerm[4] *= 2.0;
-            spatialTerm = L1*spatialTerm;
             };
-        force -= spatialTerm;
+        force -= L1*spatialTerm;
         };
     if(zeroForce)
         d_force[idx] = force;

@@ -48,6 +48,7 @@ void cubicLattice::initializeNSites()
     fillGPUArrayWithVector(zeroes,positions);
     fillGPUArrayWithVector(zeroes,forces);
     fillGPUArrayWithVector(zeroes,velocities);
+    moveParticlesTuner = make_shared<kernelTuner>(128,1024,128,10,200000);
     };
 
 void cubicLattice::moveParticles(GPUArray<dVec> &dofs,GPUArray<dVec> &displacements,scalar scale)

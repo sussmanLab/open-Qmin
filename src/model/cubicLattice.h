@@ -4,6 +4,7 @@
 #include "simpleModel.h"
 #include "indexer.h"
 #include "latticeBoundaries.h"
+#include "kernelTuner.h"
 
 /*! \file cubicLattice.h
 \brief puts degrees of freedom on a cubic lattice... probably for spin-like models
@@ -77,5 +78,8 @@ class cubicLattice : public simpleModel
 
         //!normalize vector length when moving spins?
         bool normalizeSpins;
+
+        //!performance for the moveParticles kernel
+        shared_ptr<kernelTuner> moveParticlesTuner;
     };
 #endif

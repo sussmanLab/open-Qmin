@@ -130,9 +130,11 @@ void qTensorLatticeModel::moveParticles(GPUArray<dVec> &displacements,scalar sca
         }
     else
         {//gpu branch
+        moveParticlesTuner->begin();
         ArrayHandle<dVec> d_disp(displacements,access_location::device,access_mode::read);
         ArrayHandle<dVec> d_pos(positions,access_location::device,access_mode::readwrite);
-        gpu_update_qTensor(d_disp.data,d_pos.data,N);
+        gpu_update_qTensor(d_disp.data,d_pos.data,N,moveParticlesTuner->getParameter());
+        moveParticlesTuner->end();
         };
     };
 

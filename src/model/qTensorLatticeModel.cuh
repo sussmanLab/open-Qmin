@@ -16,7 +16,8 @@
 //!move a qTensor, project it back to a traceless configuration
 bool gpu_update_qTensor(dVec *d_disp,
                         dVec *Q,
-                        int N);
+                        int N,
+                        int blockSize);
 
 //!GPU analog of function in cpp file
 bool gpu_get_qtensor_DefectMeasures(dVec *Q,

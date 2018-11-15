@@ -72,30 +72,31 @@ __global__ void gpu_set_random_nematic_qTensors_kernel(dVec *pos, int *type, cur
     return;
     };
 
-__global__ void gpu_update_qTensor_kernel(dVec *d_disp,
+__global__ void gpu_update_qTensor_simple_kernel(dVec *d_disp,
                             dVec *d_pos,
                             int N)
     {
     unsigned int idx = blockDim.x * blockIdx.x + threadIdx.x;
-    if (idx >= N)
-        return;
-    d_pos[idx] += d_disp[idx];
+    int pidx = idx/DIMENSION;
+    if(pidx>=N) return;
+    int didx = idx%DIMENSION;
+
+    d_pos[pidx][didx] += d_disp[pidx][didx];
     return;
     };
 
 bool gpu_update_qTensor(dVec *d_disp,
                             dVec *Q,
-                            int N)
+                            int N,int blockSize)
     {
-    unsigned int blockSize = 1024;
     if (N < 128) blockSize = 16;
-    unsigned int nBlocks  = N/blockSize + 1;
+    unsigned int nBlocks  = DIMENSION*N/blockSize + 1;
     if(DIMENSION <5)
         {
         printf("\nAttempting to initialize Q-tensors with incorrectly set dimension...change the root CMakeLists.txt file to have dimension 5 and recompile\n");
         throw std::exception();
         }
-    gpu_update_qTensor_kernel<<<nBlocks,blockSize>>>(d_disp, Q,N);
+    gpu_update_qTensor_simple_kernel<<<nBlocks,blockSize>>>(d_disp, Q,N);
     HANDLE_ERROR(cudaGetLastError());
     return cudaSuccess;
     };
