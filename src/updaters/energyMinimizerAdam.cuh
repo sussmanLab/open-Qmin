@@ -7,7 +7,7 @@
 
 /** @addtogroup updaterKernels updater Kernels
  * @{
- * \brief CUDA kernels and callers
+ * \brief CUDA kernels and callers for updater classes
  */
 
 //!run an adam minimization step

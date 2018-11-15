@@ -6,7 +6,7 @@
 /*! \file baseLatticeForce.cuh */
 /** @addtogroup forceKernels force Kernels
  * @{
- * \brief CUDA kernels and callers
+ * \brief CUDA kernels and callers for force calculations
  */
 
 bool gpu_lattice_spin_force_nn(dVec *d_force,
