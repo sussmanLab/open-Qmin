@@ -366,7 +366,7 @@ void cubicLattice::displaceBoundaryObject(int objectIndex, int motionDirection)
                 printf("Illegal motion direction\n");
                 return;
             };
-        ArrayHandle>dVec> pos(positions);
+        ArrayHandle<dVec> pos(positions);
         ArrayHandle<int> t(types);
         ArrayHandle<int> bSites(boundarySites[objectIndex]);
         ArrayHandle<int> sSites(surfaceSites[objectIndex]);

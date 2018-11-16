@@ -117,7 +117,16 @@ HOSTDEVICE dVec operator-(const dVec &a, const dVec &b)
     }
 
 //!component-wise multiplication of two dVecs
-HOSTDEVICE dVec operator*(const dVec &a, const dVec &b)
+HOSTDEVICE scalar operator*(const dVec &a, const dVec &b)
+    {
+    scalar ans;
+    for (int dd = 0; dd < DIMENSION; ++dd)
+        ans += a.x[dd]*b.x[dd];
+    return ans;
+    }
+
+//!component-wise multiplication of two dVecs
+HOSTDEVICE dVec multiply(const dVec &a, const dVec &b)
     {
     dVec ans;
     for (int dd = 0; dd < DIMENSION; ++dd)

@@ -67,7 +67,7 @@ void energyMinimizerAdam::adamStepCPU()
         {
         forceNorm += dot(negativeGrad.data[nn],negativeGrad.data[nn]);
         m.data[nn] = beta1*m.data[nn] + (beta1-1)*negativeGrad.data[nn];
-        v.data[nn] = beta2*v.data[nn] + (1-beta2)*(negativeGrad.data[nn]*negativeGrad.data[nn]);
+        v.data[nn] = beta2*v.data[nn] + (1-beta2)*multiply(negativeGrad.data[nn],negativeGrad.data[nn]);
         mc.data[nn] = m.data[nn] *(1.0/(1.0 - beta1t));
         vc.data[nn] = v.data[nn]*(1.0/(1.0 - beta2t));
         for (int dd = 0; dd < DIMENSION; ++dd)
