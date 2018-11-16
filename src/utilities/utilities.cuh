@@ -79,11 +79,20 @@ bool gpu_parallel_reduction(
                     int N,
                     int block_size);
 
+//!Take two vectors of dVecs and compute the sum of the dot products between them using thrust
+bool gpu_dVec_dot_products(
+                    dVec *input1,
+                    dVec *input2,
+                    scalar *output,
+                    int helperIdx,
+                    int N);
+
 //!Take two vectors of dVecs and compute the sum of the dot products between them
 bool gpu_dVec_dot_products(
                     dVec *input1,
                     dVec *input2,
                     scalar *intermediate,
+                    scalar *intermediate2,
                     scalar *output,
                     int helperIdx,
                     int N,

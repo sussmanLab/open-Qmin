@@ -97,6 +97,7 @@ class energyMinimizerFIRE : public velocityVerlet
         scalar scaling;
         //!Utility array for simple reductions
         GPUArray<scalar> sumReductionIntermediate;
+        GPUArray<scalar> sumReductionIntermediate2;
         //!Utility array for simple reductions
         GPUArray<scalar> sumReductions;
 

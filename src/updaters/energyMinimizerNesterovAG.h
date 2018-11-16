@@ -49,6 +49,7 @@ class energyMinimizerNesterovAG : public equationOfMotion
         GPUArray<dVec> alternateSequence;
         //!Utility array for simple reductions
         GPUArray<scalar> sumReductionIntermediate;
+        GPUArray<scalar> sumReductionIntermediate2;
         //!Utility array for simple reductions
         GPUArray<scalar> sumReductions;
 

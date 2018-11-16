@@ -116,6 +116,18 @@ HOSTDEVICE dVec operator-(const dVec &a, const dVec &b)
     return ans;
     }
 
+//!provide a dot-product operator
+struct dVecDotProduct
+    {
+    HOSTDEVICE scalar operator()(const dVec &a, const dVec &b)
+        {
+        scalar ans = 0.0;
+        for (int dd = 0; dd < DIMENSION; ++dd)
+            ans += a.x[dd]*b.x[dd];
+        return ans;
+        }
+    };
+
 //!component-wise multiplication of two dVecs
 HOSTDEVICE scalar operator*(const dVec &a, const dVec &b)
     {

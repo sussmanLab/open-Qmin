@@ -32,6 +32,7 @@ void energyMinimizerNesterovAG::initializeFromModel()
     {
     Ndof = model->getNumberOfParticles();
     sumReductionIntermediate.resize(Ndof);
+    sumReductionIntermediate2.resize(Ndof);
     alternateSequence = model->returnPositions();
     };
 
@@ -55,10 +56,11 @@ void energyMinimizerNesterovAG::nesterovStepGPU()
     minimizationTuner->end();
 
     ArrayHandle<scalar> d_intermediate(sumReductionIntermediate,access_location::device,access_mode::overwrite);
+    ArrayHandle<scalar> d_intermediate2(sumReductionIntermediate2,access_location::device,access_mode::overwrite);
     ArrayHandle<scalar> d_assist(sumReductions,access_location::device,access_mode::overwrite);
     dotProductTuner->begin();
     int maxBlockSize  = dotProductTuner->getParameter();
-    gpu_dVec_dot_products(negativeGrad.data,negativeGrad.data,d_intermediate.data,d_assist.data,0,Ndof,maxBlockSize);
+    gpu_dVec_dot_products(negativeGrad.data,negativeGrad.data,d_intermediate.data,d_intermediate2.data,d_assist.data,0,Ndof,maxBlockSize);
     dotProductTuner->end();
     }
     ArrayHandle<scalar> h_assist(sumReductions,access_location::host,access_mode::read);
