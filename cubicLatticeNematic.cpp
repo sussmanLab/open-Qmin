@@ -159,7 +159,17 @@ int main(int argc, char*argv[])
         printf("setting random configuration with S0 = %f\n",S0);
         Configuration->setNematicQTensorRandomly(noise,S0);
 
-
+        /*
+        boundaryObject homeotropicBoundary(boundaryType::homeotropic,1.0,S0);
+        scalar3 left;
+        left.x = 0.3*boxLx;left.y = 0.5*boxLy;left.z = 0.5*boxLz;
+        scalar3 center;
+        left.x = 0.5*boxLx;left.y = 0.5*boxLy;left.z = 0.5*boxLz;
+        scalar3 right;
+        right.x = 0.7*boxLx;right.y = 0.5*boxLy;right.z = 0.5*boxLz;
+        Configuration->createSimpleFlatWallNormal(0,1, homeotropicBoundary);
+        */
+        
         auto t1 = chrono::system_clock::now();
         sim->performTimestep();
         auto t2 = chrono::system_clock::now();
@@ -168,7 +178,13 @@ int main(int argc, char*argv[])
         scalar E = sim->computePotentialEnergy(true);
         scalar maxForce = fire->getMaxForce();
         printf("minimized to %f\t E=%f\t time taken = %fs\n",maxForce,E,diff.count());
-
+        /*
+        int nn = Configuration->surfaceSites[0].getNumElements();
+        ArrayHandle<int> surf1(Configuration->surfaceSites[0]);
+        for (int ii = 0; ii < nn;++ii)
+            printf("%i\t",surf1.data[ii]);
+        printf("\n");
+        */
         return 0;
         }
     /*

@@ -290,13 +290,118 @@ void cubicLattice::createBoundaryObject(vector<int> &latticeSites, boundaryType 
 
     int neighNum;
     vector<int> neighbors;
+    vector<int> surfaceSite;
     //set all neighbors of boundary sites to type -1
     for (int ii = 0; ii < latticeSites.size();++ii)
         {
         int currentIndex = getNeighbors(latticeSites[ii],neighbors,neighNum);
         for (int nn = 0; nn < neighbors.size(); ++nn)
             if(t.data[neighbors[nn]] < 1)
+                {
                 t.data[neighbors[nn]] = -1;
+                surfaceSite.push_back(neighbors[nn]);
+                }
         };
-    printf("there are now %i boundary objects known to the configuration\n",boundaries.getNumElements());
+    removeDuplicateVectorElements(surfaceSite);
+
+    //add object and surface sites to the vectors
+    GPUArray<int> newBoundarySites;
+    fillGPUArrayWithVector(latticeSites, newBoundarySites);
+    GPUArray<int> newSurfaceSites;
+    fillGPUArrayWithVector(surfaceSite, newSurfaceSites);
+
+    boundarySites.push_back(newBoundarySites);
+    surfaceSites.push_back(newSurfaceSites);
+    boundaryState.push_back(0);
+    printf("there are now %i boundary objects known to the configuration...",boundaries.getNumElements());
+    printf(" last object had %lu sites and %lu surface sites \n",latticeSites.size(),surfaceSite.size());
+    if(surfaceSite.size()>boundaryMoveAssist1.getNumElements())
+        {
+        boundaryMoveAssist1.resize(surfaceSite.size());
+        ArrayHandle<int2> bma1(boundaryMoveAssist1);
+        boundaryMoveAssist2.resize(surfaceSite.size());
+        ArrayHandle<int2> bma2(boundaryMoveAssist2);
+        for (int ii = 0; ii < surfaceSite.size(); ++ii)
+            {
+            bma1.data[ii].x =0.0;bma1.data[ii].y =0.0;
+            bma2.data[ii].x =0.0;bma2.data[ii].y =0.0;
+            }
+        }
+    };
+
+/*!
+This function moves an object, shifting the type of lattice sites over on the lattice. Surface sites are also moved.
+Sites that change from being part of the boundary to a surface site adopt the average state of the neighboring
+sites that weren't formerly part of the boundary object. This function makes use of the fact that primitive
+translations will not change the total number of boundary or surface sites associated with each object
+\param objectIndex The position in the vector of boundarySites and surfaceSites that the desired object to move is in
+\param motionDirection Which way to move the object. Follows same convention as lattice neighbors for stencilType=0
+*/
+void cubicLattice::displaceBoundaryObject(int objectIndex, int motionDirection)
+    {
+    if(!useGPU)
+        {
+        int negativeMotionIndex;
+        switch(motionDirection)
+            {
+            case 0:
+                negativeMotionIndex = 1;
+                break;
+            case 1:
+                negativeMotionIndex = 0;
+                break;
+            case 2:
+                negativeMotionIndex = 3;
+                break;
+            case 3:
+                negativeMotionIndex = 2;
+                break;
+            case 4:
+                negativeMotionIndex = 5;
+                break;
+            case 5:
+                negativeMotionIndex = 4;
+                break;
+            default:
+                printf("Illegal motion direction\n");
+                return;
+            };
+        ArrayHandle>dVec> pos(positions);
+        ArrayHandle<int> t(types);
+        ArrayHandle<int> bSites(boundarySites[objectIndex]);
+        ArrayHandle<int> sSites(surfaceSites[objectIndex]);
+        ArrayHandle<int2> bma1(boundaryMoveAssist1);
+        ArrayHandle<int2> bma2(boundaryMoveAssist2);
+        ArrayHandle<int> neighbors(neighboringSites,access_location::host,access_mode::read);
+
+        for(int ii = 0; ii < surfaceSites[objectIndex].getNumElements();++ii)
+            {
+            int site = sSites.data[ii];
+            int motionSite = neighbors.data[neighborIndex(motionDirection,site)];
+            int negativeMotionSite = neighbors.data[neighborIndex(negativeMotionIndex,site)];
+            if(t.data[motionSite] >0) //that boundary site is about to become a surface site
+                {
+                }
+            if(t.data[negativeMotionSite] >0)//the surface site is about to become a boundary site
+                {
+                }
+
+            }
+
+
+        for(int ii =0; ii < boundarySites[objectIndex].getNumElements();++ii)
+            {
+            int site = bSites.data[ii];
+            int motionSite = neighbors.data[neighborIndex(motionDirection,site)];
+            int negativeMotionSite = neighbors.data[neighborIndex(negativeMotionIndex,site)];
+            if(t.data[motionSite] < 1)
+                {
+
+                }
+            }
+
+        }
+    else
+        {
+        };
     };

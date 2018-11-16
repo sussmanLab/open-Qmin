@@ -32,6 +32,10 @@ bool gpu_zero_array(unsigned int *arr,
                     int      N
                     );
 //!convenience function to zero out an array on the GPU
+bool gpu_zero_array(int2 *arr,
+                    int      N
+                    );
+//!convenience function to zero out an array on the GPU
 bool gpu_zero_array(dVec *arr,
                     int N
                     );

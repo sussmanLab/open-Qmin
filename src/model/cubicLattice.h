@@ -61,11 +61,24 @@ class cubicLattice : public simpleModel
             return ans;
         };
 
-        //!list of the non-bulk objects in the simulations
-        GPUArray<boundaryObject> boundaries;
+        //!Displace a boundary object (and surface sites) by one of the six primitive cubic lattice directions
+        void displaceBoundaryObject(int objectIndex, int motionDirection);
 
         //!assign a collection of lattice sites to a new boundaryObject
         void createBoundaryObject(vector<int> &latticeSites, boundaryType _type, scalar Param1, scalar Param2);
+
+        //!list of the non-bulk objects in the simulations
+        GPUArray<boundaryObject> boundaries;
+        //!A vector that keeps track of the sites associated with each boundary object
+        vector<GPUArray<int> > boundarySites;
+        //!A vector that keeps track of the surface sites associated with each boundary object
+        vector<GPUArray<int> > surfaceSites;
+        //!A vector of flags that specifies the state of each boundary object...most schemes will be 0 = fixed boundary, 1 = movable boudnary
+        vector<int> boundaryState;
+        //!An assist vector that can keep track of changes to boundary sites during a move. First element is index, second is type of change
+        GPUArray<int2> boundaryMoveAssist1;
+        //!An assist vector that can keep track of changes to boundary sites during a move. First element is index, second is type of change
+        GPUArray<int2> boundaryMoveAssist2;
 
     protected:
         //!a utility function for initialization
