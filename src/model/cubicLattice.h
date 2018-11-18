@@ -62,7 +62,7 @@ class cubicLattice : public simpleModel
         };
 
         //!Displace a boundary object (and surface sites) by one of the six primitive cubic lattice directions
-        void displaceBoundaryObject(int objectIndex, int motionDirection);
+        virtual void displaceBoundaryObject(int objectIndex, int motionDirection, int magnitude);
 
         //!assign a collection of lattice sites to a new boundaryObject
         void createBoundaryObject(vector<int> &latticeSites, boundaryType _type, scalar Param1, scalar Param2);

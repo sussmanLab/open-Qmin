@@ -135,6 +135,8 @@ template<class T> class GPUArray
         //!Resize the array...performs operations on both the CPU and GPU
         virtual void resize(unsigned int num_elements);
 
+        mutable data_location::Enum Data_location;    //!< Tracks the current location of the data
+        
     protected:
         inline void memclear(unsigned int first=0);
 
@@ -149,7 +151,6 @@ template<class T> class GPUArray
         mutable unsigned int Num_elements;            //!< Number of elements
         mutable bool Acquired;                //!< Tracks whether the data has been acquired
         bool RegisterArray;                //!< Tracks whether the data has been acquired
-        mutable data_location::Enum Data_location;    //!< Tracks the current location of the data
 
     protected:
         mutable T* d_data; //!<pointer to memory on device
@@ -209,7 +210,7 @@ template<class T> GPUArray<T>::~GPUArray()
     deallocate();
     }
 
-template<class T> GPUArray<T>::GPUArray(const GPUArray& from) : Num_elements(from.Num_elements), 
+template<class T> GPUArray<T>::GPUArray(const GPUArray& from) : Num_elements(from.Num_elements),
         Acquired(false), Data_location(data_location::host),
         d_data(NULL),
         h_data(NULL)

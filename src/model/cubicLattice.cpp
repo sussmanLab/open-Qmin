@@ -318,8 +318,10 @@ void cubicLattice::createBoundaryObject(vector<int> &latticeSites, boundaryType 
 
     if(latticeSites.size()>boundaryMoveAssist1.getNumElements())
         boundaryMoveAssist1.resize(latticeSites.size());
+    //ArrayHandle<pair<int,dVec> > bma1(boundaryMoveAssist1,access_location::host,access_mode::overwrite);
     if(surfaceSite.size()>boundaryMoveAssist2.getNumElements())
         boundaryMoveAssist2.resize(surfaceSite.size());
+    //ArrayHandle<pair<int,dVec> > bma2(boundaryMoveAssist2,access_location::host,access_mode::overwrite);
     };
 
 /*!
@@ -329,17 +331,20 @@ sites that weren't formerly part of the boundary object. This function makes use
 translations will not change the total number of boundary or surface sites associated with each object
 \param objectIndex The position in the vector of boundarySites and surfaceSites that the desired object to move is in
 \param motionDirection Which way to move the object. Follows same convention as lattice neighbors for stencilType=0
+\param magnitude number of lattice sites to move in the given direction
 */
-void cubicLattice::displaceBoundaryObject(int objectIndex, int motionDirection)
+void cubicLattice::displaceBoundaryObject(int objectIndex, int motionDirection, int magnitude)
+    {
+    for (int mm = 0; mm < magnitude; ++mm)
     {
     if(!useGPU)
         {
-        ArrayHandle<dVec> pos(positions);
-        ArrayHandle<int> t(types);
-        ArrayHandle<int> bSites(boundarySites[objectIndex]);
-        ArrayHandle<int> sSites(surfaceSites[objectIndex]);
-        ArrayHandle<pair<int,dVec> > bma1(boundaryMoveAssist1);
-        ArrayHandle<pair<int,dVec> > bma2(boundaryMoveAssist2);
+        ArrayHandle<dVec> pos(positions,access_location::host,access_mode::readwrite);
+        ArrayHandle<int> t(types,access_location::host,access_mode::readwrite);
+        ArrayHandle<int> bSites(boundarySites[objectIndex],access_location::host,access_mode::readwrite);
+        ArrayHandle<int> sSites(surfaceSites[objectIndex],access_location::host,access_mode::readwrite);
+        ArrayHandle<pair<int,dVec> > bma1(boundaryMoveAssist1,access_location::host,access_mode::overwrite);
+        ArrayHandle<pair<int,dVec> > bma2(boundaryMoveAssist2,access_location::host,access_mode::overwrite);
         ArrayHandle<int> neighbors(neighboringSites,access_location::host,access_mode::read);
 
         //first, copy the Q-tensors for parallel transport, and set all surface sites to type 0 (will be overwritten in second step)
@@ -379,8 +384,8 @@ void cubicLattice::displaceBoundaryObject(int objectIndex, int motionDirection)
         ArrayHandle<int> t(types,access_location::device,access_mode::readwrite);
         ArrayHandle<int> bSites(boundarySites[objectIndex],access_location::device,access_mode::readwrite);
         ArrayHandle<int> sSites(surfaceSites[objectIndex],access_location::device,access_mode::readwrite);
-        ArrayHandle<pair<int,dVec> > bma1(boundaryMoveAssist1,access_location::device,access_mode::readwrite);
-        ArrayHandle<pair<int,dVec> > bma2(boundaryMoveAssist2,access_location::device,access_mode::readwrite);
+        ArrayHandle<pair<int,dVec> > bma1(boundaryMoveAssist1,access_location::device,access_mode::overwrite);
+        ArrayHandle<pair<int,dVec> > bma2(boundaryMoveAssist2,access_location::device,access_mode::overwrite);
         ArrayHandle<int> neighbors(neighboringSites,access_location::device,access_mode::read);
 
         //copy boundary...don't reset lattice type
@@ -396,4 +401,5 @@ void cubicLattice::displaceBoundaryObject(int objectIndex, int motionDirection)
         gpu_move_boundary_object(pos.data,sSites.data,bma2.data,t.data,-1,
                                  surfaceSites[objectIndex].getNumElements());
         };
+    }//end loop over steps.... this should be (easily) optimized away at some point.
     };

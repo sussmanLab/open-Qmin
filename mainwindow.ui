@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1172</width>
+    <width>1135</width>
     <height>567</height>
    </rect>
   </property>
@@ -2793,6 +2793,205 @@ border: 1px solid purple</string>
      <string>Compute energy</string>
     </property>
    </widget>
+   <widget class="QWidget" name="moveObjectWidget" native="true">
+    <property name="geometry">
+     <rect>
+      <x>210</x>
+      <y>70</y>
+      <width>471</width>
+      <height>201</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background: white; border: 1px solid black</string>
+    </property>
+    <widget class="QLabel" name="label_68">
+     <property name="geometry">
+      <rect>
+       <x>150</x>
+       <y>10</y>
+       <width>191</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>Translate an object</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="objectIdxComboBox">
+     <property name="geometry">
+      <rect>
+       <x>210</x>
+       <y>50</y>
+       <width>78</width>
+       <height>23</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="moveXBox">
+     <property name="geometry">
+      <rect>
+       <x>90</x>
+       <y>110</y>
+       <width>71</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>0</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="moveYBox">
+     <property name="geometry">
+      <rect>
+       <x>210</x>
+       <y>110</y>
+       <width>71</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>0</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="moveZBox">
+     <property name="geometry">
+      <rect>
+       <x>330</x>
+       <y>110</y>
+       <width>71</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>1</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="fieldXLabel_2">
+     <property name="geometry">
+      <rect>
+       <x>70</x>
+       <y>110</y>
+       <width>16</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>x</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="fieldYLabel_2">
+     <property name="geometry">
+      <rect>
+       <x>190</x>
+       <y>110</y>
+       <width>16</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>y</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="fieldZLabel_2">
+     <property name="geometry">
+      <rect>
+       <x>310</x>
+       <y>110</y>
+       <width>16</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>z</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="moveObjectButton">
+     <property name="geometry">
+      <rect>
+       <x>180</x>
+       <y>160</y>
+       <width>114</width>
+       <height>32</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background:rgb(148, 148, 148)</string>
+     </property>
+     <property name="text">
+      <string>Translate!</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="cancelObjectFieldButton">
+     <property name="geometry">
+      <rect>
+       <x>370</x>
+       <y>170</y>
+       <width>80</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Cancel</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="fieldYLabel_3">
+     <property name="geometry">
+      <rect>
+       <x>120</x>
+       <y>50</y>
+       <width>81</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>Object Idx</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="fieldYLabel_4">
+     <property name="geometry">
+      <rect>
+       <x>150</x>
+       <y>80</y>
+       <width>211</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>Amount to move (in lattice sites)</string>
+     </property>
+    </widget>
+   </widget>
    <zorder>initializationFrame</zorder>
    <zorder>addObjectsWidget</zorder>
    <zorder>fileSaveWidget</zorder>
@@ -2840,14 +3039,15 @@ border: 1px solid purple</string>
    <zorder>nesterovWidget</zorder>
    <zorder>applyFieldWidget</zorder>
    <zorder>computeEnergyButton</zorder>
+   <zorder>moveObjectWidget</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1172</width>
-     <height>20</height>
+     <width>1135</width>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuSet_constants">
@@ -2880,9 +3080,16 @@ border: 1px solid purple</string>
     <addaction name="actionsave_configuration"/>
     <addaction name="actionexit"/>
    </widget>
+   <widget class="QMenu" name="menuobject_motion">
+    <property name="title">
+     <string>object motion</string>
+    </property>
+    <addaction name="actionforced_translation"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuRe_initialize"/>
    <addaction name="menuSet_constants"/>
+   <addaction name="menuobject_motion"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -2941,6 +3148,11 @@ border: 1px solid purple</string>
   <action name="actionAdd_a_E_H_field">
    <property name="text">
     <string>Add a E/H field</string>
+   </property>
+  </action>
+  <action name="actionforced_translation">
+   <property name="text">
+    <string>forced translation</string>
    </property>
   </action>
  </widget>
@@ -3277,8 +3489,25 @@ border: 1px solid purple</string>
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionforced_translation</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>moveObjectShow()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>818</x>
+     <y>283</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>exitProgram()</slot>
+  <slot>moveObjectShow()</slot>
  </slots>
 </ui>

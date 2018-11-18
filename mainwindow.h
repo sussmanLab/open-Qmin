@@ -85,6 +85,12 @@ private slots:
 
     void on_computeEnergyButton_released();
 
+    void moveObjectShow();
+
+    void on_moveObjectButton_released();
+
+    void on_cancelObjectFieldButton_released();
+
 private:
     Ui::MainWindow *ui;
 

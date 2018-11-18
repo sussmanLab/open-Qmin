@@ -46,6 +46,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->multithreadingWidget->hide();
     ui->nesterovWidget->hide();
     ui->applyFieldWidget->hide();
+    ui->moveObjectWidget->hide();
 
     connect(ui->displayZone,SIGNAL(xRotationChanged(int)),ui->xRotSlider,SLOT(setValue(int)));
     connect(ui->displayZone,SIGNAL(zRotationChanged(int)),ui->zRotSlider,SLOT(setValue(int)));
@@ -744,4 +745,35 @@ void MainWindow::on_computeEnergyButton_released()
         energyString += QStringLiteral(" %1,  ").arg(landauLCForce->energyComponents[ii]);
     ui->testingBox->setText(energyString);
     ui->progressBar->setValue(100);
+}
+void MainWindow::moveObjectShow()
+{
+    ui->objectIdxComboBox->clear();
+    ui->moveObjectWidget->show();
+    vector<QString> objNames;
+    for(unsigned int ii = 0; ii < Configuration->boundaries.getNumElements(); ++ii)
+        ui->objectIdxComboBox->insertItem(ii,QString::number(ii));
+}
+void MainWindow::on_cancelObjectFieldButton_released()
+{
+    ui->moveObjectWidget->hide();
+}
+
+void MainWindow::on_moveObjectButton_released()
+{
+    ui->moveObjectWidget->hide();
+    int obj =ui->objectIdxComboBox->currentIndex();
+    int dx=ui->moveXBox->text().toInt();
+    int dy=ui->moveYBox->text().toInt();
+    int dz=ui->moveZBox->text().toInt();
+    int dxDir = (dx <0) ? 0 : 1;
+    int dyDir = (dy <0) ? 2 : 3;
+    int dzDir = (dz <0) ? 4 : 5;
+    Configuration->displaceBoundaryObject(obj, dxDir,abs(dx));
+    Configuration->displaceBoundaryObject(obj, dyDir,abs(dy));
+    Configuration->displaceBoundaryObject(obj, dzDir,abs(dz));
+    QString translateString = QStringLiteral("object %1 translated by {%2 %3 %4}, components:  ").arg(obj)
+                                .arg(dx).arg(dy).arg(dz);
+
+    ui->testingBox->setText(translateString);
 }
