@@ -315,18 +315,11 @@ void cubicLattice::createBoundaryObject(vector<int> &latticeSites, boundaryType 
     boundaryState.push_back(0);
     printf("there are now %i boundary objects known to the configuration...",boundaries.getNumElements());
     printf(" last object had %lu sites and %lu surface sites \n",latticeSites.size(),surfaceSite.size());
-    if(surfaceSite.size()>boundaryMoveAssist1.getNumElements())
-        {
-        boundaryMoveAssist1.resize(surfaceSite.size());
-        ArrayHandle<int2> bma1(boundaryMoveAssist1);
+
+    if(latticeSites.size()>boundaryMoveAssist1.getNumElements())
+        boundaryMoveAssist1.resize(latticeSites.size());
+    if(surfaceSite.size()>boundaryMoveAssist2.getNumElements())
         boundaryMoveAssist2.resize(surfaceSite.size());
-        ArrayHandle<int2> bma2(boundaryMoveAssist2);
-        for (int ii = 0; ii < surfaceSite.size(); ++ii)
-            {
-            bma1.data[ii].x =0.0;bma1.data[ii].y =0.0;
-            bma2.data[ii].x =0.0;bma2.data[ii].y =0.0;
-            }
-        }
     };
 
 /*!
@@ -341,67 +334,66 @@ void cubicLattice::displaceBoundaryObject(int objectIndex, int motionDirection)
     {
     if(!useGPU)
         {
-        int negativeMotionIndex;
-        switch(motionDirection)
-            {
-            case 0:
-                negativeMotionIndex = 1;
-                break;
-            case 1:
-                negativeMotionIndex = 0;
-                break;
-            case 2:
-                negativeMotionIndex = 3;
-                break;
-            case 3:
-                negativeMotionIndex = 2;
-                break;
-            case 4:
-                negativeMotionIndex = 5;
-                break;
-            case 5:
-                negativeMotionIndex = 4;
-                break;
-            default:
-                printf("Illegal motion direction\n");
-                return;
-            };
         ArrayHandle<dVec> pos(positions);
         ArrayHandle<int> t(types);
         ArrayHandle<int> bSites(boundarySites[objectIndex]);
         ArrayHandle<int> sSites(surfaceSites[objectIndex]);
-        ArrayHandle<int2> bma1(boundaryMoveAssist1);
-        ArrayHandle<int2> bma2(boundaryMoveAssist2);
+        ArrayHandle<pair<int,dVec> > bma1(boundaryMoveAssist1);
+        ArrayHandle<pair<int,dVec> > bma2(boundaryMoveAssist2);
         ArrayHandle<int> neighbors(neighboringSites,access_location::host,access_mode::read);
 
-        for(int ii = 0; ii < surfaceSites[objectIndex].getNumElements();++ii)
+        //first, copy the Q-tensors for parallel transport, and set all surface sites to type 0 (will be overwritten in second step)
+        for(int bb = 0; bb < boundarySites[objectIndex].getNumElements();++bb)
             {
-            int site = sSites.data[ii];
+            int site = bSites.data[bb];
             int motionSite = neighbors.data[neighborIndex(motionDirection,site)];
-            int negativeMotionSite = neighbors.data[neighborIndex(negativeMotionIndex,site)];
-            if(t.data[motionSite] >0) //that boundary site is about to become a surface site
-                {
-                }
-            if(t.data[negativeMotionSite] >0)//the surface site is about to become a boundary site
-                {
-                }
-
+            bma1.data[bb].first = motionSite;
+            bma1.data[bb].second = pos.data[site];
             }
-
-
-        for(int ii =0; ii < boundarySites[objectIndex].getNumElements();++ii)
+        for (int ss = 0; ss < surfaceSites[objectIndex].getNumElements();++ss)
             {
-            int site = bSites.data[ii];
+            int site = sSites.data[ss];
             int motionSite = neighbors.data[neighborIndex(motionDirection,site)];
-            int negativeMotionSite = neighbors.data[neighborIndex(negativeMotionIndex,site)];
-            if(t.data[motionSite] < 1)
-                {
-
-                }
+            bma2.data[ss].first = motionSite;
+            bma2.data[ss].second = pos.data[site];
+            t.data[site] = 0;
             }
-
+        for(int bb = 0; bb < boundarySites[objectIndex].getNumElements();++bb)
+            {
+            int site = bma1.data[bb].first;
+            bSites.data[bb] = site;
+            pos.data[site] = bma1.data[bb].second;
+            t.data[site] = objectIndex+1;
+            }
+        for (int ss = 0; ss < surfaceSites[objectIndex].getNumElements();++ss)
+            {
+            int site = bma2.data[ss].first;
+            sSites.data[ss] = site;
+            pos.data[site] = bma2.data[ss].second;
+            t.data[site] = -1;
+            }
         }
     else
         {
+        ArrayHandle<dVec> pos(positions,access_location::device,access_mode::readwrite);
+        ArrayHandle<int> t(types,access_location::device,access_mode::readwrite);
+        ArrayHandle<int> bSites(boundarySites[objectIndex],access_location::device,access_mode::readwrite);
+        ArrayHandle<int> sSites(surfaceSites[objectIndex],access_location::device,access_mode::readwrite);
+        ArrayHandle<pair<int,dVec> > bma1(boundaryMoveAssist1,access_location::device,access_mode::readwrite);
+        ArrayHandle<pair<int,dVec> > bma2(boundaryMoveAssist2,access_location::device,access_mode::readwrite);
+        ArrayHandle<int> neighbors(neighboringSites,access_location::device,access_mode::read);
+
+        //copy boundary...don't reset lattice type
+        gpu_copy_boundary_object(pos.data,bSites.data,neighbors.data,bma1.data,t.data,neighborIndex,
+                                 motionDirection,false,boundarySites[objectIndex].getNumElements());
+        //copy suface...reset lattice type
+        gpu_copy_boundary_object(pos.data,sSites.data,neighbors.data,bma2.data,t.data,neighborIndex,
+                                 motionDirection,false,surfaceSites[objectIndex].getNumElements());
+
+        //move both...
+        gpu_move_boundary_object(pos.data,bSites.data,bma1.data,t.data,objectIndex+1,
+                                 boundarySites[objectIndex].getNumElements());
+        gpu_move_boundary_object(pos.data,sSites.data,bma2.data,t.data,-1,
+                                 surfaceSites[objectIndex].getNumElements());
         };
     };

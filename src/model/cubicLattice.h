@@ -75,10 +75,10 @@ class cubicLattice : public simpleModel
         vector<GPUArray<int> > surfaceSites;
         //!A vector of flags that specifies the state of each boundary object...most schemes will be 0 = fixed boundary, 1 = movable boudnary
         vector<int> boundaryState;
-        //!An assist vector that can keep track of changes to boundary sites during a move. First element is index, second is type of change
-        GPUArray<int2> boundaryMoveAssist1;
-        //!An assist vector that can keep track of changes to boundary sites during a move. First element is index, second is type of change
-        GPUArray<int2> boundaryMoveAssist2;
+        //!An assist vector that can keep track of changes to boundary sites during a move. First element is the index a Qtensor (second ) will move to
+        GPUArray<pair<int,dVec> > boundaryMoveAssist1;
+        //!An assist vector that can keep track of changes to surface sites during a move. First element is the index a Qtensor (second ) will move to
+        GPUArray<pair<int,dVec> > boundaryMoveAssist2;
 
     protected:
         //!a utility function for initialization

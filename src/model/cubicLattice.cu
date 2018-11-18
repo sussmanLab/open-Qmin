@@ -85,4 +85,63 @@ bool gpu_update_spins(dVec *d_disp,
     return cudaSuccess;
     }
 
+__global__ void gpu_copy_boundary_object_kernel(dVec *pos,
+                              int *sites,
+                              int *neighbors,
+                              pair<int,dVec> *assistStructure,
+                              int *types,
+                              Index2D neighborIndex,
+                              int motionDirection,
+                              bool resetLattice,
+                              int Nsites)
+    {
+    unsigned int idx = blockDim.x * blockIdx.x + threadIdx.x;
+    if(idx>=Nsites) return;
+    int site = sites[idx];
+    int motionSite = neighbors[neighborIndex(motionDirection,site)];
+    assistStructure[idx].first = motionSite;
+    assistStructure[idx].second = pos[site];
+    if(resetLattice)
+        types[site] = 0;
+    return;
+    }
+
+bool gpu_copy_boundary_object(dVec *pos,int *sites,int *neighbors,pair<int,dVec> *assistStructure,
+                              int *types,Index2D neighborIndex,int motionDirection,bool resetLattice,int Nsites)
+    {
+    unsigned int block_size = 512;
+    if (Nsites < 512) block_size = 16;
+    unsigned int nblocks  = Nsites/block_size + 1;
+    gpu_copy_boundary_object_kernel<<<nblocks,block_size>>>(pos,sites,neighbors,assistStructure,types,
+                                                            neighborIndex,motionDirection,resetLattice,Nsites);
+    HANDLE_ERROR(cudaGetLastError());
+    return cudaSuccess;
+    }
+
+__global__ void gpu_move_boundary_object_kernel(dVec *pos,int *sites,pair<int,dVec> *assistStructure,
+                              int *types,int newTypeValue,int Nsites)
+    {
+    unsigned int idx = blockDim.x * blockIdx.x + threadIdx.x;
+    if(idx>=Nsites) return;
+
+    int site = assistStructure[idx].first;
+    sites[idx] =site;
+    
+    pos[site] =assistStructure[idx].second;
+    types[site] = newTypeValue;
+    return;
+    }
+
+bool gpu_move_boundary_object(dVec *pos,int *sites,pair<int,dVec> *assistStructure,
+                              int *types,int newTypeValue,int Nsites)
+    {
+    unsigned int block_size = 512;
+    if (Nsites < 512) block_size = 16;
+    unsigned int nblocks  = Nsites/block_size + 1;
+    gpu_move_boundary_object_kernel<<<nblocks,block_size>>>(pos,sites,assistStructure,types,
+                                                        newTypeValue,Nsites);
+    HANDLE_ERROR(cudaGetLastError());
+    return cudaSuccess;
+    }
+
 /** @} */ //end of group declaration

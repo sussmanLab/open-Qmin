@@ -4,6 +4,7 @@
 #include "std_include.h"
 #include <cuda_runtime.h>
 #include "curand_kernel.h"
+#include "indexer.h"
 
 /*! \file cubicLattice.cuh */
 
@@ -26,6 +27,24 @@ bool gpu_set_random_spins(dVec *d_pos,
                           int nBlocks,
                           int N
                           );
+//!copy a boundary or surface to an assist array
+bool gpu_copy_boundary_object(dVec *pos,
+                              int *sites,
+                              int *neighbors,
+                              pair<int,dVec> *assistStructure,
+                              int *types,
+                              Index2D neighborIndex,
+                              int motionDirection,
+                              bool resetLattice,
+                              int Nsites);
+
+//!Move a boundary or surface via an assist structure
+bool gpu_move_boundary_object(dVec *pos,
+                              int *sites,
+                              pair<int,dVec> *assistStructure,
+                              int *types,
+                              int newTypeValue,
+                              int Nsites);
 
 /** @} */ //end of group declaration
 #endif

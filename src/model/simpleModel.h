@@ -85,6 +85,8 @@ class simpleModel
         //!allow for setting multiple threads
         virtual void setNThreads(int n){nThreads = n;};
 
+        virtual void displaceBoundaryObject(int objectIndex, int motionDirection){};
+
     protected:
         //!The number of particles
         int N;
