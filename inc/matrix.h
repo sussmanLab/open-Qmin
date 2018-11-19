@@ -10,7 +10,7 @@
 #endif
 
 /*! \file matrix.h */
-//!contains a {{x11,x12},{x21,x22}} set, and matrix manipulations, and a (d x d) structure
+//!contains a {{x11,x12},{x21,x22}} set, a (3x3) structure, and a (d x d) structure (and matrix manipulations)
 /*!
 Matrix2x2 provides a simple interface for operations using 2x2 matrices. In particular, it implement
 matrix-maxtrix multiplication, and has specialized matrix-vector and vector-matrix multiplication in
@@ -155,6 +155,149 @@ inline void printMatrix(Matrix2x2 &m)
     cout << endl << m.x11 << "    " << m.x12 << endl <<m.x21<<"    "<<m.x22<<endl<<endl;
     };
 
+/*!
+Matrix3x3 provides a simple interface for operations using 3x3 matrices.
+*/
+struct Matrix3x3
+    {
+    public:
+        //!The entries of the matrix
+        scalar x11, x12, x13, x21, x22,x23,x31,x32,x33;
+        //!Default constructor is the identity matrix
+        HOSTDEVICE Matrix3x3() : x11(1.0), x12(0.0), x13(0.0),x21(0.0),x22(1.0), x23(0.0),x31(0.0),x32(0.0), x33(1.0) {};
+        //!Generic constructor is whatever you wnat it to be
+        HOSTDEVICE Matrix3x3(scalar y11, scalar y12, scalar y13,scalar y21,scalar y22,scalar y23, scalar y31, scalar y32, scalar y33)
+                               : x11(y11), x12(y12), x13(y13),x21(y21),x22(y22), x23(y23),x31(y31),x32(y32), x33(y33) {};
+
+        //!Set the values to some desired set
+        HOSTDEVICE void set(scalar y11, scalar y12, scalar y13,scalar y21,scalar y22,scalar y23, scalar y31, scalar y32, scalar y33)
+                            {
+                            x11=y11; x12=y12;x13=y13;
+                            x21=y21; x22=y22;x23=y23;
+                            x31=y31; x32=y32;x33=y33;
+                            };
+
+        //!Transpose
+        HOSTDEVICE void transpose()
+                            {
+                            scalar y21,y12,y31,y13,y23,y32;
+                            y21=x12;y12=x21;
+                            y13 = x31;y31=x13;
+                            y23=x32;y32=x23;
+
+                            x12=y12;x21=y21;
+                            x13=y13;x31=y31;
+                            x23=y23;x32=y32;
+                            };
+
+        //!assignment operator
+        HOSTDEVICE void operator=(const Matrix3x3 &m2)
+                            {
+                            set(m2.x11,m2.x12,m2.x13,m2.x21,m2.x22,m2.x23,m2.x31,m2.x32,m2.x33);
+                            };
+
+        //!matrix multiplication operator
+        HOSTDEVICE void operator*=(const Matrix3x3 &m2)
+                            {
+                            set(x11*m2.x11 + x12*m2.x21 + x13*m2.x31,
+                                x11*m2.x12 + x12*m2.x22 + x13*m2.x32,
+                                x11*m2.x13 + x12*m2.x23 + x13*m2.x33,
+                                x21*m2.x11 + x22*m2.x21 + x23*m2.x31,
+                                x21*m2.x12 + x22*m2.x22 + x23*m2.x32,
+                                x21*m2.x13 + x22*m2.x23 + x23*m2.x33,
+                                x31*m2.x11 + x32*m2.x21 + x33*m2.x31,
+                                x31*m2.x12 + x32*m2.x22 + x33*m2.x32,
+                                x31*m2.x13 + x32*m2.x23 + x33*m2.x33
+                                );
+                            };
+
+        //!matrix multiplication operator
+        HOSTDEVICE friend Matrix3x3 operator*(const Matrix3x3 &m1,const Matrix3x3 &m2)
+                            {
+                            Matrix3x3 temp(m1);
+                            temp*=m2;
+                            return temp;
+                            };
+
+        //!scalar multiplication operator
+        HOSTDEVICE void operator*=(scalar a)
+                            {
+                            set(a*x11,a*x12,a*x13,
+                                a*x21,a*x22,a*x23,
+                                a*x31,a*x32,a*x33);
+                            };
+
+        //!scalar right multiplication operator
+        HOSTDEVICE friend Matrix3x3 operator*(const Matrix3x3 &m,const scalar a)
+                            {
+                            Matrix3x3 temp(m);
+                            temp*=a;
+                            return temp;
+                            };
+
+        //!scalar left multiplication operator
+        HOSTDEVICE friend Matrix3x3 operator*(const scalar a, const Matrix3x3 &m)
+                            {
+                            Matrix3x3 temp(m);
+                            temp*=a;
+                            return temp;
+                            };
+
+        //!Matrix addition operator
+        HOSTDEVICE void operator+=(const Matrix3x3 &m2)
+                            {
+                            set(x11+m2.x11,x12+m2.x12,x13+m2.x13,
+                                x21+m2.x21,x22+m2.x22,x23+m2.x23,
+                                x31+m2.x31,x32+m2.x32,x33+m2.x33
+                               );
+                            };
+
+        //!Matrix addition operator
+        HOSTDEVICE friend Matrix3x3 operator+(const Matrix3x3 &m1,const Matrix3x3 &m2)
+                            {
+                            Matrix3x3 temp(m1);
+                            temp+=m2;
+                            return temp;
+                            };
+
+        //!Matrix subtraction operator
+        HOSTDEVICE void operator-=(const Matrix3x3 &m2)
+                            {
+                                set(x11-m2.x11,x12-m2.x12,x13-m2.x13,
+                                    x21-m2.x21,x22-m2.x22,x23-m2.x23,
+                                    x31-m2.x31,x32-m2.x32,x33-m2.x33
+                                   );
+                            };
+
+        //!matrix subtraction operator
+        HOSTDEVICE friend Matrix3x3 operator-(const Matrix3x3 &m1,const Matrix3x3 &m2)
+                            {
+                            Matrix3x3 temp(m1);
+                            temp-=m2;
+                            return temp;
+                            };
+
+        //!matrix-vector multiplication operator
+        HOSTDEVICE friend scalar3 operator*(const scalar3 &v, const Matrix3x3 &m)
+                            {
+                            scalar3 temp;
+                            temp.x = m.x11*v.x + m.x12*v.y + m.x13*v.z;
+                            temp.y = m.x21*v.x + m.x22*v.y + m.x23*v.z;
+                            temp.z = m.x31*v.x + m.x32*v.y + m.x33*v.z;
+                            return temp;
+                            };
+
+        //!matrix-vector multiplication operator
+        HOSTDEVICE friend scalar3 operator*(const Matrix3x3 &m, const scalar3 &v)
+                            {
+                            scalar3 temp;
+                            temp.x = m.x11*v.x + m.x21*v.y + m.x31*v.z;
+                            temp.y = m.x12*v.x + m.x22*v.y + m.x32*v.z;
+                            temp.z = m.x13*v.x + m.x23*v.y + m.x33*v.z;
+                            return temp;
+                            };
+
+    };
 
 /*!
 MatrixDxD provides a simple interface for operations using DxD matrices. In particular, it implement

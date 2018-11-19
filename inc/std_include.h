@@ -9,12 +9,6 @@ It also defines scalars as either floats or doubles, depending on
 how the program is compiled
 */
 
-#ifdef NVCC
-#define HOSTDEVICE __host__ __device__ inline
-#else
-#define HOSTDEVICE inline __attribute__((always_inline))
-#endif
-
 #define THRESHOLD 1e-18
 #define EPSILON 1e-18
 
@@ -79,6 +73,37 @@ using namespace std;
 #include "dDimensionalVectorTypes.h"
 #include "matrix.h"
 #include "structures.h"
+
+#ifdef NVCC
+#define HOSTDEVICE __host__ __device__ inline
+#else
+#define HOSTDEVICE inline __attribute__((always_inline))
+#endif
+
+//!return a scalar2 from two scalars
+HOSTDEVICE scalar2 make_scalar2(scalar x, scalar y)
+    {
+    scalar2 ans;
+    ans.x=x;
+    ans.y=y;
+    return ans;
+    }
+
+//!return a scalar3 from three scalars
+HOSTDEVICE scalar3 make_scalar3(scalar x, scalar y,scalar z)
+    {
+    scalar3 ans;
+    ans.x=x;
+    ans.y=y;
+    ans.z=z;
+    return ans;
+    }
+//!component-wise addition of two scalar3s
+HOSTDEVICE scalar3 operator+(const scalar3 &a, const scalar3 &b)
+    {
+    return make_scalar3(a.x+b.x,a.y+b.y,a.z+b.z);
+    }
+
 
 //!Handle errors in kernel calls...returns file and line numbers if cudaSuccess doesn't pan out
 static void HandleError(cudaError_t err, const char *file, int line)

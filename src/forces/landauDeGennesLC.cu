@@ -133,14 +133,14 @@ __global__ void gpu_qTensor_firstDerivatives_kernel(cubicLatticeDerivativeVector
             }
         else //near a boundary is less easy
             {
-            if(d_types[ixd] <=0 ||d_types[ixu] <= 0) //x bulk
+            if(d_types[ixd] <=0 &&d_types[ixu] <= 0) //x bulk
                 {
                 for (int qq = 0; qq < DIMENSION; ++qq)
                     {
                     d_derivatives[idx][qq] = 0.5*(xUp[qq]-xDown[qq]);
                     };
                 }
-            else if (d_types[ixd] <=0 ||d_types[ixu] > 0) //right is boundary
+            else if (d_types[ixu] > 0) //right is boundary
                 {
                 for (int qq = 0; qq < DIMENSION; ++qq)
                     {
@@ -151,17 +151,17 @@ __global__ void gpu_qTensor_firstDerivatives_kernel(cubicLatticeDerivativeVector
                 {
                 for (int qq = 0; qq < DIMENSION; ++qq)
                     {
-                    d_derivatives[idx][qq] = (qCurrent[qq]-xUp[qq]);
+                    d_derivatives[idx][qq] = (xUp[qq]-qCurrent[qq]);
                     };
                 };
-            if(d_types[iyd] <=0 ||d_types[iyu] <= 0) //y bulk
+            if(d_types[iyd] <=0 && d_types[iyu] <= 0) //y bulk
                 {
                 for (int qq = 0; qq < DIMENSION; ++qq)
                     {
                     d_derivatives[idx][DIMENSION+qq] = 0.5*(yUp[qq]-yDown[qq]);
                     };
                 }
-            else if (d_types[iyd] <=0 ||d_types[iyu] > 0) //up is boundary
+            else if (d_types[iyu] > 0) //up is boundary
                 {
                 for (int qq = 0; qq < DIMENSION; ++qq)
                     {
@@ -172,17 +172,17 @@ __global__ void gpu_qTensor_firstDerivatives_kernel(cubicLatticeDerivativeVector
                 {
                 for (int qq = 0; qq < DIMENSION; ++qq)
                     {
-                    d_derivatives[idx][DIMENSION+qq] = (qCurrent[qq]-yUp[qq]);
+                    d_derivatives[idx][DIMENSION+qq] = (yUp[qq]-qCurrent[qq]);
                     };
                 };
-            if(d_types[izd] <=0 ||d_types[izu] <= 0) //z bulk
+            if(d_types[izd] <=0 && d_types[izu] <= 0) //z bulk
                 {
                 for (int qq = 0; qq < DIMENSION; ++qq)
                     {
                     d_derivatives[idx][2*DIMENSION+qq] = 0.5*(zUp[qq]-zDown[qq]);
                     };
                 }
-            else if (d_types[izd] <=0 ||d_types[izu] > 0) //up is boundary
+            else if (d_types[izu] > 0) //up is boundary
                 {
                 for (int qq = 0; qq < DIMENSION; ++qq)
                     {
@@ -193,7 +193,7 @@ __global__ void gpu_qTensor_firstDerivatives_kernel(cubicLatticeDerivativeVector
                 {
                 for (int qq = 0; qq < DIMENSION; ++qq)
                     {
-                    d_derivatives[idx][2*DIMENSION+qq] = (qCurrent[qq]-zUp[qq]);
+                    d_derivatives[idx][2*DIMENSION+qq] = (zUp[qq]-qCurrent[qq]);
                     };
                 };
             };

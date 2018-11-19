@@ -1018,7 +1018,7 @@ border: 1px solid black
      <rect>
       <x>0</x>
       <y>30</y>
-      <width>201</width>
+      <width>221</width>
       <height>32</height>
      </rect>
     </property>
@@ -2879,7 +2879,7 @@ border: 1px solid purple</string>
       </rect>
      </property>
      <property name="text">
-      <string>1</string>
+      <string>0</string>
      </property>
     </widget>
     <widget class="QLabel" name="fieldXLabel_2">

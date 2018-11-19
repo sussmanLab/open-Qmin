@@ -434,7 +434,7 @@ void MainWindow::on_drawStuffButton_released()
         }
     else
         {
-        ui->displayZone->drawBoundaries = false;
+        on_builtinBoundaryVisualizationBox_released();
         };
     ui->displayZone->update();
 }
@@ -569,14 +569,17 @@ void MainWindow::on_builtinBoundaryVisualizationBox_released()
 
     if(!ui->builtinBoundaryVisualizationBox->isChecked())
     {
-        vector<int3> bsites;
-        ArrayHandle<int> type(Configuration->returnTypes(),access_location::host,access_mode::read);
-        for (int ii = 0 ;ii <Configuration->getNumberOfParticles();++ii )
-            {
-            if (type.data[ii] >0)
-                bsites.push_back(Configuration->latticeIndex.inverseIndex(ii));
-            }
+        int totalSize = 0;
+        for (int bb = 0; bb < Configuration->boundarySites.size();++bb)
+            totalSize += Configuration->boundarySites[bb].getNumElements();
+        vector<int3> bsites;bsites.reserve(totalSize);
 
+        for (int bb = 0; bb < Configuration->boundarySites.size();++bb)
+            {
+            ArrayHandle<int> site(Configuration->boundarySites[bb],access_location::host,access_mode::read);
+            for(int ii = 0; ii < Configuration->boundarySites[bb].getNumElements();++ii)
+                bsites.push_back(Configuration->latticeIndex.inverseIndex(site.data[ii]));
+            }
         ui->displayZone->setAllBoundarySites(bsites);
         ui->displayZone->drawBoundaries = false;
     }
@@ -772,6 +775,9 @@ void MainWindow::on_moveObjectButton_released()
     Configuration->displaceBoundaryObject(obj, dxDir,abs(dx));
     Configuration->displaceBoundaryObject(obj, dyDir,abs(dy));
     Configuration->displaceBoundaryObject(obj, dzDir,abs(dz));
+    bool graphicalProgress = ui->visualProgressCheckBox->isChecked();
+    if(graphicalProgress)
+        on_drawStuffButton_released();
     QString translateString = QStringLiteral("object %1 translated by {%2 %3 %4}, components:  ").arg(obj)
                                 .arg(dx).arg(dy).arg(dz);
 

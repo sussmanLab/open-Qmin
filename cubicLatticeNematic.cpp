@@ -149,7 +149,7 @@ int main(int argc, char*argv[])
         shared_ptr<energyMinimizerFIRE> fire =  make_shared<energyMinimizerFIRE>(Configuration);
         sim->addUpdater(fire,Configuration);
         scalar alphaStart=.99; scalar deltaTMax=100*dt; scalar deltaTInc=1.1; scalar deltaTDec=0.95;
-        scalar alphaDec=0.9; int nMin=4; scalar forceCutoff=1e-12; scalar alphaMin = 0.7;
+        scalar alphaDec=0.9; int nMin=4; scalar forceCutoff=1e-12; scalar alphaMin = 0.5;
         fire->setFIREParameters(dt,alphaStart,deltaTMax,deltaTInc,deltaTDec,alphaDec,nMin,forceCutoff,alphaMin);
         fire->setMaximumIterations(maximumIterations);
 
@@ -173,16 +173,22 @@ int main(int argc, char*argv[])
         right.x = 0.7*boxLx;right.y = 0.5*boxLy;right.z = 0.5*boxLz;
         Configuration->createSimpleFlatWallNormal(0,1, homeotropicBoundary);
         */
-
         auto t1 = chrono::system_clock::now();
         sim->performTimestep();
         auto t2 = chrono::system_clock::now();
         chrono::duration<scalar> diff = t2-t1;
 
-        scalar E = sim->computePotentialEnergy(true);
+        scalar E1 = sim->computePotentialEnergy(true);
         scalar maxForce = fire->getMaxForce();
-        printf("minimized to %f\t E=%f\t time taken = %fs\n",maxForce,E,diff.count());
-        
+        printf("minimized to %f\t E=%f\t time taken = %fs\n",maxForce,E1,diff.count());
+
+        landauLCForce->computeObjectForces(0);
+        Configuration->displaceBoundaryObject(0,1,1);
+
+        fire->setMaximumIterations(2*maximumIterations);
+        sim->performTimestep();
+        scalar E2 = sim->computePotentialEnergy(true);
+        printf("e1 %f E2 %f\n force %f\n",E1,E2,E2-E1);
         /*
         int nn = Configuration->surfaceSites[0].getNumElements();
         ArrayHandle<int> surf1(Configuration->surfaceSites[0]);

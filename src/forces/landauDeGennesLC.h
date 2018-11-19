@@ -56,8 +56,14 @@ class landauDeGennesLC : public baseLatticeForce
                 computeEorHFieldForcesCPU(forces,false,Hfield,deltaChi,mu0);
             };
 
+        //!compute the forces on the objects in the system
+        virtual void computeObjectForces(int objectIdx);
+
         //!Precompute the first derivatives at all of the LC Sites
         virtual void computeFirstDerivatives();
+
+        //!compute the stress tensors at the given set of sites
+        virtual void computeStressTensors(GPUArray<int> &sites,GPUArray<Matrix3x3> &stress);
 
         virtual void computeBoundaryForcesCPU(GPUArray<dVec> &forces,bool zeroOutForce);
         virtual void computeBoundaryForcesGPU(GPUArray<dVec> &forces,bool zeroOutForce);
@@ -117,6 +123,9 @@ class landauDeGennesLC : public baseLatticeForce
             mu0=_mu0;
             deltaChi=_deltaChi;
             };
+        //!the free energy density at each lattice site
+        GPUArray<scalar> energyDensity;
+        
     protected:
         //!constants, etc.
         scalar A;

@@ -313,6 +313,8 @@ void cubicLattice::createBoundaryObject(vector<int> &latticeSites, boundaryType 
     boundarySites.push_back(newBoundarySites);
     surfaceSites.push_back(newSurfaceSites);
     boundaryState.push_back(0);
+    scalar3 zero; zero.x = 0.0;zero.y = 0.0;zero.z = 0.0;
+    boundaryForce.push_back(zero);
     printf("there are now %i boundary objects known to the configuration...",boundaries.getNumElements());
     printf(" last object had %lu sites and %lu surface sites \n",latticeSites.size(),surfaceSite.size());
 
