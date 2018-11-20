@@ -2,6 +2,7 @@
 
 ### Changes in progress
 
+* Allow for dynamical evolution of objects
 * Switching away from pre-discretized gradients and towards EL framework
 
 ### landauDeGUI version 0.6
