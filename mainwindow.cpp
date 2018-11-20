@@ -47,6 +47,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->nesterovWidget->hide();
     ui->applyFieldWidget->hide();
     ui->moveObjectWidget->hide();
+    ui->colloidalEvolutionWidget->hide();
 
     connect(ui->displayZone,SIGNAL(xRotationChanged(int)),ui->xRotSlider,SLOT(setValue(int)));
     connect(ui->displayZone,SIGNAL(zRotationChanged(int)),ui->zRotSlider,SLOT(setValue(int)));
@@ -350,12 +351,75 @@ void MainWindow::on_resetQTensorsButton_released()
 
 void MainWindow::on_addIterationsButton_released()
 {
+    bool graphicalProgress = ui->visualProgressCheckBox->isChecked();
+    ui->progressBar->setValue(0);
+
     int additionalIterations = ui->addIterationsBox->text().toInt();
     maximumIterations = additionalIterations;
-    auto upd = sim->updaters[0].lock();
-    upd->setCurrentIterations(0);
-    upd->setMaximumIterations(maximumIterations);
-    on_minimizeButton_released();
+
+    for (int ii = 0; ii < maximumIterations; ++ii)
+        {
+        if (ii%(maximumIterations/10) == 0 && ii != 0)
+            {
+            if(graphicalProgress) on_drawStuffButton_released();
+            int progress = ((1.0*ii/(1.0*additionalIterations))*100);
+            ui->progressBar->setValue(progress+10);
+            }
+        {
+        auto upd = sim->updaters[0].lock();
+        int curIterations = upd->getCurrentIterations();
+        upd->setMaximumIterations(curIterations+1);
+        }
+        sim->performTimestep();
+        if(iterationsPerColloidalEvolution > 0 && ii%iterationsPerColloidalEvolution == 0 && ii != 0)
+            {
+            for (int bb = 0; bb < Configuration->boundaryState.size();++bb)
+                {
+                if(Configuration->boundaryState[bb]==1)
+                    landauLCForce->computeObjectForces(bb);
+                }
+            for (int bb = 0; bb < Configuration->boundaryState.size();++bb)
+                {
+                if(Configuration->boundaryState[bb]==1)
+                    {
+                    scalar3 currentForce = Configuration->boundaryForce[bb];
+                    int dirx = -10;int diry = -10;int dirz = -10;
+                    bool moved = false;
+                    if(colloidalEvolutionPrefactor*currentForce.x > 1 || colloidalEvolutionPrefactor*currentForce.x < -1)
+                        {
+                        dirx = (currentForce.x > 0) ? 1 : 0;
+                        currentForce.x = 1;moved = true;
+                        Configuration->boundaryForce[bb].x = 0;
+                        };
+                    if(colloidalEvolutionPrefactor*currentForce.y > 1|| colloidalEvolutionPrefactor*currentForce.y < -1)
+                        {
+                        diry = (currentForce.y > 0) ? 3 : 2;
+                        currentForce.y = 1;moved = true;
+                        Configuration->boundaryForce[bb].y = 0;
+                        };
+                    if(colloidalEvolutionPrefactor*currentForce.z > 1|| colloidalEvolutionPrefactor*currentForce.z < -1)
+                        {
+                        dirz = (currentForce.z > 0) ? 5 : 4;
+                        currentForce.z = 1;moved = true;
+                        Configuration->boundaryForce[bb].z = 0;
+                        };
+                    if(moved)
+                        {
+                        if(dirx >= 0)
+                            Configuration->displaceBoundaryObject(bb, dirx,1);
+                        if(diry >= 0)
+                            Configuration->displaceBoundaryObject(bb, diry,1);
+                        if(dirz >= 0)
+                            Configuration->displaceBoundaryObject(bb, dirz,1);
+                        }
+                    }
+                }
+            }//end check of colloidal moves
+
+        }
+    scalar maxForce = sim->getMaxForce();
+    QString printable3 = QStringLiteral("system evolved...mean force is %1").arg(maxForce);
+    ui->testingBox->setText(printable3);
 }
 
 void MainWindow::on_drawStuffButton_released()
@@ -749,6 +813,16 @@ void MainWindow::on_computeEnergyButton_released()
     ui->testingBox->setText(energyString);
     ui->progressBar->setValue(100);
 }
+
+void MainWindow::colloidalMobilityShow()
+{
+    ui->colloidalMobilityBox->clear();
+    ui->colloidalEvolutionWidget->show();
+    vector<QString> objNames;
+    for(unsigned int ii = 0; ii < Configuration->boundaries.getNumElements(); ++ii)
+        ui->colloidalMobilityBox->insertItem(ii,QString::number(ii));
+}
+
 void MainWindow::moveObjectShow()
 {
     ui->objectIdxComboBox->clear();
@@ -782,4 +856,41 @@ void MainWindow::on_moveObjectButton_released()
                                 .arg(dx).arg(dy).arg(dz);
 
     ui->testingBox->setText(translateString);
+}
+
+void MainWindow::on_cancelObjectFieldButton_2_released()
+{
+    ui->colloidalEvolutionWidget->hide();
+}
+
+void MainWindow::on_colloidalEvolutionButtom_released()
+{
+    iterationsPerColloidalEvolution = ui->colloidalEvolutionStepsBox->text().toInt();
+    colloidalEvolutionPrefactor = ui->colloidalEvolutionPrefactorBox->text().toDouble();
+    ui->colloidalEvolutionWidget->hide();
+    QString mobilityString = QStringLiteral("forces on colloids set to be evaluated every %1 steps with %2").arg(iterationsPerColloidalEvolution)
+                                        .arg(colloidalEvolutionPrefactor);
+    ui->testingBox->setText(mobilityString);
+}
+
+void MainWindow::on_colloidalImmobilityButtom_released()
+{
+    int obj =ui->colloidalMobilityBox->currentIndex();
+    Configuration->boundaryState[obj] = 0;
+    QString mobilityString = QStringLiteral("mobility states set to {");
+    for(int ii = 0; ii < Configuration->boundaryState.size();++ii)
+        mobilityString += QStringLiteral(" %1,  ").arg(Configuration->boundaryState[ii]);
+    mobilityString += QStringLiteral("}");
+    ui->testingBox->setText(mobilityString);
+}
+
+void MainWindow::on_colloidalMobilityButtom_released()
+{
+    int obj =ui->colloidalMobilityBox->currentIndex();
+    Configuration->boundaryState[obj] = 1;
+    QString mobilityString = QStringLiteral("mobility states set to {");
+    for(int ii = 0; ii < Configuration->boundaryState.size();++ii)
+        mobilityString += QStringLiteral(" %1,  ").arg(Configuration->boundaryState[ii]);
+    mobilityString += QStringLiteral("}");
+    ui->testingBox->setText(mobilityString);
 }

@@ -110,5 +110,5 @@ void energyMinimizerNesterovAG::minimize()
         if(iterations%1000 == 999)
             printf("nesterov step %i max force:%.3g\t energy %.3g\n",iterations,forceMax,sim->computePotentialEnergy());
         };
-            printf("nesterov finished: step %i max force:%.3g\t energy %.3g\n",iterations,forceMax,sim->computePotentialEnergy());
+            //printf("nesterov finished: step %i max force:%.3g\t energy %.3g\n",iterations,forceMax,sim->computePotentialEnergy());
     }

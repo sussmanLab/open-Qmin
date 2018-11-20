@@ -87,9 +87,19 @@ private slots:
 
     void moveObjectShow();
 
+    void colloidalMobilityShow();
+
     void on_moveObjectButton_released();
 
     void on_cancelObjectFieldButton_released();
+
+    void on_cancelObjectFieldButton_2_released();
+
+    void on_colloidalEvolutionButtom_released();
+
+    void on_colloidalImmobilityButtom_released();
+
+    void on_colloidalMobilityButtom_released();
 
 private:
     Ui::MainWindow *ui;
@@ -98,6 +108,9 @@ public:
     bool GPU = false;
     bool reproducible = true;
     int maximumIterations=0;
+
+    int iterationsPerColloidalEvolution = -1;
+    double colloidalEvolutionPrefactor = 0.0;
 
     scalar BoxX = 20;
     scalar BoxY = 20;
