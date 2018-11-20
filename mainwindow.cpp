@@ -306,11 +306,11 @@ void MainWindow::on_minimizeButton_released()
         for (int ii = 1; ii <= 10; ++ii)
         {
             upd->setMaximumIterations(upd->getCurrentIterations()+stepsToTake/10);
-            QString printable2 = QStringLiteral("minimizing");
-            ui->testingBox->setText(printable2);
             sim->performTimestep();
             on_drawStuffButton_released();
             ui->progressBar->setValue(10*ii);
+            QString printable2 = QStringLiteral("minimizing");
+            ui->testingBox->setText(printable2);
         };
     };
     int iterationsTaken = upd->getCurrentIterations() - initialIterations;
@@ -418,6 +418,8 @@ void MainWindow::on_addIterationsButton_released()
 
         if(graphicalProgress) on_drawStuffButton_released();
         int progress = ((1.0*ii/(1.0*subdivisions))*100);
+        QString printable2 = QStringLiteral("evolving... %1").arg(progress);
+        ui->testingBox->setText(printable2);
         ui->progressBar->setValue(progress);
         }
     scalar maxForce = sim->getMaxForce();

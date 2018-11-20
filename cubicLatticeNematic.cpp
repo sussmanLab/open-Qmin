@@ -162,10 +162,11 @@ int main(int argc, char*argv[])
         boundaryObject homeotropicBoundary(boundaryType::homeotropic,1.0,S0);
         scalar3 left;
         left.x = 0.3*boxLx;left.y = 0.5*boxLy;left.z = 0.5*boxLz;
-        Configuration->createSimpleSpherialColloid(left,0.25*boxLz, homeotropicBoundary);
+        Configuration->createSimpleSpherialColloid(left,0.1*boxLz, homeotropicBoundary);
         scalar3 right;
         right.x = 0.7*boxLx;right.y = 0.5*boxLy;right.z = 0.5*boxLz;
-        Configuration->createSimpleSpherialColloid(right,0.25*boxLz, homeotropicBoundary);
+        Configuration->createSimpleSpherialColloid(right,0.1*boxLz, homeotropicBoundary);
+        Configuration->createSimpleFlatWallNormal(0,1, homeotropicBoundary);
         /*
         boundaryObject homeotropicBoundary(boundaryType::homeotropic,1.0,S0);
         scalar3 left;
@@ -186,12 +187,14 @@ int main(int argc, char*argv[])
         printf("minimized to %f\t E=%f\t time taken = %fs\n",maxForce,E1,diff.count());
 
         landauLCForce->computeObjectForces(0);
-        Configuration->displaceBoundaryObject(0,3,1);
+        landauLCForce->computeObjectForces(1);
+        Configuration->displaceBoundaryObject(0,5,1);
 
         fire->setMaximumIterations(2*maximumIterations);
         sim->performTimestep();
         scalar E2 = sim->computePotentialEnergy(true);
         printf("e1 %f E2 %f\n force %f\n",E1,E2,E2-E1);
+        landauLCForce->computeObjectForces(0);
         /*
         int nn = Configuration->surfaceSites[0].getNumElements();
         ArrayHandle<int> surf1(Configuration->surfaceSites[0]);
