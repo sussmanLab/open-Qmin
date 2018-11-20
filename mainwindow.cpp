@@ -356,22 +356,22 @@ void MainWindow::on_addIterationsButton_released()
 
     int additionalIterations = ui->addIterationsBox->text().toInt();
     maximumIterations = additionalIterations;
+    int subdivisions =  10;
 
-    for (int ii = 0; ii < maximumIterations; ++ii)
+    if (iterationsPerColloidalEvolution >0)
+        subdivisions = additionalIterations / iterationsPerColloidalEvolution;
+
+    int stepsPerSubdivision = additionalIterations / subdivisions;
+
+    for (int ii = 0; ii < subdivisions; ++ii)
         {
-        if (ii%(maximumIterations/10) == 0 && ii != 0)
-            {
-            if(graphicalProgress) on_drawStuffButton_released();
-            int progress = ((1.0*ii/(1.0*additionalIterations))*100);
-            ui->progressBar->setValue(progress+10);
-            }
         {
         auto upd = sim->updaters[0].lock();
         int curIterations = upd->getCurrentIterations();
-        upd->setMaximumIterations(curIterations+1);
+        upd->setMaximumIterations(curIterations+stepsPerSubdivision);
         }
         sim->performTimestep();
-        if(iterationsPerColloidalEvolution > 0 && ii%iterationsPerColloidalEvolution == 0 && ii != 0)
+        if(iterationsPerColloidalEvolution > 0)
             {
             for (int bb = 0; bb < Configuration->boundaryState.size();++bb)
                 {
@@ -416,6 +416,9 @@ void MainWindow::on_addIterationsButton_released()
                 }
             }//end check of colloidal moves
 
+        if(graphicalProgress) on_drawStuffButton_released();
+        int progress = ((1.0*ii/(1.0*subdivisions))*100);
+        ui->progressBar->setValue(progress);
         }
     scalar maxForce = sim->getMaxForce();
     QString printable3 = QStringLiteral("system evolved...mean force is %1").arg(maxForce);
