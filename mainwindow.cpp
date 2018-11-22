@@ -812,7 +812,7 @@ void MainWindow::on_computeEnergyButton_released()
     scalar totalEnergy = 0.0;
     for(int ii = 0; ii < landauLCForce->energyComponents.size();++ii)
         totalEnergy+=landauLCForce->energyComponents[ii];
-    QString energyString = QStringLiteral("Total energy: %1, components:  ").arg(totalEnergy);
+    QString energyString = QStringLiteral("Total energy: %1, components (phase, distortion, anchoring, E, H):  ").arg(totalEnergy);
     for(int ii = 0; ii < landauLCForce->energyComponents.size();++ii)
         energyString += QStringLiteral(" %1,  ").arg(landauLCForce->energyComponents[ii]);
     ui->testingBox->setText(energyString);

@@ -334,71 +334,24 @@ void landauDeGennesLC::computeForceOneConstantCPU(GPUArray<dVec> &forces, bool z
                 dVec spatialTerm(0.0);
                 dVec deriv;
                 if(latticeTypes.data[n0] >0)//xDown is a boundary
-                    {
-                    deriv = (xUp-qCurrent);
-                    scalar crossTerm = deriv[0]+deriv[3];
-                    deriv[0] += crossTerm;
-                    deriv[1] *= 2.0;
-                    deriv[2] *= 2.0;
-                    deriv[3] += crossTerm;
-                    deriv[4] *= 2.0;
-                    spatialTerm += deriv;
-                    }
+                    spatialTerm += (xUp-qCurrent);
                 if(latticeTypes.data[n1] >0)//xUp is a boundary
-                    {
-                    deriv = (xDown-qCurrent);//negative derivative and negative nu_x cancel
-                    scalar crossTerm = deriv[0]+deriv[3];
-                    deriv[0] += crossTerm;
-                    deriv[1] *= 2.0;
-                    deriv[2] *= 2.0;
-                    deriv[3] += crossTerm;
-                    deriv[4] *= 2.0;
-                    spatialTerm += deriv;
-                    }
-                if(latticeTypes.data[n2] >0)//ydown
-                    {
-                    deriv = (yUp-qCurrent);
-                    scalar crossTerm = deriv[0]+deriv[3];
-                    deriv[0] += crossTerm;
-                    deriv[1] *= 2.0;
-                    deriv[2] *= 2.0;
-                    deriv[3] += crossTerm;
-                    deriv[4] *= 2.0;
-                    spatialTerm += deriv;
-                    }
+                    spatialTerm += (xDown-qCurrent);//negative derivative and negative nu_x cancel
+                if(latticeTypes.data[n2] >0)//ydown is a boundary
+                    spatialTerm += (yUp-qCurrent);
                 if(latticeTypes.data[n3] >0)
-                    {
-                    deriv = (yDown-qCurrent);//negative derivative and negative nu_y cancel
-                    scalar crossTerm = deriv[0]+deriv[3];
-                    deriv[0] += crossTerm;
-                    deriv[1] *= 2.0;
-                    deriv[2] *= 2.0;
-                    deriv[3] += crossTerm;
-                    deriv[4] *= 2.0;
-                    spatialTerm += deriv;
-                    }
+                    spatialTerm += (yDown-qCurrent);//negative derivative and negative nu_y cancel
                 if(latticeTypes.data[n4] >0)//zDown is boundary
-                    {
-                    deriv = (zUp-qCurrent);
-                    scalar crossTerm = deriv[0]+deriv[3];
-                    deriv[0] += crossTerm;
-                    deriv[1] *= 2.0;
-                    deriv[2] *= 2.0;
-                    deriv[3] += crossTerm;
-                    deriv[4] *= 2.0;
-                    spatialTerm += deriv;
-                    }
+                    spatialTerm += (zUp-qCurrent);
                 if(latticeTypes.data[n5] >0)
-                    {
-                    deriv = (zDown-qCurrent);//negative derivative and negative nu_z cancel
-                    scalar crossTerm = deriv[0]+deriv[3];
-                    deriv[0] += crossTerm;
-                    deriv[1] *= 2.0;
-                    deriv[2] *= 2.0;
-                    deriv[3] += crossTerm;
-                    deriv[4] *= 2.0;
-                    spatialTerm += deriv;
-                    }
+                    spatialTerm += (zDown-qCurrent);//negative derivative and negative nu_z cancel
+                scalar crossTerm = spatialTerm[0]+spatialTerm[3];
+                spatialTerm[0] += crossTerm;
+                spatialTerm[1] *= 2.0;
+                spatialTerm[2] *= 2.0;
+                spatialTerm[3] += crossTerm;
+                spatialTerm[4] *= 2.0;
+
                 h_f.data[currentIndex] += L1*spatialTerm;
                 }
             };
