@@ -767,7 +767,7 @@ border: 1px solid black
       </rect>
      </property>
      <property name="text">
-      <string>2.32</string>
+      <string>4.64</string>
      </property>
     </widget>
     <widget class="QLineEdit" name="twoConstantL2Box">
@@ -780,7 +780,7 @@ border: 1px solid black
       </rect>
      </property>
      <property name="text">
-      <string>2.32</string>
+      <string>4.64</string>
      </property>
     </widget>
     <widget class="QLineEdit" name="twoConstantQ0Box">
@@ -1009,7 +1009,7 @@ border: 1px solid black
       </rect>
      </property>
      <property name="text">
-      <string>2.32</string>
+      <string>4.64</string>
      </property>
     </widget>
    </widget>
@@ -1171,170 +1171,266 @@ border: 1px solid purple</string>
       <string>Set parameters</string>
      </property>
     </widget>
-    <widget class="QWidget" name="layoutWidget">
+    <widget class="QLabel" name="label_29">
      <property name="geometry">
       <rect>
-       <x>27</x>
-       <y>40</y>
-       <width>391</width>
-       <height>142</height>
+       <x>12</x>
+       <y>41</y>
+       <width>16</width>
+       <height>16</height>
       </rect>
      </property>
-     <layout class="QGridLayout" name="gridLayout">
-      <item row="0" column="0">
-       <widget class="QLabel" name="label_29">
-        <property name="styleSheet">
-         <string notr="true">border: white</string>
-        </property>
-        <property name="text">
-         <string>dt</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QLineEdit" name="dtBox">
-        <property name="text">
-         <string>0.0005</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="2">
-       <widget class="QLabel" name="label_38">
-        <property name="styleSheet">
-         <string notr="true">border: white</string>
-        </property>
-        <property name="text">
-         <string>alphaDec</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="3">
-       <widget class="QLineEdit" name="alphaDecBox">
-        <property name="text">
-         <string>0.9</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="label_30">
-        <property name="styleSheet">
-         <string notr="true">border: white</string>
-        </property>
-        <property name="text">
-         <string>deltaTMax</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QLineEdit" name="dtMaxBox">
-        <property name="text">
-         <string>0.01</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="2">
-       <widget class="QLabel" name="label_36">
-        <property name="styleSheet">
-         <string notr="true">border: white</string>
-        </property>
-        <property name="text">
-         <string>alphaMin</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="3">
-       <widget class="QLineEdit" name="alphaMinBox">
-        <property name="text">
-         <string>0.0</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="label_31">
-        <property name="styleSheet">
-         <string notr="true">border: white</string>
-        </property>
-        <property name="text">
-         <string>deltaTInc</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1">
-       <widget class="QLineEdit" name="dtIncBox">
-        <property name="text">
-         <string>1.1</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="2">
-       <widget class="QLabel" name="label_37">
-        <property name="styleSheet">
-         <string notr="true">border: white</string>
-        </property>
-        <property name="text">
-         <string>nMin</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="3">
-       <widget class="QLineEdit" name="nMinBox">
-        <property name="text">
-         <string>4</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="0">
-       <widget class="QLabel" name="label_32">
-        <property name="styleSheet">
-         <string notr="true">border: white</string>
-        </property>
-        <property name="text">
-         <string>deltaTDec</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="1">
-       <widget class="QLineEdit" name="dtDecBox">
-        <property name="text">
-         <string>0.95</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="2">
-       <widget class="QLabel" name="label_34">
-        <property name="styleSheet">
-         <string notr="true">border: white</string>
-        </property>
-        <property name="text">
-         <string>forceCutoff</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="3">
-       <widget class="QLineEdit" name="forceCutoffBox">
-        <property name="text">
-         <string>0.000000000001</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="0">
-       <widget class="QLabel" name="label_33">
-        <property name="styleSheet">
-         <string notr="true">border: white</string>
-        </property>
-        <property name="text">
-         <string>alphaStart</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="1">
-       <widget class="QLineEdit" name="alphaStartBox">
-        <property name="text">
-         <string>0.99</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>dt</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="dtBox">
+     <property name="geometry">
+      <rect>
+       <x>84</x>
+       <y>41</y>
+       <width>125</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>0.0005</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_38">
+     <property name="geometry">
+      <rect>
+       <x>219</x>
+       <y>41</y>
+       <width>58</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>alphaDec</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_30">
+     <property name="geometry">
+      <rect>
+       <x>12</x>
+       <y>71</y>
+       <width>64</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>deltaTMax</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="dtMaxBox">
+     <property name="geometry">
+      <rect>
+       <x>84</x>
+       <y>71</y>
+       <width>125</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>0.05</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_36">
+     <property name="geometry">
+      <rect>
+       <x>219</x>
+       <y>71</y>
+       <width>56</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>alphaMin</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="alphaMinBox">
+     <property name="geometry">
+      <rect>
+       <x>300</x>
+       <y>71</y>
+       <width>125</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>0.0</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_31">
+     <property name="geometry">
+      <rect>
+       <x>12</x>
+       <y>101</y>
+       <width>57</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>deltaTInc</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="alphaDecBox">
+     <property name="geometry">
+      <rect>
+       <x>300</x>
+       <y>41</y>
+       <width>125</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>0.9</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_37">
+     <property name="geometry">
+      <rect>
+       <x>219</x>
+       <y>101</y>
+       <width>30</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>nMin</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="dtIncBox">
+     <property name="geometry">
+      <rect>
+       <x>84</x>
+       <y>101</y>
+       <width>125</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>1.1</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="nMinBox">
+     <property name="geometry">
+      <rect>
+       <x>300</x>
+       <y>101</y>
+       <width>125</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>4</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_32">
+     <property name="geometry">
+      <rect>
+       <x>12</x>
+       <y>131</y>
+       <width>62</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>deltaTDec</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="dtDecBox">
+     <property name="geometry">
+      <rect>
+       <x>84</x>
+       <y>131</y>
+       <width>125</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>0.95</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_34">
+     <property name="geometry">
+      <rect>
+       <x>219</x>
+       <y>131</y>
+       <width>71</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>forceCutoff</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="forceCutoffBox">
+     <property name="geometry">
+      <rect>
+       <x>300</x>
+       <y>131</y>
+       <width>125</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>0.000000000001</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_33">
+     <property name="geometry">
+      <rect>
+       <x>12</x>
+       <y>161</y>
+       <width>64</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>alphaStart</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="alphaStartBox">
+     <property name="geometry">
+      <rect>
+       <x>84</x>
+       <y>161</y>
+       <width>125</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>0.99</string>
+     </property>
     </widget>
    </widget>
    <widget class="OGLWidget" name="displayZone">
@@ -3209,13 +3305,18 @@ border: 1px solid purple</string>
    <zorder>initializationFrame</zorder>
    <zorder>addObjectsWidget</zorder>
    <zorder>fileSaveWidget</zorder>
-   <zorder>fireParametersWidget</zorder>
+   <zorder>multithreadingWidget</zorder>
    <zorder>setPhaseConstants</zorder>
    <zorder>setDistortionConstants3</zorder>
-   <zorder>setDistortionConstants2</zorder>
-   <zorder>multithreadingWidget</zorder>
    <zorder>fileImportWidget</zorder>
-   <zorder>layoutWidget</zorder>
+   <zorder>setDistortionConstants2</zorder>
+   <zorder>setDistortionConstants1</zorder>
+   <zorder>nesterovWidget</zorder>
+   <zorder>applyFieldWidget</zorder>
+   <zorder>moveObjectWidget</zorder>
+   <zorder>colloidalEvolutionWidget</zorder>
+   <zorder>addIterationsBox</zorder>
+   <zorder>addIterationsButton</zorder>
    <zorder>testingBox</zorder>
    <zorder>minimizationParametersButton</zorder>
    <zorder>addObjectButton</zorder>
@@ -3249,12 +3350,8 @@ border: 1px solid purple</string>
    <zorder>label_56</zorder>
    <zorder>label_57</zorder>
    <zorder>nesterovMinimizationButton</zorder>
-   <zorder>setDistortionConstants1</zorder>
-   <zorder>nesterovWidget</zorder>
-   <zorder>applyFieldWidget</zorder>
    <zorder>computeEnergyButton</zorder>
-   <zorder>moveObjectWidget</zorder>
-   <zorder>colloidalEvolutionWidget</zorder>
+   <zorder>fireParametersWidget</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
