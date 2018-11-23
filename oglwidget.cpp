@@ -107,7 +107,7 @@ void OGLWidget::drawBoundarySites()
 {
     glEnable (GL_BLEND);
     glBlendFunc (GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-    float empiricallyNiceRadius = 0.25/(pow(zoom,0.15));
+    float empiricallyNiceRadius = 0.2/(pow(zoom,0.15));
     for (int ii = 0; ii < boundarySites.size(); ++ii)
         {
             glColor4f(0.8,0.8,0.8,0.2);

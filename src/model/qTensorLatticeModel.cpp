@@ -140,6 +140,9 @@ void qTensorLatticeModel::moveParticles(GPUArray<dVec> &displacements,scalar sca
 
 /*!
 Reads a carefully prepared text file to create a new boundary object...
+The first line must be a single integer specifying the number of objects to be read in.
+
+Each subsequent block must be formatted as follows (with no additional lines between the blocks):
 The first line MUST be formatted as
 a b c d
 where a=0 means homeotropic, a=1 means degeneratePlanar
@@ -166,49 +169,56 @@ void qTensorLatticeModel::createBoundaryFromFile(string fname, bool verbose)
     string line,name;
     scalar sVar1,sVar2,sVar3,sVar4,sVar5;
     int iVar1,iVar2,iVar3;
+    int nObjects;
 
     getline(inFile,line);
     istringstream ss(line);
-    ss >>iVar1 >> sVar1 >> sVar2 >>iVar2;
+    ss >> nObjects;
 
-    scalar Wb = sVar1;
-    scalar s0 = sVar2;
-    int nEntries = iVar2;
-    int bType = iVar1;
-    boundaryType bound;
-    if(bType == 0)
-        bound = boundaryType::homeotropic;
-    else
-        bound = boundaryType::degeneratePlanar;
-    if(verbose)
-        printf("reading boudary type %i with %f %f and %i entries\n",iVar1,sVar1,sVar2,iVar2);
-
-    dVec Qtensor;
-    vector<int> boundSites;
-    int3 sitePos;
-    ArrayHandle<dVec> pos(positions);
-    int entriesRead = 0;
-    int maxEntries = iVar2;
-    while (getline(inFile,line) && entriesRead < maxEntries)
+    for (int ii = 0; ii < nObjects;++ii)
         {
-        istringstream linestream(line);
-        linestream >> iVar1 >> iVar2 >> iVar3 >> Qtensor[0] >> Qtensor[1] >> Qtensor[2] >>Qtensor[3] >> Qtensor[4];
-        sitePos.x = wrap(iVar1,latticeIndex.sizes.x);
-        sitePos.y = wrap(iVar2,latticeIndex.sizes.y);
-        sitePos.z = wrap(iVar3,latticeIndex.sizes.z);
-        int currentSite = latticeIndex(sitePos);
-        boundSites.push_back(currentSite);
-        pos.data[currentSite] = Qtensor;
-        /*
+        getline(inFile,line);
+        istringstream ss(line);
+        ss >>iVar1 >> sVar1 >> sVar2 >>iVar2;
+
+        scalar Wb = sVar1;
+        scalar s0 = sVar2;
+        int nEntries = iVar2;
+        int bType = iVar1;
+        boundaryType bound;
+        if(bType == 0)
+            bound = boundaryType::homeotropic;
+        else
+            bound = boundaryType::degeneratePlanar;
         if(verbose)
-            printf("(%i,%i,%i) %f %f %f %f %f\n",sitePos.x,sitePos.y,sitePos.z,
+            printf("reading boudary type %i with %f %f and %i entries\n",iVar1,sVar1,sVar2,iVar2);
+
+        dVec Qtensor;
+        vector<int> boundSites;
+        int3 sitePos;
+        ArrayHandle<dVec> pos(positions);
+        int entriesRead = 0;
+        while (entriesRead < nEntries && getline(inFile,line) )
+            {
+            istringstream linestream(line);
+            linestream >> iVar1 >> iVar2 >> iVar3 >> Qtensor[0] >> Qtensor[1] >> Qtensor[2] >>Qtensor[3] >> Qtensor[4];
+            sitePos.x = wrap(iVar1,latticeIndex.sizes.x);
+            sitePos.y = wrap(iVar2,latticeIndex.sizes.y);
+            sitePos.z = wrap(iVar3,latticeIndex.sizes.z);
+            int currentSite = latticeIndex(sitePos);
+            boundSites.push_back(currentSite);
+            pos.data[currentSite] = Qtensor;
+            /*
+            if(verbose)
+           printf("(%i,%i,%i) %f %f %f %f %f\n",sitePos.x,sitePos.y,sitePos.z,
                                                 Qtensor[0],Qtensor[1],Qtensor[2],Qtensor[3],Qtensor[4]);
-        */
-        entriesRead += 1;
+            */
+            entriesRead += 1;
+            };
+        if(verbose)
+            printf("object with %lu sites created\n",boundSites.size());
+        createBoundaryObject(boundSites,bound,Wb,s0);
         };
-    if(verbose)
-        printf("object with %lu sites created\n",boundSites.size());
-    createBoundaryObject(boundSites,bound,Wb,s0);
     };
 
 void qTensorLatticeModel::createSimpleSpherialColloid(scalar3 center, scalar radius, boundaryObject &bObj)

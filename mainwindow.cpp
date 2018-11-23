@@ -425,6 +425,7 @@ void MainWindow::on_addIterationsButton_released()
     scalar maxForce = sim->getMaxForce();
     QString printable3 = QStringLiteral("system evolved...mean force is %1").arg(maxForce);
     ui->testingBox->setText(printable3);
+     ui->progressBar->setValue(100);
 }
 
 void MainWindow::on_drawStuffButton_released()
@@ -491,8 +492,6 @@ void MainWindow::on_drawStuffButton_released()
             defects.push_back(p);
         }
     }
-    QString printable3 = QStringLiteral("drawing stuff ");
-    ui->testingBox->setText(printable3);
     ui->displayZone->setLines(lineSegments,Configuration->latticeIndex.sizes);
     ui->displayZone->setDefects(defects,Configuration->latticeIndex.sizes);
     bool goodVisualization = ui->builtinBoundaryVisualizationBox->isChecked();
@@ -505,6 +504,8 @@ void MainWindow::on_drawStuffButton_released()
         {
         on_builtinBoundaryVisualizationBox_released();
         };
+    QString printable3 = QStringLiteral("drawing stuff ");
+    ui->testingBox->setText(printable3);
     ui->displayZone->update();
 }
 
@@ -635,7 +636,8 @@ void MainWindow::on_reprodicbleRNGBox_stateChanged(int arg1)
 
 void MainWindow::on_builtinBoundaryVisualizationBox_released()
 {
-
+    QString printable1 = QStringLiteral("Changing style of boundary visualization");
+    ui->testingBox->setText(printable1);
     if(!ui->builtinBoundaryVisualizationBox->isChecked())
     {
         int totalSize = 0;
@@ -658,9 +660,6 @@ void MainWindow::on_builtinBoundaryVisualizationBox_released()
         ui->displayZone->setAllBoundarySites(bsites);
         ui->displayZone->drawBoundaries = true;
         }
-
-    QString printable1 = QStringLiteral("Changing style of boundary visualization");
-    ui->testingBox->setText(printable1);
 }
 
 void MainWindow::on_importFileNowButton_released()
@@ -668,7 +667,6 @@ void MainWindow::on_importFileNowButton_released()
     ui->fileImportWidget->hide();
     QString fname = ui->fileNameBox->text();
     string fn = fname.toStdString();
-    //string fn = "/Users/dmsussma/repos/dDimSim/data/boundaryInput.txt";
     Configuration->createBoundaryFromFile(fn,true);cout.flush();
     QString printable1 = QStringLiteral("boundary imported from file");
     ui->testingBox->setText(printable1);
