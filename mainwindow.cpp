@@ -962,7 +962,7 @@ void MainWindow::on_linearTrajectoryButton_released()
         };
 
     //print answer to file
-    QString fname = ui->fNameBox->text();
+    QString fname = ui->fTrajNameBox->text();
     string fileName = fname.toStdString();
     ofstream myfile;
     myfile.open (fileName.c_str());

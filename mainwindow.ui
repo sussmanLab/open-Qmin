@@ -3526,7 +3526,7 @@ border: 1px solid purple</string>
       <string>file save</string>
      </property>
     </widget>
-    <widget class="QLineEdit" name="fNameBox">
+    <widget class="QLineEdit" name="fTrajNameBox">
      <property name="geometry">
       <rect>
        <x>70</x>
