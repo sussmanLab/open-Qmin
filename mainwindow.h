@@ -89,6 +89,8 @@ private slots:
 
     void colloidalMobilityShow();
 
+    void colloidalTrajectoryShow();
+
     void on_moveObjectButton_released();
 
     void on_cancelObjectFieldButton_released();
@@ -100,6 +102,10 @@ private slots:
     void on_colloidalImmobilityButtom_released();
 
     void on_colloidalMobilityButtom_released();
+
+    void on_cancelTrajectoryButton_released();
+
+    void on_linearTrajectoryButton_released();
 
 private:
     Ui::MainWindow *ui;

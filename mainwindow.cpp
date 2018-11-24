@@ -48,6 +48,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->applyFieldWidget->hide();
     ui->moveObjectWidget->hide();
     ui->colloidalEvolutionWidget->hide();
+    ui->colloidalTrajectoryWidget->hide();
 
     connect(ui->displayZone,SIGNAL(xRotationChanged(int)),ui->xRotSlider,SLOT(setValue(int)));
     connect(ui->displayZone,SIGNAL(zRotationChanged(int)),ui->zRotSlider,SLOT(setValue(int)));
@@ -826,6 +827,15 @@ void MainWindow::colloidalMobilityShow()
         ui->colloidalMobilityBox->insertItem(ii,QString::number(ii));
 }
 
+void MainWindow::colloidalTrajectoryShow()
+{
+    ui->colloidalTrajectoryIdxBox->clear();
+    ui->colloidalTrajectoryWidget->show();
+    vector<QString> objNames;
+    for(unsigned int ii = 0; ii < Configuration->boundaries.getNumElements(); ++ii)
+        ui->colloidalTrajectoryIdxBox->insertItem(ii,QString::number(ii));
+}
+
 void MainWindow::moveObjectShow()
 {
     ui->objectIdxComboBox->clear();
@@ -896,4 +906,79 @@ void MainWindow::on_colloidalMobilityButtom_released()
         mobilityString += QStringLiteral(" %1,  ").arg(Configuration->boundaryState[ii]);
     mobilityString += QStringLiteral("}");
     ui->testingBox->setText(mobilityString);
+}
+
+void MainWindow::on_cancelTrajectoryButton_released()
+{
+    ui->colloidalTrajectoryWidget->hide();
+}
+
+void MainWindow::on_linearTrajectoryButton_released()
+{
+    ui->moveObjectWidget->hide();
+    int obj =ui->colloidalTrajectoryIdxBox->currentIndex();
+    scalar dx=ui->xEndBox->text().toDouble();
+    scalar dy=ui->yEndBox->text().toDouble();
+    scalar dz=ui->zEndBox->text().toDouble();
+    int dxDir = (dx <0) ? 0 : 1;
+    int dyDir = (dy <0) ? 2 : 3;
+    int dzDir = (dz <0) ? 4 : 5;
+
+    int subdivisions = ui->subdivisionsBox->text().toInt();
+
+    vector<int3> positions(subdivisions+1);
+    vector<scalar> energyTrace(subdivisions+1);
+    vector<scalar> forceNormTrace(subdivisions+1);
+    positions[0].x = 0;positions[0].y = 0;positions[0].z = 0;
+    //find nearest lattice sites
+    for(int ii = 1; ii <= subdivisions; ++ii)
+        {
+        positions[ii].x = (int) (round(dx*(1.0*ii)/(1.0*subdivisions)) -round(dx*(1.0*(ii-1))/(1.0*subdivisions)));
+        positions[ii].y = (int) (round(dy*(1.0*ii)/(1.0*subdivisions)) - round(dy*(1.0*(ii-1))/(1.0*subdivisions)));
+        positions[ii].z = (int) (round(dz*(1.0*ii)/(1.0*subdivisions)) - round(dz*(1.0*(ii-1))/(1.0*subdivisions)));
+        }
+
+    bool graphicalProgress = ui->visualProgressCheckBox->isChecked();
+    //minimize along the trajectory and store enrgy after each one
+    for(int ii = 0; ii <=subdivisions;++ii)
+        {
+        Configuration->displaceBoundaryObject(obj, dxDir,abs(positions[ii].x));
+        Configuration->displaceBoundaryObject(obj, dyDir,abs(positions[ii].y));
+        Configuration->displaceBoundaryObject(obj, dzDir,abs(positions[ii].z));
+
+        if(graphicalProgress)
+            on_drawStuffButton_released();
+        QString translateString = QStringLiteral("object %1 translated by {%2 %3 %4}, components:  ").arg(obj)
+                                    .arg(positions[ii].x).arg(positions[ii].y).arg(positions[ii].z);
+        ui->testingBox->setText(translateString);
+        on_addIterationsButton_released();
+        scalar maxForce = sim->getMaxForce();
+        scalar currentEnergy = 0.0;
+        landauLCForce->computeEnergy();
+        for(int ii = 0; ii < landauLCForce->energyComponents.size();++ii)
+            currentEnergy+=landauLCForce->energyComponents[ii];
+        energyTrace[ii] = currentEnergy;
+        forceNormTrace[ii] = maxForce;
+        };
+
+    //print answer to file
+    QString fname = ui->fNameBox->text();
+    string fileName = fname.toStdString();
+    ofstream myfile;
+    myfile.open (fileName.c_str());
+    myfile << "x \t"<<"y \t"<<"z \t";
+    myfile << "    E \t\t"<<"<f> \n";
+    for(int ii = 0; ii <=subdivisions;++ii)
+        {
+        int xx =  (int) round(dx*(1.0*ii)/(1.0*subdivisions));
+        int yy =  (int) round(dy*(1.0*ii)/(1.0*subdivisions));
+        int zz =  (int) round(dz*(1.0*ii)/(1.0*subdivisions));
+        myfile << xx <<"\t"<<yy<<"\t"<<zz<<"\t";
+        myfile << energyTrace[ii] <<"\t"<<forceNormTrace[ii]<<"\n";
+        };
+    myfile.close();
+    QString traceString = QStringLiteral("energy trace saved to file:  ");
+    traceString += fname;
+    ui->testingBox->setText(traceString);
+
 }

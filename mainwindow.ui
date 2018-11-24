@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1209</width>
+    <width>1182</width>
     <height>567</height>
    </rect>
   </property>
@@ -3077,9 +3077,9 @@ border: 1px solid purple</string>
     <widget class="QLabel" name="label_69">
      <property name="geometry">
       <rect>
-       <x>120</x>
+       <x>90</x>
        <y>10</y>
-       <width>241</width>
+       <width>311</width>
        <height>31</height>
       </rect>
      </property>
@@ -3093,7 +3093,8 @@ border: 1px solid purple</string>
       <string notr="true">border: white</string>
      </property>
      <property name="text">
-      <string>Settings for colloidal evolution</string>
+      <string>Settings for colloidal evolution 
+ THIS IS BROKEN AT THE MOMENT!!!!!</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
@@ -3302,19 +3303,299 @@ border: 1px solid purple</string>
      <string>Evolve system</string>
     </property>
    </widget>
+   <widget class="QWidget" name="colloidalTrajectoryWidget" native="true">
+    <property name="geometry">
+     <rect>
+      <x>230</x>
+      <y>10</y>
+      <width>431</width>
+      <height>351</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background: white; 
+border: 1px solid purple</string>
+    </property>
+    <widget class="QLabel" name="label_70">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>10</y>
+       <width>411</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>16</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>Energy trace for object motion</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="linearTrajectoryButton">
+     <property name="geometry">
+      <rect>
+       <x>170</x>
+       <y>170</y>
+       <width>221</width>
+       <height>71</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background: light gray</string>
+     </property>
+     <property name="text">
+      <string>Linear translatation, 
+ minimize and save energy trace</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_72">
+     <property name="geometry">
+      <rect>
+       <x>12</x>
+       <y>170</y>
+       <width>21</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>x</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_74">
+     <property name="geometry">
+      <rect>
+       <x>12</x>
+       <y>200</y>
+       <width>21</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>y</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="yEndBox">
+     <property name="geometry">
+      <rect>
+       <x>36</x>
+       <y>200</y>
+       <width>81</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>0</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_76">
+     <property name="geometry">
+      <rect>
+       <x>12</x>
+       <y>230</y>
+       <width>21</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>z</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="xEndBox">
+     <property name="geometry">
+      <rect>
+       <x>36</x>
+       <y>170</y>
+       <width>81</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>0</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="zEndBox">
+     <property name="geometry">
+      <rect>
+       <x>36</x>
+       <y>230</y>
+       <width>81</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>0</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_81">
+     <property name="geometry">
+      <rect>
+       <x>150</x>
+       <y>130</y>
+       <width>121</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>Linear translation</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_79">
+     <property name="geometry">
+      <rect>
+       <x>40</x>
+       <y>150</y>
+       <width>81</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>relative shift</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="fieldYLabel_7">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>50</y>
+       <width>51</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>object</string>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="colloidalTrajectoryIdxBox">
+     <property name="geometry">
+      <rect>
+       <x>70</x>
+       <y>50</y>
+       <width>78</width>
+       <height>23</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="fieldYLabel_8">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>90</y>
+       <width>61</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>file save</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="fNameBox">
+     <property name="geometry">
+      <rect>
+       <x>70</x>
+       <y>90</y>
+       <width>321</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>../data/energyTrace.txt</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="subdivisionsBox">
+     <property name="geometry">
+      <rect>
+       <x>255</x>
+       <y>51</y>
+       <width>41</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>10</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_80">
+     <property name="geometry">
+      <rect>
+       <x>171</x>
+       <y>51</y>
+       <width>76</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>subdivisions</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="cancelTrajectoryButton">
+     <property name="geometry">
+      <rect>
+       <x>330</x>
+       <y>320</y>
+       <width>80</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Cancel</string>
+     </property>
+    </widget>
+   </widget>
    <zorder>initializationFrame</zorder>
-   <zorder>addObjectsWidget</zorder>
    <zorder>fileSaveWidget</zorder>
+   <zorder>nesterovWidget</zorder>
+   <zorder>applyFieldWidget</zorder>
+   <zorder>moveObjectWidget</zorder>
+   <zorder>colloidalEvolutionWidget</zorder>
+   <zorder>addObjectsWidget</zorder>
+   <zorder>fireParametersWidget</zorder>
    <zorder>multithreadingWidget</zorder>
    <zorder>setPhaseConstants</zorder>
    <zorder>setDistortionConstants3</zorder>
    <zorder>fileImportWidget</zorder>
    <zorder>setDistortionConstants2</zorder>
    <zorder>setDistortionConstants1</zorder>
-   <zorder>nesterovWidget</zorder>
-   <zorder>applyFieldWidget</zorder>
-   <zorder>moveObjectWidget</zorder>
-   <zorder>colloidalEvolutionWidget</zorder>
    <zorder>addIterationsBox</zorder>
    <zorder>addIterationsButton</zorder>
    <zorder>testingBox</zorder>
@@ -3351,14 +3632,14 @@ border: 1px solid purple</string>
    <zorder>label_57</zorder>
    <zorder>nesterovMinimizationButton</zorder>
    <zorder>computeEnergyButton</zorder>
-   <zorder>fireParametersWidget</zorder>
+   <zorder>colloidalTrajectoryWidget</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1209</width>
+     <width>1182</width>
      <height>22</height>
     </rect>
    </property>
@@ -3397,6 +3678,7 @@ border: 1px solid purple</string>
      <string>object motion</string>
     </property>
     <addaction name="actionforced_translation"/>
+    <addaction name="actionobject_trajectory_with_energy_trace"/>
     <addaction name="actioncolloidal_evolution_settings"/>
    </widget>
    <addaction name="menuFile"/>
@@ -3471,6 +3753,11 @@ border: 1px solid purple</string>
   <action name="actioncolloidal_evolution_settings">
    <property name="text">
     <string>colloidal evolution settings</string>
+   </property>
+  </action>
+  <action name="actionobject_trajectory_with_energy_trace">
+   <property name="text">
+    <string>object trajectory with energy trace</string>
    </property>
   </action>
  </widget>
@@ -3839,10 +4126,27 @@ border: 1px solid purple</string>
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionobject_trajectory_with_energy_trace</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>colloidalTrajectoryShow()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>838</x>
+     <y>283</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>exitProgram()</slot>
   <slot>moveObjectShow()</slot>
   <slot>colloidalMobilityShow()</slot>
+  <slot>colloidalTrajectoryShow()</slot>
  </slots>
 </ui>
