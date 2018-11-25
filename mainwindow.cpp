@@ -363,7 +363,7 @@ void MainWindow::on_addIterationsButton_released()
         subdivisions = additionalIterations / iterationsPerColloidalEvolution;
 
     int stepsPerSubdivision = additionalIterations / subdivisions;
-
+    vector<int3> moveChain;
     for (int ii = 0; ii < subdivisions; ++ii)
         {
         {
@@ -406,12 +406,24 @@ void MainWindow::on_addIterationsButton_released()
                         };
                     if(moved)
                         {
+                        int xm=0; int ym = 0; int zm = 0;
                         if(dirx >= 0)
+                            {
                             Configuration->displaceBoundaryObject(bb, dirx,1);
+                            xm = (dirx ==0 ) ? -1 : 1;
+                            }
                         if(diry >= 0)
+                            {
                             Configuration->displaceBoundaryObject(bb, diry,1);
+                            ym = (diry ==2) ? -1 : 1;
+                            }
                         if(dirz >= 0)
+                            {
                             Configuration->displaceBoundaryObject(bb, dirz,1);
+                            zm = (dirz ==4) ? -1 : 1;
+                            }
+                        int3 thisMove; thisMove.x = xm; thisMove.y=ym;thisMove.z=zm;
+                        moveChain.push_back(thisMove);
                         }
                     }
                 }
@@ -419,14 +431,18 @@ void MainWindow::on_addIterationsButton_released()
 
         if(graphicalProgress) on_drawStuffButton_released();
         int progress = ((1.0*ii/(1.0*subdivisions))*100);
-        QString printable2 = QStringLiteral("evolving... %1").arg(progress);
+        QString printable2 = QStringLiteral("evolving... %1 percent done").arg(progress);
         ui->testingBox->setText(printable2);
         ui->progressBar->setValue(progress);
         }
     scalar maxForce = sim->getMaxForce();
     QString printable3 = QStringLiteral("system evolved...mean force is %1").arg(maxForce);
     ui->testingBox->setText(printable3);
-     ui->progressBar->setValue(100);
+    ui->progressBar->setValue(100);
+    printf("move chain:\n");
+    for(int ii = 0; ii < moveChain.size(); ++ii)
+        printf("{%i,%i,%i},",moveChain[ii].x,moveChain[ii].y,moveChain[ii].z);
+    printf("\nmove chain end :\n");
 }
 
 void MainWindow::on_drawStuffButton_released()

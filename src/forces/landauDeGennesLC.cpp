@@ -94,11 +94,17 @@ void landauDeGennesLC::computeObjectForces(int objectIdx)
             int izd =latticeNeighbors.data[lattice->neighborIndex(4,currentIndex)];
             int izu =latticeNeighbors.data[lattice->neighborIndex(5,currentIndex)];
             scalar3 surfaceArea = make_scalar3(0,0,0);
-            if(latticeTypes.data[ixd] >0 || latticeTypes.data[ixu] >0)
+            if(latticeTypes.data[ixd] >0)
+                surfaceArea.x = -1.0;
+            if(latticeTypes.data[ixu] >0)
                 surfaceArea.x = 1.0;
-            if(latticeTypes.data[iyd] >0 || latticeTypes.data[iyu] >0)
+            if(latticeTypes.data[iyd] >0)
+                surfaceArea.y = -1.0;
+            if(latticeTypes.data[iyu] >0)
                 surfaceArea.y = 1.0;
-            if(latticeTypes.data[izd] >0 || latticeTypes.data[izu] >0)
+            if(latticeTypes.data[izd] >0)
+                surfaceArea.z = -1.0;
+            if(latticeTypes.data[izu] >0)
                 surfaceArea.z = 1.0;
             lattice->boundaryForce[objectIdx] = lattice->boundaryForce[objectIdx]+ surfaceArea*stress.data[ii];
             }
