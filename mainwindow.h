@@ -124,10 +124,6 @@ public:
     double A=0;
     double B=0;
     double C=0;
-    double L1=2.32;
-    double L2=2.32;
-    double L3=2.32;
-    double q0=0.05;
     int zoom = 1;
     vector<scalar3> spherePositions;
     vector<scalar> sphereRadii;

@@ -249,30 +249,19 @@ __global__ void gpu_qTensor_oneConstantForce_kernel(dVec *d_force,
             }
         else //near a boundary is less easy... ternary operators are slightly better than many ifs (particularly if boundaries are typically jagged)
             {
-            if(d_types[ixd]>0)//xDown is a boundary
-                {
+            if(d_types[ixd] >0)//xDown is a boundary
                 spatialTerm -= (xUp-qCurrent);
-                }
             if(d_types[ixu] >0)//xUp is a boundary
-                {
                 spatialTerm -= (xDown-qCurrent);//negative derivative and negative nu_x cancel
-                }
-            if(d_types[iyd]>1)//ydown
-                {
+            if(d_types[iyd] >0)//ydown
                 spatialTerm -= (yUp-qCurrent);
-                }
             if(d_types[iyu] >0)
-                {
                 spatialTerm -= (yDown-qCurrent);//negative derivative and negative nu_y cancel
-                }
             if(d_types[izd] >0)//zDown is boundary
-                {
                 spatialTerm -= (zUp-qCurrent);
-                }
             if(d_types[izu] >0)
-                {
                 spatialTerm -= (zDown-qCurrent);//negative derivative and negative nu_z cancel
-                }
+            spatialTerm = spatialTerm*L1;
             scalar crossTerm = spatialTerm[0]+spatialTerm[3];
             spatialTerm[0] += crossTerm;
             spatialTerm[1] *= 2.0;
@@ -280,7 +269,7 @@ __global__ void gpu_qTensor_oneConstantForce_kernel(dVec *d_force,
             spatialTerm[3] += crossTerm;
             spatialTerm[4] *= 2.0;
             };
-        force -= L1*spatialTerm;
+        force -= spatialTerm;
         };
     if(zeroForce)
         d_force[idx] = force;

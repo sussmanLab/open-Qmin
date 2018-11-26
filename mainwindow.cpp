@@ -227,7 +227,7 @@ void MainWindow::on_setOneConstant_released()
     ui->setDistortionConstants1->hide();
     landauLCForce->setElasticConstants(_l1,0,0);
     landauLCForce->setNumberOfConstants(distortionEnergyType::oneConstant);
-    QString printable = QStringLiteral("One-elastic-constant approximation set: L1 %1").arg((L1));
+    QString printable = QStringLiteral("One-elastic-constant approximation set: L1 %1").arg((_l1));
     ui->testingBox->setText(printable);
     landauLCForce->setModel(Configuration);
     showControls();

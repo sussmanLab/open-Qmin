@@ -283,9 +283,6 @@ void landauDeGennesLC::computeFirstDerivatives()
 void landauDeGennesLC::computeForceOneConstantCPU(GPUArray<dVec> &forces, bool zeroOutForce)
     {
     ArrayHandle<dVec> h_f(forces);
-    if(zeroOutForce)
-        for(int pp = 0; pp < lattice->getNumberOfParticles(); ++pp)
-            h_f.data[pp] = make_dVec(0.0);
     ArrayHandle<dVec> Qtensors(lattice->returnPositions());
     ArrayHandle<int> latticeTypes(lattice->returnTypes());
     ArrayHandle<int> latticeNeighbors(lattice->neighboringSites,access_location::host,access_mode::read);
@@ -293,7 +290,6 @@ void landauDeGennesLC::computeForceOneConstantCPU(GPUArray<dVec> &forces, bool z
     scalar a = 0.5*A;
     scalar b = B/3.0;
     scalar c = 0.25*C;
-    scalar l = 2.0*L1;
 
     #include "ompParallelLoopDirective.h"
     for (int i = 0; i < lattice->getNumberOfParticles(); ++i)
@@ -301,66 +297,65 @@ void landauDeGennesLC::computeForceOneConstantCPU(GPUArray<dVec> &forces, bool z
         dVec qCurrent, xDown, xUp, yDown,yUp,zDown,zUp;
         //currentIndex = lattice->getNeighbors(i,neighbors,neighNum);
         int currentIndex = i;
+        dVec force(0.0);
         if(latticeTypes.data[currentIndex] <= 0)
             {
             qCurrent = Qtensors.data[currentIndex];
             //compute the phase terms depending only on the current site
-            h_f.data[currentIndex] -= a*derivativeTrQ2(qCurrent);
-            h_f.data[currentIndex] -= b*derivativeTrQ3(qCurrent);
-            h_f.data[currentIndex] -= c*derivativeTrQ2Squared(qCurrent);
+            force -= a*derivativeTrQ2(qCurrent);
+            force -= b*derivativeTrQ3(qCurrent);
+            force -= c*derivativeTrQ2Squared(qCurrent);
 
-            int n0,n1,n2,n3,n4,n5;
-            n0 =latticeNeighbors.data[lattice->neighborIndex(0,currentIndex)];
-            n1 =latticeNeighbors.data[lattice->neighborIndex(1,currentIndex)];
-            n2 =latticeNeighbors.data[lattice->neighborIndex(2,currentIndex)];
-            n3 =latticeNeighbors.data[lattice->neighborIndex(3,currentIndex)];
-            n4 =latticeNeighbors.data[lattice->neighborIndex(4,currentIndex)];
-            n5 =latticeNeighbors.data[lattice->neighborIndex(5,currentIndex)];
-            xDown = Qtensors.data[n0];
-            xUp   = Qtensors.data[n1];
-            yDown = Qtensors.data[n2];
-            yUp   = Qtensors.data[n3];
-            zDown = Qtensors.data[n4];
-            zUp   = Qtensors.data[n5];
-
+            int ixd, ixu,iyd,iyu,izd,izu;
+            ixd =latticeNeighbors.data[lattice->neighborIndex(0,currentIndex)];
+            ixu =latticeNeighbors.data[lattice->neighborIndex(1,currentIndex)];
+            iyd =latticeNeighbors.data[lattice->neighborIndex(2,currentIndex)];
+            iyu =latticeNeighbors.data[lattice->neighborIndex(3,currentIndex)];
+            izd =latticeNeighbors.data[lattice->neighborIndex(4,currentIndex)];
+            izu =latticeNeighbors.data[lattice->neighborIndex(5,currentIndex)];
+            xDown = Qtensors.data[ixd]; xUp = Qtensors.data[ixu];
+            yDown = Qtensors.data[iyd]; yUp = Qtensors.data[iyu];
+            zDown = Qtensors.data[izd]; zUp = Qtensors.data[izu];
+            dVec spatialTerm(0.0);
             //use the neighbors to compute the distortion
             if(latticeTypes.data[currentIndex] == 0) // if it's in the bulk, things are easy
                 {
-                dVec spatialTerm = L1*(6.0*qCurrent-xDown-xUp-yDown-yUp-zDown-zUp);
+                spatialTerm = L1*(6.0*qCurrent-xDown-xUp-yDown-yUp-zDown-zUp);
                 scalar AxxAyy = spatialTerm[0]+spatialTerm[3];
                 spatialTerm[0] += AxxAyy;
                 spatialTerm[1] *= 2.0;
                 spatialTerm[2] *= 2.0;
                 spatialTerm[3] += AxxAyy;
                 spatialTerm[4] *= 2.0;
-                h_f.data[currentIndex] -= spatialTerm;
                 }
             else
                 {//distortion term first
-                dVec spatialTerm(0.0);
-                dVec deriv;
-                if(latticeTypes.data[n0] >0)//xDown is a boundary
-                    spatialTerm += (xUp-qCurrent);
-                if(latticeTypes.data[n1] >0)//xUp is a boundary
-                    spatialTerm += (xDown-qCurrent);//negative derivative and negative nu_x cancel
-                if(latticeTypes.data[n2] >0)//ydown is a boundary
-                    spatialTerm += (yUp-qCurrent);
-                if(latticeTypes.data[n3] >0)
-                    spatialTerm += (yDown-qCurrent);//negative derivative and negative nu_y cancel
-                if(latticeTypes.data[n4] >0)//zDown is boundary
-                    spatialTerm += (zUp-qCurrent);
-                if(latticeTypes.data[n5] >0)
-                    spatialTerm += (zDown-qCurrent);//negative derivative and negative nu_z cancel
+                if(latticeTypes.data[ixd] >0)//xDown is a boundary
+                    spatialTerm -= (xUp-qCurrent);
+                if(latticeTypes.data[ixu] >0)//xUp is a boundary
+                    spatialTerm -= (xDown-qCurrent);//negative derivative and negative nu_x cancel
+                if(latticeTypes.data[iyd] >0)//ydown is a boundary
+                    spatialTerm -= (yUp-qCurrent);
+                if(latticeTypes.data[iyu] >0)
+                    spatialTerm -= (yDown-qCurrent);//negative derivative and negative nu_y cancel
+                if(latticeTypes.data[izd] >0)//zDown is boundary
+                    spatialTerm -= (zUp-qCurrent);
+                if(latticeTypes.data[izu] >0)
+                    spatialTerm -= (zDown-qCurrent);//negative derivative and negative nu_z cancel
+                spatialTerm = spatialTerm*L1;
                 scalar crossTerm = spatialTerm[0]+spatialTerm[3];
                 spatialTerm[0] += crossTerm;
                 spatialTerm[1] *= 2.0;
                 spatialTerm[2] *= 2.0;
                 spatialTerm[3] += crossTerm;
                 spatialTerm[4] *= 2.0;
-
-                h_f.data[currentIndex] += L1*spatialTerm;
-                }
+                };
+            force -= spatialTerm;
             };
+        if(zeroOutForce)
+            h_f.data[currentIndex] = force;
+        else
+            h_f.data[currentIndex] += force;
         };
     };
 
@@ -812,23 +807,35 @@ void landauDeGennesLC::computeBoundaryForcesCPU(GPUArray<dVec> &forces,bool zero
             zUp = Qtensors.data[neighbors[5]];
 
             if(latticeTypes.data[neighbors[0]] > 0)
+                {
                 computeBoundaryForce(qCurrent, xDown, bounds.data[latticeTypes.data[neighbors[0]]-1],tempForce);
-            h_f.data[currentIndex] += tempForce;
+                h_f.data[currentIndex] += tempForce;
+                }
             if(latticeTypes.data[neighbors[1]] > 0)
+                {
                 computeBoundaryForce(qCurrent, xUp, bounds.data[latticeTypes.data[neighbors[1]]-1],tempForce);
-            h_f.data[currentIndex] += tempForce;
+                h_f.data[currentIndex] += tempForce;
+                };
             if(latticeTypes.data[neighbors[2]] > 0)
+                {
                 computeBoundaryForce(qCurrent, yDown, bounds.data[latticeTypes.data[neighbors[2]]-1],tempForce);
-            h_f.data[currentIndex] += tempForce;
+                h_f.data[currentIndex] += tempForce;
+                }
             if(latticeTypes.data[neighbors[3]] > 0)
+                {
                 computeBoundaryForce(qCurrent, yUp, bounds.data[latticeTypes.data[neighbors[3]]-1],tempForce);
-            h_f.data[currentIndex] += tempForce;
+                h_f.data[currentIndex] += tempForce;
+                }
             if(latticeTypes.data[neighbors[4]] > 0)
+                {
                 computeBoundaryForce(qCurrent, zDown, bounds.data[latticeTypes.data[neighbors[4]]-1],tempForce);
-            h_f.data[currentIndex] += tempForce;
+                h_f.data[currentIndex] += tempForce;
+                }
             if(latticeTypes.data[neighbors[5]] > 0)
+                {
                 computeBoundaryForce(qCurrent, zUp, bounds.data[latticeTypes.data[neighbors[5]]-1],tempForce);
-            h_f.data[currentIndex] += tempForce;
+                h_f.data[currentIndex] += tempForce;
+                }
             }
         }
     };
