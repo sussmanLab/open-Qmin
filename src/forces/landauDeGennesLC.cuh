@@ -60,7 +60,8 @@ bool gpu_qTensor_computeUniformFieldForcesGPU(dVec * d_force,
 bool gpu_qTensor_firstDerivatives(cubicLatticeDerivativeVector *d_derivatives,
                                 dVec *d_spins,
                                 int *d_types,
-                                Index3D latticeIndex,
+                                int *latticeNeighbors,
+                                Index2D neighborIndex,
                                 int N,
                                 int maxBlockSize);
 

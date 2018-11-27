@@ -147,7 +147,7 @@ void landauDeGennesLC::computeStressTensors(GPUArray<int> &sites,GPUArray<Matrix
         stresses.resize(n);
     if(numberOfConstants == distortionEnergyType::oneConstant)
         {
-        //if(!useGPU)
+        if(true)//        if(!useGPU)
             {
             computeEnergyCPU(false);
             ArrayHandle<int> targetSites(sites,access_location::host,access_mode::read);
@@ -185,14 +185,16 @@ void landauDeGennesLC::computeFirstDerivatives()
         ArrayHandle<cubicLatticeDerivativeVector> d_derivatives(forceCalculationAssist,access_location::device,access_mode::readwrite);
         ArrayHandle<dVec> d_spins(lattice->returnPositions(),access_location::device,access_mode::read);
         ArrayHandle<int>  d_latticeTypes(lattice->returnTypes(),access_location::device,access_mode::read);
+        ArrayHandle<int> latticeNeighbors(lattice->neighboringSites,access_location::device,access_mode::read);
         forceAssistTuner->begin();
         gpu_qTensor_firstDerivatives(d_derivatives.data,
-                                  d_spins.data,
-                                  d_latticeTypes.data,
-                                  lattice->latticeIndex,
-                                  N,
-                                  forceAssistTuner->getParameter()
-                                  );
+                                     d_spins.data,
+                                     d_latticeTypes.data,
+                                     latticeNeighbors.data,
+                                     lattice->neighborIndex,
+                                     N,
+                                     forceAssistTuner->getParameter()
+                                     );
         forceAssistTuner->end();
         }
     else

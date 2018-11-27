@@ -93,42 +93,46 @@ __global__ void gpu_qTensor_computeBoundaryForcesGPU_kernel(dVec *d_force,
 __global__ void gpu_qTensor_firstDerivatives_kernel(cubicLatticeDerivativeVector *d_derivatives,
                                 dVec *d_spins,
                                 int *d_types,
-                                Index3D latticeIndex,
+                                int *latticeNeighbors,
+                                Index2D neighborIndex,
                                 int N)
     {
-    unsigned int idx = blockDim.x * blockIdx.x + threadIdx.x;
-    if (idx >= N)
+    unsigned int currentIndex = blockDim.x * blockIdx.x + threadIdx.x;
+    if (currentIndex >= N)
         return;
-    int3 target = latticeIndex.inverseIndex(idx);
-    int3 latticeSizes = latticeIndex.getSizes();
     dVec qCurrent, xDown, xUp, yDown,yUp,zDown,zUp;
     cubicLatticeDerivativeVector zero(0.0);
-    d_derivatives[idx] = zero;
+    d_derivatives[currentIndex] = zero;
 
-    if(d_types[idx] <= 0) //no force on sites that are part of boundaries
+    if(d_types[currentIndex] <= 0) //no force on sites that are part of boundaries
         {
         //get neighbor indices and data
-        int ixd, ixu,iyd,iyu,izd,izu;
-        gpu_get_six_neighbors(target,ixd, ixu,iyd,iyu,izd,izu,latticeIndex,latticeSizes);
+        int ixd =latticeNeighbors[neighborIndex(0,currentIndex)];
+        int ixu =latticeNeighbors[neighborIndex(1,currentIndex)];
+        int iyd =latticeNeighbors[neighborIndex(2,currentIndex)];
+        int iyu =latticeNeighbors[neighborIndex(3,currentIndex)];
+        int izd =latticeNeighbors[neighborIndex(4,currentIndex)];
+        int izu =latticeNeighbors[neighborIndex(5,currentIndex)];
         xDown = d_spins[ixd];
         xUp = d_spins[ixu];
         yDown = d_spins[iyd];
         yUp = d_spins[iyu];
         zDown = d_spins[izd];
         zUp = d_spins[izu];
-        if(d_types[idx] == 0) // bulk is easy
+        qCurrent = d_spins[currentIndex];
+        if(d_types[currentIndex] == 0) // bulk is easy
             {
             for (int qq = 0; qq < DIMENSION; ++qq)
                 {
-                d_derivatives[idx][qq] = 0.5*(xUp[qq]-xDown[qq]);
+                d_derivatives[currentIndex][qq] = 0.5*(xUp[qq]-xDown[qq]);
                 };
             for (int qq = 0; qq < DIMENSION; ++qq)
                 {
-                d_derivatives[idx][DIMENSION+qq] = 0.5*(yUp[qq]-yDown[qq]);
+                d_derivatives[currentIndex][DIMENSION+qq] = 0.5*(yUp[qq]-yDown[qq]);
                 };
             for (int qq = 0; qq < DIMENSION; ++qq)
                 {
-                d_derivatives[idx][2*DIMENSION+qq] = 0.5*(zUp[qq]-zDown[qq]);
+                d_derivatives[currentIndex][2*DIMENSION+qq] = 0.5*(zUp[qq]-zDown[qq]);
                 };
             }
         else //near a boundary is less easy
@@ -137,63 +141,63 @@ __global__ void gpu_qTensor_firstDerivatives_kernel(cubicLatticeDerivativeVector
                 {
                 for (int qq = 0; qq < DIMENSION; ++qq)
                     {
-                    d_derivatives[idx][qq] = 0.5*(xUp[qq]-xDown[qq]);
+                    d_derivatives[currentIndex][qq] = 0.5*(xUp[qq]-xDown[qq]);
                     };
                 }
             else if (d_types[ixu] > 0) //right is boundary
                 {
                 for (int qq = 0; qq < DIMENSION; ++qq)
                     {
-                    d_derivatives[idx][qq] = (qCurrent[qq]-xDown[qq]);
+                    d_derivatives[currentIndex][qq] = (qCurrent[qq]-xDown[qq]);
                     };
                 }
             else//left is boundary
                 {
                 for (int qq = 0; qq < DIMENSION; ++qq)
                     {
-                    d_derivatives[idx][qq] = (xUp[qq]-qCurrent[qq]);
+                    d_derivatives[currentIndex][qq] = (xUp[qq]-qCurrent[qq]);
                     };
                 };
             if(d_types[iyd] <=0 && d_types[iyu] <= 0) //y bulk
                 {
                 for (int qq = 0; qq < DIMENSION; ++qq)
                     {
-                    d_derivatives[idx][DIMENSION+qq] = 0.5*(yUp[qq]-yDown[qq]);
+                    d_derivatives[currentIndex][DIMENSION+qq] = 0.5*(yUp[qq]-yDown[qq]);
                     };
                 }
             else if (d_types[iyu] > 0) //up is boundary
                 {
                 for (int qq = 0; qq < DIMENSION; ++qq)
                     {
-                    d_derivatives[idx][DIMENSION+qq] = (qCurrent[qq]-yDown[qq]);
+                    d_derivatives[currentIndex][DIMENSION+qq] = (qCurrent[qq]-yDown[qq]);
                     };
                 }
             else//down is boundary
                 {
                 for (int qq = 0; qq < DIMENSION; ++qq)
                     {
-                    d_derivatives[idx][DIMENSION+qq] = (yUp[qq]-qCurrent[qq]);
+                    d_derivatives[currentIndex][DIMENSION+qq] = (yUp[qq]-qCurrent[qq]);
                     };
                 };
             if(d_types[izd] <=0 && d_types[izu] <= 0) //z bulk
                 {
                 for (int qq = 0; qq < DIMENSION; ++qq)
                     {
-                    d_derivatives[idx][2*DIMENSION+qq] = 0.5*(zUp[qq]-zDown[qq]);
+                    d_derivatives[currentIndex][2*DIMENSION+qq] = 0.5*(zUp[qq]-zDown[qq]);
                     };
                 }
             else if (d_types[izu] > 0) //up is boundary
                 {
                 for (int qq = 0; qq < DIMENSION; ++qq)
                     {
-                    d_derivatives[idx][2*DIMENSION+qq] = (qCurrent[qq]-zDown[qq]);
+                    d_derivatives[currentIndex][2*DIMENSION+qq] = (qCurrent[qq]-zDown[qq]);
                     };
                 }
             else//down is boundary
                 {
                 for (int qq = 0; qq < DIMENSION; ++qq)
                     {
-                    d_derivatives[idx][2*DIMENSION+qq] = (zUp[qq]-qCurrent[qq]);
+                    d_derivatives[currentIndex][2*DIMENSION+qq] = (zUp[qq]-qCurrent[qq]);
                     };
                 };
             };
@@ -746,13 +750,14 @@ bool gpu_qTensor_computeBoundaryForcesGPU(dVec *d_force,
 bool gpu_qTensor_firstDerivatives(cubicLatticeDerivativeVector *d_derivatives,
                           dVec *d_spins,
                           int *d_types,
-                          Index3D latticeIndex,
+                          int *latticeNeighbors,
+                          Index2D neighborIndex,
                           int N,
                           int maxBlockSize)
     {
     unsigned int block_size = maxBlockSize;
     unsigned int nblocks = N/block_size+1;
-    gpu_qTensor_firstDerivatives_kernel<<<nblocks,block_size>>>(d_derivatives,d_spins,d_types,latticeIndex,N);
+    gpu_qTensor_firstDerivatives_kernel<<<nblocks,block_size>>>(d_derivatives,d_spins,d_types,latticeNeighbors,neighborIndex,N);
     HANDLE_ERROR(cudaGetLastError());
     return cudaSuccess;
     }
