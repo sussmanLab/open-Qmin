@@ -395,7 +395,7 @@ void cubicLattice::displaceBoundaryObject(int objectIndex, int motionDirection, 
                                  motionDirection,false,boundarySites[objectIndex].getNumElements());
         //copy suface...reset lattice type
         gpu_copy_boundary_object(pos.data,sSites.data,neighbors.data,bma2.data,t.data,neighborIndex,
-                                 motionDirection,false,surfaceSites[objectIndex].getNumElements());
+                                 motionDirection,true,surfaceSites[objectIndex].getNumElements());
 
         //move both...
         gpu_move_boundary_object(pos.data,bSites.data,bma1.data,t.data,objectIndex+1,

@@ -104,7 +104,6 @@ HOSTDEVICE scalar3 operator+(const scalar3 &a, const scalar3 &b)
     return make_scalar3(a.x+b.x,a.y+b.y,a.z+b.z);
     }
 
-
 //!Handle errors in kernel calls...returns file and line numbers if cudaSuccess doesn't pan out
 static void HandleError(cudaError_t err, const char *file, int line)
     {

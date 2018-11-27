@@ -86,8 +86,6 @@ void energyMinimizerFIRE::fireStepGPU()
     gpu_dVec_dot_products(d_f.data,d_v.data,d_intermediate.data,d_intermediate2.data,d_assist.data,1,Ndof,maxBlockSize);
     gpu_dVec_dot_products(d_v.data,d_v.data,d_intermediate.data,d_intermediate2.data,d_assist.data,2,Ndof,maxBlockSize);
     dotProductTuner->end();
-    //gpu_zero_array(d_intermediate.data,Ndof);
-    //gpu_zero_array(d_intermediate2.data,Ndof);
     };//end handle scope
     ArrayHandle<scalar> h_assist(sumReductions,access_location::host,access_mode::read);
     //printf(" .. vs (%f\t%f\t%f)\n",h_assist.data[0],h_assist.data[1],h_assist.data[2]);
@@ -142,7 +140,8 @@ void energyMinimizerFIRE::fireStepGPU()
         deltaT = max (deltaT,deltaTMin);
         alpha = alphaStart;
         ArrayHandle<dVec> d_v(model->returnVelocities(),access_location::device,access_mode::overwrite);
-        gpu_zero_array(d_v.data,Ndof);
+        dVec zero(0.0);
+        gpu_set_array(d_v.data,zero,Ndof,512);
         };
     };
 
@@ -216,7 +215,9 @@ void energyMinimizerFIRE::minimize()
         initializeFromModel();
     //initialize the forces?
     sim->computeForces();
-    while( ((iterations < maxIterations) && (forceMax > forceCutoff)) || iterations == 0 )
+    int curIterations = iterations;
+    //always iterate at least once
+    while( ((iterations < maxIterations) && (forceMax > forceCutoff)) || iterations == curIterations )
         {
         iterations +=1;
         integrateEquationOfMotion();

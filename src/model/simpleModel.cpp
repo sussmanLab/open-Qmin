@@ -166,8 +166,9 @@ void simpleModel::computeForces(bool zeroOutForces)
             }
         else
             {
-                ArrayHandle<dVec> d_f(forces);
-                gpu_zero_array(d_f.data,N);
+            ArrayHandle<dVec> d_f(forces);
+            dVec zero(0.0);
+            gpu_set_array(d_f.data,zero,N,512);
             };
         };
     };

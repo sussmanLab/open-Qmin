@@ -56,7 +56,8 @@ void landauDeGennesLC::setModel(shared_ptr<cubicLattice> _model)
         if(useGPU)
             {
             ArrayHandle<cubicLatticeDerivativeVector> fca(forceCalculationAssist,access_location::device,access_mode::overwrite);
-            gpu_zero_array(fca.data,N);
+            cubicLatticeDerivativeVector zero(0.0);
+            gpu_set_array(fca.data,zero,N,512);
             }
         else
             {

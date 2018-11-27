@@ -125,6 +125,8 @@ class landauDeGennesLC : public baseLatticeForce
             };
         //!the free energy density at each lattice site
         GPUArray<scalar> energyDensity;
+        //!the force from stresses at the surface of an object
+        GPUArray<scalar3> objectForceArray;
         
     protected:
         //!constants, etc.

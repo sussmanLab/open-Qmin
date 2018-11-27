@@ -14,7 +14,6 @@ bool gpu_qTensor_oneConstantForce(dVec *d_force,
                                 dVec *d_spins,
                                 int *d_types,
                                 int *d_latticeNeighbors,
-                                Index3D latticeIndex,
                                 Index2D neighborIndex,
                                 scalar A,scalar B,scalar C,scalar L,
                                 int N,
@@ -73,6 +72,15 @@ bool gpu_qTensor_computeBoundaryForcesGPU(dVec *d_force,
                                 int N,
                                 bool zeroForce,
                                 int maxBlockSize);
+
+bool gpu_qTensor_computeObjectForceFromStresses(int *sites,
+                                        int *latticeTypes,
+                                        int *latticeNeighbors,
+                                        Matrix3x3 *stress,
+                                        scalar3 *objectForces,
+                                        Index2D neighborIndex,
+                                        int nSites,
+                                        int maxBlockSize);
 
 /** @} */ //end of group declaration
 #endif

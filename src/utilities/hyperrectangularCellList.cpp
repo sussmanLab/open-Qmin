@@ -90,7 +90,8 @@ NVTXPUSH("cell list resetting");
         elementsPerCell.resize(totalCells);
 
     ArrayHandle<unsigned int> d_elementsPerCell(elementsPerCell,access_location::device,access_mode::overwrite);
-    gpu_zero_array(d_elementsPerCell.data,totalCells);
+    unsigned int zero = 0;
+    gpu_set_array(d_elementsPerCell.data,zero,totalCells,512);
 
     //set all cell indexes to zero
     cellListIndexer = Index2D(Nmax,totalCells);

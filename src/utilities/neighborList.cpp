@@ -23,7 +23,8 @@ NVTXPUSH("resetting neighbor structures1");
     if(neighborsPerParticle.getNumElements() != size)
         neighborsPerParticle.resize(size);
     ArrayHandle<unsigned int> d_npp(neighborsPerParticle,access_location::device,access_mode::overwrite);
-    gpu_zero_array(d_npp.data,size);
+    unsigned int zero = 0;
+    gpu_set_array(d_npp.data,zero,size,512);
 
     Nmax = _nmax;
     neighborIndexer = Index2D(_nmax,size);

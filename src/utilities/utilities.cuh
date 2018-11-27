@@ -13,33 +13,12 @@ A file providing an interface to the relevant cuda calls for some simple GPU arr
  * \brief CUDA kernels and callers for the utilities base
  */
 
-//!convenience function to zero out an array on the GPU
-bool gpu_zero_array(scalar *arr,
-                    int N
-                    );
-
-//!convenience function to zero out an array on the GPU
-bool gpu_zero_array(cubicLatticeDerivativeVector *arr,
-                    int N
-                    );
-
-//!convenience function to zero out an array on the GPU
-bool gpu_zero_array(int *arr,
-                    int N
-                    );
-//!convenience function to zero out an array on the GPU
-bool gpu_zero_array(unsigned int *arr,
-                    int      N
-                    );
-//!convenience function to zero out an array on the GPU
-bool gpu_zero_array(int2 *arr,
-                    int      N
-                    );
-//!convenience function to zero out an array on the GPU
-bool gpu_zero_array(dVec *arr,
-                    int N
-                    );
-
+//!set every element of an array to the specified value
+template<typename T>
+bool gpu_set_array(T *arr,
+                   T value,
+                   int N,
+                   int maxBlockSize);
 
 //! (scalar) ans = (dVec) vec1 . vec2
 bool gpu_dot_dVec_vectors(dVec *d_vec1,

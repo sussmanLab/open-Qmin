@@ -235,90 +235,6 @@ __global__ void gpu_unrolled_dVec_dot_products_kernel(dVec *input1, dVec *input2
     };
 
 /*!
-  A function of poorly written convenience...zero out an array of dVecs on the device
-  */
-__global__ void gpu_zero_array_kernel(dVec *arr,int N)
-    {
-    // read in the particle that belongs to this thread
-    unsigned int idx = blockDim.x * blockIdx.x + threadIdx.x;
-    if (idx >= N)
-        return;
-    //dVec temp = make_dVec(0.0);
-    //arr[idx] = temp;
-    for (int dd = 0; dd < DIMENSION; ++dd)
-        arr[idx].x[dd] = 0.0;
-    return;
-    };
-/*!
-  A function of convenience...zero out an array of scalars on the device
-  */
-__global__ void gpu_zero_array_kernel(scalar *arr,int N)
-    {
-    // read in the particle that belongs to this thread
-    unsigned int idx = blockDim.x * blockIdx.x + threadIdx.x;
-    if (idx >= N)
-        return;
-
-    arr[idx] = 0.;
-    return;
-    };
-
-/*!
-  A function of convenience...zero out an array of cubicLatticeDerivativeVector on the device
-  */
-__global__ void gpu_zero_array_kernel(cubicLatticeDerivativeVector *arr, int N)
-    {
-    // read in the particle that belongs to this thread
-    unsigned int idx = blockDim.x * blockIdx.x + threadIdx.x;
-    if (idx >= N)
-        return;
-    cubicLatticeDerivativeVector zero(0.0);
-    arr[idx]=zero;
-    return;
-    };
-
-/*!
-  A function of convenience...zero out an array of unsigned ints on the device
-  */
-__global__ void gpu_zero_array_kernel(unsigned int *arr,int N)
-    {
-    // read in the particle that belongs to this thread
-    unsigned int idx = blockDim.x * blockIdx.x + threadIdx.x;
-    if (idx >= N)
-        return;
-
-    arr[idx] = 0;
-    return;
-    };
-
-/*!
-  A function of convenience...zero out an array of ints on the device
-  */
-__global__ void gpu_zero_array_kernel(int *arr,int N)
-    {
-    // read in the particle that belongs to this thread
-    unsigned int idx = blockDim.x * blockIdx.x + threadIdx.x;
-    if (idx >= N)
-        return;
-    arr[idx] = 0;
-    return;
-    };
-
-/*!
-  A function of convenience...zero out an array of int2s on the device
-  */
-__global__ void gpu_zero_array_kernel(int2 *arr,int N)
-    {
-    // read in the particle that belongs to this thread
-    unsigned int idx = blockDim.x * blockIdx.x + threadIdx.x;
-    if (idx >= N)
-        return;
-    arr[idx].x = 0;
-    arr[idx].y = 0;
-    return;
-    };
-
-/*!
 take a vector of dVecs, a vector of scalars, a factor, and return a vector where
 every entry is
 factor*scalar[i]*(dVec[i])^2
@@ -437,73 +353,6 @@ bool gpu_dot_dVec_vectors(dVec *d_vec1, dVec *d_vec2, scalar *d_ans, int N)
     return cudaSuccess;
     };
 
-bool gpu_zero_array(dVec *arr,int N)
-    {
-    //optimize block size later
-    unsigned int block_size = 128;
-    if (N < 128) block_size = 16;
-    unsigned int nblocks  = N/block_size + 1;
-
-    gpu_zero_array_kernel<<<nblocks, block_size>>>(arr,N);
-    HANDLE_ERROR(cudaGetLastError());
-    return cudaSuccess;
-    }
-
-bool gpu_zero_array(unsigned int *arr,int N)
-    {
-    //optimize block size later
-    unsigned int block_size = 128;
-    if (N < 128) block_size = 16;
-    unsigned int nblocks  = N/block_size + 1;
-
-    gpu_zero_array_kernel<<<nblocks, block_size>>>(arr,N);
-    HANDLE_ERROR(cudaGetLastError());
-    return cudaSuccess;
-    }
-
-bool gpu_zero_array(scalar *arr,int N)
-    {
-    unsigned int block_size = 128;
-    if (N < 128) block_size = 16;
-    unsigned int nblocks  = N/block_size + 1;
-
-    gpu_zero_array_kernel<<<nblocks, block_size>>>(arr,N);
-    HANDLE_ERROR(cudaGetLastError());
-    return cudaSuccess;
-    }
-
-bool gpu_zero_array(cubicLatticeDerivativeVector *arr,int N)
-    {
-    unsigned int block_size = 128;
-    if (N < 128) block_size = 16;
-    unsigned int nblocks  = N/block_size + 1;
-
-    gpu_zero_array_kernel<<<nblocks, block_size>>>(arr,N);
-    HANDLE_ERROR(cudaGetLastError());
-    return cudaSuccess;
-    }
-
-bool gpu_zero_array(int *arr,int N)
-    {
-    unsigned int block_size = 128;
-    if (N < 128) block_size = 16;
-    unsigned int nblocks  = N/block_size + 1;
-
-    gpu_zero_array_kernel<<<nblocks, block_size>>>(arr,N);
-    HANDLE_ERROR(cudaGetLastError());
-    return cudaSuccess;
-    }
-
-bool gpu_zero_array(int2 *arr,int N)
-    {
-    unsigned int block_size = 128;
-    if (N < 128) block_size = 16;
-    unsigned int nblocks  = N/block_size + 1;
-    gpu_zero_array_kernel<<<nblocks, block_size>>>(arr,N);
-    HANDLE_ERROR(cudaGetLastError());
-    return cudaSuccess;
-    }
-
 /*!
 takes the dot product of every element of the two input arrays and performs a reduction on the sum
 \param input1 vector 1...wow!
@@ -604,4 +453,37 @@ bool gpu_serial_reduction(scalar *array, scalar *output, int helperIdx, int N)
     return cudaSuccess;
     };
 
+/*!
+  A function of convenience... set an array on the device
+  */
+template <typename T>
+__global__ void gpu_set_array_kernel(T *arr,T value, int N)
+    {
+    // read in the particle that belongs to this thread
+    unsigned int idx = blockDim.x * blockIdx.x + threadIdx.x;
+    if (idx >= N)
+        return;
+    arr[idx] = value;
+    return;
+    };
+
+template<typename T>
+bool gpu_set_array(T *array, T value, int N,int maxBlockSize)
+    {
+    unsigned int block_size = maxBlockSize;
+    if (N < 128) block_size = 16;
+    unsigned int nblocks  = N/block_size + 1;
+    gpu_set_array_kernel<<<nblocks, block_size>>>(array,value,N);
+    HANDLE_ERROR(cudaGetLastError());
+    return cudaSuccess;
+    }
+
+//explicit template instantiations
+
+template bool gpu_set_array<int>(int *,int, int, int);
+template bool gpu_set_array<unsigned int>(unsigned int *,unsigned int, int, int);
+template bool gpu_set_array<int2>(int2 *,int2, int, int);
+template bool gpu_set_array<scalar>(scalar *,scalar, int, int);
+template bool gpu_set_array<dVec>(dVec *,dVec, int, int);
+template bool gpu_set_array<cubicLatticeDerivativeVector>(cubicLatticeDerivativeVector *,cubicLatticeDerivativeVector, int, int);
 /** @} */ //end of group declaration

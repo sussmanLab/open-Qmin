@@ -153,11 +153,12 @@ int main(int argc, char*argv[])
         fire->setFIREParameters(dt,alphaStart,deltaTMax,deltaTInc,deltaTDec,alphaDec,nMin,forceCutoff,alphaMin);
         fire->setMaximumIterations(maximumIterations);
 
-        sim->setCPUOperation(!GPU);
+        sim->setCPUOperation(true);//have cpu and gpu initialized the same...for debugging
         sim->setNThreads(nThreads);
         scalar S0 = (-b+sqrt(b*b-24*a*c))/(6*c);
         printf("setting random configuration with S0 = %f\n",S0);
         Configuration->setNematicQTensorRandomly(noise,S0);
+        sim->setCPUOperation(!GPU);
 
         boundaryObject homeotropicBoundary(boundaryType::homeotropic,1.0,S0);
         scalar3 left;
@@ -186,17 +187,15 @@ int main(int argc, char*argv[])
         scalar maxForce = fire->getMaxForce();
         printf("minimized to %f\t E=%f\t time taken = %fs\n",maxForce,E1,diff.count());
 
-        /*
         landauLCForce->computeObjectForces(0);
-        landauLCForce->computeObjectForces(1);
+        //landauLCForce->computeObjectForces(1);
         Configuration->displaceBoundaryObject(0,5,1);
 
         fire->setMaximumIterations(2*maximumIterations);
         sim->performTimestep();
         scalar E2 = sim->computePotentialEnergy(true);
-        printf("e1 %f E2 %f\n force %f\n",E1,E2,E2-E1);
+        printf("e1 %f E2 %f\t force %f\n",E1,E2,E2-E1);
         landauLCForce->computeObjectForces(0);
-        */
         /*
         int nn = Configuration->surfaceSites[0].getNumElements();
         ArrayHandle<int> surf1(Configuration->surfaceSites[0]);

@@ -200,11 +200,44 @@ __global__ void gpu_qTensor_firstDerivatives_kernel(cubicLatticeDerivativeVector
         };
     }
 
+__global__ void gpu_qTensor_computeObjectForceFromStresses_kernel(int *sites,
+                                        int *latticeTypes,
+                                        int *latticeNeighbors,
+                                        Matrix3x3 *stress,
+                                        scalar3 *objectForces,
+                                        Index2D neighborIndex,
+                                        int nSites)
+    {
+    unsigned int idx = blockDim.x * blockIdx.x + threadIdx.x;
+    if (idx >= nSites)
+        return;
+    int currentIndex = sites[idx];
+    int ixd =latticeNeighbors[neighborIndex(0,currentIndex)];
+    int ixu =latticeNeighbors[neighborIndex(1,currentIndex)];
+    int iyd =latticeNeighbors[neighborIndex(2,currentIndex)];
+    int iyu =latticeNeighbors[neighborIndex(3,currentIndex)];
+    int izd =latticeNeighbors[neighborIndex(4,currentIndex)];
+    int izu =latticeNeighbors[neighborIndex(5,currentIndex)];
+    scalar3 surfaceArea = make_scalar3(0,0,0);
+    if(latticeTypes[ixd] >0)
+        surfaceArea.x = -1.0;
+    if(latticeTypes[ixu] >0)
+        surfaceArea.x = 1.0;
+    if(latticeTypes[iyd] >0)
+        surfaceArea.y = -1.0;
+    if(latticeTypes[iyu] >0)
+        surfaceArea.y = 1.0;
+    if(latticeTypes[izd] >0)
+        surfaceArea.z = -1.0;
+    if(latticeTypes[izu] >0)
+        surfaceArea.z = 1.0;
+    objectForces[idx] = surfaceArea*stress[idx];
+    }
+
 __global__ void gpu_qTensor_oneConstantForce_kernel(dVec *d_force,
                                 dVec *d_spins,
                                 int *d_types,
                                 int *d_latticeNeighbors,
-                                Index3D latticeIndex,
                                 Index2D neighborIndex,
                                 scalar a,scalar b,scalar c,scalar L1,
                                 int N,
@@ -213,8 +246,6 @@ __global__ void gpu_qTensor_oneConstantForce_kernel(dVec *d_force,
     unsigned int idx = blockDim.x * blockIdx.x + threadIdx.x;
     if (idx >= N)
         return;
-    int3 target = latticeIndex.inverseIndex(idx);
-    int3 latticeSizes = latticeIndex.getSizes();
     dVec qCurrent, xDown, xUp, yDown,yUp,zDown,zUp;
     dVec force(0.0);
 
@@ -679,6 +710,22 @@ __global__ void gpu_qTensor_l24Force_kernel(dVec *d_force,
         d_force[idx] += force;
     };
 
+bool gpu_qTensor_computeObjectForceFromStresses(int *sites,
+                                        int *latticeTypes,
+                                        int *latticeNeighbors,
+                                        Matrix3x3 *stress,
+                                        scalar3 *objectForces,
+                                        Index2D neighborIndex,
+                                        int nSites,
+                                        int maxBlockSize)
+    {
+    unsigned int block_size = maxBlockSize;
+    unsigned int nblocks = nSites/block_size+1;
+    gpu_qTensor_computeObjectForceFromStresses_kernel<<<nblocks,block_size>>>(sites,latticeTypes,latticeNeighbors,stress,objectForces,neighborIndex,nSites);
+    HANDLE_ERROR(cudaGetLastError());
+    return cudaSuccess;
+    };
+
 bool gpu_qTensor_computeBoundaryForcesGPU(dVec *d_force,
                                 dVec *d_spins,
                                 int *d_types,
@@ -714,7 +761,6 @@ bool gpu_qTensor_oneConstantForce(dVec *d_force,
                                 dVec *d_spins,
                                 int *d_types,
                                 int *d_latticeNeighbors,
-                                Index3D latticeIndex,
                                 Index2D neighborIndex,
                                 scalar A,scalar B,scalar C,scalar L,
                                 int N,
@@ -728,7 +774,7 @@ bool gpu_qTensor_oneConstantForce(dVec *d_force,
     scalar c = 0.25*C;
     scalar l = L;
     gpu_qTensor_oneConstantForce_kernel<<<nblocks,block_size>>>(d_force,d_spins,d_types,d_latticeNeighbors,
-                                                                latticeIndex,neighborIndex,
+                                                                neighborIndex,
                                                                 a,b,c,l,N,zeroForce);
     HANDLE_ERROR(cudaGetLastError());
     return cudaSuccess;

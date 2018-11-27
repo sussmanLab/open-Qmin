@@ -62,7 +62,8 @@ void landauDeGennesLC::setModel(shared_ptr<cubicLattice> _model)
     if(useGPU)
         {
         ArrayHandle<cubicLatticeDerivativeVector> fca(forceCalculationAssist,access_location::device,access_mode::overwrite);
-        gpu_zero_array(fca.data,N);
+        cubicLatticeDerivativeVector zero(0.0);
+        gpu_set_array(fca.data,zero,N,512);
         }
     else
         {
@@ -108,12 +109,35 @@ void landauDeGennesLC::computeObjectForces(int objectIdx)
                 surfaceArea.z = 1.0;
             lattice->boundaryForce[objectIdx] = lattice->boundaryForce[objectIdx]+ surfaceArea*stress.data[ii];
             }
-        };
+        }
+    else
+        {
+        int nSites = lattice->surfaceSites[objectIdx].getNumElements();
+        if(objectForceArray.getNumElements() < nSites)
+            objectForceArray.resize(nSites);
+        {
+        ArrayHandle<int> sites(lattice->surfaceSites[objectIdx],access_location::device,access_mode::read);
+        ArrayHandle<int>  latticeTypes(lattice->returnTypes(),access_location::device,access_mode::read);
+        ArrayHandle<int> latticeNeighbors(lattice->neighboringSites,access_location::device,access_mode::read);
+        ArrayHandle<Matrix3x3> stress(stressTensors,access_location::device,access_mode::read);
+        ArrayHandle<scalar3> objectForces(objectForceArray,access_location::device,access_mode::overwrite);
+        gpu_qTensor_computeObjectForceFromStresses(sites.data,
+                                           latticeTypes.data,
+                                           latticeNeighbors.data,
+                                           stress.data,
+                                           objectForces.data,
+                                           lattice->neighborIndex,
+                                           nSites,512);//temp maxBlockSize
+        }//scope for device call
+        ArrayHandle<scalar3> objectForces(objectForceArray,access_location::host,access_mode::read);
+        for (int ii = 0; ii < nSites; ++ii)
+            lattice->boundaryForce[objectIdx] = lattice->boundaryForce[objectIdx] + objectForces.data[ii];
+        }
     printf("%f\t%f\t%f\n",lattice->boundaryForce[objectIdx].x,lattice->boundaryForce[objectIdx].y,lattice->boundaryForce[objectIdx].z);
     }
 /*!
 expression from "Hierarchical self-assembly of nematic colloidal superstructures"
-PHYSICAL REVIEW E 77, 061706 2008
+PHYSICAL REVIEW E 77, 061706 (2008)
 */
 void landauDeGennesLC::computeStressTensors(GPUArray<int> &sites,GPUArray<Matrix3x3> &stresses)
     {
@@ -123,7 +147,7 @@ void landauDeGennesLC::computeStressTensors(GPUArray<int> &sites,GPUArray<Matrix
         stresses.resize(n);
     if(numberOfConstants == distortionEnergyType::oneConstant)
         {
-        if(!useGPU)
+        //if(!useGPU)
             {
             computeEnergyCPU(false);
             ArrayHandle<int> targetSites(sites,access_location::host,access_mode::read);
@@ -853,9 +877,9 @@ void landauDeGennesLC::computeForceGPU(GPUArray<dVec> &forces,bool zeroOutForce)
             {
             forceTuner->begin();
             gpu_qTensor_oneConstantForce(d_force.data, d_spins.data, d_latticeTypes.data, d_latticeNeighbors.data,
-                                         lattice->latticeIndex,lattice->neighborIndex,
-                                          A,B,C,L1,N,
-                                          zeroOutForce,forceTuner->getParameter());
+                                         lattice->neighborIndex,
+                                         A,B,C,L1,N,
+                                         zeroOutForce,forceTuner->getParameter());
             break;
             };
         case distortionEnergyType::twoConstant :
