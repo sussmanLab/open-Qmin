@@ -9,6 +9,7 @@
 #include "landauDeGennesLC.h"
 #include "energyMinimizerFIRE.h"
 #include "energyMinimizerNesterovAG.h"
+#include "energyMinimizerLoLBFGS.h"
 #include "energyMinimizerAdam.h"
 #include "noiseSource.h"
 #include "indexer.h"

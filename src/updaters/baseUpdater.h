@@ -78,6 +78,7 @@ class updater
         int getCurrentIterations(){return iterations;};
         int getMaxIterations(){return maxIterations;};
         void setCurrentIterations(int newIterations){iterations=newIterations;};
+        
     protected:
         //!number of threads to use
         int nThreads=1;

@@ -33,7 +33,7 @@ int main(int argc, char*argv[])
 
     //define the various command line strings that can be passed in...
     //ValueArg<T> variableName("shortflag","longFlag","description",required or not, default value,"value type",CmdLine object to add to
-    //ValueArg<int> programSwitchArg("z","programSwitch","an integer controlling program branch",false,0,"int",cmd);
+    ValueArg<int> programSwitchArg("z","programSwitch","an integer controlling program branch",false,0,"int",cmd);
     SwitchArg nonvisualSwitch("v","nonVisualMode","run without the GUI", cmd, false);
     SwitchArg reproducibleSwitch("r","reproducible","reproducible random number generation", cmd, true);
 
@@ -46,6 +46,7 @@ int main(int argc, char*argv[])
     ValueArg<int> gpuSwitchArg("g","GPU","which gpu to use",false,0,"int",cmd);
     ValueArg<int> iterationsSwitchArg("i","iterations","number of minimization steps",false,100,"int",cmd);
     ValueArg<int> kSwitchArg("k","nConstants","approximation for distortion term",false,1,"int",cmd);
+
 
     ValueArg<scalar> l1SwitchArg("","L1","value of L1 term",false,2.32,"scalar",cmd);
     ValueArg<scalar> l2SwitchArg("","L2","value of L2 term",false,2.32,"scalar",cmd);
@@ -66,6 +67,7 @@ int main(int argc, char*argv[])
     bool nonvisualMode = nonvisualSwitch.getValue();
     bool reproducible = reproducibleSwitch.getValue();
     int gpu = gpuSwitchArg.getValue();
+    int programSwitch = programSwitchArg.getValue();
     int nDev;
     cudaGetDeviceCount(&nDev);
     if(nDev == 0)
@@ -146,10 +148,20 @@ int main(int argc, char*argv[])
         landauLCForce->setModel(Configuration);
         sim->addForce(landauLCForce);
 
-        shared_ptr<energyMinimizerFIRE> fire =  make_shared<energyMinimizerFIRE>(Configuration);
-        sim->addUpdater(fire,Configuration);
         scalar alphaStart=.99; scalar deltaTMax=100*dt; scalar deltaTInc=1.1; scalar deltaTDec=0.95;
-        scalar alphaDec=0.9; int nMin=4; scalar forceCutoff=1e-12; scalar alphaMin = 0.5;
+        scalar alphaDec=0.9; int nMin=4; scalar forceCutoff=1e-12; scalar alphaMin = 0.0;
+        scalar cValue = 1.0; int mStorage = 15;
+        shared_ptr<energyMinimizerFIRE> fire =  make_shared<energyMinimizerFIRE>(Configuration);
+        shared_ptr<energyMinimizerLoLBFGS> lolbfgs = make_shared<energyMinimizerLoLBFGS>(Configuration);
+        if(programSwitch == 1)
+            {
+            lolbfgs->setMaximumIterations(maximumIterations);
+            lolbfgs->setLoLBFGSParameters(mStorage,dt,cValue,forceCutoff);
+            sim->addUpdater(lolbfgs,Configuration);
+            }
+        else
+            sim->addUpdater(fire,Configuration);
+
         fire->setFIREParameters(dt,alphaStart,deltaTMax,deltaTInc,deltaTDec,alphaDec,nMin,forceCutoff,alphaMin);
         fire->setMaximumIterations(maximumIterations);
 
@@ -160,6 +172,7 @@ int main(int argc, char*argv[])
         Configuration->setNematicQTensorRandomly(noise,S0);
         sim->setCPUOperation(!GPU);
 
+        /*
         boundaryObject homeotropicBoundary(boundaryType::homeotropic,1.0,S0);
         scalar3 left;
         left.x = 0.3*boxLx;left.y = 0.5*boxLy;left.z = 0.5*boxLz;
@@ -168,6 +181,7 @@ int main(int argc, char*argv[])
         right.x = 0.7*boxLx;right.y = 0.5*boxLy;right.z = 0.5*boxLz;
         //Configuration->createSimpleSpherialColloid(right,0.1*boxLz, homeotropicBoundary);
         Configuration->createSimpleFlatWallNormal(10,2, homeotropicBoundary);
+        */
         /*
         boundaryObject homeotropicBoundary(boundaryType::homeotropic,1.0,S0);
         scalar3 left;
@@ -187,6 +201,7 @@ int main(int argc, char*argv[])
         scalar maxForce = fire->getMaxForce();
         printf("minimized to %f\t E=%f\t time taken = %fs\n",maxForce,E1,diff.count());
 
+        /*
         landauLCForce->computeObjectForces(0);
         //landauLCForce->computeObjectForces(1);
         Configuration->displaceBoundaryObject(0,5,1);
@@ -196,6 +211,9 @@ int main(int argc, char*argv[])
         scalar E2 = sim->computePotentialEnergy(true);
         printf("e1 %f E2 %f\t force %f\n",E1,E2,E2-E1);
         landauLCForce->computeObjectForces(0);
+        */
+
+
         /*
         int nn = Configuration->surfaceSites[0].getNumElements();
         ArrayHandle<int> surf1(Configuration->surfaceSites[0]);

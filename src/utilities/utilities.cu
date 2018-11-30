@@ -281,10 +281,36 @@ __global__ void gpu_dVec_times_scalar_kernel(dVec *d_vec1,scalar factor, dVec *d
     d_ans[idx] = factor*d_vec1[idx];
     };
 
+
+__global__ void gpu_dVec_plusEqual_dVec_kernel(dVec *d_vec1,dVec *d_vec2,scalar factor,int n)
+    {
+    // read in the index that belongs to this thread
+    unsigned int idx = blockDim.x * blockIdx.x + threadIdx.x;
+    if (idx >= n)
+        return;
+    int pIdx = idx / DIMENSION;
+    int dIdx = idx % DIMENSION;
+
+    d_vec1[pIdx][dIdx] += factor*d_vec2[pIdx][dIdx];
+    };
+
 /////
 //Kernel callers
 ///
 
+bool gpu_dVec_plusEqual_dVec(dVec *d_vec1,
+                              dVec *d_vec2,
+                              scalar factor,
+                              int N,
+                              int maxBlockSize)
+    {
+    unsigned int block_size = maxBlockSize;
+    if (N < 128) block_size = 32;
+    unsigned int nblocks  = (DIMENSION*N)/block_size + 1;
+    gpu_dVec_plusEqual_dVec_kernel<<<nblocks,block_size>>>(d_vec1,d_vec2,factor,DIMENSION*N);
+    HANDLE_ERROR(cudaGetLastError());
+    return cudaSuccess;
+    };
 /*!
 \param d_vec1 dVec input array
 \param factor scalar multiplication factor
@@ -303,6 +329,7 @@ bool gpu_dVec_times_scalar(dVec *d_vec1, scalar factor, int N)
     HANDLE_ERROR(cudaGetLastError());
     return cudaSuccess;
     };
+
 bool gpu_dVec_times_scalar(dVec *d_vec1, scalar factor, dVec *d_ans,int N)
     {
     unsigned int block_size = 128;
@@ -478,6 +505,26 @@ bool gpu_set_array(T *array, T value, int N,int maxBlockSize)
     return cudaSuccess;
     }
 
+scalar host_dVec_dot_products(dVec *input1,dVec *input2,int N)
+    {
+    scalar ans = 0.0;
+    for (int ii = 0; ii < N; ++ii)
+        for (int dd = 0; dd < DIMENSION; ++dd)
+            ans +=input1[ii][dd]*input2[ii][dd];
+    return ans;
+    }
+
+void host_dVec_plusEqual_dVec(dVec *d_vec1,dVec *d_vec2,scalar factor,int N)
+    {
+    for (int ii = 0; ii < N; ++ii)
+        d_vec1[ii] = d_vec1[ii] + factor*d_vec2[ii];
+    }
+
+void host_dVec_times_scalar(dVec *d_vec1, scalar factor, dVec *d_ans, int N)
+    {
+    for(int ii = 0; ii < N; ++ii)
+        d_ans[ii] = factor*d_vec1[ii];
+    }
 //explicit template instantiations
 
 template bool gpu_set_array<int>(int *,int, int, int);

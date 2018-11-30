@@ -10,6 +10,7 @@ add_library(updater
     energyMinimizerFIRE.cpp
     energyMinimizerAdam.cpp
     energyMinimizerNesterovAG.cpp
+    energyMinimizerLoLBFGS.cpp
     )
 cuda_add_library(updaterGPU
     velocityVerlet.cu
