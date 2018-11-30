@@ -26,10 +26,12 @@ class energyMinimizerLoLBFGS : public equationOfMotion
         void minimize();
         //!The "intergate equatios of motion just calls minimize
         virtual void performUpdate(){minimize();};
-        void setLoLBFGSParameters(int _m=5, scalar _dt = 0.0001,scalar _c = 1.00, scalar fc = 1e-12)
+        void setLoLBFGSParameters(int _m=5, scalar _dt = 0.0001,scalar _c = 1.00, scalar fc = 1e-12,scalar _tau=10)
             {
             c = _c;
             deltaT=_dt;
+            eta=deltaT;
+            tau = _tau;
             setForceCutoff(fc);
             if(_m > m)
                 {
@@ -61,6 +63,10 @@ class energyMinimizerLoLBFGS : public equationOfMotion
         //!The cutoff value of the maximum force
         scalar forceCutoff;
 
+        //! gain parameter
+        scalar eta;
+        scalar tau;
+        //! hmm...
         int currentIterationInMLoop;
 
         //!vector of alpha values

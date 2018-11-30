@@ -149,7 +149,7 @@ void energyMinimizerLoLBFGS::LoLBFGSStepCPU()
     {
     ArrayHandle<dVec> p(unscaledStep,access_location::host,access_mode::read);
     ArrayHandle<dVec> s(secantEquation[currentIterationInMLoop],access_location::host,access_mode::readwrite);
-    host_dVec_times_scalar(p.data,deltaT/c,s.data,Ndof);
+    host_dVec_times_scalar(p.data,eta/c,s.data,Ndof);
     }
     //temporarily store the old forces here in the gradient difference term
     gradientDifference[currentIterationInMLoop] = model->returnForces();
@@ -188,6 +188,7 @@ void energyMinimizerLoLBFGS::minimize()
         currentIterationInMLoop= (currentIterationInMLoop+1)%m;
         if(iterations%1000 == 999)
             printf("step %i max force:%.3g  \n",iterations,forceMax);cout.flush();
+        eta = tau/(tau + iterations)*deltaT;
         };
     printf("LoLBFGS finished: step %i max force:%.3g  \n",iterations,forceMax);cout.flush();
 
