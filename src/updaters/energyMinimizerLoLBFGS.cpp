@@ -180,6 +180,13 @@ void energyMinimizerLoLBFGS::minimize()
     //always iterate at least once
     while( ((iterations < maxIterations) && (forceMax > forceCutoff)) || iterations == curIterations )
         {
+        if(scheduledMomentum)
+            {
+            eta = tau/(tau + iterations)*deltaT;
+            }
+        else
+            eta = deltaT;
+
         if(useGPU)
             LoLBFGSStepGPU();
         else
@@ -188,7 +195,7 @@ void energyMinimizerLoLBFGS::minimize()
         currentIterationInMLoop= (currentIterationInMLoop+1)%m;
         if(iterations%1000 == 999)
             printf("step %i max force:%.3g  \n",iterations,forceMax);cout.flush();
-        eta = tau/(tau + iterations)*deltaT;
+
         };
     printf("LoLBFGS finished: step %i max force:%.3g  \n",iterations,forceMax);cout.flush();
 

@@ -49,7 +49,7 @@ class energyMinimizerLoLBFGS : public equationOfMotion
         //!Set the force cutoff
         void setForceCutoff(scalar fc){forceCutoff = fc;};
 
-        bool scheduledMomentum;
+        bool scheduledMomentum = false;
     protected:
         void LoLBFGSStepCPU();
         void LoLBFGSStepGPU();
