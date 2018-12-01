@@ -60,7 +60,6 @@ void energyMinimizerLoLBFGS::LoLBFGSStepGPU()
         unscaledStep = model->returnForces();
         }
     }
-
     //step 2
     {
     ArrayHandle<scalar> sy(sDotY);
@@ -121,13 +120,22 @@ void energyMinimizerLoLBFGS::LoLBFGSStepGPU()
     {
     ArrayHandle<dVec> p(unscaledStep,access_location::device,access_mode::read);
     ArrayHandle<dVec> s(secantEquation[currentIterationInMLoop],access_location::device,access_mode::readwrite);
-    gpu_dVec_times_scalar(p.data,eta/c,s.data,Ndof);
+    gpu_dVec_times_scalar(s.data,eta/c,p.data,Ndof);
     }
     //temporarily store the old forces here in the gradient difference term
-    gradientDifference[currentIterationInMLoop].swap(model->returnForces());
+    {
+    ArrayHandle<dVec> y(gradientDifference[currentIterationInMLoop],access_location::device,access_mode::overwrite);
+    ArrayHandle<dVec> f(model->returnForces(),access_location::device,access_mode::read);
+    gpu_dVec_times_scalar(f.data,1,y.data,Ndof);
+    }
     model->moveParticles(secantEquation[currentIterationInMLoop]);
     sim->computeForces();
-    unscaledStep = model->returnForces();
+    {
+    ArrayHandle<dVec> p(unscaledStep,access_location::device,access_mode::readwrite);
+    ArrayHandle<dVec> f(model->returnForces(),access_location::device,access_mode::read);
+    gpu_dVec_times_scalar(f.data,1,p.data,Ndof);
+    }
+
     {
     ArrayHandle<dVec> y(gradientDifference[currentIterationInMLoop],access_location::device,access_mode::readwrite);
     ArrayHandle<dVec> p(unscaledStep,access_location::device,access_mode::read);

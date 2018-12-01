@@ -389,6 +389,10 @@ scalar gpu_gpuarray_dVec_dot_products(
     {
     GPUArray<scalar> ans(1,false);
     int N = input1.getNumElements();
+    if(intermediate.getNumElements() <N)
+        intermediate.resize(N);
+    if(intermediate2.getNumElements() <N)
+        intermediate2.resize(N);
     {
     ArrayHandle<dVec> i1(input1,access_location::device,access_mode::read);
     ArrayHandle<dVec> i2(input2,access_location::device,access_mode::read);
