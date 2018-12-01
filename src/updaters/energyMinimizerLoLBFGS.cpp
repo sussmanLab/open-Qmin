@@ -87,12 +87,10 @@ void energyMinimizerLoLBFGS::LoLBFGSStepGPU()
     scalar val1 = sy.data[0];
     scalar val2 = gpu_gpuarray_dVec_dot_products(gradientDifference[lastM],gradientDifference[lastM],
                                                 sumReductionIntermediate,sumReductionIntermediate2);
-
     ArrayHandle<dVec> y(gradientDifference[lastM],access_location::device,access_mode::read);
     ArrayHandle<dVec> p(unscaledStep,access_location::device,access_mode::readwrite);
     if(val2!=0)
         {
-        ArrayHandle<dVec> p(unscaledStep);
         gpu_dVec_plusEqual_dVec(p.data,y.data,val1/val2,Ndof);
         };
     }
@@ -120,8 +118,9 @@ void energyMinimizerLoLBFGS::LoLBFGSStepGPU()
     {
     ArrayHandle<dVec> p(unscaledStep,access_location::device,access_mode::read);
     ArrayHandle<dVec> s(secantEquation[currentIterationInMLoop],access_location::device,access_mode::readwrite);
-    gpu_dVec_times_scalar(s.data,eta/c,p.data,Ndof);
+    gpu_dVec_times_scalar(p.data,eta/c,s.data,Ndof);
     }
+
     //temporarily store the old forces here in the gradient difference term
     gpu_copy_gpuarray(gradientDifference[currentIterationInMLoop],model->returnForces());
     //move particles, recompute force, store new force in unscaledStep in preparation for the next iteration
@@ -252,9 +251,9 @@ void energyMinimizerLoLBFGS::minimize()
             LoLBFGSStepCPU();
         iterations +=1;
         currentIterationInMLoop= (currentIterationInMLoop+1)%m;
+
         if(iterations%1000 == 999)
             printf("step %i max force:%.3g  \n",iterations,forceMax);cout.flush();
-
         };
     printf("LoLBFGS finished: step %i max force:%.3g  \n",iterations,forceMax);cout.flush();
 
