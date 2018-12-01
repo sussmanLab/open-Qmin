@@ -51,36 +51,96 @@ void energyMinimizerLoLBFGS::initializeFromModel()
 
 void energyMinimizerLoLBFGS::LoLBFGSStepGPU()
     {
-        /*
-    sim->computeForces();
+    int lastM = (currentIterationInMLoop - 1+m) %m;
+    //step 1
     {
-    ArrayHandle<dVec> negativeGrad(model->returnForces(),access_location::device,access_mode::read);
-    ArrayHandle<dVec> positions(model->returnPositions(),access_location::device,access_mode::readwrite);
-    ArrayHandle<dVec> altPos(alternateSequence,access_location::device,access_mode::readwrite);
-
-    minimizationTuner->begin();
-    int blockSize = minimizationTuner->getParameter();
-    gpu_nesterovAG_step(negativeGrad.data,
-                  positions.data,
-                  altPos.data,
-                  deltaT,
-                  mu,
-                  Ndof,
-                  blockSize);
-    minimizationTuner->end();
-
-    ArrayHandle<scalar> d_intermediate(sumReductionIntermediate,access_location::device,access_mode::overwrite);
-    ArrayHandle<scalar> d_intermediate2(sumReductionIntermediate2,access_location::device,access_mode::overwrite);
-    ArrayHandle<scalar> d_assist(sumReductions,access_location::device,access_mode::overwrite);
-    dotProductTuner->begin();
-    int maxBlockSize  = dotProductTuner->getParameter();
-    gpu_dVec_dot_products(negativeGrad.data,negativeGrad.data,d_intermediate.data,d_intermediate2.data,d_assist.data,0,Ndof,maxBlockSize);
-    dotProductTuner->end();
+    if(iterations == 0)
+        {
+        sim->computeForces();
+        unscaledStep = model->returnForces();
+        }
     }
-    ArrayHandle<scalar> h_assist(sumReductions,access_location::host,access_mode::read);
-    scalar forceNorm = h_assist.data[0];
-    forceMax = sqrt(forceNorm) / (scalar)Ndof;
-    */
+
+    //step 2
+    {
+    ArrayHandle<scalar> sy(sDotY);
+    ArrayHandle<scalar> a(alpha);
+    for (int ii = 0; ii < m; ++ii)
+        {
+        int tMinusI = (currentIterationInMLoop - ii - 1 + m) % m;
+        {
+        sy.data[ii]= gpu_gpuarray_dVec_dot_products(secantEquation[tMinusI],gradientDifference[tMinusI],
+                                                    sumReductionIntermediate,sumReductionIntermediate2);
+        a.data[ii] = 0.0;
+        if(sy.data[ii] != 0)
+            a.data[ii] =(1.0/sy.data[ii])*gpu_gpuarray_dVec_dot_products(secantEquation[tMinusI],unscaledStep,
+                                                        sumReductionIntermediate,sumReductionIntermediate2);
+        }
+        ArrayHandle<dVec> p(unscaledStep,access_location::device,access_mode::readwrite);
+        ArrayHandle<dVec> y(gradientDifference[tMinusI],access_location::device,access_mode::read);
+        gpu_dVec_plusEqual_dVec(p.data,y.data,-a.data[ii],Ndof);
+        }
+    }
+
+    //step 3
+    {
+    ArrayHandle<scalar> sy(sDotY);
+    scalar val1 = sy.data[0];
+    scalar val2 = gpu_gpuarray_dVec_dot_products(gradientDifference[lastM],gradientDifference[lastM],
+                                                sumReductionIntermediate,sumReductionIntermediate2);
+
+    ArrayHandle<dVec> y(gradientDifference[lastM],access_location::device,access_mode::read);
+    ArrayHandle<dVec> p(unscaledStep,access_location::device,access_mode::readwrite);
+    if(val2!=0)
+        {
+        ArrayHandle<dVec> p(unscaledStep);
+        gpu_dVec_plusEqual_dVec(p.data,y.data,val1/val2,Ndof);
+        };
+    }
+
+    //step 4
+    {
+    ArrayHandle<scalar> sy(sDotY);
+    ArrayHandle<scalar> a(alpha);
+    for(int ii = m-1; ii >= 0; --ii)
+        {
+        int tMinusI = (currentIterationInMLoop - ii - 1 + m) % m;
+        scalar beta =0;
+        if(sy.data[ii] != 0)
+            {
+            beta = (1.0/sy.data[ii])*gpu_gpuarray_dVec_dot_products(gradientDifference[tMinusI],unscaledStep,
+                                                        sumReductionIntermediate,sumReductionIntermediate2);
+            ArrayHandle<dVec> p(unscaledStep,access_location::device,access_mode::readwrite);
+            ArrayHandle<dVec> s(secantEquation[tMinusI],access_location::device,access_mode::read);
+            gpu_dVec_plusEqual_dVec(p.data,s.data,a.data[ii]-beta,Ndof);
+            }
+        }
+    }
+
+    //update step
+    {
+    ArrayHandle<dVec> p(unscaledStep,access_location::device,access_mode::read);
+    ArrayHandle<dVec> s(secantEquation[currentIterationInMLoop],access_location::device,access_mode::readwrite);
+    gpu_dVec_times_scalar(p.data,eta/c,s.data,Ndof);
+    }
+    //temporarily store the old forces here in the gradient difference term
+    gradientDifference[currentIterationInMLoop].swap(model->returnForces());
+    model->moveParticles(secantEquation[currentIterationInMLoop]);
+    sim->computeForces();
+    unscaledStep = model->returnForces();
+    {
+    ArrayHandle<dVec> y(gradientDifference[currentIterationInMLoop],access_location::device,access_mode::readwrite);
+    ArrayHandle<dVec> p(unscaledStep,access_location::device,access_mode::read);
+    gpu_dVec_plusEqual_dVec(y.data,p.data,-1.0,Ndof);
+    }
+
+    //get force norm
+    {
+    scalar fdotf = gpu_gpuarray_dVec_dot_products(unscaledStep,unscaledStep,
+                                                sumReductionIntermediate,sumReductionIntermediate2);
+    forceMax=sqrt(fdotf)/Ndof;
+    }
+
     }
 
 void energyMinimizerLoLBFGS::LoLBFGSStepCPU()

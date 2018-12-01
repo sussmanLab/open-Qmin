@@ -86,6 +86,14 @@ bool gpu_dVec_dot_products(
                     int N,
                     int block_size);
 
+//!A function of convenience: take the gpuarrays themselves and dot the data
+scalar gpu_gpuarray_dVec_dot_products(
+                    GPUArray<dVec> &input1,
+                    GPUArray<dVec> &input2,
+                    GPUArray<scalar> &intermediate,
+                    GPUArray<scalar> &intermediate2,
+                    int block_size=512);
+
 //!Take two vectors of dVecs and compute the sum of the dot products between them on the host
 scalar host_dVec_dot_products(dVec *input1,dVec *input2,int N);
 

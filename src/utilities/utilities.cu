@@ -380,6 +380,26 @@ bool gpu_dot_dVec_vectors(dVec *d_vec1, dVec *d_vec2, scalar *d_ans, int N)
     return cudaSuccess;
     };
 
+scalar gpu_gpuarray_dVec_dot_products(
+                        GPUArray<dVec> &input1,
+                        GPUArray<dVec> &input2,
+                        GPUArray<scalar> &intermediate,
+                        GPUArray<scalar> &intermediate2,
+                        int block_size)
+    {
+    GPUArray<scalar> ans(1,false);
+    int N = input1.getNumElements();
+    {
+    ArrayHandle<dVec> i1(input1,access_location::device,access_mode::read);
+    ArrayHandle<dVec> i2(input2,access_location::device,access_mode::read);
+    ArrayHandle<scalar> inter1(intermediate,access_location::device,access_mode::overwrite);
+    ArrayHandle<scalar> inter2(intermediate2,access_location::device,access_mode::overwrite);
+    ArrayHandle<scalar> answer(ans,access_location::device,access_mode::overwrite);
+    gpu_dVec_dot_products(i1.data,i2.data,inter1.data,inter2.data,answer.data,0,N,block_size);
+    }
+    ArrayHandle<scalar> answer(ans,access_location::host,access_mode::read);
+    return answer.data[0];
+    }
 /*!
 takes the dot product of every element of the two input arrays and performs a reduction on the sum
 \param input1 vector 1...wow!
