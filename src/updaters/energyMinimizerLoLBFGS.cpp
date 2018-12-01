@@ -57,7 +57,7 @@ void energyMinimizerLoLBFGS::LoLBFGSStepGPU()
     if(iterations == 0)
         {
         sim->computeForces();
-        unscaledStep = model->returnForces();
+        gpu_copy_gpuarray(unscaledStep,model->returnForces());
         }
     }
     //step 2
@@ -123,19 +123,13 @@ void energyMinimizerLoLBFGS::LoLBFGSStepGPU()
     gpu_dVec_times_scalar(s.data,eta/c,p.data,Ndof);
     }
     //temporarily store the old forces here in the gradient difference term
-    {
-    ArrayHandle<dVec> y(gradientDifference[currentIterationInMLoop],access_location::device,access_mode::overwrite);
-    ArrayHandle<dVec> f(model->returnForces(),access_location::device,access_mode::read);
-    gpu_dVec_times_scalar(f.data,1,y.data,Ndof);
-    }
+    gpu_copy_gpuarray(gradientDifference[currentIterationInMLoop],model->returnForces());
+    //move particles, recompute force, store new force in unscaledStep in preparation for the next iteration
     model->moveParticles(secantEquation[currentIterationInMLoop]);
     sim->computeForces();
-    {
-    ArrayHandle<dVec> p(unscaledStep,access_location::device,access_mode::readwrite);
-    ArrayHandle<dVec> f(model->returnForces(),access_location::device,access_mode::read);
-    gpu_dVec_times_scalar(f.data,1,p.data,Ndof);
-    }
+    gpu_copy_gpuarray(unscaledStep,model->returnForces());
 
+    //make gradientDifference the difference of gradients
     {
     ArrayHandle<dVec> y(gradientDifference[currentIterationInMLoop],access_location::device,access_mode::readwrite);
     ArrayHandle<dVec> p(unscaledStep,access_location::device,access_mode::read);
@@ -143,12 +137,9 @@ void energyMinimizerLoLBFGS::LoLBFGSStepGPU()
     }
 
     //get force norm
-    {
-    scalar fdotf = gpu_gpuarray_dVec_dot_products(unscaledStep,unscaledStep,
+    scalar fdotf = gpu_gpuarray_dVec_dot_products(unscaledStep,model->returnForces(),
                                                 sumReductionIntermediate,sumReductionIntermediate2);
     forceMax=sqrt(fdotf)/Ndof;
-    }
-
     }
 
 void energyMinimizerLoLBFGS::LoLBFGSStepCPU()

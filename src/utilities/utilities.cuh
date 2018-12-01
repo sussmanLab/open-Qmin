@@ -92,7 +92,11 @@ scalar gpu_gpuarray_dVec_dot_products(
                     GPUArray<dVec> &input2,
                     GPUArray<scalar> &intermediate,
                     GPUArray<scalar> &intermediate2,
-                    int block_size=512);
+                    int maxBlockSize=512);
+
+//!copy data into target on the device
+template<typename T>
+bool gpu_copy_gpuarray(GPUArray<T> &copyInto,GPUArray<T> &copyFrom,int block_size=512);
 
 //!Take two vectors of dVecs and compute the sum of the dot products between them on the host
 scalar host_dVec_dot_products(dVec *input1,dVec *input2,int N);

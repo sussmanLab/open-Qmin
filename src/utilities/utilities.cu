@@ -294,6 +294,8 @@ __global__ void gpu_dVec_plusEqual_dVec_kernel(dVec *d_vec1,dVec *d_vec2,scalar 
     d_vec1[pIdx][dIdx] += factor*d_vec2[pIdx][dIdx];
     };
 
+
+
 /////
 //Kernel callers
 ///
@@ -529,6 +531,33 @@ bool gpu_set_array(T *array, T value, int N,int maxBlockSize)
     return cudaSuccess;
     }
 
+template <typename T>
+__global__ void gpu_copy_gpuarray_kernel(T *copyInto,T *copyFrom, int N)
+    {
+    // read in the particle that belongs to this thread
+    unsigned int idx = blockDim.x * blockIdx.x + threadIdx.x;
+    if (idx >= N)
+        return;
+    copyInto[idx] = copyFrom[idx];
+    return;
+    };
+
+template<typename T>
+bool gpu_copy_gpuarray(GPUArray<T> &copyInto,GPUArray<T> &copyFrom,int maxBlockSize)
+    {
+    int N = copyFrom.getNumElements();
+    if(copyInto.getNumElements() < N)
+        copyInto.resize(N);
+    unsigned int block_size = maxBlockSize;
+    if (N < 128) block_size = 32;
+    unsigned int nblocks  = (N)/block_size + 1;
+    ArrayHandle<T> ci(copyInto,access_location::device,access_mode::overwrite);
+    ArrayHandle<T> cf(copyFrom,access_location::device,access_mode::read);
+    gpu_copy_gpuarray_kernel<<<nblocks,block_size>>>(ci.data,cf.data,N);
+    HANDLE_ERROR(cudaGetLastError());
+    return cudaSuccess;
+    }
+
 scalar host_dVec_dot_products(dVec *input1,dVec *input2,int N)
     {
     scalar ans = 0.0;
@@ -550,6 +579,8 @@ void host_dVec_times_scalar(dVec *d_vec1, scalar factor, dVec *d_ans, int N)
         d_ans[ii] = factor*d_vec1[ii];
     }
 //explicit template instantiations
+template bool gpu_copy_gpuarray<dVec>(GPUArray<dVec> &copyInto,GPUArray<dVec> &copyFrom,int maxBlockSize);
+template bool gpu_copy_gpuarray<scalar>(GPUArray<scalar> &copyInto,GPUArray<scalar> &copyFrom,int maxBlockSize);
 
 template bool gpu_set_array<int>(int *,int, int, int);
 template bool gpu_set_array<unsigned int>(unsigned int *,unsigned int, int, int);
