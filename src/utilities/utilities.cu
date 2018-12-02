@@ -21,32 +21,29 @@ unsigned int nextPow2(unsigned int x)
 
 ////////////////////////////////////////////////////////////////////////////////
 // Compute the number of threads and blocks to use for the given reduction kernel
-// For the kernels >= 3, we set threads / block to the minimum of maxThreads and
-// n/2. For kernels < 3, we set to the minimum of maxThreads and n.  For kernel
-// 6, we observe the maximum specified number of blocks, because each thread in
-// that kernel can process a variable number of elements.
 ////////////////////////////////////////////////////////////////////////////////
 void getNumBlocksAndThreads(int n, int maxBlocks, int maxThreads, int &blocks, int &threads)
 {
     //get device capability, to avoid block/grid size excceed the upbound
-    cudaDeviceProp prop;
-    int device;
-    cudaGetDevice(&device);
-    cudaGetDeviceProperties(&prop, device);
+    //cudaDeviceProp prop;
+    //int device;
+    //cudaGetDevice(&device);
+    //cudaGetDeviceProperties(&prop, device);
 
 
     threads = (n < maxThreads*2) ? nextPow2((n + 1)/ 2) : maxThreads;
     blocks = (n + (threads * 2 - 1)) / (threads * 2);
 
-    if ((float)threads*blocks > (float)prop.maxGridSize[0] * prop.maxThreadsPerBlock)
+    //if ((float)threads*blocks > (float)prop.maxGridSize[0] * prop.maxThreadsPerBlock)
+    if ((float)threads*blocks > (float)2147483647 * 1024)
     {
         printf("n is too large, please choose a smaller number!\n");
     }
 
-    if (blocks > prop.maxGridSize[0])
+    if (blocks > 2147483647)
     {
         printf("Grid size <%d> excceeds the device capability <%d>, set block size as %d (original %d)\n",
-               blocks, prop.maxGridSize[0], threads*2, threads);
+               blocks, 2147483647, threads*2, threads);
 
         blocks /= 2;
         threads *= 2;
@@ -281,7 +278,7 @@ T gpuReduction(int  n,
     reduce<T>(n, numThreads, numBlocks, d_idata, d_odata);
     HANDLE_ERROR(cudaGetLastError());
 
-
+    //T *h_odata = (T *) malloc(numBlocks*sizeof(T));
     // sum partial block sums on GPU
     int s=numBlocks;
     while (s > cpuFinalThreshold)
@@ -291,23 +288,23 @@ T gpuReduction(int  n,
         reduce<T>(s, threads, blocks, d_odata, d_odata);
         s = (s + (threads*2-1)) / (threads*2);
         }
-            /*
-            if (s > 1)
+        /*
+        if (s > 1)
             {
-                // copy result from device to host
-                checkCudaErrors(cudaMemcpy(h_odata, d_odata, s * sizeof(T), cudaMemcpyDeviceToHost));
-                for (int i=0; i < s; i++)
+            // copy result from device to host
+            cudaMemcpy(h_odata, d_odata, s * sizeof(T), cudaMemcpyDeviceToHost);
+            for (int i=0; i < s; i++)
                 {
-                    gpu_result += h_odata[i];
+                gpu_result += h_odata[i];
                 }
-                needReadBack = false;
+            needReadBack = false;
             }
-            */
+        */
     // copy final sum from device to host
     if (needReadBack)
         cudaMemcpy(&gpu_result, d_odata, sizeof(T), cudaMemcpyDeviceToHost);
     HANDLE_ERROR(cudaGetLastError());
-
+    //free(h_odata);
     return gpu_result;
     }
 
@@ -692,22 +689,36 @@ scalar gpu_gpuarray_dVec_dot_products(
                         GPUArray<scalar> &intermediate2,
                         int block_size)
     {
-    GPUArray<scalar> ans(1,false);
     int N = input1.getNumElements();
+    unsigned int nblocks  = N/block_size + 1;
+    GPUArray<scalar> ans(1,false);
     if(intermediate.getNumElements() <N)
         intermediate.resize(N);
     if(intermediate2.getNumElements() <N)
         intermediate2.resize(N);
+    scalar result = 0;
     {
     ArrayHandle<dVec> i1(input1,access_location::device,access_mode::read);
     ArrayHandle<dVec> i2(input2,access_location::device,access_mode::read);
     ArrayHandle<scalar> inter1(intermediate,access_location::device,access_mode::overwrite);
     ArrayHandle<scalar> inter2(intermediate2,access_location::device,access_mode::overwrite);
-    ArrayHandle<scalar> answer(ans,access_location::device,access_mode::overwrite);
-    gpu_dVec_dot_products(i1.data,i2.data,inter1.data,inter2.data,answer.data,0,N,block_size);
+    //ArrayHandle<scalar> answer(ans,access_location::device,access_mode::overwrite);
+    //gpu_dVec_dot_products(i1.data,i2.data,inter1.data,inter2.data,answer.data,0,N,block_size);
+
+
+    gpu_vec_dot_product_kernel<<<nblocks,block_size>>>(i1.data,i2.data,inter1.data,N);
+    HANDLE_ERROR(cudaGetLastError());
+    int numBlocks = 0;
+    int numThreads = 0;
+    int maxBlocks = 64;
+    int maxThreads = 256;
+    getNumBlocksAndThreads(N, maxBlocks, maxThreads, numBlocks, numThreads);
+    result = gpuReduction(N,numThreads,numBlocks,maxThreads,maxBlocks,inter1.data,inter2.data);
+
     }
-    ArrayHandle<scalar> answer(ans,access_location::host,access_mode::read);
-    return answer.data[0];
+    //ArrayHandle<scalar> answer(ans,access_location::host,access_mode::read);
+    //return answer.data[0];
+    return result;
     }
 /*!
 takes the dot product of every element of the two input arrays and performs a reduction on the sum
@@ -784,14 +795,15 @@ bool gpu_parallel_reduction(scalar *input, scalar *intermediate, scalar *output,
     {
     unsigned int nblocks  = N/block_size + 1;
     //first do a block reduction of input
-    unsigned int smem = block_size*sizeof(scalar);
 
     //Do a block reduction of the input array
+    //reduce(N, block_size, nblocks,input, intermediate);
+    unsigned int smem = block_size*sizeof(scalar);
     gpu_parallel_block_reduction2_kernel<<<nblocks,block_size,smem>>>(input,intermediate, N);
     HANDLE_ERROR(cudaGetLastError());
 
     //sum reduce the temporary array, saving the result in the right slot of the output array
-    int nb=1024;
+    int nb=2048;
     if(nblocks < nb) nb = 1;
     gpu_serial_reduction_kernel2<<<1,nb,nb*sizeof(scalar)>>>(intermediate,output,helperIdx,nblocks+1);
     HANDLE_ERROR(cudaGetLastError());
