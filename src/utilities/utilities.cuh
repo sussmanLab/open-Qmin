@@ -94,6 +94,20 @@ scalar gpu_gpuarray_dVec_dot_products(
                     GPUArray<scalar> &intermediate2,
                     int maxBlockSize=512);
 
+//!access cuda sdk reduction6
+template <class T>
+void reduce(int size, int threads, int blocks, T *d_idata, T *d_odata);
+
+//!like benchmarkReduce, interfaces with reduce and returns result
+template <class T>
+T gpuReduction(int  n,
+               int  numThreads,
+               int  numBlocks,
+                  int  maxThreads,
+                  int  maxBlocks,
+                  T *d_idata,
+                  T *d_odata);
+
 //!copy data into target on the device
 template<typename T>
 bool gpu_copy_gpuarray(GPUArray<T> &copyInto,GPUArray<T> &copyFrom,int block_size=512);

@@ -8,6 +8,309 @@
  @{
  */
 
+unsigned int nextPow2(unsigned int x)
+{
+    --x;
+    x |= x >> 1;
+    x |= x >> 2;
+    x |= x >> 4;
+    x |= x >> 8;
+    x |= x >> 16;
+    return ++x;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Compute the number of threads and blocks to use for the given reduction kernel
+// For the kernels >= 3, we set threads / block to the minimum of maxThreads and
+// n/2. For kernels < 3, we set to the minimum of maxThreads and n.  For kernel
+// 6, we observe the maximum specified number of blocks, because each thread in
+// that kernel can process a variable number of elements.
+////////////////////////////////////////////////////////////////////////////////
+void getNumBlocksAndThreads(int n, int maxBlocks, int maxThreads, int &blocks, int &threads)
+{
+    //get device capability, to avoid block/grid size excceed the upbound
+    cudaDeviceProp prop;
+    int device;
+    cudaGetDevice(&device);
+    cudaGetDeviceProperties(&prop, device);
+
+
+    threads = (n < maxThreads*2) ? nextPow2((n + 1)/ 2) : maxThreads;
+    blocks = (n + (threads * 2 - 1)) / (threads * 2);
+
+    if ((float)threads*blocks > (float)prop.maxGridSize[0] * prop.maxThreadsPerBlock)
+    {
+        printf("n is too large, please choose a smaller number!\n");
+    }
+
+    if (blocks > prop.maxGridSize[0])
+    {
+        printf("Grid size <%d> excceeds the device capability <%d>, set block size as %d (original %d)\n",
+               blocks, prop.maxGridSize[0], threads*2, threads);
+
+        blocks /= 2;
+        threads *= 2;
+    }
+    blocks = ((maxBlocks < blocks) ? maxBlocks : blocks);;
+}
+// Utility class used to avoid linker errors with extern
+// unsized shared memory arrays with templated type
+template<class T>
+struct SharedMemory
+{
+    __device__ inline operator       T *()
+    {
+        extern __shared__ int __smem[];
+        return (T *)__smem;
+    }
+
+    __device__ inline operator const T *() const
+    {
+        extern __shared__ int __smem[];
+        return (T *)__smem;
+    }
+};
+
+// specialize for double to avoid unaligned memory
+// access compile errors
+template<>
+struct SharedMemory<double>
+{
+    __device__ inline operator       double *()
+    {
+        extern __shared__ double __smem_d[];
+        return (double *)__smem_d;
+    }
+
+    __device__ inline operator const double *() const
+    {
+        extern __shared__ double __smem_d[];
+        return (double *)__smem_d;
+    }
+};
+
+/*
+    This version adds multiple elements per thread sequentially.  This reduces the overall
+    cost of the algorithm while keeping the work complexity O(n) and the step complexity O(log n).
+    (Brent's Theorem optimization)
+
+    Note, this kernel needs a minimum of 64*sizeof(T) bytes of shared memory.
+    In other words if blockSize <= 32, allocate 64*sizeof(T) bytes.
+    If blockSize > 32, allocate blockSize*sizeof(T) bytes.
+*/
+template <class T, unsigned int blockSize>
+__global__ void
+reduce6(T *g_idata, T *g_odata, unsigned int n)
+{
+    T *sdata = SharedMemory<T>();
+
+    // perform first level of reduction,
+    // reading from global memory, writing to shared memory
+    unsigned int tid = threadIdx.x;
+    unsigned int i = blockIdx.x*blockSize*2 + threadIdx.x;
+    unsigned int gridSize = blockSize*2*gridDim.x;
+
+    T mySum = 0;
+
+    // we reduce multiple elements per thread.  The number is determined by the
+    // number of active thread blocks (via gridDim).  More blocks will result
+    // in a larger gridSize and therefore fewer elements per thread
+    while (i < n)
+    {
+        mySum += g_idata[i];
+
+        // ensure we don't read out of bounds -- this is optimized away for powerOf2 sized arrays
+        if (i + blockSize < n)
+            mySum += g_idata[i+blockSize];
+
+        i += gridSize;
+    }
+
+    // each thread puts its local sum into shared memory
+    sdata[tid] = mySum;
+    __syncthreads();
+
+
+    // do reduction in shared mem
+    if ((blockSize >= 512) && (tid < 256))
+    {
+        sdata[tid] = mySum = mySum + sdata[tid + 256];
+    }
+
+    __syncthreads();
+
+    if ((blockSize >= 256) &&(tid < 128))
+    {
+            sdata[tid] = mySum = mySum + sdata[tid + 128];
+    }
+
+     __syncthreads();
+
+    if ((blockSize >= 128) && (tid <  64))
+    {
+       sdata[tid] = mySum = mySum + sdata[tid +  64];
+    }
+
+    __syncthreads();
+
+#if (__CUDA_ARCH__ >= 300 )
+    if ( tid < 32 )
+    {
+        // Fetch final intermediate sum from 2nd warp
+        if (blockSize >=  64) mySum += sdata[tid + 32];
+        // Reduce final warp using shuffle
+        for (int offset = warpSize/2; offset > 0; offset /= 2)
+        {
+            mySum += __shfl_down(mySum, offset);
+        }
+    }
+#else
+    // fully unroll reduction within a single warp
+    if ((blockSize >=  64) && (tid < 32))
+    {
+        sdata[tid] = mySum = mySum + sdata[tid + 32];
+    }
+
+    __syncthreads();
+
+    if ((blockSize >=  32) && (tid < 16))
+    {
+        sdata[tid] = mySum = mySum + sdata[tid + 16];
+    }
+
+    __syncthreads();
+
+    if ((blockSize >=  16) && (tid <  8))
+    {
+        sdata[tid] = mySum = mySum + sdata[tid +  8];
+    }
+
+    __syncthreads();
+
+    if ((blockSize >=   8) && (tid <  4))
+    {
+        sdata[tid] = mySum = mySum + sdata[tid +  4];
+    }
+
+    __syncthreads();
+
+    if ((blockSize >=   4) && (tid <  2))
+    {
+        sdata[tid] = mySum = mySum + sdata[tid +  2];
+    }
+
+    __syncthreads();
+
+    if ((blockSize >=   2) && ( tid <  1))
+    {
+        sdata[tid] = mySum = mySum + sdata[tid +  1];
+    }
+
+    __syncthreads();
+#endif
+
+    // write result for this block to global mem
+    if (tid == 0) g_odata[blockIdx.x] = mySum;
+}
+
+template <class T>
+void reduce(int size, int threads, int blocks,
+            T *d_idata, T *d_odata)
+    {
+    dim3 dimBlock(threads, 1, 1);
+    dim3 dimGrid(blocks, 1, 1);
+
+    // when there is only one warp per block, we need to allocate two warps
+    // worth of shared memory so that we don't index shared memory out of bounds
+    int smemSize = (threads <= 32) ? 2 * threads * sizeof(T) : threads * sizeof(T);
+    switch (threads)
+        {
+        case 512:
+            reduce6<T, 512><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size);
+            break;
+        case 256:
+            reduce6<T, 256><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size);
+            break;
+        case 128:
+            reduce6<T, 128><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size);
+            break;
+        case 64:
+            reduce6<T,  64><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size);
+            break;
+        case 32:
+            reduce6<T,  32><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size);
+            break;
+        case 16:
+            reduce6<T,16><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size);
+            break;
+        case  8:
+            reduce6<T,8><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size);
+            break;
+        case  4:
+            reduce6<T,4><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size);
+            break;
+        case  2:
+            reduce6<T,2><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size);
+            break;
+        case  1:
+            reduce6<T,1><<< dimGrid, dimBlock, smemSize >>>(d_idata, d_odata, size);
+            break;
+        }
+    }
+
+
+////////////////////////////////////////////////////////////////////////////////
+// This function performs a reduction of the input data multiple times and
+// measures the average reduction time.
+////////////////////////////////////////////////////////////////////////////////
+template <class T>
+T gpuReduction(int  n,
+                  int  numThreads,
+                  int  numBlocks,
+                  int  maxThreads,
+                  int  maxBlocks,
+                  T *d_idata,
+                  T *d_odata)
+    {
+    T gpu_result = 0;
+    bool needReadBack = true;
+    int cpuFinalThreshold = 1;
+    gpu_result = 0;
+
+    // execute the kernel
+    reduce<T>(n, numThreads, numBlocks, d_idata, d_odata);
+    HANDLE_ERROR(cudaGetLastError());
+
+
+    // sum partial block sums on GPU
+    int s=numBlocks;
+    while (s > cpuFinalThreshold)
+        {
+        int threads = 0, blocks = 0;
+        getNumBlocksAndThreads(s, maxBlocks, maxThreads, blocks, threads);
+        reduce<T>(s, threads, blocks, d_odata, d_odata);
+        s = (s + (threads*2-1)) / (threads*2);
+        }
+            /*
+            if (s > 1)
+            {
+                // copy result from device to host
+                checkCudaErrors(cudaMemcpy(h_odata, d_odata, s * sizeof(T), cudaMemcpyDeviceToHost));
+                for (int i=0; i < s; i++)
+                {
+                    gpu_result += h_odata[i];
+                }
+                needReadBack = false;
+            }
+            */
+    // copy final sum from device to host
+    if (needReadBack)
+        cudaMemcpy(&gpu_result, d_odata, sizeof(T), cudaMemcpyDeviceToHost);
+    HANDLE_ERROR(cudaGetLastError());
+
+    return gpu_result;
+    }
+
 /*!
 add the first N elements of array and put it in output[helperIdx]
 */
@@ -579,6 +882,11 @@ void host_dVec_times_scalar(dVec *d_vec1, scalar factor, dVec *d_ans, int N)
         d_ans[ii] = factor*d_vec1[ii];
     }
 //explicit template instantiations
+template scalar gpuReduction<scalar>(int  n,int  numThreads,int  numBlocks,int  maxThreads,int  maxBlocks,scalar *d_idata,scalar *d_odata);
+template int gpuReduction<int>(int  n,int  numThreads,int  numBlocks,int  maxThreads,int  maxBlocks,int *d_idata,int *d_odata);
+template void reduce<int>(int size, int threads, int blocks, int *d_idata, int *d_odata);
+template void reduce<scalar>(int size, int threads, int blocks, scalar *d_idata, scalar *d_odata);
+
 template bool gpu_copy_gpuarray<dVec>(GPUArray<dVec> &copyInto,GPUArray<dVec> &copyFrom,int maxBlockSize);
 template bool gpu_copy_gpuarray<scalar>(GPUArray<scalar> &copyInto,GPUArray<scalar> &copyFrom,int maxBlockSize);
 
