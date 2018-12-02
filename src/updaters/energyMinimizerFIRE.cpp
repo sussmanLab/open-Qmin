@@ -71,51 +71,16 @@ void energyMinimizerFIRE::fireStepGPU()
     {
     Power = 0.0;
     forceMax = 0.0;
-    {//array handle scope
-    ArrayHandle<dVec> d_f(model->returnForces(),access_location::device,access_mode::read);
-    ArrayHandle<dVec> d_v(model->returnVelocities(),access_location::device,access_mode::readwrite);
-    ArrayHandle<scalar> d_intermediate(sumReductionIntermediate,access_location::device,access_mode::readwrite);
-    ArrayHandle<scalar> d_intermediate2(sumReductionIntermediate2,access_location::device,access_mode::readwrite);
-    ArrayHandle<scalar> d_assist(sumReductions,access_location::device,access_mode::readwrite);
-    //gpu_dVec_dot_products(d_f.data,d_f.data,d_assist.data,0,Ndof);
-    //gpu_dVec_dot_products(d_f.data,d_v.data,d_assist.data,1,Ndof);
-    //gpu_dVec_dot_products(d_v.data,d_v.data,d_assist.data,2,Ndof);
-    dotProductTuner->begin();
-    int maxBlockSize = dotProductTuner->getParameter();
-    gpu_dVec_dot_products(d_f.data,d_f.data,d_intermediate.data,d_intermediate2.data,d_assist.data,0,Ndof,maxBlockSize);
-    gpu_dVec_dot_products(d_f.data,d_v.data,d_intermediate.data,d_intermediate2.data,d_assist.data,1,Ndof,maxBlockSize);
-    gpu_dVec_dot_products(d_v.data,d_v.data,d_intermediate.data,d_intermediate2.data,d_assist.data,2,Ndof,maxBlockSize);
-    dotProductTuner->end();
-    };//end handle scope
-    ArrayHandle<scalar> h_assist(sumReductions,access_location::host,access_mode::read);
-    //printf(" .. vs (%f\t%f\t%f)\n",h_assist.data[0],h_assist.data[1],h_assist.data[2]);
-    /*
-    {
-    ArrayHandle<dVec> h_f(model->returnForces());
-    ArrayHandle<dVec> h_v(model->returnVelocities());
-    scalar ans0 = 0;
-    scalar ans1 = 0;
-    scalar ans2 = 0;
-    for (int ii = 0; ii < Ndof; ++ii)
-        {
-        ans0+= dot(h_f.data[ii],h_f.data[ii]);
-        ans1+= dot(h_f.data[ii],h_v.data[ii]);
-        ans2+= dot(h_v.data[ii],h_v.data[ii]);
-        }
-    printf("\t%f,%f\t%f,%f\t %f,%f\n",h_assist.data[0],ans0,h_assist.data[1],ans1,h_assist.data[2],ans2);
-    }
-    */
-
-    scalar forceNorm = h_assist.data[0];
-    Power = h_assist.data[1];
-    scalar velocityNorm = h_assist.data[2];
-
-    //printf("fnorm = %g\t velocity norm = %g\n",forceNorm,velocityNorm);
+    scalar forceNorm = gpu_gpuarray_dVec_dot_products(model->returnForces(),model->returnForces(),
+                                                sumReductionIntermediate,sumReductionIntermediate2);
+    Power = gpu_gpuarray_dVec_dot_products(model->returnForces(),model->returnVelocities(),
+                                                sumReductionIntermediate,sumReductionIntermediate2);
+    scalar velocityNorm = gpu_gpuarray_dVec_dot_products(model->returnVelocities(),model->returnVelocities(),
+                                                sumReductionIntermediate,sumReductionIntermediate2);
     forceMax = sqrt(forceNorm) / (scalar)Ndof;
     scaling = 0.0;
     if(forceNorm > 0.)
         scaling = sqrt(velocityNorm/forceNorm);
-    //printf(" .. vs (%f\t%f\t%f)\t\t%f\n",h_assist.data[0],h_assist.data[1],h_assist.data[2],scaling);
     {
     ArrayHandle<dVec> d_f(model->returnForces(),access_location::device,access_mode::read);
     ArrayHandle<dVec> d_v(model->returnVelocities(),access_location::device,access_mode::readwrite);
