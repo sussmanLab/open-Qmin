@@ -459,6 +459,19 @@ __global__ void gpu_vec_dot_product_kernel(dVec *input1, dVec *input2, scalar *o
     output[idx] = dot(input1[idx],input2[idx]);
     return;
     };
+/*!
+Store the dot product of two dVecs in a scalar vec, unrolled by dimension
+*/
+__global__ void gpu_vec_dot_product_unrolled_kernel(dVec *input1, dVec *input2, scalar *output,int N)
+    {
+    unsigned int idx = blockDim.x * blockIdx.x + threadIdx.x;
+    int p1 = idx / DIMENSION;
+    int d1 = idx % DIMENSION;
+    if (p1 >= N)
+        return;
+    output[idx] = input1[p1][d1]*input2[p1][d1];
+    return;
+    };
 
 
 /*!
@@ -690,36 +703,45 @@ scalar gpu_gpuarray_dVec_dot_products(
                         int block_size)
     {
     int N = input1.getNumElements();
+    int Nd = DIMENSION*N;
     unsigned int nblocks  = N/block_size + 1;
     GPUArray<scalar> ans(1,false);
-    if(intermediate.getNumElements() <N)
-        intermediate.resize(N);
-    if(intermediate2.getNumElements() <N)
-        intermediate2.resize(N);
+    if(intermediate.getNumElements() <Nd)
+        intermediate.resize(Nd);
+    if(intermediate2.getNumElements() <Nd)
+        intermediate2.resize(Nd);
     scalar result = 0;
-    {
-    ArrayHandle<dVec> i1(input1,access_location::device,access_mode::read);
-    ArrayHandle<dVec> i2(input2,access_location::device,access_mode::read);
-    ArrayHandle<scalar> inter1(intermediate,access_location::device,access_mode::overwrite);
-    ArrayHandle<scalar> inter2(intermediate2,access_location::device,access_mode::overwrite);
-    //ArrayHandle<scalar> answer(ans,access_location::device,access_mode::overwrite);
-    //gpu_dVec_dot_products(i1.data,i2.data,inter1.data,inter2.data,answer.data,0,N,block_size);
-
-
-    gpu_vec_dot_product_kernel<<<nblocks,block_size>>>(i1.data,i2.data,inter1.data,N);
-    HANDLE_ERROR(cudaGetLastError());
-    int numBlocks = 0;
-    int numThreads = 0;
-    int maxBlocks = 64;
-    int maxThreads = 256;
-    getNumBlocksAndThreads(N, maxBlocks, maxThreads, numBlocks, numThreads);
-    result = gpuReduction(N,numThreads,numBlocks,maxThreads,maxBlocks,inter1.data,inter2.data);
-
+    if(true) // for testing...switch to best reduction kernel
+        {
+        ArrayHandle<dVec> i1(input1,access_location::device,access_mode::read);
+        ArrayHandle<dVec> i2(input2,access_location::device,access_mode::read);
+        ArrayHandle<scalar> inter1(intermediate,access_location::device,access_mode::overwrite);
+        ArrayHandle<scalar> inter2(intermediate2,access_location::device,access_mode::overwrite);
+        gpu_vec_dot_product_unrolled_kernel<<<nblocks,block_size>>>(i1.data,i2.data,inter1.data,N);
+        HANDLE_ERROR(cudaGetLastError());
+        int numBlocks = 0;
+        int numThreads = 0;
+        int maxBlocks = 64;
+        int maxThreads = 256;
+        getNumBlocksAndThreads(Nd, maxBlocks, maxThreads, numBlocks, numThreads);
+        result = gpuReduction(Nd,numThreads,numBlocks,maxThreads,maxBlocks,inter1.data,inter2.data);
+        return result;
+        }
+    else
+        {
+        {
+        ArrayHandle<dVec> i1(input1,access_location::device,access_mode::read);
+        ArrayHandle<dVec> i2(input2,access_location::device,access_mode::read);
+        ArrayHandle<scalar> inter1(intermediate,access_location::device,access_mode::overwrite);
+        ArrayHandle<scalar> inter2(intermediate2,access_location::device,access_mode::overwrite);
+        ArrayHandle<scalar> answer(ans,access_location::device,access_mode::overwrite);
+        gpu_dVec_dot_products(i1.data,i2.data,inter1.data,inter2.data,answer.data,0,N,block_size);
+        }
+        ArrayHandle<scalar> answer(ans,access_location::host,access_mode::read);
+        return answer.data[0];
+        }
     }
-    //ArrayHandle<scalar> answer(ans,access_location::host,access_mode::read);
-    //return answer.data[0];
-    return result;
-    }
+
 /*!
 takes the dot product of every element of the two input arrays and performs a reduction on the sum
 \param input1 vector 1...wow!

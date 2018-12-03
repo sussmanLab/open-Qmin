@@ -126,6 +126,12 @@ void qTensorLatticeModel::moveParticles(GPUArray<dVec> &displacements,scalar sca
         for(int pp = 0; pp < N; ++pp)
             {
             h_pos.data[pp] += h_disp.data[pp];
+            //approximately restrict Q-tensor values
+            for (int dd < 0; dd < DIMENSION; ++dd)
+                {
+                if(h_pos.data[pp][dd] > 1.) h_pos.data[pp][dd] = 1.;
+                if(h_pos.data[pp][dd] < -1.) h_pos.data[pp][dd] = -1.;
+                }
             }
         }
     else
