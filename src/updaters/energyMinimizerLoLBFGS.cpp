@@ -28,6 +28,7 @@ void energyMinimizerLoLBFGS::initializeParameters()
 
 void energyMinimizerLoLBFGS::initializeFromModel()
     {
+    //model->freeGPUArrays(true,true,true);
     Ndof = model->getNumberOfParticles();
     unscaledStep.resize(Ndof);
     sumReductionIntermediate.resize(Ndof);

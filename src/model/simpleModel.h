@@ -87,6 +87,22 @@ class simpleModel
 
         virtual void displaceBoundaryObject(int objectIndex, int motionDirection, int magnitude){};
 
+        //!some situations do not require us to maintain various data structures
+        virtual void freeGPUArrays(bool freeVelocities, bool freeRadii, bool freeMasses)
+                        {
+                        if(freeVelocities)
+                            velocities.resize(1);
+                        else
+                            velocities.resize(N);
+                        if(freeRadii)
+                            radii.resize(1);
+                        else
+                            radii.resize(N);
+                        if(freeMasses)
+                            masses.resize(1);
+                        else
+                            masses.resize(N);
+                        };
     protected:
         //!The number of particles
         int N;
