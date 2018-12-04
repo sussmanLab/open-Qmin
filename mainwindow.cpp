@@ -49,6 +49,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->moveObjectWidget->hide();
     ui->colloidalEvolutionWidget->hide();
     ui->colloidalTrajectoryWidget->hide();
+    ui->LOLBFGSWidget->hide();
 
     connect(ui->displayZone,SIGNAL(xRotationChanged(int)),ui->xRotSlider,SLOT(setValue(int)));
     connect(ui->displayZone,SIGNAL(zRotationChanged(int)),ui->zRotSlider,SLOT(setValue(int)));
@@ -104,6 +105,7 @@ void MainWindow::hideControls()
     ui->boundaryFromFileButton->hide();
     ui->nesterovMinimizationButton->hide();
     ui->computeEnergyButton->hide();
+    ui->lolbfgsMinimizationButton->hide();
 }
 void MainWindow::showControls()
 {
@@ -133,6 +135,7 @@ void MainWindow::showControls()
     ui->boundaryFromFileButton->show();
     ui->nesterovMinimizationButton->show();
     ui->computeEnergyButton->show();
+    ui->lolbfgsMinimizationButton->show();
 }
 
 void MainWindow::on_initializeButton_released()
@@ -731,6 +734,29 @@ void MainWindow::on_multithreadingButton_released()
     else
         printable1 = QStringLiteral("requesting %1 threads").arg(nThreads);
     ui->testingBox->setText(printable1);
+}
+
+void MainWindow::on_lolbfgsParamButton_released()
+{
+    ui->LOLBFGSWidget->hide();
+    sim->clearUpdaters();
+    lolbfgs = make_shared<energyMinimizerLoLBFGS>(Configuration);
+    sim->addUpdater(lolbfgs,Configuration);
+    sim->setCPUOperation(!GPU);
+    ui->progressBar->setValue(0);
+    scalar dt = ui->lolbfgsDtBox->text().toDouble();
+    int M = ui->lolbfgsMBox->text().toInt();
+    scalar forceCutoff=ui->lolbfgsForceCutoffBox->text().toDouble();
+    maximumIterations = ui->lolbfgsMaxIterationsBox->text().toInt();
+    lolbfgs->setCurrentIterations(0);
+    lolbfgs->setLoLBFGSParameters(M, dt,1.0, forceCutoff);
+
+    lolbfgs->setMaximumIterations(maximumIterations);
+
+    QString printable = QStringLiteral("simple online LBFGS minimization parameters set, force cutoff of %1 dt of %2 and M %3 chosen for %4 steps %5").arg(forceCutoff).arg(dt).arg(M)
+                                    .arg(maximumIterations).arg(lolbfgs->getMaxIterations());
+    ui->testingBox->setText(printable);
+    ui->progressBar->setValue(100);
 }
 
 void MainWindow::on_nesterovParamButton_released()

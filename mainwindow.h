@@ -108,6 +108,8 @@ private slots:
 
     void on_linearTrajectoryButton_released();
 
+    void on_lolbfgsParamButton_released();
+
 private:
     Ui::MainWindow *ui;
 
@@ -136,6 +138,7 @@ public:
     shared_ptr<landauDeGennesLC> landauLCForce;
     shared_ptr<energyMinimizerFIRE> fire;
     shared_ptr<energyMinimizerNesterovAG> nesterov;
+    shared_ptr<energyMinimizerLoLBFGS> lolbfgs;
 
     vector<QString> computationalNames;
 };
