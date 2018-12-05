@@ -24,6 +24,7 @@ void energyMinimizerLoLBFGS::initializeParameters()
     iterations = 0;
     forceMax = 100.;
     setGPU(false);
+    scheduledMomentum = false;
     };
 
 void energyMinimizerLoLBFGS::initializeFromModel()

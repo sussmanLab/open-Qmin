@@ -82,10 +82,12 @@ __global__ void gpu_update_qTensor_simple_kernel(dVec *d_disp,
     int didx = idx%DIMENSION;
 
     d_pos[pidx][didx] += d_disp[pidx][didx];
-    if(d_pos[pidx][didx] > 1.)
-        d_pos[pidx][didx] = 1.;
-    if(d_pos[pidx][didx] < -1.)
-        d_pos[pidx][didx] = -1.;
+    scalar max = (didx >2 ) ? .5 : .834;
+    scalar min = (didx >2 ) ? -.75 : -.667;
+    if(d_pos[pidx][didx] > max)
+        d_pos[pidx][didx] = max;
+    if(d_pos[pidx][didx] < min)
+        d_pos[pidx][didx] = min;
         
     return;
     };

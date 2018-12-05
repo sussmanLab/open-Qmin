@@ -47,7 +47,7 @@ Initialize the minimizer with some default parameters.
 */
 void energyMinimizerFIRE::initializeFromModel()
     {
-    model->freeGPUArrays(false,false,false);
+    //model->freeGPUArrays(false,false,false);
     Ndof = model->getNumberOfParticles();
     displacement.resize(Ndof);
     sumReductionIntermediate.resize(Ndof);
