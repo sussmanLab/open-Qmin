@@ -51,6 +51,42 @@ void energyMinimizerLoLBFGS::initializeFromModel()
         }
     };
 
+void energyMinimizerLoLBFGS::lineSearchCPU(GPUArray<dVec> &descentDirection)
+    {
+    scalar eCurrent = sim->computePotentialEnergy();
+    scalar iStep =1.0;
+    scalar expectedLoss;
+    scalar dotProduct;
+    {
+    ArrayHandle<dVec> pt(descentDirection,access_location::host,access_mode::read);
+    ArrayHandle<dVec> f(model->returnForces(),access_location::host,access_mode::read);
+
+    dotProduct = host_dVec_dot_products(f.data,pt.data,Ndof);
+    };
+    expectedLoss = c*iStep*dotProduct;
+
+    model->moveParticles(descentDirection,iStep);
+    scalar eNew = sim->computePotentialEnergy();
+    int iterSearch = 0;
+    //printf("line search %i\t eC %g \t eN %g \t expectedLoss %g\t diff %g\n",iterSearch,eCurrent,eNew,expectedLoss,eNew-eCurrent);
+
+    while(eNew - eCurrent > expectedLoss)
+        {
+        iStep *= 0.5;
+        model->moveParticles(descentDirection,-iStep);
+        expectedLoss = c*iStep*dotProduct;
+        eNew = sim->computePotentialEnergy();
+        iterSearch +=1;
+    printf("line search %i\t eC %g \t eN %g \t expectedLoss %g\t diff %g\n",iterSearch,eCurrent,eNew,expectedLoss,eNew-eCurrent);
+        }
+
+    }
+
+void energyMinimizerLoLBFGS::lineSearchGPU(GPUArray<dVec> &descentDirection)
+    {
+
+    }
+
 void energyMinimizerLoLBFGS::LoLBFGSStepGPU()
     {
     int lastM = (currentIterationInMLoop - 1+m) %m;
@@ -120,7 +156,7 @@ void energyMinimizerLoLBFGS::LoLBFGSStepGPU()
     {
     ArrayHandle<dVec> p(unscaledStep,access_location::device,access_mode::read);
     ArrayHandle<dVec> s(secantEquation[currentIterationInMLoop],access_location::device,access_mode::readwrite);
-    gpu_dVec_times_scalar(p.data,eta/c,s.data,Ndof);
+    gpu_dVec_times_scalar(p.data,eta,s.data,Ndof);
     }
 
     //temporarily store the old forces here in the gradient difference term
@@ -209,12 +245,15 @@ void energyMinimizerLoLBFGS::LoLBFGSStepCPU()
     {
     ArrayHandle<dVec> p(unscaledStep,access_location::host,access_mode::read);
     ArrayHandle<dVec> s(secantEquation[currentIterationInMLoop],access_location::host,access_mode::readwrite);
-    host_dVec_times_scalar(p.data,eta/c,s.data,Ndof);
+    host_dVec_times_scalar(p.data,eta,s.data,Ndof);
     }
     //temporarily store the old forces here in the gradient difference term
     gradientDifference[currentIterationInMLoop] = model->returnForces();
+
     model->moveParticles(secantEquation[currentIterationInMLoop]);
+    //lineSearchCPU(secantEquation[currentIterationInMLoop]);
     sim->computeForces();
+
     unscaledStep = model->returnForces();
     {
     ArrayHandle<dVec> y(gradientDifference[currentIterationInMLoop],access_location::host,access_mode::readwrite);

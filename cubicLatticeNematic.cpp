@@ -150,7 +150,7 @@ int main(int argc, char*argv[])
 
         scalar alphaStart=.99; scalar deltaTMax=100*dt; scalar deltaTInc=1.1; scalar deltaTDec=0.95;
         scalar alphaDec=0.9; int nMin=4; scalar forceCutoff=1e-12; scalar alphaMin = 0.0;
-        scalar cValue = 1.0; int mStorage = 8; scalar tau = 1000;
+        scalar cValue = .0001; int mStorage = 8; scalar tau = 1000;
         shared_ptr<energyMinimizerFIRE> fire =  make_shared<energyMinimizerFIRE>(Configuration);
         shared_ptr<energyMinimizerLoLBFGS> lolbfgs = make_shared<energyMinimizerLoLBFGS>(Configuration);
         if(programSwitch == 1)

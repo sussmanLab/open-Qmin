@@ -54,6 +54,9 @@ class energyMinimizerLoLBFGS : public equationOfMotion
         void LoLBFGSStepCPU();
         void LoLBFGSStepGPU();
 
+        void lineSearchCPU(GPUArray<dVec> &descentDirection);
+        void lineSearchGPU(GPUArray<dVec> &descentDirection);
+
         //!the number of past gradients, etc., to save
         int m=0;
         //!a scalaing factor

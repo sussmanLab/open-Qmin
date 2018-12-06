@@ -122,19 +122,40 @@ void qTensorLatticeModel::moveParticles(GPUArray<dVec> &displacements,scalar sca
         {//cpu branch
         ArrayHandle<dVec> h_disp(displacements, access_location::host,access_mode::read);
         ArrayHandle<dVec> h_pos(positions);
-        #include "ompParallelLoopDirective.h"
-        for(int pp = 0; pp < N; ++pp)
+        if(scale == 1.)
             {
-            h_pos.data[pp] += h_disp.data[pp];
-            //approximately restrict Q-tensor values
-            scalar otherMin = -2.0/3.0;
-            scalar otherMax = 5./6.;
-            for (int dd = 0; dd < DIMENSION; ++dd)
+            #include "ompParallelLoopDirective.h"
+            for(int pp = 0; pp < N; ++pp)
                 {
-                scalar max = (dd >2 ) ? .5 : otherMax;
-                scalar min = (dd >2 ) ? -.75 : otherMin;
-                if(h_pos.data[pp][dd] > max) h_pos.data[pp][dd] = max;
-                if(h_pos.data[pp][dd] < min) h_pos.data[pp][dd] = min;
+                h_pos.data[pp] += h_disp.data[pp];
+                //approximately restrict Q-tensor values
+                scalar otherMin = -2.0/3.0;
+                scalar otherMax = 5./6.;
+                for (int dd = 0; dd < DIMENSION; ++dd)
+                    {
+                    scalar max = (dd >2 ) ? .5 : otherMax;
+                    scalar min = (dd >2 ) ? -.75 : otherMin;
+                    if(h_pos.data[pp][dd] > max) h_pos.data[pp][dd] = max;
+                    if(h_pos.data[pp][dd] < min) h_pos.data[pp][dd] = min;
+                    }
+                }
+            }
+        else
+            {
+            #include "ompParallelLoopDirective.h"
+            for(int pp = 0; pp < N; ++pp)
+                {
+                h_pos.data[pp] += scale*h_disp.data[pp];
+                //approximately restrict Q-tensor values
+                scalar otherMin = -2.0/3.0;
+                scalar otherMax = 5./6.;
+                for (int dd = 0; dd < DIMENSION; ++dd)
+                    {
+                    scalar max = (dd >2 ) ? .5 : otherMax;
+                    scalar min = (dd >2 ) ? -.75 : otherMin;
+                    if(h_pos.data[pp][dd] > max) h_pos.data[pp][dd] = max;
+                    if(h_pos.data[pp][dd] < min) h_pos.data[pp][dd] = min;
+                    }
                 }
             }
         }
@@ -143,7 +164,11 @@ void qTensorLatticeModel::moveParticles(GPUArray<dVec> &displacements,scalar sca
         moveParticlesTuner->begin();
         ArrayHandle<dVec> d_disp(displacements,access_location::device,access_mode::read);
         ArrayHandle<dVec> d_pos(positions,access_location::device,access_mode::readwrite);
-        gpu_update_qTensor(d_disp.data,d_pos.data,N,moveParticlesTuner->getParameter());
+        if(scale == 1.0)
+            gpu_update_qTensor(d_disp.data,d_pos.data,N,moveParticlesTuner->getParameter());
+        else
+            gpu_update_qTensor(d_disp.data,d_pos.data,scale,N,moveParticlesTuner->getParameter());
+
         moveParticlesTuner->end();
         };
     };

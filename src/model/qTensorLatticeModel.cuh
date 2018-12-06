@@ -13,9 +13,16 @@
  * \brief CUDA kernels and callers for model classes
  */
 
-//!move a qTensor, project it back to a traceless configuration
+//!move a qTensor, keep the components within the allowed range
 bool gpu_update_qTensor(dVec *d_disp,
                         dVec *Q,
+                        int N,
+                        int blockSize);
+
+//!move a qTensor by a scaled amount, keeping the components within the allowed range
+bool gpu_update_qTensor(dVec *d_disp,
+                        dVec *Q,
+                        scalar scale,
                         int N,
                         int blockSize);
 
