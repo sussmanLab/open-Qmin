@@ -57,27 +57,45 @@ void energyMinimizerLoLBFGS::lineSearchCPU(GPUArray<dVec> &descentDirection)
     scalar iStep =1.0;
     scalar expectedLoss;
     scalar dotProduct;
+    //compute the dot product of descent direction and force; also, what is the maximum allowed step?
     {
     ArrayHandle<dVec> pt(descentDirection,access_location::host,access_mode::read);
     ArrayHandle<dVec> f(model->returnForces(),access_location::host,access_mode::read);
-
+    ArrayHandle<dVec> pos(model->returnPositions(), access_location::host,access_mode::read);
     dotProduct = host_dVec_dot_products(f.data,pt.data,Ndof);
-    };
+
+    scalar otherMin = -2.0/3.0;
+    scalar otherMax = 5./6.;
+    for (int ii = 0; ii <Ndof; ++ii)
+        {
+        scalar step;
+        for (int dd = 0; dd < DIMENSION; ++dd)
+            {
+            scalar maxB = (dd >2 ) ? .5 : otherMax;
+            scalar minB = (dd >2 ) ? -.75 : otherMin;
+            scalar topBound = (maxB - pos.data[ii][dd]) / pt.data[ii][dd];
+            scalar bottomBound = (minB - pos.data[ii][dd]) / pt.data[ii][dd];
+            scalar stepRestriction = max(topBound,bottomBound);
+            if(stepRestriction >0 && stepRestriction < iStep)
+                iStep = stepRestriction;
+            }
+        }
+    };//end array scope
     expectedLoss = c*iStep*dotProduct;
 
     model->moveParticles(descentDirection,iStep);
     scalar eNew = sim->computePotentialEnergy();
     int iterSearch = 0;
-    //printf("line search %i\t eC %g \t eN %g \t expectedLoss %g\t diff %g\n",iterSearch,eCurrent,eNew,expectedLoss,eNew-eCurrent);
+    printf("line search %i\t iS %f\t eC %g \t eN %g \t expectedLoss %g\t diff %g\n",iterSearch,iStep,eCurrent,eNew,expectedLoss,eNew-eCurrent);
 
-    while(eNew - eCurrent > expectedLoss)
+    while(eNew < eCurrent && eNew - eCurrent > expectedLoss)
         {
         iStep *= 0.5;
         model->moveParticles(descentDirection,-iStep);
         expectedLoss = c*iStep*dotProduct;
         eNew = sim->computePotentialEnergy();
         iterSearch +=1;
-    printf("line search %i\t eC %g \t eN %g \t expectedLoss %g\t diff %g\n",iterSearch,eCurrent,eNew,expectedLoss,eNew-eCurrent);
+    printf("line search %i\t iS %f\t eC %g \t eN %g \t expectedLoss %g\t diff %g\n",iterSearch,iStep,eCurrent,eNew,expectedLoss,eNew-eCurrent);
         }
 
     }
