@@ -135,7 +135,7 @@ void MainWindow::showControls()
     ui->boundaryFromFileButton->show();
     ui->nesterovMinimizationButton->show();
     ui->computeEnergyButton->show();
-    ui->lolbfgsMinimizationButton->show();
+    //ui->lolbfgsMinimizationButton->show();
 }
 
 void MainWindow::on_initializeButton_released()
@@ -143,6 +143,13 @@ void MainWindow::on_initializeButton_released()
     BoxX = ui->boxXLine->text().toInt();
     BoxY = ui->boxYLine->text().toInt();
     BoxZ = ui->boxZLine->text().toInt();
+
+    QString dScaleAns = QString::number(round(10*0.075*BoxX)*0.1);
+
+    QString lSkipAns = QString::number(floor(1.75 +0.0625*BoxX));
+    ui->directorScaleBox->setText(dScaleAns);
+    ui->latticeSkipBox->setText(lSkipAns);
+
     noise.Reproducible= ui->reproducibleButton->isChecked();
     ui->initializationFrame->hide();
     if(noise.Reproducible)
