@@ -201,20 +201,20 @@ __host__ inline bool chooseGPU(int USE_GPU,bool verbose = false)
         };
     if (USE_GPU <nDev)
         cudaSetDevice(USE_GPU);
-    if(verbose)    cout << "Device # \t\t Device Name \t\t MemClock \t\t MemBusWidth" << endl;
-    for (int ii=0; ii < nDev; ++ii)
+    if(verbose)
         {
-        cudaDeviceProp prop;
-        cudaGetDeviceProperties(&prop,ii);
-        if (verbose)
+        cout << "Device # \t\t Device Name \t\t MemClock \t\t MemBusWidth" << endl;
+        for (int ii=0; ii < nDev; ++ii)
             {
+            cudaDeviceProp prop;
+            cudaGetDeviceProperties(&prop,ii);
             if (ii == USE_GPU) cout << "********************************" << endl;
             if (ii == USE_GPU) cout << "****Using the following gpu ****" << endl;
             cout << ii <<"\t\t\t" << prop.name << "\t\t" << prop.memoryClockRate << "\t\t" << prop.memoryBusWidth << endl;
             if (ii == USE_GPU) cout << "*******************************" << endl;
             };
-        };
-    if (!verbose)
+        }
+    else
         {
         cudaDeviceProp prop;
         cudaGetDeviceProperties(&prop,USE_GPU);
