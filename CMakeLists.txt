@@ -54,7 +54,7 @@ find_package(CUDA REQUIRED)
 if(${CMAKE_BUILD_TYPE} MATCHES "Debug")
     add_definitions(-DDEBUGFLAGUP)
     set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -g -lineinfo -Xptxas --generate-line-info")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -lineinfo")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
 endif(${CMAKE_BUILD_TYPE} MATCHES "Debug")
 
 message("cxx flags = " "${CMAKE_CXX_FLAGS}")

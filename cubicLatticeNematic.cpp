@@ -23,6 +23,7 @@
 
 #include <QPropertyAnimation>
 #include "mainwindow.h"
+#include "profiler.h"
 #include <tclap/CmdLine.h>
 
 using namespace TCLAP;
@@ -124,10 +125,14 @@ int main(int argc, char*argv[])
         scalar c = phaseC/phaseA;
         noiseSource noise(reproducible);
         printf("setting a rectilinear lattice of size (%i,%i,%i)\n",boxLx,boxLy,boxLz);
+        profiler p1("initialization");
+
+        p1.start();
         shared_ptr<qTensorLatticeModel> Configuration = make_shared<qTensorLatticeModel>(boxLx,boxLy,boxLz);
         shared_ptr<Simulation> sim = make_shared<Simulation>();
         shared_ptr<landauDeGennesLC> landauLCForce = make_shared<landauDeGennesLC>();
         sim->setConfiguration(Configuration);
+        p1.end();
 
         landauLCForce->setPhaseConstants(a,b,c);
         if(nConstants ==1)
@@ -192,15 +197,17 @@ int main(int argc, char*argv[])
         right.x = 0.7*boxLx;right.y = 0.5*boxLy;right.z = 0.5*boxLz;
         Configuration->createSimpleFlatWallNormal(0,1, homeotropicBoundary);
         */
-        auto t1 = chrono::system_clock::now();
+        profiler p2("minimization");
+        p2.start();
         sim->performTimestep();
-        auto t2 = chrono::system_clock::now();
-        chrono::duration<scalar> diff = t2-t1;
+        p2.end();
 
         scalar E1 = sim->computePotentialEnergy(true);
         scalar maxForce = fire->getMaxForce();
-        printf("minimized to %f\t E=%f\t time taken = %fs\n",maxForce,E1,diff.count());
+        printf("minimized to %f\t E=%f\t\n",maxForce,E1);
 
+        p1.print();
+        p2.print();
         /*
         landauLCForce->computeObjectForces(0);
         //landauLCForce->computeObjectForces(1);
