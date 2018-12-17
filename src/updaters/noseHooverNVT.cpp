@@ -89,7 +89,6 @@ void noseHooverNVT::propagatePositionsVelocites()
     {//array handle
     ArrayHandle<dVec> h_disp(displacement, access_location::host,access_mode::overwrite);
     ArrayHandle<dVec> h_v(model->returnVelocities(),access_location::host,access_mode::read);
-    #include "ompParallelLoopDirective.h"
     for (int ii = 0; ii < Ndof; ++ii)
         h_disp.data[ii] = deltaT2*h_v.data[ii];
     }//end array handle
@@ -102,7 +101,6 @@ void noseHooverNVT::propagatePositionsVelocites()
     ArrayHandle<dVec> h_v(model->returnVelocities(),access_location::host,access_mode::readwrite);
     ArrayHandle<dVec> h_f(model->returnForces(),access_location::host,access_mode::read);
     ArrayHandle<scalar> h_m(model->returnMasses(),access_location::host,access_mode::read);
-    #include "ompParallelLoopDirective.h"
     for (int ii = 0; ii < Ndof; ++ii)
         {
         h_v.data[ii] = h_v.data[ii] + (deltaT/h_m.data[ii])*h_f.data[ii];

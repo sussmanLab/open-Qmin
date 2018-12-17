@@ -117,7 +117,7 @@ int main(int argc, char*argv[])
     scalar L3 = l3SwitchArg.getValue();
     scalar q0 = q0SwitchArg.getValue();
 
-    int nThreads = threadsSwitchArg.getValue();
+    //int nThreads = threadsSwitchArg.getValue();
 
     scalar dt = dtSwitchArg.getValue();
     int maximumIterations = iterationsSwitchArg.getValue();
@@ -200,7 +200,7 @@ int main(int argc, char*argv[])
             fire->setMaximumIterations(maximumIterations);
     
             sim->setCPUOperation(true);//have cpu and gpu initialized the same...for debugging
-            sim->setNThreads(nThreads);
+            //sim->setNThreads(nThreads);
             scalar S0 = (-b+sqrt(b*b-24*a*c))/(6*c);
             printf("setting random configuration with S0 = %f\n",S0);
             Configuration->setNematicQTensorRandomly(noise,S0);

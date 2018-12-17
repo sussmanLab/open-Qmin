@@ -57,7 +57,6 @@ void cubicLattice::moveParticles(GPUArray<dVec> &dofs,GPUArray<dVec> &displaceme
         {//cpu branch
         ArrayHandle<dVec> h_disp(displacements, access_location::host,access_mode::read);
         ArrayHandle<dVec> h_pos(dofs);
-        #include "ompParallelLoopDirective.h"
         for(int pp = 0; pp < N; ++pp)
             {
             h_pos.data[pp] += scale*h_disp.data[pp];
@@ -82,7 +81,6 @@ void cubicLattice::moveParticles(GPUArray<dVec> &displacements, scalar scale)
         {//cpu branch
         ArrayHandle<dVec> h_disp(displacements, access_location::host,access_mode::read);
         ArrayHandle<dVec> h_pos(positions);
-        #include "ompParallelLoopDirective.h"
         for(int pp = 0; pp < N; ++pp)
             {
             h_pos.data[pp] += scale*h_disp.data[pp];
@@ -106,7 +104,6 @@ void cubicLattice::setSpinsRandomly(noiseSource &noise)
     if(!useGPU)
         {
         ArrayHandle<dVec> pos(positions);
-        #include "ompParallelLoopDirective.h"
         for(int pp = 0; pp < N; ++pp)
             {
             for (int dd = 0; dd < DIMENSION; ++dd)

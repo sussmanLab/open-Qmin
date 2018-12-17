@@ -18,7 +18,6 @@ void baseLatticeForce::computeForceCPU(GPUArray<dVec> &forces, bool zeroOutForce
             h_f.data[pp] = make_dVec(0.0);
     ArrayHandle<dVec> spins(lattice->returnPositions());
 
-    #include "ompParallelLoopDirective.h"
     for (int i = 0; i < lattice->getNumberOfParticles(); ++i)
         {
         //the current scheme for getting the six nearest neighbors

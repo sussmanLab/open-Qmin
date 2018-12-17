@@ -10,7 +10,6 @@ void velocityVerlet::integrateEOMCPU()
     ArrayHandle<dVec> h_v(model->returnVelocities());
     ArrayHandle<scalar> h_m(model->returnMasses());
     ArrayHandle<dVec> h_d(displacement);
-    #include "ompParallelLoopDirective.h"
     for (int i = 0; i < Ndof; ++i)
         {
         //update displacement
@@ -28,7 +27,6 @@ void velocityVerlet::integrateEOMCPU()
     ArrayHandle<dVec> h_f(model->returnForces());
     ArrayHandle<dVec> h_v(model->returnVelocities());
     ArrayHandle<scalar> h_m(model->returnMasses());
-    #include "ompParallelLoopDirective.h"
     for (int i = 0; i < Ndof; ++i)
         {
         h_v.data[i] += (0.5/h_m.data[i])*deltaT*h_f.data[i];

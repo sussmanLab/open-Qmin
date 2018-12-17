@@ -43,7 +43,6 @@ void qTensorLatticeModel::computeDefectMeasures(int defectType)
         ArrayHandle<dVec> Q(positions,access_location::host,access_mode::read);
         ArrayHandle<int> t(types,access_location::host,access_mode::read);
         ArrayHandle<scalar> defects(defectMeasures,access_location::host,access_mode::overwrite);
-        #include "ompParallelLoopDirective.h"
         for(int pp = 0; pp < N; ++pp)
             {
             scalar a,b,c;
@@ -124,7 +123,6 @@ void qTensorLatticeModel::moveParticles(GPUArray<dVec> &displacements,scalar sca
         ArrayHandle<dVec> h_pos(positions);
         if(scale == 1.)
             {
-            #include "ompParallelLoopDirective.h"
             for(int pp = 0; pp < N; ++pp)
                 {
                 h_pos.data[pp] += h_disp.data[pp];
@@ -142,7 +140,6 @@ void qTensorLatticeModel::moveParticles(GPUArray<dVec> &displacements,scalar sca
             }
         else
             {
-            #include "ompParallelLoopDirective.h"
             for(int pp = 0; pp < N; ++pp)
                 {
                 h_pos.data[pp] += scale*h_disp.data[pp];

@@ -138,7 +138,6 @@ void energyMinimizerFIRE::fireStepCPU()
     if(forceNorm > 0.)
         scaling = sqrt(velocityNorm/forceNorm);
     //adjust the velocity according to the FIRE algorithm
-    #include "ompParallelLoopDirective.h"
     for (int i = 0; i < Ndof; ++i)
         {
         for (int dd = 0; dd < DIMENSION; ++dd)
