@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.0.0)
 project(landauDeGUI)
 
+find_package(MPI REQUIRED)
+
 add_definitions(-DDIMENSION=5)
 
 # Tell CMake to run moc when necessary:
@@ -66,7 +68,7 @@ message("culibs = " "${CUDA_LIBRARIES}")
 
 add_subdirectory(src)
 
-include_directories(inc ${CUDA_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIRS}/GL /home/user/CGAL/CGAL-4.9/include/CGAL/ src src/utilities src/simulation src/model src/forces src/updaters)
+include_directories(inc ${CUDA_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIRS}/GL /home/user/CGAL/CGAL-4.9/include/CGAL/ src src/utilities src/simulation src/model src/forces src/updaters ${MPI_INCLUDE_PATH})
 link_directories(${CUDA_LIBRARY_DIRS})
 
 set(myLibs
@@ -91,10 +93,20 @@ set(HEADERS
 
 add_executable(landauDeGUI.out cubicLatticeNematic.cpp ${SOURCES} ${HEADERS} ${UI_HEADERS})
 
-target_link_libraries(landauDeGUI.out ${myLibs} ${CUDA_LIBRARIES} ${OPENGL_LIBRARIES} gomp Qt5::Widgets Qt5::Core
+target_link_libraries(landauDeGUI.out ${myLibs} ${CUDA_LIBRARIES} ${OPENGL_LIBRARIES} gomp
+    ${MPI_LIBRARIES}
+    Qt5::Widgets
+    Qt5::Core
     Qt5::Gui
     Qt5::3DCore
     Qt5::3DExtras
     Qt5::3DRender
     Qt5::3DInput)
 qt5_use_modules(landauDeGUI.out Widgets)
+
+if(MPI_COMPILE_FLAGS)
+    set_target_properties(landauDeGUI.out PROPERTIES COMPILE_FLAGS "${MPI_COMPILE_FLAGS}")
+endif()
+if(MPI_LINK_FLAGS)
+    set_target_properties(landauDeGUI.out PROPERTIES LINK_FLAGS "${MPI_LINK_FLAGS}")
+endif()

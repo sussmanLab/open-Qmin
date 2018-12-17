@@ -25,10 +25,32 @@
 #include "mainwindow.h"
 #include "profiler.h"
 #include <tclap/CmdLine.h>
+#include <mpi.h>
 
 using namespace TCLAP;
 int main(int argc, char*argv[])
 {
+    int myRank,worldSize,tag=0;
+    char message[20];
+    MPI_Status status;
+
+    MPI_Init(&argc, &argv);
+    MPI_Comm_size(MPI_COMM_WORLD, &worldSize);
+    MPI_Comm_rank(MPI_COMM_WORLD,&myRank);
+
+    if(myRank ==0)
+        {
+        strcpy(message, "blah blah");
+        for (int ii = 1; ii < worldSize;++ii)
+            MPI_Send(message,ii+3+1,MPI_CHAR,ii,tag,MPI_COMM_WORLD);
+        }
+    else
+        {
+        MPI_Recv(message,20,MPI_CHAR,0,tag,MPI_COMM_WORLD, &status);
+        printf("received on rank %i :\n%s\n",myRank,message);
+        }
+
+
     //First, we set up a basic command line parser with some message and version
     CmdLine cmd("dDimSim applied to a lattice of XY-spins", ' ', "V0.5");
 
@@ -102,81 +124,88 @@ int main(int argc, char*argv[])
 
     if(!nonvisualMode)
         {
-        QApplication a(argc, argv);
-        QSplashScreen *splash = new QSplashScreen;
-        splash->setPixmap(QPixmap("../landauDeGUI/examples/splashWithText.jpeg"));
-        splash->show();
-        MainWindow w;
-        QRect screenGeometry = QApplication::desktop()->screenGeometry();
-        int x = (screenGeometry.width()-w.width())/2;
-        int y = (screenGeometry.height()-w.height())/2;
-        w.move(x,y);
-        QTimer::singleShot(750,splash,SLOT(close()));
-        QTimer::singleShot(750,&w,SLOT(show()));
-        return a.exec();
+        if(myRank ==0)
+            {
+            QApplication a(argc, argv);
+            QSplashScreen *splash = new QSplashScreen;
+            splash->setPixmap(QPixmap("../landauDeGUI/examples/splashWithText.jpeg"));
+            splash->show();
+            MainWindow w;
+            QRect screenGeometry = QApplication::desktop()->screenGeometry();
+            int x = (screenGeometry.width()-w.width())/2;
+            int y = (screenGeometry.height()-w.height())/2;
+            w.move(x,y);
+            QTimer::singleShot(750,splash,SLOT(close()));
+            QTimer::singleShot(750,&w,SLOT(show()));
+            MPI_Finalize();
+            return a.exec();
+            }
+        MPI_Finalize();
         }
     else
         {//headless mode
-        cout << "non-visual mode activated" << endl;
-        if(gpu >= 0)
-            GPU = chooseGPU(gpu);
-        scalar a = -1;
-        scalar b = -phaseB/phaseA;
-        scalar c = phaseC/phaseA;
-        noiseSource noise(reproducible);
-        printf("setting a rectilinear lattice of size (%i,%i,%i)\n",boxLx,boxLy,boxLz);
-        profiler p1("initialization");
-
-        p1.start();
-        shared_ptr<qTensorLatticeModel> Configuration = make_shared<qTensorLatticeModel>(boxLx,boxLy,boxLz);
-        shared_ptr<Simulation> sim = make_shared<Simulation>();
-        shared_ptr<landauDeGennesLC> landauLCForce = make_shared<landauDeGennesLC>();
-        sim->setConfiguration(Configuration);
-        p1.end();
-
-        landauLCForce->setPhaseConstants(a,b,c);
-        if(nConstants ==1)
+        if(myRank ==0)
             {
-            landauLCForce->setElasticConstants(L1,0,0);
-            landauLCForce->setNumberOfConstants(distortionEnergyType::oneConstant);
-            }
-        if(nConstants ==2)
-            {
-            landauLCForce->setElasticConstants(L1,L2,q0);
-            landauLCForce->setNumberOfConstants(distortionEnergyType::twoConstant);
-            }
-        if(nConstants ==3)
-            {
-            landauLCForce->setElasticConstants(L1,L2,L3);
-            landauLCForce->setNumberOfConstants(distortionEnergyType::threeConstant);
-            }
-        landauLCForce->setModel(Configuration);
-        sim->addForce(landauLCForce);
+            cout << "non-visual mode activated" << endl;
+            if(gpu >= 0)
+                GPU = chooseGPU(gpu);
+            scalar a = -1;
+            scalar b = -phaseB/phaseA;
+            scalar c = phaseC/phaseA;
+            noiseSource noise(reproducible);
+            printf("setting a rectilinear lattice of size (%i,%i,%i)\n",boxLx,boxLy,boxLz);
+            profiler p1("initialization");
 
-        scalar alphaStart=.99; scalar deltaTMax=100*dt; scalar deltaTInc=1.1; scalar deltaTDec=0.95;
-        scalar alphaDec=0.9; int nMin=4; scalar forceCutoff=1e-12; scalar alphaMin = 0.0;
-        scalar cValue = .0001; int mStorage = 8; scalar tau = 1000;
-        shared_ptr<energyMinimizerFIRE> fire =  make_shared<energyMinimizerFIRE>(Configuration);
-        shared_ptr<energyMinimizerLoLBFGS> lolbfgs = make_shared<energyMinimizerLoLBFGS>(Configuration);
-        if(programSwitch == 1)
-            {
-            lolbfgs->setMaximumIterations(maximumIterations);
-            lolbfgs->setLoLBFGSParameters(mStorage,dt,cValue,forceCutoff,tau);
-            sim->addUpdater(lolbfgs,Configuration);
-            }
-        else
-            sim->addUpdater(fire,Configuration);
+            p1.start();
+            shared_ptr<qTensorLatticeModel> Configuration = make_shared<qTensorLatticeModel>(boxLx,boxLy,boxLz);
+            shared_ptr<Simulation> sim = make_shared<Simulation>();
+            shared_ptr<landauDeGennesLC> landauLCForce = make_shared<landauDeGennesLC>();
+            sim->setConfiguration(Configuration);
+            p1.end();
 
-        fire->setFIREParameters(dt,alphaStart,deltaTMax,deltaTInc,deltaTDec,alphaDec,nMin,forceCutoff,alphaMin);
-        fire->setMaximumIterations(maximumIterations);
-
-        sim->setCPUOperation(true);//have cpu and gpu initialized the same...for debugging
-        sim->setNThreads(nThreads);
-        scalar S0 = (-b+sqrt(b*b-24*a*c))/(6*c);
-        printf("setting random configuration with S0 = %f\n",S0);
-        Configuration->setNematicQTensorRandomly(noise,S0);
-        sim->setCPUOperation(!GPU);
-
+            landauLCForce->setPhaseConstants(a,b,c);
+            if(nConstants ==1)
+                {
+                landauLCForce->setElasticConstants(L1,0,0);
+                landauLCForce->setNumberOfConstants(distortionEnergyType::oneConstant);
+                }
+            if(nConstants ==2)
+                {
+                landauLCForce->setElasticConstants(L1,L2,q0);
+                landauLCForce->setNumberOfConstants(distortionEnergyType::twoConstant);
+                }
+            if(nConstants ==3)
+                {
+                landauLCForce->setElasticConstants(L1,L2,L3);
+                landauLCForce->setNumberOfConstants(distortionEnergyType::threeConstant);
+                }
+            landauLCForce->setModel(Configuration);
+            sim->addForce(landauLCForce);
+    
+            scalar alphaStart=.99; scalar deltaTMax=100*dt; scalar deltaTInc=1.1; scalar deltaTDec=0.95;
+            scalar alphaDec=0.9; int nMin=4; scalar forceCutoff=1e-12; scalar alphaMin = 0.0;
+            scalar cValue = .0001; int mStorage = 8; scalar tau = 1000;
+            shared_ptr<energyMinimizerFIRE> fire =  make_shared<energyMinimizerFIRE>(Configuration);
+            shared_ptr<energyMinimizerLoLBFGS> lolbfgs = make_shared<energyMinimizerLoLBFGS>(Configuration);
+            if(programSwitch == 1)
+                {
+                lolbfgs->setMaximumIterations(maximumIterations);
+                lolbfgs->setLoLBFGSParameters(mStorage,dt,cValue,forceCutoff,tau);
+                sim->addUpdater(lolbfgs,Configuration);
+                }
+            else
+                sim->addUpdater(fire,Configuration);
+    
+            fire->setFIREParameters(dt,alphaStart,deltaTMax,deltaTInc,deltaTDec,alphaDec,nMin,forceCutoff,alphaMin);
+            fire->setMaximumIterations(maximumIterations);
+    
+            sim->setCPUOperation(true);//have cpu and gpu initialized the same...for debugging
+            sim->setNThreads(nThreads);
+            scalar S0 = (-b+sqrt(b*b-24*a*c))/(6*c);
+            printf("setting random configuration with S0 = %f\n",S0);
+            Configuration->setNematicQTensorRandomly(noise,S0);
+            sim->setCPUOperation(!GPU);
+    
         /*
         boundaryObject homeotropicBoundary(boundaryType::homeotropic,1.0,S0);
         scalar3 left;
@@ -197,17 +226,18 @@ int main(int argc, char*argv[])
         right.x = 0.7*boxLx;right.y = 0.5*boxLy;right.z = 0.5*boxLz;
         Configuration->createSimpleFlatWallNormal(0,1, homeotropicBoundary);
         */
-        profiler p2("minimization");
-        p2.start();
-        sim->performTimestep();
-        p2.end();
+            profiler p2("minimization");
+            p2.start();
+            sim->performTimestep();
+            p2.end();
 
-        scalar E1 = sim->computePotentialEnergy(true);
-        scalar maxForce = fire->getMaxForce();
-        printf("minimized to %f\t E=%f\t\n",maxForce,E1);
+            scalar E1 = sim->computePotentialEnergy(true);
+            scalar maxForce = fire->getMaxForce();
+            printf("minimized to %f\t E=%f\t\n",maxForce,E1);
 
-        p1.print();
-        p2.print();
+            p1.print();
+            p2.print();
+            }
         /*
         landauLCForce->computeObjectForces(0);
         //landauLCForce->computeObjectForces(1);
@@ -228,6 +258,7 @@ int main(int argc, char*argv[])
             printf("%i\t",surf1.data[ii]);
         printf("\n");
         */
+        MPI_Finalize();
         return 0;
         }
     /*
