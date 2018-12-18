@@ -29,7 +29,7 @@ class cubicLattice : public simpleModel
         void setSpinsRandomly(noiseSource &noise);
 
         //! return the integer corresponding to the given site, along with the indices of the six nearest neighbors
-        int getNeighbors(int target, vector<int> &neighbors, int &neighs, int stencilType = 0);
+        virtual int getNeighbors(int target, vector<int> &neighbors, int &neighs, int stencilType = 0);
         //!decide to slice sites
         void sliceIndices(bool _s=true){sliceSites = _s;};
         //!given a triple, determine what
@@ -42,7 +42,7 @@ class cubicLattice : public simpleModel
         //!List of neighboring lattice sites
         GPUArray<int> neighboringSites;
         //!store the neighbors of each lattice site. The i'th neighbor of site j is given by neighboringSites[neighborIndex(i,j)]
-        virtual void fillNeighboLists(int stencilType = 0);
+        virtual void fillNeighborLists(int stencilType = 0);
 
         //!return the mean spin
         virtual dVec averagePosition()

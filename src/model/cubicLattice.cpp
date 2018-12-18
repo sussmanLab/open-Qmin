@@ -144,7 +144,7 @@ int cubicLattice::latticeSiteToLinearIndex(const int3 &target)
 /*!
 stencilType here has the same meaning as in "getNeighbors" function
 */
-void cubicLattice::fillNeighboLists(int stencilType)
+void cubicLattice::fillNeighborLists(int stencilType)
     {
 
     vector<int> neighs;
@@ -154,7 +154,7 @@ void cubicLattice::fillNeighboLists(int stencilType)
     neighborIndex = Index2D(nNeighs,N);
     neighboringSites.resize(nNeighs*N);
 
-    //if(useGPU)
+    //if(!useGPU)
         {
         ArrayHandle<int> neighbors(neighboringSites);
         for (int ii = 0; ii < N; ++ii)

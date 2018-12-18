@@ -50,11 +50,11 @@ void landauDeGennesLC::setModel(shared_ptr<cubicLattice> _model)
     if(numberOfConstants == distortionEnergyType::twoConstant ||
         numberOfConstants == distortionEnergyType::threeConstant)
         {
-        lattice->fillNeighboLists(1);//fill neighbor lists to allow computing mixed partials
+        lattice->fillNeighborLists(1);//fill neighbor lists to allow computing mixed partials
         }
     else // one constant approx
         {
-        lattice->fillNeighboLists(0);
+        lattice->fillNeighborLists(0);
         }
     int N = lattice->getNumberOfParticles();
     forceCalculationAssist.resize(N);

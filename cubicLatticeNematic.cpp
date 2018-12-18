@@ -30,13 +30,21 @@
 using namespace TCLAP;
 int main(int argc, char*argv[])
 {
-    int myRank,worldSize,tag=0;
+    int myRank,worldSize;
+    int tag=99;
     char message[20];
     MPI_Status status;
 
     MPI_Init(&argc, &argv);
     MPI_Comm_size(MPI_COMM_WORLD, &worldSize);
     MPI_Comm_rank(MPI_COMM_WORLD,&myRank);
+
+    char processorName[MPI_MAX_PROCESSOR_NAME];
+    int nameLen;
+    MPI_Get_processor_name(processorName, &nameLen);
+
+    printf("Hello world from processor %s, rank %d out of %d processors\n",
+           processorName, myRank, worldSize);
 
     if(myRank ==0)
         {

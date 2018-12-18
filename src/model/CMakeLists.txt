@@ -6,7 +6,8 @@ include_directories(${CMAKE_SOURCE_DIR}/inc ${CUDA_INCLUDE_DIRS} ../../inc)
 add_library(model
     simpleModel.cpp
     cubicLattice.cpp
-    qTensorLatticeModel.cpp)
+    qTensorLatticeModel.cpp
+    multirankQTensorLatticeModel.cpp)
 cuda_add_library(modelGPU
     simpleModel.cu
     cubicLattice.cu
