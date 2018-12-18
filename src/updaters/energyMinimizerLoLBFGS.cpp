@@ -83,7 +83,7 @@ void energyMinimizerLoLBFGS::lineSearchCPU(GPUArray<dVec> &descentDirection)
     };//end array scope
     expectedLoss = c*iStep*dotProduct;
 
-    model->moveParticles(descentDirection,iStep);
+    sim->moveParticles(descentDirection,iStep);
     scalar eNew = sim->computePotentialEnergy();
     int iterSearch = 0;
     printf("line search %i\t iS %f\t eC %g \t eN %g \t expectedLoss %g\t diff %g\n",iterSearch,iStep,eCurrent,eNew,expectedLoss,eNew-eCurrent);
@@ -91,13 +91,12 @@ void energyMinimizerLoLBFGS::lineSearchCPU(GPUArray<dVec> &descentDirection)
     while(eNew < eCurrent && eNew - eCurrent > expectedLoss)
         {
         iStep *= 0.5;
-        model->moveParticles(descentDirection,-iStep);
+        sim->moveParticles(descentDirection,-iStep);
         expectedLoss = c*iStep*dotProduct;
         eNew = sim->computePotentialEnergy();
         iterSearch +=1;
     printf("line search %i\t iS %f\t eC %g \t eN %g \t expectedLoss %g\t diff %g\n",iterSearch,iStep,eCurrent,eNew,expectedLoss,eNew-eCurrent);
         }
-
     }
 
 void energyMinimizerLoLBFGS::lineSearchGPU(GPUArray<dVec> &descentDirection)
@@ -180,7 +179,7 @@ void energyMinimizerLoLBFGS::LoLBFGSStepGPU()
     //temporarily store the old forces here in the gradient difference term
     gpu_copy_gpuarray(gradientDifference[currentIterationInMLoop],model->returnForces());
     //move particles, recompute force, store new force in unscaledStep in preparation for the next iteration
-    model->moveParticles(secantEquation[currentIterationInMLoop]);
+    sim->moveParticles(secantEquation[currentIterationInMLoop]);
     sim->computeForces();
     gpu_copy_gpuarray(unscaledStep,model->returnForces());
 
@@ -268,7 +267,7 @@ void energyMinimizerLoLBFGS::LoLBFGSStepCPU()
     //temporarily store the old forces here in the gradient difference term
     gradientDifference[currentIterationInMLoop] = model->returnForces();
 
-    model->moveParticles(secantEquation[currentIterationInMLoop]);
+    sim->moveParticles(secantEquation[currentIterationInMLoop]);
     //lineSearchCPU(secantEquation[currentIterationInMLoop]);
     sim->computeForces();
 

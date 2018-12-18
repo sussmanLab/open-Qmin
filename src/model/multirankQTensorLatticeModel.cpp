@@ -113,3 +113,131 @@ int multirankQTensorLatticeModel::getNeighbors(int target, vector<int> &neighbor
     return target; //nope
     };
 
+void multirankQTensorLatticeModel::parseDirectionType(int directionType, int &xyz, int &size1, int &size2, int &plane, bool sending)
+    {
+    xyz = 0;//the plane has fixed x
+    size1 =expandedLatticeIndex.sizes.y;
+    size2 =expandedLatticeIndex.sizes.z;
+    if(directionType == 2 || directionType ==3)
+        {
+        xyz = 1;//the plane has fixed y
+        size1 =expandedLatticeIndex.sizes.x;
+        size2 =expandedLatticeIndex.sizes.z;
+        }
+    if(directionType == 4 || directionType ==5)
+        {
+        xyz = 2;//the plane has fixed z
+        size1 =expandedLatticeIndex.sizes.x;
+        size2 =expandedLatticeIndex.sizes.y;
+        }
+    if(sending)
+        {
+        switch(directionType)
+            {
+            case 0: plane = 0; break;//smallest x plane
+            case 1: plane = expandedLatticeSites.x-3; break;//largest x plane
+            case 2: plane = 0; break;//smallest y plane
+            case 3: plane = expandedLatticeSites.y-3; break;//largest y plane
+            case 4: plane = 0; break;//smallest z plane
+            case 5: plane = expandedLatticeSites.z-3; break;//largest z plane
+            default:
+                throw std::runtime_error("negative directionTypes are not valid");
+            }
+        }
+    else
+        {
+        switch(directionType)
+            {
+            case 0: plane = expandedLatticeSites.x-1; break;//smallest x plane
+            case 1: plane = expandedLatticeSites.x-2; break;//largest x plane
+            case 2: plane = expandedLatticeSites.y-1; break;//smallest y plane
+            case 3: plane = expandedLatticeSites.y-2; break;//largest y plane
+            case 4: plane = expandedLatticeSites.z-1; break;//smallest z plane
+            case 5: plane = expandedLatticeSites.z-2; break;//largest z plane
+            default:
+                throw std::runtime_error("negative directionTypes are not valid");
+            }
+        };
+    }
+
+void multirankQTensorLatticeModel::prepareSendData(int directionType)
+    {
+    if(directionType <=5 )//send entire faces
+        {
+        int xyz,size1,size2,plane;
+        parseDirectionType(directionType,xyz,size1,size2,plane,true);
+        int nTot = size1*size2;
+        if(intTransferBuffer.getNumElements() < nTot)
+            {
+            intTransferBuffer.resize(nTot);
+            dvecTransferBuffer.resize(nTot);
+            }
+        int currentSite;
+        //prepare to send the y-z plane at x=0 to the left
+        if(!useGPU)
+            {
+            ArrayHandle<int> ht(types,access_location::host,access_mode::read);
+            ArrayHandle<dVec> hp(positions,access_location::host,access_mode::read);
+            ArrayHandle<int> iBuf(intTransferBuffer,access_location::host,access_mode::overwrite);
+            ArrayHandle<dVec> dBuf(dvecTransferBuffer,access_location::host,access_mode::overwrite);
+            int idx = 0;
+            for (int ii = 0; ii < size1; ++ii)
+                for (int jj = 0; jj < size2; ++jj)
+                    {
+                    if(xyz ==0)
+                        currentSite = expandedLatticeIndex(plane,ii,jj);
+                    if(xyz ==1)
+                        currentSite = expandedLatticeIndex(ii,plane,jj);
+                    if(xyz ==2)
+                        currentSite = expandedLatticeIndex(ii,jj,plane);
+                    iBuf.data[idx] = ht.data[currentSite];
+                    dBuf.data[idx] = hp.data[currentSite];
+                    idx+=1;
+                    }
+            }
+        else
+            {//GPU copy routine
+            }
+        }//end construction for sending faces
+    }
+
+void multirankQTensorLatticeModel::receiveData(int directionType)
+    {
+    if(directionType <=5 )//send entire faces
+        {
+        int xyz,size1,size2,plane;
+        parseDirectionType(directionType,xyz,size1,size2,plane,false);
+        int nTot = size1*size2;
+        if(intTransferBuffer.getNumElements() < nTot)
+            {
+            intTransferBuffer.resize(nTot);
+            dvecTransferBuffer.resize(nTot);
+            }
+        int currentSite;
+        //prepare to send the y-z plane at x=0 to the left
+        if(!useGPU)
+            {
+            ArrayHandle<int> ht(types,access_location::host,access_mode::readwrite);
+            ArrayHandle<dVec> hp(positions,access_location::host,access_mode::readwrite);
+            ArrayHandle<int> iBuf(intTransferBuffer,access_location::host,access_mode::read);
+            ArrayHandle<dVec> dBuf(dvecTransferBuffer,access_location::host,access_mode::read);
+            int idx = 0;
+            for (int ii = 0; ii < size1; ++ii)
+                for (int jj = 0; jj < size2; ++jj)
+                    {
+                    if(xyz ==0)
+                        currentSite = expandedLatticeIndex(plane,ii,jj);
+                    if(xyz ==1)
+                        currentSite = expandedLatticeIndex(ii,plane,jj);
+                    if(xyz ==2)
+                        currentSite = expandedLatticeIndex(ii,jj,plane);
+                    ht.data[currentSite] = iBuf.data[idx];
+                    hp.data[currentSite] = dBuf.data[idx];
+                    idx+=1;
+                    }
+            }
+        else
+            {//GPU copy routine
+            }
+        }//end construction for sending faces
+    }

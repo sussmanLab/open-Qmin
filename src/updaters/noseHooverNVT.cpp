@@ -93,7 +93,7 @@ void noseHooverNVT::propagatePositionsVelocites()
         h_disp.data[ii] = deltaT2*h_v.data[ii];
     }//end array handle
 
-    model->moveParticles(displacement);
+    sim->moveParticles(displacement);
     sim->computeForces();
     //second half of time step
     {//array handle
@@ -108,7 +108,7 @@ void noseHooverNVT::propagatePositionsVelocites()
         h_kes.data[0] += 0.5*h_m.data[ii]*dot(h_v.data[ii],h_v.data[ii]);
         };
     }//handle end
-    model->moveParticles(displacement);
+    sim->moveParticles(displacement);
     };
 
 void noseHooverNVT::propagateChainGPU()
@@ -222,7 +222,7 @@ void noseHooverNVT::propagatePositionsVelocitiesGPU()
     scalar deltaT2 = 0.5*deltaT;
     //first, move particles according to velocities
 NVTXPUSH("move particles1");
-    model->moveParticles(model->returnVelocities(),deltaT2);
+    sim->moveParticles(model->returnVelocities(),deltaT2);
 NVTXPOP();
 NVTXPUSH("computeForces");
     sim->computeForces();
@@ -240,7 +240,7 @@ NVTXPUSH("update velocity");
 NVTXPOP();
     //move particles according to velocities again
 NVTXPUSH("move particles2");
-    model->moveParticles(model->returnVelocities(),deltaT2);
+    sim->moveParticles(model->returnVelocities(),deltaT2);
 NVTXPOP();
     };
 

@@ -24,7 +24,7 @@ class Simulation : public basicSimulation, public enable_shared_from_this<Simula
         //!Call the force computer to compute the forces
         virtual void computeForces();
         //!Call the configuration to move particles around
-        virtual void moveParticles(GPUArray<dVec> &displacements);
+        virtual void moveParticles(GPUArray<dVec> &displacements,scalar scale = 1.0);
         //!Call every updater to advance one time step
         void performTimestep();
 

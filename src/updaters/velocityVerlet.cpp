@@ -19,7 +19,7 @@ void velocityVerlet::integrateEOMCPU()
         };
     };//handle scope
     //move particles, then update the forces
-    model->moveParticles(displacement);
+    sim->moveParticles(displacement);
     sim->computeForces();
 
     {//array handle scope
@@ -47,7 +47,7 @@ void velocityVerlet::integrateEOMGPU()
     gpu_displacement_velocity_verlet(d_d.data,d_v.data,d_f.data,d_m.data,deltaT,Ndof);
     }
     //move particles and recompute forces
-    model->moveParticles(displacement);
+    sim->moveParticles(displacement);
     sim->computeForces();
 
     //update velocities again

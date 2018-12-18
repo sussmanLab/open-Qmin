@@ -16,7 +16,7 @@ class basicSimulation
         //!Call the force computer to compute the forces
         virtual void computeForces()=0;
         //!Call the configuration to move particles around
-        virtual void moveParticles(GPUArray<dVec> &displacements)=0;
+        virtual void moveParticles(GPUArray<dVec> &displacements,scalar scale = 1.0)=0;
         //!compute the potential energy associated with all of the forces
         virtual scalar computePotentialEnergy(bool verbose =false){return 0.0;};
         //!This changes the contents of the Box pointed to by Box to match that of _box

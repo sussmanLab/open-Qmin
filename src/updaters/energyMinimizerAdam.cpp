@@ -46,7 +46,7 @@ void energyMinimizerAdam::adamStepGPU()
                   blockSize);
 
     }//handle scope end
-    model->moveParticles(displacement);
+    sim->moveParticles(displacement);
     //forceMax = sqrt(forceNorm)/Ndof;
     beta1t *= beta1;
     beta2t *= beta2;
@@ -77,7 +77,7 @@ void energyMinimizerAdam::adamStepCPU()
             disp.data[nn].x[dd] = -deltaT*mc.data[nn].x[dd]/(rootvc);
             }
         }
-    model->moveParticles(displacement);
+    sim->moveParticles(displacement);
     forceMax = sqrt(forceNorm)/Ndof;
     beta1t *= beta1;
     beta2t *= beta2;

@@ -117,10 +117,10 @@ void Simulation::computeForces()
 /*!
 Calls the configuration to displace the degrees of freedom
 */
-void Simulation::moveParticles(GPUArray<dVec> &displacements)
+void Simulation::moveParticles(GPUArray<dVec> &displacements,scalar scale)
     {
     auto Conf = configuration.lock();
-    Conf->moveParticles(displacements);
+    Conf->moveParticles(displacements,scale);
     };
 
 scalar Simulation::computeKineticEnergy(bool verbose)
