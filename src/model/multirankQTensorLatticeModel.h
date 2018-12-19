@@ -20,8 +20,10 @@ class multirankQTensorLatticeModel : public qTensorLatticeModel
         Index3D expandedLatticeIndex;
 
         int transferElementNumber;
-        GPUArray<int> intTransferBuffer;
-        GPUArray<dVec> dvecTransferBuffer;
+        GPUArray<int> intTransferBufferSend;
+        GPUArray<dVec> dvecTransferBufferSend;
+        GPUArray<int> intTransferBufferReceive;
+        GPUArray<dVec> dvecTransferBufferReceive;
 
         //!this implementation uses the expandedLatticeIndex
         virtual int getNeighbors(int target, vector<int> &neighbors, int &neighs, int stencilType = 0);
@@ -34,4 +36,6 @@ class multirankQTensorLatticeModel : public qTensorLatticeModel
     protected:
         void parseDirectionType(int directionType, int &xyz, int &size1, int &size2, int &plane,bool sending);
     };
+typedef shared_ptr<multirankQTensorLatticeModel> MConfigPtr;
+typedef weak_ptr<multirankQTensorLatticeModel> WeakMConfigPtr;
 #endif

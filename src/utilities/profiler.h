@@ -4,7 +4,7 @@
 #include <chrono>
 #include <string>
 #include <iostream>
-
+using namespace std;
 class profiler
     {
     public:
@@ -32,7 +32,7 @@ class profiler
 
         void print()
             {
-            cout << "profiler \"" << name << "\" took an average of " << timing() << " per call over " << functionCalls << " calls" << endl;
+            cout << "profiler \"" << name << "\" took an average of " << timing() << " per call over " << functionCalls << " calls...total time = "<<timing()*functionCalls << endl;
             }
 
         chrono::time_point<chrono::high_resolution_clock>  startTime;

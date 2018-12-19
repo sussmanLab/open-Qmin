@@ -4,6 +4,7 @@
 
 #include "functions.h"
 #include "gpuarray.h"
+#include "multirankSimulation.h"
 #include "simulation.h"
 #include "qTensorLatticeModel.h"
 #include "landauDeGennesLC.h"

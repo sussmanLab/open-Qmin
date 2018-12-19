@@ -167,10 +167,13 @@ void multirankQTensorLatticeModel::prepareSendData(int directionType)
         int xyz,size1,size2,plane;
         parseDirectionType(directionType,xyz,size1,size2,plane,true);
         int nTot = size1*size2;
-        if(intTransferBuffer.getNumElements() < nTot)
+        transferElementNumber = nTot;
+        if(intTransferBufferSend.getNumElements() < nTot)
             {
-            intTransferBuffer.resize(nTot);
-            dvecTransferBuffer.resize(nTot);
+            intTransferBufferSend.resize(nTot);
+            dvecTransferBufferSend.resize(nTot);
+            intTransferBufferReceive.resize(nTot);
+            dvecTransferBufferReceive.resize(nTot);
             }
         int currentSite;
         //prepare to send the y-z plane at x=0 to the left
@@ -178,8 +181,8 @@ void multirankQTensorLatticeModel::prepareSendData(int directionType)
             {
             ArrayHandle<int> ht(types,access_location::host,access_mode::read);
             ArrayHandle<dVec> hp(positions,access_location::host,access_mode::read);
-            ArrayHandle<int> iBuf(intTransferBuffer,access_location::host,access_mode::overwrite);
-            ArrayHandle<dVec> dBuf(dvecTransferBuffer,access_location::host,access_mode::overwrite);
+            ArrayHandle<int> iBuf(intTransferBufferSend,access_location::host,access_mode::overwrite);
+            ArrayHandle<dVec> dBuf(dvecTransferBufferSend,access_location::host,access_mode::overwrite);
             int idx = 0;
             for (int ii = 0; ii < size1; ++ii)
                 for (int jj = 0; jj < size2; ++jj)
@@ -208,19 +211,14 @@ void multirankQTensorLatticeModel::receiveData(int directionType)
         int xyz,size1,size2,plane;
         parseDirectionType(directionType,xyz,size1,size2,plane,false);
         int nTot = size1*size2;
-        if(intTransferBuffer.getNumElements() < nTot)
-            {
-            intTransferBuffer.resize(nTot);
-            dvecTransferBuffer.resize(nTot);
-            }
         int currentSite;
         //prepare to send the y-z plane at x=0 to the left
         if(!useGPU)
             {
             ArrayHandle<int> ht(types,access_location::host,access_mode::readwrite);
             ArrayHandle<dVec> hp(positions,access_location::host,access_mode::readwrite);
-            ArrayHandle<int> iBuf(intTransferBuffer,access_location::host,access_mode::read);
-            ArrayHandle<dVec> dBuf(dvecTransferBuffer,access_location::host,access_mode::read);
+            ArrayHandle<int> iBuf(intTransferBufferReceive,access_location::host,access_mode::read);
+            ArrayHandle<dVec> dBuf(dvecTransferBufferReceive,access_location::host,access_mode::read);
             int idx = 0;
             for (int ii = 0; ii < size1; ++ii)
                 for (int jj = 0; jj < size2; ++jj)

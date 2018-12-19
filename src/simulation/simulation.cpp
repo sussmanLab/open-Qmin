@@ -22,7 +22,6 @@ void Simulation::addForce(ForcePtr _force, ConfigPtr _config)
     forceComputers.push_back(_force);
     };
 
-
 /*!
 Set a pointer to the configuration
 */

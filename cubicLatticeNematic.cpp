@@ -27,6 +27,16 @@
 #include <tclap/CmdLine.h>
 #include <mpi.h>
 
+int3 partitionProcessors(int numberOfProcesses)
+    {
+    int3 ans;
+    ans.z = floor(pow(numberOfProcesses,1./3.));
+    int nLeft = floor(numberOfProcesses/ans.z);
+    ans.y = floor(sqrt(nLeft));
+    ans.x = floor(nLeft / ans.y);
+    return ans;
+    }
+
 using namespace TCLAP;
 int main(int argc, char*argv[])
 {
@@ -152,21 +162,28 @@ int main(int argc, char*argv[])
         }
     else
         {//headless mode
-        if(myRank ==0)
+        //if(myRank ==0)
+        if(true)
             {
-            cout << "non-visual mode activated" << endl;
-            if(gpu >= 0)
-                GPU = chooseGPU(gpu);
+            cout << "non-visual mode activated on rank " << myRank << endl;
+            if(myRank >= 0 && gpu >=0)
+                GPU = chooseGPU(myRank);
+
+           int3 rankTopology = partitionProcessors(worldSize);
+           if(myRank ==0)
+               printf("lattice divisions: {%i, %i, %i}\n",rankTopology.x,rankTopology.y,rankTopology.z);
+
             scalar a = -1;
             scalar b = -phaseB/phaseA;
             scalar c = phaseC/phaseA;
             noiseSource noise(reproducible);
+            noise.setReproducibleSeed(13377+myRank);
             printf("setting a rectilinear lattice of size (%i,%i,%i)\n",boxLx,boxLy,boxLz);
             profiler p1("initialization");
 
             p1.start();
-            shared_ptr<qTensorLatticeModel> Configuration = make_shared<qTensorLatticeModel>(boxLx,boxLy,boxLz);
-            shared_ptr<Simulation> sim = make_shared<Simulation>();
+            shared_ptr<multirankQTensorLatticeModel> Configuration = make_shared<multirankQTensorLatticeModel>(boxLx,boxLy,boxLz,false,false,false);
+            shared_ptr<multirankSimulation> sim = make_shared<multirankSimulation>(myRank,rankTopology.x,rankTopology.y,rankTopology.z,false,false);
             shared_ptr<landauDeGennesLC> landauLCForce = make_shared<landauDeGennesLC>();
             sim->setConfiguration(Configuration);
             p1.end();
@@ -189,7 +206,7 @@ int main(int argc, char*argv[])
                 }
             landauLCForce->setModel(Configuration);
             sim->addForce(landauLCForce);
-    
+
             scalar alphaStart=.99; scalar deltaTMax=100*dt; scalar deltaTInc=1.1; scalar deltaTDec=0.95;
             scalar alphaDec=0.9; int nMin=4; scalar forceCutoff=1e-12; scalar alphaMin = 0.0;
             scalar cValue = .0001; int mStorage = 8; scalar tau = 1000;
@@ -203,17 +220,17 @@ int main(int argc, char*argv[])
                 }
             else
                 sim->addUpdater(fire,Configuration);
-    
+
             fire->setFIREParameters(dt,alphaStart,deltaTMax,deltaTInc,deltaTDec,alphaDec,nMin,forceCutoff,alphaMin);
             fire->setMaximumIterations(maximumIterations);
-    
+
             sim->setCPUOperation(true);//have cpu and gpu initialized the same...for debugging
             //sim->setNThreads(nThreads);
             scalar S0 = (-b+sqrt(b*b-24*a*c))/(6*c);
             printf("setting random configuration with S0 = %f\n",S0);
             Configuration->setNematicQTensorRandomly(noise,S0);
             sim->setCPUOperation(!GPU);
-    
+
         /*
         boundaryObject homeotropicBoundary(boundaryType::homeotropic,1.0,S0);
         scalar3 left;
@@ -245,6 +262,7 @@ int main(int argc, char*argv[])
 
             p1.print();
             p2.print();
+            sim->p1.print();
             }
         /*
         landauLCForce->computeObjectForces(0);
