@@ -2,21 +2,16 @@
 /*! \file multirankSimulation.cpp */
 
 
-/*!
-Calls the configuration to displace the degrees of freedom, and communicates halo sites according
-to the rankTopology and boolean settings
-*/
-void multirankSimulation::moveParticles(GPUArray<dVec> &displacements,scalar scale)
+void multirankSimulation::communicateHaloSites()
     {
     auto Conf = mConfiguration.lock();
-    Conf->moveParticles(displacements,scale);
-
-    p1.start();
     //x first
     if(rankTopology.x > 1)
         {
         Conf->prepareSendData(0);
         int messageSize = Conf->transferElementNumber;
+        int dMessageSize = DIMENSION*Conf->transferElementNumber;
+
         int3 leftNode = rankParity; leftNode.x -=1;
         if(leftNode.x <0) leftNode.x = parityTest.sizes.x-1;
         int leftTarget = parityTest(leftNode);
@@ -28,23 +23,23 @@ void multirankSimulation::moveParticles(GPUArray<dVec> &displacements,scalar sca
             {
             ArrayHandle<int> iBufS(Conf->intTransferBufferSend);
             ArrayHandle<int> iBufR(Conf->intTransferBufferReceive);
-            ArrayHandle<dVec> dBufS(Conf->dvecTransferBufferSend);
-            ArrayHandle<dVec> dBufR(Conf->dvecTransferBufferReceive);
+            ArrayHandle<scalar> dBufS(Conf->doubleTransferBufferSend);
+            ArrayHandle<scalar> dBufR(Conf->doubleTransferBufferReceive);
             MPI_Send(iBufS.data,messageSize,MPI_INT,leftTarget,0,MPI_COMM_WORLD);
             MPI_Recv(iBufR.data,messageSize,MPI_INT,MPI_ANY_SOURCE,0,MPI_COMM_WORLD,&mpiStatus);
-            MPI_Send(dBufS.data,messageSize,MPI_DOUBLE,leftTarget,1,MPI_COMM_WORLD);
-            MPI_Recv(dBufR.data,messageSize,MPI_DOUBLE,MPI_ANY_SOURCE,1,MPI_COMM_WORLD,&mpiStatus);
+            MPI_Send(dBufS.data,dMessageSize,MPI_SCALAR,leftTarget,1,MPI_COMM_WORLD);
+            MPI_Recv(dBufR.data,dMessageSize,MPI_SCALAR,MPI_ANY_SOURCE,1,MPI_COMM_WORLD,&mpiStatus);
             }
         else                    //receive and send
             {
             ArrayHandle<int> iBufS(Conf->intTransferBufferSend);
             ArrayHandle<int> iBufR(Conf->intTransferBufferReceive);
-            ArrayHandle<dVec> dBufS(Conf->dvecTransferBufferSend);
-            ArrayHandle<dVec> dBufR(Conf->dvecTransferBufferReceive);
+            ArrayHandle<scalar> dBufS(Conf->doubleTransferBufferSend);
+            ArrayHandle<scalar> dBufR(Conf->doubleTransferBufferReceive);
             MPI_Recv(iBufR.data,messageSize,MPI_INT,MPI_ANY_SOURCE,0,MPI_COMM_WORLD,&mpiStatus);
             MPI_Send(iBufS.data,messageSize,MPI_INT,leftTarget,0,MPI_COMM_WORLD);
-            MPI_Recv(dBufR.data,messageSize,MPI_DOUBLE,MPI_ANY_SOURCE,1,MPI_COMM_WORLD,&mpiStatus);
-            MPI_Send(dBufS.data,messageSize,MPI_DOUBLE,leftTarget,1,MPI_COMM_WORLD);
+            MPI_Recv(dBufR.data,dMessageSize,MPI_SCALAR,MPI_ANY_SOURCE,1,MPI_COMM_WORLD,&mpiStatus);
+            MPI_Send(dBufS.data,dMessageSize,MPI_SCALAR,leftTarget,1,MPI_COMM_WORLD);
             }
         Conf->receiveData(1);
         //...and vice versa
@@ -53,26 +48,46 @@ void multirankSimulation::moveParticles(GPUArray<dVec> &displacements,scalar sca
             {
             ArrayHandle<int> iBufS(Conf->intTransferBufferSend);
             ArrayHandle<int> iBufR(Conf->intTransferBufferReceive);
-            ArrayHandle<dVec> dBufS(Conf->dvecTransferBufferSend);
-            ArrayHandle<dVec> dBufR(Conf->dvecTransferBufferReceive);
+            ArrayHandle<scalar> dBufS(Conf->doubleTransferBufferSend);
+            ArrayHandle<scalar> dBufR(Conf->doubleTransferBufferReceive);
             MPI_Send(iBufS.data,messageSize,MPI_INT,rightTarget,2,MPI_COMM_WORLD);
             MPI_Recv(iBufR.data,messageSize,MPI_INT,MPI_ANY_SOURCE,2,MPI_COMM_WORLD,&mpiStatus);
-            MPI_Send(dBufS.data,messageSize,MPI_DOUBLE,rightTarget,3,MPI_COMM_WORLD);
-            MPI_Recv(dBufR.data,messageSize,MPI_DOUBLE,MPI_ANY_SOURCE,3,MPI_COMM_WORLD,&mpiStatus);
+            MPI_Send(dBufS.data,dMessageSize,MPI_SCALAR,rightTarget,3,MPI_COMM_WORLD);
+            MPI_Recv(dBufR.data,dMessageSize,MPI_SCALAR,MPI_ANY_SOURCE,3,MPI_COMM_WORLD,&mpiStatus);
             }
         else                    //receive and send
             {
             ArrayHandle<int> iBufS(Conf->intTransferBufferSend);
             ArrayHandle<int> iBufR(Conf->intTransferBufferReceive);
-            ArrayHandle<dVec> dBufS(Conf->dvecTransferBufferSend);
-            ArrayHandle<dVec> dBufR(Conf->dvecTransferBufferReceive);
+            ArrayHandle<scalar> dBufS(Conf->doubleTransferBufferSend);
+            ArrayHandle<scalar> dBufR(Conf->doubleTransferBufferReceive);
             MPI_Recv(iBufR.data,messageSize,MPI_INT,MPI_ANY_SOURCE,2,MPI_COMM_WORLD,&mpiStatus);
             MPI_Send(iBufS.data,messageSize,MPI_INT,rightTarget,2,MPI_COMM_WORLD);
-            MPI_Recv(dBufR.data,messageSize,MPI_DOUBLE,MPI_ANY_SOURCE,3,MPI_COMM_WORLD,&mpiStatus);
-            MPI_Send(dBufS.data,messageSize,MPI_DOUBLE,rightTarget,3,MPI_COMM_WORLD);
+            MPI_Recv(dBufR.data,dMessageSize,MPI_SCALAR,MPI_ANY_SOURCE,3,MPI_COMM_WORLD,&mpiStatus);
+            MPI_Send(dBufS.data,dMessageSize,MPI_SCALAR,rightTarget,3,MPI_COMM_WORLD);
             }
         Conf->receiveData(0);
         }
+    if(edges)
+        {
+        }
+    if(corners)
+        {
+        }
+    }
+
+/*!
+Calls the configuration to displace the degrees of freedom, and communicates halo sites according
+to the rankTopology and boolean settings
+*/
+void multirankSimulation::moveParticles(GPUArray<dVec> &displacements,scalar scale)
+    {
+        {
+    auto Conf = mConfiguration.lock();
+    Conf->moveParticles(displacements,scale);
+        }
+    p1.start();
+    communicateHaloSites();
     p1.end();
     };
 
@@ -116,9 +131,12 @@ void multirankSimulation::setConfiguration(MConfigPtr _config)
     mConfiguration = _config;
     Box = _config->Box;
     auto Conf = mConfiguration.lock();
-    Conf->prepareSendData(0);//make sure the buffers are big enough
-    Conf->prepareSendData(2);
-    Conf->prepareSendData(4);
+    if(Conf->xHalo)
+        Conf->prepareSendData(0);//make sure the buffers are big enough
+    if(Conf->yHalo)
+        Conf->prepareSendData(2);
+    if(Conf->zHalo)
+        Conf->prepareSendData(4);
     };
 
 /*!
@@ -215,4 +233,36 @@ void multirankSimulation::performTimestep()
         auto upd = updaters[u].lock();
         upd->Update(integerTimestep);
         };
+    };
+
+void multirankSimulation::saveState(string fname)
+    {
+    auto Conf = mConfiguration.lock();
+    char fn[256];
+    sprintf(fn,"%s_x%iy%iz%i.txt",fname.c_str(),rankParity.x,rankParity.y,rankParity.z);
+
+    printf("saving state...\n");
+    Conf->getAverageEigenvalues();
+    ArrayHandle<dVec> pp(Conf->returnPositions());
+    ArrayHandle<int> tt(Conf->returnTypes());
+    ofstream myfile;
+    myfile.open(fn);
+    for (int ii = 0; ii < Conf->totalSites; ++ii)
+        {
+        int3 pos = Conf->expandedLatticeIndex.inverseIndex(ii);
+        if(Conf->xHalo)
+            pos.x-=1;
+        if(Conf->yHalo)
+            pos.y-=1;
+        if(Conf->zHalo)
+            pos.z-=1;
+        int idx = Conf->indexInExpandedDataArray(pos);
+        myfile << pos.x <<"\t"<<pos.y<<"\t"<<pos.z;
+        for (int dd = 0; dd <DIMENSION; ++dd)
+            myfile <<"\t"<<pp.data[idx][dd];
+        myfile << "\t"<<tt.data[idx]<<"\n";
+        }
+
+    myfile.close();
+
     };

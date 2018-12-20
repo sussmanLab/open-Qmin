@@ -22,6 +22,8 @@ class multirankSimulation : public basicSimulation, public enable_shared_from_th
         //!move particles, and also communicate halo sites
         virtual void moveParticles(GPUArray<dVec> &displacements,scalar scale = 1.0);
 
+        virtual void communicateHaloSites();
+
         profiler p1 = profiler("communication time");
         //!The configuration of latticeSites
         WeakMConfigPtr mConfiguration;
@@ -78,6 +80,9 @@ class multirankSimulation : public basicSimulation, public enable_shared_from_th
         void setCPUOperation(bool setcpu);
         //!Enforce reproducible dynamics
         void setReproducible(bool reproducible);
+
+        //!save a file for each rank recording the expanded lattice
+        void saveState(string fname);
 
     protected:
         void setRankTopology(int x, int y, int z, bool _edges, bool _corners);

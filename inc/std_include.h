@@ -55,6 +55,7 @@ using namespace std;
 #define Sin sin
 #define Floor floor
 #define Ceil ceil
+#define MPI_SCALAR MPI_DOUBLE
 
 #else
 //floats
@@ -68,6 +69,7 @@ using namespace std;
 #define Sin sinf
 #define Floor floorf
 #define Ceil ceilf
+#define MPI_SCALAR MPI_FLOAT
 #endif
 
 #include "dDimensionalVectorTypes.h"
@@ -102,6 +104,16 @@ HOSTDEVICE scalar3 make_scalar3(scalar x, scalar y,scalar z)
 HOSTDEVICE scalar3 operator+(const scalar3 &a, const scalar3 &b)
     {
     return make_scalar3(a.x+b.x,a.y+b.y,a.z+b.z);
+    }
+
+//!strict comparison of int3s
+HOSTDEVICE bool operator<(const int3 &a,const int3 &b)
+    {
+    return (a.x < b.x && a.y < b.y && a.z < b.z);
+    }
+HOSTDEVICE bool operator>(const int3 &a,const int3 &b)
+    {
+    return (a.x > b.x && a.y > b.y && a.z > b.z);
     }
 
 //!Handle errors in kernel calls...returns file and line numbers if cudaSuccess doesn't pan out

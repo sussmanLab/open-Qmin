@@ -17,13 +17,14 @@ class multirankQTensorLatticeModel : public qTensorLatticeModel
 
         int myRank;
         int3 expandedLatticeSites;
+        int3 latticeSites;
         Index3D expandedLatticeIndex;
 
         int transferElementNumber;
         GPUArray<int> intTransferBufferSend;
-        GPUArray<dVec> dvecTransferBufferSend;
+        GPUArray<scalar> doubleTransferBufferSend;
         GPUArray<int> intTransferBufferReceive;
-        GPUArray<dVec> dvecTransferBufferReceive;
+        GPUArray<scalar> doubleTransferBufferReceive;
 
         //!this implementation uses the expandedLatticeIndex
         virtual int getNeighbors(int target, vector<int> &neighbors, int &neighs, int stencilType = 0);
@@ -33,8 +34,16 @@ class multirankQTensorLatticeModel : public qTensorLatticeModel
         //!assuming the tranfer buffers are full of the right data, copy them to the correct elements of positions and types
         virtual void receiveData(int directionType);
 
+        //!map between the int3 in the expanded (base + halo) lattice frame and the 1-d index of position within the data arrays
+        int indexInExpandedDataArray(int3 position);
+        int indexInExpandedDataArray(int px, int py, int pz)
+            {
+            int3 temp; temp.x = px; temp.y = py; temp.z=pz;
+            return indexInExpandedDataArray(temp);
+            };
+
     protected:
-        void parseDirectionType(int directionType, int &xyz, int &size1, int &size2, int &plane,bool sending);
+        void parseDirectionType(int directionType, int &xyz, int &size1start, int &size2start, int &size1end, int &size2end, int &plane,bool sending);
     };
 typedef shared_ptr<multirankQTensorLatticeModel> MConfigPtr;
 typedef weak_ptr<multirankQTensorLatticeModel> WeakMConfigPtr;

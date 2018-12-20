@@ -182,7 +182,7 @@ void energyMinimizerFIRE::minimize()
     sim->computeForces();
     int curIterations = iterations;
     //always iterate at least once
-    while( ((iterations < maxIterations) && (forceMax > forceCutoff)) || iterations == curIterations )
+    while(iterations < maxIterations )// remove while so that MPI ranks don't desync//&& (forceMax > forceCutoff)) || iterations == curIterations )
         {
         iterations +=1;
         integrateEquationOfMotion();

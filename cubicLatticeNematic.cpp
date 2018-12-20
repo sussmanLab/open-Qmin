@@ -182,10 +182,15 @@ int main(int argc, char*argv[])
             profiler p1("initialization");
 
             p1.start();
-            shared_ptr<multirankQTensorLatticeModel> Configuration = make_shared<multirankQTensorLatticeModel>(boxLx,boxLy,boxLz,false,false,false);
+            bool xH = (rankTopology.x >1) ? true : false;
+            bool yH = (rankTopology.y >1) ? true : false;
+            bool zH = (rankTopology.z >1) ? true : false;
+            //xH=yH=zH=true;
+            shared_ptr<multirankQTensorLatticeModel> Configuration = make_shared<multirankQTensorLatticeModel>(boxLx,boxLy,boxLz,xH,yH,zH);
             shared_ptr<multirankSimulation> sim = make_shared<multirankSimulation>(myRank,rankTopology.x,rankTopology.y,rankTopology.z,false,false);
             shared_ptr<landauDeGennesLC> landauLCForce = make_shared<landauDeGennesLC>();
             sim->setConfiguration(Configuration);
+            sim->communicateHaloSites();
             p1.end();
 
             landauLCForce->setPhaseConstants(a,b,c);
@@ -208,7 +213,7 @@ int main(int argc, char*argv[])
             sim->addForce(landauLCForce);
 
             scalar alphaStart=.99; scalar deltaTMax=100*dt; scalar deltaTInc=1.1; scalar deltaTDec=0.95;
-            scalar alphaDec=0.9; int nMin=4; scalar forceCutoff=1e-12; scalar alphaMin = 0.0;
+            scalar alphaDec=0.9; int nMin=4; scalar forceCutoff=1e-12; scalar alphaMin = 0.5;
             scalar cValue = .0001; int mStorage = 8; scalar tau = 1000;
             shared_ptr<energyMinimizerFIRE> fire =  make_shared<energyMinimizerFIRE>(Configuration);
             shared_ptr<energyMinimizerLoLBFGS> lolbfgs = make_shared<energyMinimizerLoLBFGS>(Configuration);
@@ -263,7 +268,46 @@ int main(int argc, char*argv[])
             p1.print();
             p2.print();
             sim->p1.print();
+            sim->saveState("../data/test");
+
+        sim->communicateHaloSites();
+
+        if(myRank%2 == 0) //send and receive
+            {
+            cout << "primary rank " << endl;
+            ArrayHandle<dVec> p(Configuration->returnPositions());
+            printdVec(p.data[Configuration->indexInExpandedDataArray(-1,5,1)]);
+            printdVec(p.data[Configuration->indexInExpandedDataArray(-1,0,0)]);
+            printdVec(p.data[Configuration->indexInExpandedDataArray(0,5,1)]);
+            printdVec(p.data[Configuration->indexInExpandedDataArray(10,5,1)]);
+            printdVec(p.data[Configuration->indexInExpandedDataArray(19,5,1)]);
+            printdVec(p.data[Configuration->indexInExpandedDataArray(20,0,0)]);
+            printdVec(p.data[Configuration->indexInExpandedDataArray(20,5,1)]);
             }
+        else
+            {
+            cout << "other rank,... size " << Configuration->getNumberOfParticles() << " ... total size " << Configuration->returnPositions().getNumElements() <<  endl;
+            ArrayHandle<int> ne(Configuration->neighboringSites);
+            printf("neighbors of 0: %i %i %i %i %i %i\n",
+                    ne.data[Configuration->neighborIndex(0,0)],
+                    ne.data[Configuration->neighborIndex(1,0)],
+                    ne.data[Configuration->neighborIndex(2,0)],
+                    ne.data[Configuration->neighborIndex(3,0)],
+                    ne.data[Configuration->neighborIndex(4,0)],
+                    ne.data[Configuration->neighborIndex(5,0)]);
+            ArrayHandle<dVec> p(Configuration->returnPositions());
+            printf("idxs %i %i %i\n",
+                    Configuration->indexInExpandedDataArray(-1,0,0),
+                    Configuration->indexInExpandedDataArray(20,0,0),
+                    Configuration->indexInExpandedDataArray(20,5,1));
+            printdVec(p.data[Configuration->indexInExpandedDataArray(-1,0,0)]);
+            printdVec(p.data[Configuration->indexInExpandedDataArray(-1,5,1)]);
+            printdVec(p.data[Configuration->indexInExpandedDataArray(10,5,1)]);
+            printdVec(p.data[Configuration->indexInExpandedDataArray(19,0,0)]);
+            printdVec(p.data[Configuration->indexInExpandedDataArray(20,0,0)]);
+            printdVec(p.data[Configuration->indexInExpandedDataArray(20,5,1)]);
+            }
+        }
         /*
         landauLCForce->computeObjectForces(0);
         //landauLCForce->computeObjectForces(1);

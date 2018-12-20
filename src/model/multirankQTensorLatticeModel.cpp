@@ -7,13 +7,16 @@ multirankQTensorLatticeModel::multirankQTensorLatticeModel(int lx, int ly, int l
     int Lx = lx;
     int Ly = ly;
     int Lz = lz;
+    latticeSites.x = Lx;
+    latticeSites.y = Ly;
+    latticeSites.z = Lz;
     if(xHalo)
         Lx +=2;
     if(yHalo)
         Ly +=2;
     if(zHalo)
         Lz +=2;
-
+    
     totalSites = Lx*Ly*Lz;
     expandedLatticeSites.x = Lx; 
     expandedLatticeSites.y = Ly; 
@@ -25,6 +28,58 @@ multirankQTensorLatticeModel::multirankQTensorLatticeModel(int lx, int ly, int l
     velocities.resize(totalSites);
     }
 
+/*!
+maps between positions in the expanded lattice (base + halo sites) and the linear index of the position that site should reside in data.
+respects the fact that the first N sites should be the base lattice, and the halo sites should all follow
+*/
+int multirankQTensorLatticeModel::indexInExpandedDataArray(int3 pos)
+    {
+    if(pos.x <0 && !xHalo)
+        pos.x = latticeSites.x-1;
+    if(pos.x ==latticeSites.x && !xHalo)
+        pos.x = 0;
+    if(pos.y <0 && !yHalo)
+        pos.y = latticeSites.y-1;
+    if(pos.y ==latticeSites.y && !yHalo)
+        pos.y = 0;
+    if(pos.z <0 && !zHalo)
+        pos.z = latticeSites.z-1;
+    if(pos.z ==latticeSites.z && !zHalo)
+        pos.z = 0;
+
+    if(pos.x < latticeSites.x && pos.y < latticeSites.y && pos.z < latticeSites.z && pos.x >=0 && pos.y >= 0 && pos.z >= 0)
+        return latticeIndex(pos);
+
+    //next consider the x = -1 face (total Ly * total Lz)
+    int base = N;
+    if(pos.x == -1)
+        return base + pos.y + expandedLatticeSites.y*pos.z;
+    //next the x + latticeSites.x + 1 face (note the off-by one fenceposting)
+    base +=expandedLatticeSites.y*expandedLatticeSites.z;
+    if(pos.x == latticeSites.x)
+        return base + pos.y + expandedLatticeSites.y*pos.z;
+    base +=expandedLatticeSites.y*expandedLatticeSites.z;
+    //next consider the y = -1 face...  0 <=x < latticeSites, by -1 <= z <= latticeSites.z+1
+    if(pos.y == -1)
+        return base + pos.x + latticeSites.x*pos.z;
+    base +=latticeSites.x*expandedLatticeSites.z;
+    if(pos.y == latticeSites.y)
+        return base + pos.x + latticeSites.x*pos.z;
+    base +=latticeSites.x*expandedLatticeSites.z;
+
+    //finally, the z-faces, for which x and y can only be 0 <= letter < latticeSites
+    if(pos.z == -1)
+        return base + pos.x + latticeSites.x*pos.y;
+    base +=latticeSites.x*latticeSites.y;
+    if(pos.z == latticeSites.z)
+        return base + pos.x + latticeSites.x*pos.y;
+
+    char message[256];
+    sprintf(message,"inadmissible... {%i,%i,%i} = %i",pos.x,pos.y,pos.z,base);
+    throw std::runtime_error(message);
+    return -1;
+    };
+
 int multirankQTensorLatticeModel::getNeighbors(int target, vector<int> &neighbors, int &neighs, int stencilType)
     {
     if(stencilType==0)
@@ -33,57 +88,20 @@ int multirankQTensorLatticeModel::getNeighbors(int target, vector<int> &neighbor
         if(neighbors.size()!=neighs) neighbors.resize(neighs);
         if(!sliceSites)
             {
-            int3 position = expandedLatticeIndex.inverseIndex(target);
-            if(position.x >0 && position.x < expandedLatticeSites.x-1)
-                {
-                neighbors[0] = expandedLatticeIndex(position.x-1,position.y,position.z);
-                neighbors[1] = expandedLatticeIndex(position.x+1,position.y,position.z);
-                }
-            else if(position.x ==0)
-                {
-                neighbors[0] = expandedLatticeIndex(expandedLatticeSites.x-1,position.y,position.z);
-                neighbors[1] = expandedLatticeIndex(1,position.y,position.z);
-                }
-            else
-                {
-                neighbors[0] = expandedLatticeIndex(expandedLatticeSites.x-2,position.y,position.z);
-                neighbors[1] = expandedLatticeIndex(0,position.y,position.z);
-                };
-            if(position.y >0 && position.y < expandedLatticeSites.y-1)
-                {
-                neighbors[2] = expandedLatticeIndex(position.x,position.y-1,position.z);
-                neighbors[3] = expandedLatticeIndex(position.x,position.y+1,position.z);
-                }
-            else if(position.y ==0)
-                {
-                neighbors[2] = expandedLatticeIndex(position.x,expandedLatticeSites.y-1,position.z);
-                neighbors[3] = expandedLatticeIndex(position.x,1 ,position.z);
-                }
-            else
-                {
-                neighbors[2] = expandedLatticeIndex(position.x,expandedLatticeSites.y-2,position.z);
-                neighbors[3] = expandedLatticeIndex(position.x,0,position.z);
-                };
-            if(position.z >0 && position.z < expandedLatticeSites.z-1)
-                {
-                neighbors[4] = expandedLatticeIndex(position.x,position.y,position.z-1);
-                neighbors[5] = expandedLatticeIndex(position.x,position.y,position.z+1);
-                }
-            else if(position.z ==0)
-                {
-                neighbors[4] = expandedLatticeIndex(position.x,position.y,expandedLatticeSites.z-1);
-                neighbors[5] = expandedLatticeIndex(position.x,position.y,1);
-                }
-            else
-                {
-                neighbors[4] = expandedLatticeIndex(position.x,position.y,expandedLatticeSites.z-2);
-                neighbors[5] = expandedLatticeIndex(position.x,position.y,0);
-                };
+            int3 pos = latticeIndex.inverseIndex(target);
+            neighbors[0] = indexInExpandedDataArray(pos.x-1,pos.y,pos.z);
+            neighbors[1] = indexInExpandedDataArray(pos.x+1,pos.y,pos.z);
+            neighbors[2] = indexInExpandedDataArray(pos.x,pos.y-1,pos.z);
+            neighbors[3] = indexInExpandedDataArray(pos.x,pos.y+1,pos.z);
+            neighbors[4] = indexInExpandedDataArray(pos.x,pos.y,pos.z-1);
+            neighbors[5] = indexInExpandedDataArray(pos.x,pos.y,pos.z+1);
+
             }
         return target;
         };
-    if(stencilType==1)
+    if(stencilType==1) //very wrong at the moment
         {
+        UNWRITTENCODE("broken");
         int3 position = expandedLatticeIndex.inverseIndex(target);
         neighs = 18;
         if(neighbors.size()!=neighs) neighbors.resize(neighs);
@@ -113,47 +131,61 @@ int multirankQTensorLatticeModel::getNeighbors(int target, vector<int> &neighbor
     return target; //nope
     };
 
-void multirankQTensorLatticeModel::parseDirectionType(int directionType, int &xyz, int &size1, int &size2, int &plane, bool sending)
+void multirankQTensorLatticeModel::parseDirectionType(int directionType, int &xyz, int &size1start, int &size1end, int &size2start, int &size2end,int &plane, bool sending)
     {
     xyz = 0;//the plane has fixed x
-    size1 =expandedLatticeIndex.sizes.y;
-    size2 =expandedLatticeIndex.sizes.z;
+    if(yHalo)
+        {size1start = -1; size1end = latticeIndex.sizes.y+1;}
+    else
+        {size1start = 0;  size1end = latticeIndex.sizes.y ;}
+    if(zHalo)
+        {size2start = -1; size2end = latticeIndex.sizes.z+1;}
+    else
+        {size2start = 0;  size2end = latticeIndex.sizes.z ;}
     if(directionType == 2 || directionType ==3)
         {
         xyz = 1;//the plane has fixed y
-        size1 =expandedLatticeIndex.sizes.x;
-        size2 =expandedLatticeIndex.sizes.z;
+        if(xHalo)
+            {size1start = -1; size1end = latticeIndex.sizes.x+1;}
+        else
+            {size1start = 0;  size1end = latticeIndex.sizes.x ;}
         }
     if(directionType == 4 || directionType ==5)
         {
         xyz = 2;//the plane has fixed z
-        size1 =expandedLatticeIndex.sizes.x;
-        size2 =expandedLatticeIndex.sizes.y;
+        if(xHalo)
+            {size1start = -1; size1end = latticeIndex.sizes.x+1;}
+        else
+            {size1start = 0;  size1end = latticeIndex.sizes.x ;}
+        if(yHalo)
+            {size2start = -1; size2end = latticeIndex.sizes.y+1;}
+        else
+            {size2start = 0;  size2end = latticeIndex.sizes.y ;}
         }
     if(sending)
         {
         switch(directionType)
             {
             case 0: plane = 0; break;//smallest x plane
-            case 1: plane = expandedLatticeSites.x-3; break;//largest x plane
+            case 1: plane = latticeSites.x-1; break;//largest x plane
             case 2: plane = 0; break;//smallest y plane
-            case 3: plane = expandedLatticeSites.y-3; break;//largest y plane
+            case 3: plane = latticeSites.y-1; break;//largest y plane
             case 4: plane = 0; break;//smallest z plane
-            case 5: plane = expandedLatticeSites.z-3; break;//largest z plane
+            case 5: plane = latticeSites.z-1; break;//largest z plane
             default:
                 throw std::runtime_error("negative directionTypes are not valid");
             }
         }
-    else
+    else //receiving
         {
         switch(directionType)
             {
-            case 0: plane = expandedLatticeSites.x-1; break;//smallest x plane
-            case 1: plane = expandedLatticeSites.x-2; break;//largest x plane
-            case 2: plane = expandedLatticeSites.y-1; break;//smallest y plane
-            case 3: plane = expandedLatticeSites.y-2; break;//largest y plane
-            case 4: plane = expandedLatticeSites.z-1; break;//smallest z plane
-            case 5: plane = expandedLatticeSites.z-2; break;//largest z plane
+            case 0: plane = -1; break;//smallest x plane
+            case 1: plane = latticeSites.x; break;//largest x plane
+            case 2: plane = -1; break;//smallest y plane
+            case 3: plane = latticeSites.y; break;//largest y plane
+            case 4: plane = -1; break;//smallest z plane
+            case 5: plane = latticeSites.z; break;//largest z plane
             default:
                 throw std::runtime_error("negative directionTypes are not valid");
             }
@@ -164,37 +196,39 @@ void multirankQTensorLatticeModel::prepareSendData(int directionType)
     {
     if(directionType <=5 )//send entire faces
         {
-        int xyz,size1,size2,plane;
-        parseDirectionType(directionType,xyz,size1,size2,plane,true);
-        int nTot = size1*size2;
+        int xyz,size1start,size1end,size2start,size2end,plane;
+        parseDirectionType(directionType,xyz,size1start,size1end,size2start,size2end,plane,true);
+        int nTot = (size1end-size1start)*(size2end-size2start);
         transferElementNumber = nTot;
         if(intTransferBufferSend.getNumElements() < nTot)
             {
             intTransferBufferSend.resize(nTot);
-            dvecTransferBufferSend.resize(nTot);
+            doubleTransferBufferSend.resize(DIMENSION*nTot);
             intTransferBufferReceive.resize(nTot);
-            dvecTransferBufferReceive.resize(nTot);
+            doubleTransferBufferReceive.resize(DIMENSION*nTot);
             }
         int currentSite;
-        //prepare to send the y-z plane at x=0 to the left
         if(!useGPU)
             {
             ArrayHandle<int> ht(types,access_location::host,access_mode::read);
             ArrayHandle<dVec> hp(positions,access_location::host,access_mode::read);
-            ArrayHandle<int> iBuf(intTransferBufferSend,access_location::host,access_mode::overwrite);
-            ArrayHandle<dVec> dBuf(dvecTransferBufferSend,access_location::host,access_mode::overwrite);
+            ArrayHandle<int> iBuf(intTransferBufferSend,access_location::host,access_mode::readwrite);
+            ArrayHandle<scalar> dBuf(doubleTransferBufferSend,access_location::host,access_mode::readwrite);
             int idx = 0;
-            for (int ii = 0; ii < size1; ++ii)
-                for (int jj = 0; jj < size2; ++jj)
+            int3 lPos;
+            for (int ii = size1start; ii < size1end; ++ii)
+                for (int jj = size2start; jj < size2end; ++jj)
                     {
                     if(xyz ==0)
-                        currentSite = expandedLatticeIndex(plane,ii,jj);
+                        {lPos.x = plane; lPos.y = ii; lPos.z = jj;}
                     if(xyz ==1)
-                        currentSite = expandedLatticeIndex(ii,plane,jj);
+                        {lPos.x = ii; lPos.y = plane; lPos.z = jj;}
                     if(xyz ==2)
-                        currentSite = expandedLatticeIndex(ii,jj,plane);
+                        {lPos.x = ii; lPos.y = jj; lPos.z = plane;}
+                    currentSite = indexInExpandedDataArray(lPos);
                     iBuf.data[idx] = ht.data[currentSite];
-                    dBuf.data[idx] = hp.data[currentSite];
+                    for(int dd = 0; dd < DIMENSION; ++dd)
+                        dBuf.data[DIMENSION*idx+dd] = hp.data[currentSite][dd];
                     idx+=1;
                     }
             }
@@ -208,9 +242,8 @@ void multirankQTensorLatticeModel::receiveData(int directionType)
     {
     if(directionType <=5 )//send entire faces
         {
-        int xyz,size1,size2,plane;
-        parseDirectionType(directionType,xyz,size1,size2,plane,false);
-        int nTot = size1*size2;
+        int xyz,size1start,size1end,size2start,size2end,plane;
+        parseDirectionType(directionType,xyz,size1start,size1end,size2start,size2end,plane,false);
         int currentSite;
         //prepare to send the y-z plane at x=0 to the left
         if(!useGPU)
@@ -218,19 +251,22 @@ void multirankQTensorLatticeModel::receiveData(int directionType)
             ArrayHandle<int> ht(types,access_location::host,access_mode::readwrite);
             ArrayHandle<dVec> hp(positions,access_location::host,access_mode::readwrite);
             ArrayHandle<int> iBuf(intTransferBufferReceive,access_location::host,access_mode::read);
-            ArrayHandle<dVec> dBuf(dvecTransferBufferReceive,access_location::host,access_mode::read);
+            ArrayHandle<scalar> dBuf(doubleTransferBufferReceive,access_location::host,access_mode::read);
             int idx = 0;
-            for (int ii = 0; ii < size1; ++ii)
-                for (int jj = 0; jj < size2; ++jj)
+            int3 lPos;
+            for (int ii = size1start; ii < size1end; ++ii)
+                for (int jj = size2start; jj < size2end; ++jj)
                     {
                     if(xyz ==0)
-                        currentSite = expandedLatticeIndex(plane,ii,jj);
+                        {lPos.x = plane; lPos.y = ii; lPos.z = jj;}
                     if(xyz ==1)
-                        currentSite = expandedLatticeIndex(ii,plane,jj);
+                        {lPos.x = ii; lPos.y = plane; lPos.z = jj;}
                     if(xyz ==2)
-                        currentSite = expandedLatticeIndex(ii,jj,plane);
+                        {lPos.x = ii; lPos.y = jj; lPos.z = plane;}
+                    currentSite = indexInExpandedDataArray(lPos);
                     ht.data[currentSite] = iBuf.data[idx];
-                    hp.data[currentSite] = dBuf.data[idx];
+                    for(int dd = 0; dd < DIMENSION; ++dd)
+                        hp.data[currentSite][dd] = dBuf.data[DIMENSION*idx+dd];
                     idx+=1;
                     }
             }
