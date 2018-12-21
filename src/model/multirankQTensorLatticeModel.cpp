@@ -1,4 +1,5 @@
 #include "multirankQTensorLatticeModel.h"
+#include "multirankQTensorLatticeModel.cuh"
 /*! \file multirankQTensorLatticeModel.cpp" */
 
 multirankQTensorLatticeModel::multirankQTensorLatticeModel(int lx, int ly, int lz, bool _xHalo, bool _yHalo, bool _zHalo, bool _useGPU)
@@ -134,6 +135,20 @@ int multirankQTensorLatticeModel::getNeighbors(int target, vector<int> &neighbor
 void multirankQTensorLatticeModel::parseDirectionType(int directionType, int &xyz, int &size1start, int &size1end, int &size2start, int &size2end,int &plane, bool sending)
     {
     xyz = 0;//the plane has fixed x
+    size1start=0; size1end = latticeIndex.sizes.y;
+    size2start=0; size2end = latticeIndex.sizes.z;
+    if(directionType == 2 || directionType ==3)
+        {
+        xyz = 1;//the plane has fixed y
+        size1end = latticeIndex.sizes.x;
+        }
+    if(directionType == 4 || directionType ==5)
+        {
+        xyz = 2;//the plane has fixed y
+        size1end = latticeIndex.sizes.x;
+        size2end = latticeIndex.sizes.y;
+        }
+    /* //When communicating faces, don't send extra lattice sites...
     if(yHalo)
         {size1start = -1; size1end = latticeIndex.sizes.y+1;}
     else
@@ -162,6 +177,7 @@ void multirankQTensorLatticeModel::parseDirectionType(int directionType, int &xy
         else
             {size2start = 0;  size2end = latticeIndex.sizes.y ;}
         }
+    */
     if(sending)
         {
         switch(directionType)
@@ -208,7 +224,8 @@ void multirankQTensorLatticeModel::prepareSendData(int directionType)
             doubleTransferBufferReceive.resize(DIMENSION*nTot);
             }
         int currentSite;
-        if(!useGPU)
+        //if(!useGPU)
+        if(true)
             {
             ArrayHandle<int> ht(types,access_location::host,access_mode::read);
             ArrayHandle<dVec> hp(positions,access_location::host,access_mode::read);
@@ -234,6 +251,15 @@ void multirankQTensorLatticeModel::prepareSendData(int directionType)
             }
         else
             {//GPU copy routine
+            bool sending = true;
+            ArrayHandle<int> dt(types,access_location::device,access_mode::readwrite);
+            ArrayHandle<dVec> dp(positions,access_location::device,access_mode::readwrite);
+            ArrayHandle<int> iBuf(intTransferBufferReceive,access_location::device,access_mode::read);
+            ArrayHandle<scalar> dBuf(doubleTransferBufferReceive,access_location::device,access_mode::read);
+            gpu_mrqtlm_buffer_data_exchange(sending,dt.data,dp.data,iBuf.data,dBuf.data,
+                    size1start,size1end,size2start,size2end,
+                    xyz,plane,latticeSites,expandedLatticeSites,latticeIndex,
+                    xHalo,yHalo,zHalo);
             }
         }//end construction for sending faces
     }
@@ -245,8 +271,8 @@ void multirankQTensorLatticeModel::receiveData(int directionType)
         int xyz,size1start,size1end,size2start,size2end,plane;
         parseDirectionType(directionType,xyz,size1start,size1end,size2start,size2end,plane,false);
         int currentSite;
-        //prepare to send the y-z plane at x=0 to the left
         if(!useGPU)
+        //if(true)
             {
             ArrayHandle<int> ht(types,access_location::host,access_mode::readwrite);
             ArrayHandle<dVec> hp(positions,access_location::host,access_mode::readwrite);
@@ -272,6 +298,15 @@ void multirankQTensorLatticeModel::receiveData(int directionType)
             }
         else
             {//GPU copy routine
+            bool sending = false;
+            ArrayHandle<int> dt(types,access_location::device,access_mode::readwrite);
+            ArrayHandle<dVec> dp(positions,access_location::device,access_mode::readwrite);
+            ArrayHandle<int> iBuf(intTransferBufferReceive,access_location::device,access_mode::read);
+            ArrayHandle<scalar> dBuf(doubleTransferBufferReceive,access_location::device,access_mode::read);
+            gpu_mrqtlm_buffer_data_exchange(sending,dt.data,dp.data,iBuf.data,dBuf.data,
+                    size1start,size1end,size2start,size2end,
+                    xyz,plane,latticeSites,expandedLatticeSites,latticeIndex,
+                    xHalo,yHalo,zHalo);
             }
         }//end construction for sending faces
     }

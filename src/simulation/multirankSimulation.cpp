@@ -2,71 +2,107 @@
 /*! \file multirankSimulation.cpp */
 
 
-void multirankSimulation::communicateHaloSites()
+void multirankSimulation::directionalHaloFaceCommunication(int direction, int directionalRankTopology)
     {
     auto Conf = mConfiguration.lock();
-    //x first
+    access_location::Enum dataLocation = useGPU ? access_location::device : access_location::host;
+    int dataSend, dataReceive, targetRank,messageTag1,messageTag2;
+    int3 nodeTarget;
+    messageTag1 = 4*direction;
+    messageTag2 = messageTag1+1;
+    switch(direction)
+        {
+        case 0:
+            dataSend = 0;
+            dataReceive = 1;
+            nodeTarget = rankParity; nodeTarget.x -= 1;
+            if(nodeTarget.x < 0) nodeTarget.x = parityTest.sizes.x-1;
+            targetRank = parityTest(nodeTarget);
+            break;
+        case 1:
+            dataSend = 1;
+            dataReceive = 0;
+            nodeTarget = rankParity; nodeTarget.x += 1;
+            if(nodeTarget.x == parityTest.sizes.x) nodeTarget.x = 0;
+            break;
+        case 2:
+            dataSend = 2;
+            dataReceive = 3;
+            nodeTarget = rankParity; nodeTarget.y -= 1;
+            if(nodeTarget.y < 0) nodeTarget.y = parityTest.sizes.y-1;
+            targetRank = parityTest(nodeTarget);
+            break;
+        case 3:
+            dataSend = 3;
+            dataReceive = 2;
+            nodeTarget = rankParity; nodeTarget.y += 1;
+            if(nodeTarget.y == parityTest.sizes.y) nodeTarget.y = 0;
+            break;
+        case 4:
+            dataSend = 4;
+            dataReceive = 5;
+            nodeTarget = rankParity; nodeTarget.z -= 1;
+            if(nodeTarget.z < 0) nodeTarget.z = parityTest.sizes.z-1;
+            targetRank = parityTest(nodeTarget);
+            break;
+        case 5:
+            dataSend = 5;
+            dataReceive = 4;
+            nodeTarget = rankParity; nodeTarget.z += 1;
+            if(nodeTarget.z == parityTest.sizes.z) nodeTarget.z = 0;
+            break;
+
+        default : throw std::runtime_error("invalid directional send");
+        };
+    targetRank = parityTest(nodeTarget);
+
+    Conf->prepareSendData(dataSend);
+    int messageSize = Conf->transferElementNumber;
+    int dMessageSize = DIMENSION*Conf->transferElementNumber;
+    if(directionalRankTopology%2 == 0) //send and receive
+        {
+        ArrayHandle<int> iBufS(Conf->intTransferBufferSend,dataLocation,access_mode::read);
+        ArrayHandle<int> iBufR(Conf->intTransferBufferReceive,dataLocation,access_mode::overwrite);
+        ArrayHandle<scalar> dBufS(Conf->doubleTransferBufferSend,dataLocation,access_mode::read);
+        ArrayHandle<scalar> dBufR(Conf->doubleTransferBufferReceive,dataLocation,access_mode::overwrite);
+        MPI_Send(iBufS.data,messageSize,MPI_INT,targetRank,messageTag1,MPI_COMM_WORLD);
+        MPI_Recv(iBufR.data,messageSize,MPI_INT,MPI_ANY_SOURCE,messageTag1,MPI_COMM_WORLD,&mpiStatus);
+        MPI_Send(dBufS.data,dMessageSize,MPI_SCALAR,targetRank,messageTag2,MPI_COMM_WORLD);
+        MPI_Recv(dBufR.data,dMessageSize,MPI_SCALAR,MPI_ANY_SOURCE,messageTag2,MPI_COMM_WORLD,&mpiStatus);
+        }
+    else                    //receive and send
+        {
+        ArrayHandle<int> iBufS(Conf->intTransferBufferSend,dataLocation,access_mode::read);
+        ArrayHandle<int> iBufR(Conf->intTransferBufferReceive,dataLocation,access_mode::overwrite);
+        ArrayHandle<scalar> dBufS(Conf->doubleTransferBufferSend,dataLocation,access_mode::read);
+        ArrayHandle<scalar> dBufR(Conf->doubleTransferBufferReceive,dataLocation,access_mode::overwrite);
+        MPI_Recv(iBufR.data,messageSize,MPI_INT,MPI_ANY_SOURCE,messageTag1,MPI_COMM_WORLD,&mpiStatus);
+        MPI_Send(iBufS.data,messageSize,MPI_INT,targetRank,messageTag1,MPI_COMM_WORLD);
+        MPI_Recv(dBufR.data,dMessageSize,MPI_SCALAR,MPI_ANY_SOURCE,messageTag2,MPI_COMM_WORLD,&mpiStatus);
+        MPI_Send(dBufS.data,dMessageSize,MPI_SCALAR,targetRank,messageTag2,MPI_COMM_WORLD);
+        }
+    Conf->receiveData(dataReceive);
+    }
+
+void multirankSimulation::communicateHaloSites()
+    {
+    //always test for sending faces
     if(rankTopology.x > 1)
         {
-        Conf->prepareSendData(0);
-        int messageSize = Conf->transferElementNumber;
-        int dMessageSize = DIMENSION*Conf->transferElementNumber;
-
-        int3 leftNode = rankParity; leftNode.x -=1;
-        if(leftNode.x <0) leftNode.x = parityTest.sizes.x-1;
-        int leftTarget = parityTest(leftNode);
-        int3 rightNode = rankParity; rightNode.x +=1;
-        if(rightNode.x == parityTest.sizes.x) rightNode.x = 0;
-        int rightTarget = parityTest(leftNode);
-        //first, send data to the left / receive onto the right
-        if(rankParity.x%2 == 0) //send and receive
-            {
-            ArrayHandle<int> iBufS(Conf->intTransferBufferSend);
-            ArrayHandle<int> iBufR(Conf->intTransferBufferReceive);
-            ArrayHandle<scalar> dBufS(Conf->doubleTransferBufferSend);
-            ArrayHandle<scalar> dBufR(Conf->doubleTransferBufferReceive);
-            MPI_Send(iBufS.data,messageSize,MPI_INT,leftTarget,0,MPI_COMM_WORLD);
-            MPI_Recv(iBufR.data,messageSize,MPI_INT,MPI_ANY_SOURCE,0,MPI_COMM_WORLD,&mpiStatus);
-            MPI_Send(dBufS.data,dMessageSize,MPI_SCALAR,leftTarget,1,MPI_COMM_WORLD);
-            MPI_Recv(dBufR.data,dMessageSize,MPI_SCALAR,MPI_ANY_SOURCE,1,MPI_COMM_WORLD,&mpiStatus);
-            }
-        else                    //receive and send
-            {
-            ArrayHandle<int> iBufS(Conf->intTransferBufferSend);
-            ArrayHandle<int> iBufR(Conf->intTransferBufferReceive);
-            ArrayHandle<scalar> dBufS(Conf->doubleTransferBufferSend);
-            ArrayHandle<scalar> dBufR(Conf->doubleTransferBufferReceive);
-            MPI_Recv(iBufR.data,messageSize,MPI_INT,MPI_ANY_SOURCE,0,MPI_COMM_WORLD,&mpiStatus);
-            MPI_Send(iBufS.data,messageSize,MPI_INT,leftTarget,0,MPI_COMM_WORLD);
-            MPI_Recv(dBufR.data,dMessageSize,MPI_SCALAR,MPI_ANY_SOURCE,1,MPI_COMM_WORLD,&mpiStatus);
-            MPI_Send(dBufS.data,dMessageSize,MPI_SCALAR,leftTarget,1,MPI_COMM_WORLD);
-            }
-        Conf->receiveData(1);
-        //...and vice versa
-        Conf->prepareSendData(1);
-        if(rankParity.x%2 == 0) //send and receive
-            {
-            ArrayHandle<int> iBufS(Conf->intTransferBufferSend);
-            ArrayHandle<int> iBufR(Conf->intTransferBufferReceive);
-            ArrayHandle<scalar> dBufS(Conf->doubleTransferBufferSend);
-            ArrayHandle<scalar> dBufR(Conf->doubleTransferBufferReceive);
-            MPI_Send(iBufS.data,messageSize,MPI_INT,rightTarget,2,MPI_COMM_WORLD);
-            MPI_Recv(iBufR.data,messageSize,MPI_INT,MPI_ANY_SOURCE,2,MPI_COMM_WORLD,&mpiStatus);
-            MPI_Send(dBufS.data,dMessageSize,MPI_SCALAR,rightTarget,3,MPI_COMM_WORLD);
-            MPI_Recv(dBufR.data,dMessageSize,MPI_SCALAR,MPI_ANY_SOURCE,3,MPI_COMM_WORLD,&mpiStatus);
-            }
-        else                    //receive and send
-            {
-            ArrayHandle<int> iBufS(Conf->intTransferBufferSend);
-            ArrayHandle<int> iBufR(Conf->intTransferBufferReceive);
-            ArrayHandle<scalar> dBufS(Conf->doubleTransferBufferSend);
-            ArrayHandle<scalar> dBufR(Conf->doubleTransferBufferReceive);
-            MPI_Recv(iBufR.data,messageSize,MPI_INT,MPI_ANY_SOURCE,2,MPI_COMM_WORLD,&mpiStatus);
-            MPI_Send(iBufS.data,messageSize,MPI_INT,rightTarget,2,MPI_COMM_WORLD);
-            MPI_Recv(dBufR.data,dMessageSize,MPI_SCALAR,MPI_ANY_SOURCE,3,MPI_COMM_WORLD,&mpiStatus);
-            MPI_Send(dBufS.data,dMessageSize,MPI_SCALAR,rightTarget,3,MPI_COMM_WORLD);
-            }
-        Conf->receiveData(0);
+        //send x faces left
+        directionalHaloFaceCommunication(0,rankParity.x);
+        //send x faces right
+        directionalHaloFaceCommunication(1,rankParity.x);
+        }
+    if(rankTopology.y > 1)
+        {
+        directionalHaloFaceCommunication(2,rankParity.y);
+        directionalHaloFaceCommunication(3,rankParity.y);
+        }
+    if(rankTopology.z > 1)
+        {
+        directionalHaloFaceCommunication(4,rankParity.z);
+        directionalHaloFaceCommunication(5,rankParity.z);
         }
     if(edges)
         {

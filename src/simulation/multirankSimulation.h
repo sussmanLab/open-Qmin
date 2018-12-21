@@ -22,7 +22,10 @@ class multirankSimulation : public basicSimulation, public enable_shared_from_th
         //!move particles, and also communicate halo sites
         virtual void moveParticles(GPUArray<dVec> &displacements,scalar scale = 1.0);
 
+        //!handles calls to all necessary halo site transfer
         virtual void communicateHaloSites();
+        //!actually does the work of transferring site information
+        virtual void directionalHaloFaceCommunication(int direction, int directionalRankTopology);
 
         profiler p1 = profiler("communication time");
         //!The configuration of latticeSites

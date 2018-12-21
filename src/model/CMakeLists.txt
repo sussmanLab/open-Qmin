@@ -11,4 +11,5 @@ add_library(model
 cuda_add_library(modelGPU
     simpleModel.cu
     cubicLattice.cu
-    qTensorLatticeModel.cu)
+    qTensorLatticeModel.cu
+    multirankQTensorLatticeModel.cu)
