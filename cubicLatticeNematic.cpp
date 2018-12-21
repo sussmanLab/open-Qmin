@@ -27,6 +27,8 @@
 #include <tclap/CmdLine.h>
 #include <mpi.h>
 
+#include "cuda_profiler_api.h"
+
 int3 partitionProcessors(int numberOfProcesses)
     {
     int3 ans;
@@ -53,20 +55,8 @@ int main(int argc, char*argv[])
     int nameLen;
     MPI_Get_processor_name(processorName, &nameLen);
 
-    printf("Hello world from processor %s, rank %d out of %d processors\n",
-           processorName, myRank, worldSize);
-
-    if(myRank ==0)
-        {
-        strcpy(message, "blah blah");
-        for (int ii = 1; ii < worldSize;++ii)
-            MPI_Send(message,ii+3+1,MPI_CHAR,ii,tag,MPI_COMM_WORLD);
-        }
-    else
-        {
-        MPI_Recv(message,20,MPI_CHAR,0,tag,MPI_COMM_WORLD, &status);
-        printf("received on rank %i :\n%s\n",myRank,message);
-        }
+//    printf("Hello world from processor %s, rank %d out of %d processors\n",
+//           processorName, myRank, worldSize);
 
 
     //First, we set up a basic command line parser with some message and version
@@ -179,9 +169,9 @@ int main(int argc, char*argv[])
             noiseSource noise(reproducible);
             noise.setReproducibleSeed(13377+myRank);
             printf("setting a rectilinear lattice of size (%i,%i,%i)\n",boxLx,boxLy,boxLz);
-            profiler p1("initialization");
+            profiler pInit("initialization");
 
-            p1.start();
+            pInit.start();
             bool xH = (rankTopology.x >1) ? true : false;
             bool yH = (rankTopology.y >1) ? true : false;
             bool zH = (rankTopology.z >1) ? true : false;
@@ -191,7 +181,7 @@ int main(int argc, char*argv[])
             shared_ptr<landauDeGennesLC> landauLCForce = make_shared<landauDeGennesLC>();
             sim->setConfiguration(Configuration);
             sim->communicateHaloSites();
-            p1.end();
+            pInit.end();
 
             landauLCForce->setPhaseConstants(a,b,c);
             if(nConstants ==1)
@@ -256,20 +246,26 @@ int main(int argc, char*argv[])
         right.x = 0.7*boxLx;right.y = 0.5*boxLy;right.z = 0.5*boxLz;
         Configuration->createSimpleFlatWallNormal(0,1, homeotropicBoundary);
         */
-            profiler p2("minimization");
-            p2.start();
+            profiler pMinimize("minimization");
+            pMinimize.start();
             sim->performTimestep();
-            p2.end();
+            pMinimize.end();
 
             scalar E1 = sim->computePotentialEnergy(true);
             scalar maxForce = fire->getMaxForce();
             printf("minimized to %f\t E=%f\t\n",maxForce,E1);
 
-            p1.print();
-            p2.print();
+            pMinimize.print();
             sim->p1.print();
-            sim->saveState("../data/test");
-
+            sim->p2.print();
+            sim->p3.print();
+            sim->p4.print();
+   //         sim->saveState("../data/test");
+            scalar totalMinTime = pMinimize.timeTaken;
+            scalar communicationTime = sim->p1.timeTaken;
+            if(myRank != 0)
+                printf("min  time %f\n comm time %f\n percent comm: %f\n",totalMinTime,communicationTime,communicationTime/totalMinTime);
+/*
         sim->communicateHaloSites();
 
         if(myRank%2 == 0) //send and receive
@@ -307,6 +303,7 @@ int main(int argc, char*argv[])
             printdVec(p.data[Configuration->indexInExpandedDataArray(20,0,0)]);
             printdVec(p.data[Configuration->indexInExpandedDataArray(20,5,1)]);
             }
+            */
         }
         /*
         landauLCForce->computeObjectForces(0);

@@ -224,8 +224,7 @@ void multirankQTensorLatticeModel::prepareSendData(int directionType)
             doubleTransferBufferReceive.resize(DIMENSION*nTot);
             }
         int currentSite;
-        //if(!useGPU)
-        if(true)
+        if(!useGPU)
             {
             ArrayHandle<int> ht(types,access_location::host,access_mode::read);
             ArrayHandle<dVec> hp(positions,access_location::host,access_mode::read);
@@ -272,7 +271,6 @@ void multirankQTensorLatticeModel::receiveData(int directionType)
         parseDirectionType(directionType,xyz,size1start,size1end,size2start,size2end,plane,false);
         int currentSite;
         if(!useGPU)
-        //if(true)
             {
             ArrayHandle<int> ht(types,access_location::host,access_mode::readwrite);
             ArrayHandle<dVec> hp(positions,access_location::host,access_mode::readwrite);

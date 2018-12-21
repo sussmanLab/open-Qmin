@@ -6,6 +6,7 @@ void multirankSimulation::directionalHaloFaceCommunication(int direction, int di
     {
     auto Conf = mConfiguration.lock();
     access_location::Enum dataLocation = useGPU ? access_location::device : access_location::host;
+    dataLocation = access_location::host;//explicit stage through host
     int dataSend, dataReceive, targetRank,messageTag1,messageTag2;
     int3 nodeTarget;
     messageTag1 = 4*direction;
@@ -56,7 +57,9 @@ void multirankSimulation::directionalHaloFaceCommunication(int direction, int di
         };
     targetRank = parityTest(nodeTarget);
 
+    p2.start();
     Conf->prepareSendData(dataSend);
+    p2.end();
     int messageSize = Conf->transferElementNumber;
     int dMessageSize = DIMENSION*Conf->transferElementNumber;
     if(directionalRankTopology%2 == 0) //send and receive
@@ -72,16 +75,28 @@ void multirankSimulation::directionalHaloFaceCommunication(int direction, int di
         }
     else                    //receive and send
         {
+        p2.start();
         ArrayHandle<int> iBufS(Conf->intTransferBufferSend,dataLocation,access_mode::read);
         ArrayHandle<int> iBufR(Conf->intTransferBufferReceive,dataLocation,access_mode::overwrite);
         ArrayHandle<scalar> dBufS(Conf->doubleTransferBufferSend,dataLocation,access_mode::read);
         ArrayHandle<scalar> dBufR(Conf->doubleTransferBufferReceive,dataLocation,access_mode::overwrite);
+        p2.end();
+        p4.start();
         MPI_Recv(iBufR.data,messageSize,MPI_INT,MPI_ANY_SOURCE,messageTag1,MPI_COMM_WORLD,&mpiStatus);
+        p4.end();
+        p3.start();
         MPI_Send(iBufS.data,messageSize,MPI_INT,targetRank,messageTag1,MPI_COMM_WORLD);
+        p3.end();
+        p4.start();
         MPI_Recv(dBufR.data,dMessageSize,MPI_SCALAR,MPI_ANY_SOURCE,messageTag2,MPI_COMM_WORLD,&mpiStatus);
+        p4.end();
+        p3.start();
         MPI_Send(dBufS.data,dMessageSize,MPI_SCALAR,targetRank,messageTag2,MPI_COMM_WORLD);
+        p3.end();
         }
+    p2.start();
     Conf->receiveData(dataReceive);
+    p2.end();
     }
 
 void multirankSimulation::communicateHaloSites()

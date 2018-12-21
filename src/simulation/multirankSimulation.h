@@ -27,7 +27,10 @@ class multirankSimulation : public basicSimulation, public enable_shared_from_th
         //!actually does the work of transferring site information
         virtual void directionalHaloFaceCommunication(int direction, int directionalRankTopology);
 
-        profiler p1 = profiler("communication time");
+        profiler p1 = profiler("total communication time");
+        profiler p4 = profiler("MPI recv");
+        profiler p3 = profiler("MPI send");
+        profiler p2 = profiler("GPU data buffering kernels time");
         //!The configuration of latticeSites
         WeakMConfigPtr mConfiguration;
 
