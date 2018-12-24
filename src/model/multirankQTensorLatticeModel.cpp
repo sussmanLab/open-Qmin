@@ -11,6 +11,8 @@ multirankQTensorLatticeModel::multirankQTensorLatticeModel(int lx, int ly, int l
     latticeSites.x = Lx;
     latticeSites.y = Ly;
     latticeSites.z = Lz;
+    determineBufferLayout();
+
     if(xHalo)
         Lx +=2;
     if(yHalo)
@@ -27,6 +29,103 @@ multirankQTensorLatticeModel::multirankQTensorLatticeModel(int lx, int ly, int l
     types.resize(totalSites);
     forces.resize(totalSites);
     velocities.resize(totalSites);
+    }
+
+/*!
+During halo site communication, each rank will first completely fill the send buffer, and then send/receives within the buffers will be performed.
+Finally, the entire receive buffer will be transfered into the expanded data arrays.
+To facilitate this, a specific layout of the transfer buffers will be adopted for easy package/send/receive patterns:
+the x = 0 face will be the first (Ly*Lz) elemetents, followed by the other faces, the edges, and finally the 8 corners.
+ */
+void multirankQTensorLatticeModel::determineBufferLayout()
+    {
+    int xFaces = latticeSites.z*latticeSites.y;
+    int yFaces = latticeSites.z*latticeSites.x;
+    int zFaces = latticeSites.x*latticeSites.y;
+    //0: x = 0 face
+    int2 startStop; startStop.x = 0; startStop.y = xFaces - 1;
+    transferStartStopIndexes.push_back(startStop);
+    //1: x = max face
+    startStop.x = startStop.y+1; startStop.y += xFaces;
+    transferStartStopIndexes.push_back(startStop);
+    //2: y = 0
+    startStop.x = startStop.y+1; startStop.y += yFaces;
+    transferStartStopIndexes.push_back(startStop);
+    //3: y = max face
+    startStop.x = startStop.y+1; startStop.y += yFaces;
+    transferStartStopIndexes.push_back(startStop);
+    //4: z = 0
+    startStop.x = startStop.y+1; startStop.y += zFaces;
+    transferStartStopIndexes.push_back(startStop);
+    //5: z = max face
+    startStop.x = startStop.y+1; startStop.y += zFaces;
+    transferStartStopIndexes.push_back(startStop);
+
+    //6: x = 0, y = 0  edge
+    startStop.x = startStop.y+1; startStop.y += latticeSites.z;
+    transferStartStopIndexes.push_back(startStop);
+    //7: x = 0, y = max  edge
+    startStop.x = startStop.y+1; startStop.y += latticeSites.z;
+    transferStartStopIndexes.push_back(startStop);
+    //8: x = 0, z = 0  edge
+    startStop.x = startStop.y+1; startStop.y += latticeSites.y;
+    transferStartStopIndexes.push_back(startStop);
+    //9: x = 0, z = max  edge
+    startStop.x = startStop.y+1; startStop.y += latticeSites.y;
+    transferStartStopIndexes.push_back(startStop);
+    //10: x = max, y = 0  edge
+    startStop.x = startStop.y+1; startStop.y += latticeSites.z;
+    transferStartStopIndexes.push_back(startStop);
+    //11: x = max, y = max  edge
+    startStop.x = startStop.y+1; startStop.y += latticeSites.z;
+    transferStartStopIndexes.push_back(startStop);
+    //12: x = max, z = 0  edge
+    startStop.x = startStop.y+1; startStop.y += latticeSites.y;
+    transferStartStopIndexes.push_back(startStop);
+    //13: x = max, z = max  edge
+    startStop.x = startStop.y+1; startStop.y += latticeSites.y;
+    transferStartStopIndexes.push_back(startStop);
+    //14: y = 0, z = 0  edge
+    startStop.x = startStop.y+1; startStop.y += latticeSites.x;
+    transferStartStopIndexes.push_back(startStop);
+    //15: y = 0, z = max  edge
+    startStop.x = startStop.y+1; startStop.y += latticeSites.x;
+    transferStartStopIndexes.push_back(startStop);
+    //16: y = max, z = 0  edge
+    startStop.x = startStop.y+1; startStop.y += latticeSites.x;
+    transferStartStopIndexes.push_back(startStop);
+    //17: y = max, z = max  edge
+    startStop.x = startStop.y+1; startStop.y += latticeSites.x;
+    transferStartStopIndexes.push_back(startStop);
+
+    //18: x = 0, y = 0, z=0 corner
+    startStop.x = startStop.y+1; startStop.y += 1;
+    transferStartStopIndexes.push_back(startStop);
+    //19: x = 0, y = 0, z=max corner
+    startStop.x = startStop.y+1; startStop.y += 1;
+    transferStartStopIndexes.push_back(startStop);
+    //20: x = 0, y = max, z=0 corner
+    startStop.x = startStop.y+1; startStop.y += 1;
+    transferStartStopIndexes.push_back(startStop);
+    //21: x = 0, y = max, z=max corner
+    startStop.x = startStop.y+1; startStop.y += 1;
+    transferStartStopIndexes.push_back(startStop);
+    //22: x = max, y = 0, z=0 corner
+    startStop.x = startStop.y+1; startStop.y += 1;
+    transferStartStopIndexes.push_back(startStop);
+    //23: x = max, y = 0, z=max corner
+    startStop.x = startStop.y+1; startStop.y += 1;
+    transferStartStopIndexes.push_back(startStop);
+    //24: x = max, y = max, z=0 corner
+    startStop.x = startStop.y+1; startStop.y += 1;
+    transferStartStopIndexes.push_back(startStop);
+    //25: x = max, y = max, z=max corner
+    startStop.x = startStop.y+1; startStop.y += 1;
+    transferStartStopIndexes.push_back(startStop);
+
+    printf("number of entries: %i\n",transferStartStopIndexes.size());
+    for (int ii = 0; ii < transferStartStopIndexes.size(); ++ii)
+        printf("%i, %i\n", transferStartStopIndexes[ii].x,transferStartStopIndexes[ii].y);
     }
 
 /*!
