@@ -28,6 +28,7 @@ set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} --expt-relaxed-constexpr
 if(APPLE)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Xpreprocessor -Wno-deprecated-declarations")
     set(Qt5_DIR "/Users/dmsussma/Qt/5.11.2/clang_64/lib/cmake/Qt5")
+    set(Qt5OpenGL_DIR "/Users/dmsussma/Qt/5.11.2/clang_64/lib/cmake/Qt5OpenGL")
     find_package(Qt5OpenGL REQUIRED)
     find_package(Qt5 COMPONENTS Core Gui Widgets 3DCore 3DExtras 3DRender 3DInput OpenGL)
     find_package(OpenGL)
