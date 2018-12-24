@@ -20,11 +20,16 @@ class multirankQTensorLatticeModel : public qTensorLatticeModel
         int3 latticeSites;
         Index3D expandedLatticeIndex;
 
+        //! list of start/stop elements in the transfer arrays for the halo sites
+        vector<int2> transferStartStopIndexes;
+
         int transferElementNumber;
         GPUArray<int> intTransferBufferSend;
         GPUArray<scalar> doubleTransferBufferSend;
         GPUArray<int> intTransferBufferReceive;
         GPUArray<scalar> doubleTransferBufferReceive;
+
+        void determineBufferLayout();
 
         //!this implementation uses the expandedLatticeIndex
         virtual int getNeighbors(int target, vector<int> &neighbors, int &neighs, int stencilType = 0);
