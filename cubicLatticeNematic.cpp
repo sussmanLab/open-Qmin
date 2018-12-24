@@ -265,7 +265,17 @@ int main(int argc, char*argv[])
             scalar communicationTime = sim->p1.timeTaken;
             if(myRank != 0)
                 printf("min  time %f\n comm time %f\n percent comm: %f\n",totalMinTime,communicationTime,communicationTime/totalMinTime);
-/*
+
+                profiler blah("blah");
+                blah.start();
+            for (int ii = 0; ii < 3; ++ii)
+                Configuration->prepareSendingBuffer(ii);
+
+            for (int ii = 0; ii < 3; ++ii)
+                Configuration->readReceivingBuffer(ii);
+                blah.end();
+                blah.print();
+          /*
         sim->communicateHaloSites();
 
         if(myRank%2 == 0) //send and receive
@@ -325,6 +335,7 @@ int main(int argc, char*argv[])
             printf("%i\t",surf1.data[ii]);
         printf("\n");
         */
+
         MPI_Finalize();
         return 0;
         }

@@ -173,6 +173,10 @@ HOSTDEVICE int wrap(int x,int m)
     return ans;
     }
 
+HOSTDEVICE bool ordered(int a, int b, int c)
+    {
+    return (a <= b && b <=c);
+    }
 
 //!compute the sign of a scalar, and return zero if x = 0
 HOSTDEVICE int computeSign(scalar x)
