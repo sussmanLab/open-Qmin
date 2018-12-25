@@ -268,10 +268,10 @@ int main(int argc, char*argv[])
 
                 profiler blah("blah");
                 blah.start();
-            for (int ii = 0; ii < 3; ++ii)
+            for (int ii = 0; ii < 2; ++ii)
                 Configuration->prepareSendingBuffer(ii);
 
-            for (int ii = 0; ii < 3; ++ii)
+            for (int ii = 0; ii < 2; ++ii)
                 Configuration->readReceivingBuffer(ii);
                 blah.end();
                 blah.print();

@@ -1,7 +1,6 @@
 #include "multirankSimulation.h"
 /*! \file multirankSimulation.cpp */
 
-
 void multirankSimulation::directionalHaloFaceCommunication(int direction, int directionalRankTopology)
     {
     auto Conf = mConfiguration.lock();
@@ -99,6 +98,78 @@ void multirankSimulation::directionalHaloFaceCommunication(int direction, int di
     p2.end();
     }
 
+void multirankSimulation::communicateHaloSiteRoutine()
+    {
+    //first, prepare the send buffers
+    {
+    auto Conf = mConfiguration.lock();
+    if(!useGPU)
+        {
+        for (int ii = 0; ii < communicationDirections.size();++ii)
+            {
+            int directionType = communicationDirections[ii].x;
+            Conf->prepareSendingBuffer(directionType);
+            }
+        }
+    else
+        Conf->prepareSendingBuffer();//a single call copies the entire buffer
+    }//end buffer send prep
+    {
+    auto Conf = mConfiguration.lock();
+    //MPI Routines
+    for (int ii = 0; ii < communicationDirections.size();++ii)
+        {
+        int directionType = communicationDirections[ii].x;
+        int2 startStop = Conf->transferStartStopIndexes[directionType];
+        int receiveStart = Conf->transferStartStopIndexes[communicationDirections[ii].y].x;
+        access_location::Enum dataLocation = useGPU ? access_location::device : access_location::host;
+        dataLocation = access_location::host;//explicit stage through host
+        int targetRank = communicationTargets[ii];
+        int messageTag1 = 2*directionType;
+        int messageTag2 = messageTag1+1;
+        int messageSize = startStop.y-startStop.x+1;
+        int dMessageSize = DIMENSION*messageSize;
+        if(communicationDirectionParity[ii]) //send and receive
+            {
+            ArrayHandle<int> iBufS(Conf->intTransferBufferSend,dataLocation,access_mode::read);
+            ArrayHandle<int> iBufR(Conf->intTransferBufferReceive,dataLocation,access_mode::overwrite);
+            ArrayHandle<scalar> dBufS(Conf->doubleTransferBufferSend,dataLocation,access_mode::read);
+            ArrayHandle<scalar> dBufR(Conf->doubleTransferBufferReceive,dataLocation,access_mode::overwrite);
+            MPI_Send(&iBufS.data[startStop.x],messageSize,MPI_INT,targetRank,messageTag1,MPI_COMM_WORLD);
+            MPI_Recv(&iBufR.data[receiveStart],messageSize,MPI_INT,MPI_ANY_SOURCE,messageTag1,MPI_COMM_WORLD,&mpiStatus);
+            MPI_Send(&dBufS.data[DIMENSION*startStop.x],dMessageSize,MPI_SCALAR,targetRank,messageTag2,MPI_COMM_WORLD);
+            MPI_Recv(&dBufR.data[DIMENSION*receiveStart],dMessageSize,MPI_SCALAR,MPI_ANY_SOURCE,messageTag2,MPI_COMM_WORLD,&mpiStatus);
+            }
+        else
+            {
+            ArrayHandle<int> iBufS(Conf->intTransferBufferSend,dataLocation,access_mode::read);
+            ArrayHandle<int> iBufR(Conf->intTransferBufferReceive,dataLocation,access_mode::overwrite);
+            ArrayHandle<scalar> dBufS(Conf->doubleTransferBufferSend,dataLocation,access_mode::read);
+            ArrayHandle<scalar> dBufR(Conf->doubleTransferBufferReceive,dataLocation,access_mode::overwrite);
+            MPI_Recv(&iBufR.data[receiveStart],messageSize,MPI_INT,MPI_ANY_SOURCE,messageTag1,MPI_COMM_WORLD,&mpiStatus);
+            MPI_Send(&iBufS.data[startStop.x],messageSize,MPI_INT,targetRank,messageTag1,MPI_COMM_WORLD);
+            MPI_Recv(&dBufR.data[DIMENSION*receiveStart],dMessageSize,MPI_SCALAR,MPI_ANY_SOURCE,messageTag2,MPI_COMM_WORLD,&mpiStatus);
+            MPI_Send(&dBufS.data[DIMENSION*startStop.x],dMessageSize,MPI_SCALAR,targetRank,messageTag2,MPI_COMM_WORLD);
+            }
+        }
+    }//end MPI routines
+
+    //read readReceivingBuffer
+    {
+    auto Conf = mConfiguration.lock();
+    if(!useGPU)
+        {
+        for (int ii = 0; ii < communicationDirections.size();++ii)
+            {
+            int directionType = communicationDirections[ii].x;
+            Conf->readReceivingBuffer(directionType);
+            }
+        }
+    else
+        Conf->readReceivingBuffer();//a single call reads and copies the entire buffer
+    }//end buffer read
+    }
+
 void multirankSimulation::communicateHaloSites()
     {
     //always test for sending faces
@@ -138,11 +209,12 @@ void multirankSimulation::moveParticles(GPUArray<dVec> &displacements,scalar sca
     Conf->moveParticles(displacements,scale);
         }
     p1.start();
-    communicateHaloSites();
+    //communicateHaloSites();
+    communicateHaloSiteRoutine();
     p1.end();
     };
 
-void multirankSimulation::setRankTopology(int x, int y, int z, bool _edges, bool _corners)
+void multirankSimulation::setRankTopology(int x, int y, int z)
     {
     rankTopology.x=x;
     rankTopology.y=y;
@@ -150,8 +222,81 @@ void multirankSimulation::setRankTopology(int x, int y, int z, bool _edges, bool
     int Px, Py, Pz;
     parityTest = Index3D(rankTopology);
     rankParity = parityTest.inverseIndex(myRank);
+
+    }
+
+void multirankSimulation::determineCommunicationPattern( bool _edges, bool _corners)
+    {
     edges = _edges;
     corners = _corners;
+    bool sendReceiveParity;
+    int3 nodeTarget;
+    int2 sendReceive;
+    int targetRank;
+    //faces
+    if(rankTopology.x > 1)
+        {
+        sendReceive.x = 0; sendReceive.y = 1;
+        sendReceiveParity = (rankParity.x%2==0) ? true : false;
+
+        nodeTarget = rankParity; nodeTarget.x -= 1;
+        if(nodeTarget.x < 0) nodeTarget.x = parityTest.sizes.x-1;
+        targetRank = parityTest(nodeTarget);
+        communicationDirections.push_back(sendReceive);
+        communicationDirectionParity.push_back(sendReceiveParity);
+        communicationTargets.push_back(targetRank);
+
+        sendReceive.x = 1; sendReceive.y = 0;
+        nodeTarget = rankParity; nodeTarget.x += 1;
+        if(nodeTarget.x == parityTest.sizes.x) nodeTarget.x = 0;
+        targetRank = parityTest(nodeTarget);
+        communicationDirections.push_back(sendReceive);
+        communicationDirectionParity.push_back(sendReceiveParity);
+        communicationTargets.push_back(targetRank);
+        }
+
+    if(rankTopology.y > 1)
+        {
+        sendReceive.x = 2; sendReceive.y = 3;
+        sendReceiveParity = (rankParity.y%2==0) ? true : false;
+        nodeTarget = rankParity; nodeTarget.y -= 1;
+        if(nodeTarget.y < 0) nodeTarget.y = parityTest.sizes.y-1;
+        targetRank = parityTest(nodeTarget);
+        communicationDirections.push_back(sendReceive);
+        communicationDirectionParity.push_back(sendReceiveParity);
+        communicationTargets.push_back(targetRank);
+
+        sendReceive.x = 3; sendReceive.y = 2;
+        nodeTarget = rankParity; nodeTarget.y += 1;
+        if(nodeTarget.y == parityTest.sizes.y) nodeTarget.y = 0;
+        targetRank = parityTest(nodeTarget);
+        communicationDirections.push_back(sendReceive);
+        communicationDirectionParity.push_back(sendReceiveParity);
+        communicationTargets.push_back(targetRank);
+        }
+
+    if(rankTopology.z> 1)
+        {
+            sendReceive.x = 4; sendReceive.y = 5;
+            sendReceiveParity = (rankParity.z%2==0) ? true : false;
+            nodeTarget = rankParity; nodeTarget.z -= 1;
+            if(nodeTarget.z < 0) nodeTarget.z = parityTest.sizes.z-1;
+            targetRank = parityTest(nodeTarget);
+            communicationDirections.push_back(sendReceive);
+            communicationDirectionParity.push_back(sendReceiveParity);
+            communicationTargets.push_back(targetRank);
+
+            sendReceive.x = 5; sendReceive.y = 4;
+            nodeTarget = rankParity; nodeTarget.z += 1;
+            if(nodeTarget.z == parityTest.sizes.z) nodeTarget.z = 0;
+            targetRank = parityTest(nodeTarget);
+            communicationDirections.push_back(sendReceive);
+            communicationDirectionParity.push_back(sendReceiveParity);
+            communicationTargets.push_back(targetRank);
+        }
+    if(edges || corners)
+        UNWRITTENCODE("communication pattern for non-faces unwritten");
+
     }
 
 /*!

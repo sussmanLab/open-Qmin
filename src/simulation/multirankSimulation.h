@@ -11,16 +11,20 @@
 
 /*! \file multirankSimulation.h */
 
-class multirankSimulation : public basicSimulation, public enable_shared_from_this<multirankSimulation> 
+class multirankSimulation : public basicSimulation, public enable_shared_from_this<multirankSimulation>
     {
     public:
         multirankSimulation(int _myRank,int xDiv, int yDiv, int zDiv, bool _edges, bool _corners)
             {
             myRank = _myRank;
-            setRankTopology(xDiv,yDiv,zDiv,_edges,_corners);
+            setRankTopology(xDiv,yDiv,zDiv);
+            determineCommunicationPattern(_edges,_corners);
             }
         //!move particles, and also communicate halo sites
         virtual void moveParticles(GPUArray<dVec> &displacements,scalar scale = 1.0);
+
+        //!
+        virtual void communicateHaloSiteRoutine();
 
         //!handles calls to all necessary halo site transfer
         virtual void communicateHaloSites();
@@ -91,12 +95,19 @@ class multirankSimulation : public basicSimulation, public enable_shared_from_th
         void saveState(string fname);
 
     protected:
-        void setRankTopology(int x, int y, int z, bool _edges, bool _corners);
+        void setRankTopology(int x, int y, int z);
+
+        void determineCommunicationPattern(bool _edges, bool _corners);
+
+        vector<int2> communicationDirections;
+        vector<bool> communicationDirectionParity;
+        vector<int> communicationTargets;
 
         int myRank;
         int nRanks;
         //!the number of ranks per {x,y,z} axis
         int3 rankTopology;
+        //! the local {x,y,z} rank coordinate
         int3 rankParity;//even is even, odd is odd...makes sense
         Index3D parityTest;
         //!do edges need to be communicated?

@@ -32,8 +32,8 @@ class multirankQTensorLatticeModel : public qTensorLatticeModel
         void determineBufferLayout();
         void getBufferInt3FromIndex(int idx, int3 &pos, int directionType, bool sending);
         int positionToIndex(int3 &pos);
-        void prepareSendingBuffer(int directionType);
-        void readReceivingBuffer(int directionType);
+        void prepareSendingBuffer(int directionType = -1);
+        void readReceivingBuffer(int directionType = -1);
 
         //!this implementation uses the expandedLatticeIndex
         virtual int getNeighbors(int target, vector<int> &neighbors, int &neighs, int stencilType = 0);

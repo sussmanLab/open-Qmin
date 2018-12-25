@@ -13,6 +13,22 @@
  * \brief CUDA kernels and callers for model classes
  */
 
+bool gpu_copyReceivingBuffer(int *type,
+                            dVec *position,
+                            int *iBuf,
+                            scalar *dBuf,
+                            int N,
+                            int maxIndex,
+                            int blockSize = 512);
+bool gpu_prepareSendingBuffer(int *type,
+                            dVec *position,
+                            int *iBuf,
+                            scalar *dBuf,
+                            int3 latticeSites,
+                            Index3D latticeIndex,
+                            int maxIndex,
+                            int blockSize = 512);
+
 bool gpu_mrqtlm_buffer_data_exchange(bool sending,
                                int *type,
                                dVec *position,

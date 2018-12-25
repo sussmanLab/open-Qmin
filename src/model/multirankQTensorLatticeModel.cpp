@@ -20,7 +20,8 @@ multirankQTensorLatticeModel::multirankQTensorLatticeModel(int lx, int ly, int l
     if(zHalo)
         Lz +=2;
 
-    totalSites = Lx*Ly*Lz;
+    //totalSites = Lx*Ly*Lz;
+    totalSites = N+transferStartStopIndexes[25].y;
     expandedLatticeSites.x = Lx;
     expandedLatticeSites.y = Ly;
     expandedLatticeSites.z = Lz;
@@ -30,7 +31,7 @@ multirankQTensorLatticeModel::multirankQTensorLatticeModel(int lx, int ly, int l
     forces.resize(totalSites);
     velocities.resize(totalSites);
 
-    printf("%i vs %i\n",totalSites,N+transferStartStopIndexes[25].y);
+    //printf("%i vs %i\n",totalSites,N+transferStartStopIndexes[25].y);
     }
 
 /*!
@@ -304,14 +305,11 @@ int multirankQTensorLatticeModel::positionToIndex(int3 &pos)
                 return base+7;
             }
         }
-    
     throw std::runtime_error("invalid site requested");
-    
     }
 
 void multirankQTensorLatticeModel::prepareSendingBuffer(int directionType)
     {
-
     if(!useGPU)
         {
         ArrayHandle<int> ht(types,access_location::host,access_mode::read);
@@ -332,6 +330,12 @@ void multirankQTensorLatticeModel::prepareSendingBuffer(int directionType)
         }//end of CPU part
     else
         {
+        ArrayHandle<int> ht(types,access_location::device,access_mode::read);
+        ArrayHandle<dVec> hp(positions,access_location::device,access_mode::read);
+        ArrayHandle<int> iBuf(intTransferBufferSend,access_location::device,access_mode::readwrite);
+        ArrayHandle<scalar> dBuf(doubleTransferBufferSend,access_location::device,access_mode::readwrite);
+        int maxIndex = transferStartStopIndexes[transferStartStopIndexes.size()-1].y;
+        gpu_prepareSendingBuffer(ht.data,hp.data,iBuf.data,dBuf.data,latticeSites,latticeIndex,maxIndex);
         }
     }
 
@@ -348,16 +352,26 @@ void multirankQTensorLatticeModel::readReceivingBuffer(int directionType)
         ArrayHandle<scalar> dBuf(doubleTransferBufferReceive,access_location::host,access_mode::read);
         for (int ii = startStop.x; ii <=startStop.y; ++ii)
             {
+            //The data layout has been chosen so that ii+N is the right position
+            /*
             getBufferInt3FromIndex(ii,pos,directionType,false);
             currentSite = positionToIndex(pos);
+            */
+            currentSite = ii+N;
             ht.data[currentSite] = iBuf.data[ii];
-            iBuf.data[ii] = ht.data[currentSite];
             for(int dd = 0; dd < DIMENSION; ++dd)
                 hp.data[currentSite][dd] = dBuf.data[DIMENSION*ii+dd];
             }
         }//end of CPU part
     else
         {
+        //GPU branch reads *the entire* buffer in one kernel call
+        ArrayHandle<int> ht(types,access_location::device,access_mode::readwrite);
+        ArrayHandle<dVec> hp(positions,access_location::device,access_mode::readwrite);
+        ArrayHandle<int> iBuf(intTransferBufferReceive,access_location::device,access_mode::read);
+        ArrayHandle<scalar> dBuf(doubleTransferBufferReceive,access_location::device,access_mode::read);
+        int maxIndex = transferStartStopIndexes[transferStartStopIndexes.size()-1].y;
+        gpu_copyReceivingBuffer(ht.data,hp.data,iBuf.data,dBuf.data,N,maxIndex);
         }
     }
 
@@ -453,9 +467,9 @@ void multirankQTensorLatticeModel::determineBufferLayout()
     startStop.x = startStop.y+1; startStop.y += 1;
     transferStartStopIndexes.push_back(startStop);
 
-    printf("number of entries: %i\n",transferStartStopIndexes.size());
-    for (int ii = 0; ii < transferStartStopIndexes.size(); ++ii)
-        printf("%i, %i\n", transferStartStopIndexes[ii].x,transferStartStopIndexes[ii].y);
+    //printf("number of entries: %i\n",transferStartStopIndexes.size());
+    //for (int ii = 0; ii < transferStartStopIndexes.size(); ++ii)
+    //    printf("%i, %i\n", transferStartStopIndexes[ii].x,transferStartStopIndexes[ii].y);
     intTransferBufferSend.resize(startStop.y);
     intTransferBufferReceive.resize(startStop.y);
     doubleTransferBufferSend.resize(DIMENSION*startStop.y);
@@ -674,12 +688,12 @@ void multirankQTensorLatticeModel::parseDirectionType(int directionType, int &xy
         if(sending)
             {
             plane = 0;
-            size1start = latticeSites.z-1;latticeSites.z;
+            size1start = latticeSites.z-1;size1end=latticeSites.z;
             }
         else
             {
             plane = -1;
-            size1start = latticeSites.z;latticeSites.z+1;
+            size1start = latticeSites.z;size1end=latticeSites.z+1;
             }
         }
     //10: x = max, y = -1  edge
