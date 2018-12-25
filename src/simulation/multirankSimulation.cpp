@@ -161,7 +161,7 @@ void multirankSimulation::communicateHaloSiteRoutine()
         {
         for (int ii = 0; ii < communicationDirections.size();++ii)
             {
-            int directionType = communicationDirections[ii].x;
+            int directionType = communicationDirections[ii].y;
             Conf->readReceivingBuffer(directionType);
             }
         }
