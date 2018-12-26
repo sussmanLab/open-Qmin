@@ -16,43 +16,36 @@ class multirankQTensorLatticeModel : public qTensorLatticeModel
         bool zHalo;
 
         int myRank;
-        int3 expandedLatticeSites;
         int3 latticeSites;
-        Index3D expandedLatticeIndex;
 
         //! list of start/stop elements in the transfer arrays for the halo sites
         vector<int2> transferStartStopIndexes;
 
-        int transferElementNumber;
         GPUArray<int> intTransferBufferSend;
         GPUArray<scalar> doubleTransferBufferSend;
         GPUArray<int> intTransferBufferReceive;
         GPUArray<scalar> doubleTransferBufferReceive;
 
         void determineBufferLayout();
-        void getBufferInt3FromIndex(int idx, int3 &pos, int directionType, bool sending);
+
+        //! given an  0 <= index < totalSites, return the local lattice position
+        int3 indexToPosition(int idx);
+        //!given a local lattice position, return the index in the expanded data arrays
         int positionToIndex(int3 &pos);
-        void prepareSendingBuffer(int directionType = -1);
-        void readReceivingBuffer(int directionType = -1);
-
-        //!this implementation uses the expandedLatticeIndex
-        virtual int getNeighbors(int target, vector<int> &neighbors, int &neighs, int stencilType = 0);
-
-        //!load the transfer buffers (type and position) with the data from the correct plane/edge/point specified by "direction type"
-        virtual void prepareSendData(int directionType);
-        //!assuming the tranfer buffers are full of the right data, copy them to the correct elements of positions and types
-        virtual void receiveData(int directionType);
-
-        //!map between the int3 in the expanded (base + halo) lattice frame and the 1-d index of position within the data arrays
-        int indexInExpandedDataArray(int3 position);
-        int indexInExpandedDataArray(int px, int py, int pz)
+        int positionToIndex(int px, int py, int pz)
             {
             int3 temp; temp.x = px; temp.y = py; temp.z=pz;
-            return indexInExpandedDataArray(temp);
+            return positionToIndex(temp);
             };
+        void getBufferInt3FromIndex(int idx, int3 &pos, int directionType, bool sending);
 
-    protected:
-        void parseDirectionType(int directionType, int &xyz, int &size1start, int &size2start, int &size1end, int &size2end, int &plane,bool sending);
+        //!Fill the appropriate part of the sending buffer...if GPU, fill it all in one function call
+        void prepareSendingBuffer(int directionType = -1);
+        //!Fill the appropriate part of data from the receiving  buffer...if GPU, fill it all in one function call
+        void readReceivingBuffer(int directionType = -1);
+
+        //!this implementation knows that extra neighbors are after N in the data arrays
+        virtual int getNeighbors(int target, vector<int> &neighbors, int &neighs, int stencilType = 0);
     };
 typedef shared_ptr<multirankQTensorLatticeModel> MConfigPtr;
 typedef weak_ptr<multirankQTensorLatticeModel> WeakMConfigPtr;

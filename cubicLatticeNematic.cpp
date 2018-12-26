@@ -180,7 +180,6 @@ int main(int argc, char*argv[])
             shared_ptr<multirankSimulation> sim = make_shared<multirankSimulation>(myRank,rankTopology.x,rankTopology.y,rankTopology.z,false,false);
             shared_ptr<landauDeGennesLC> landauLCForce = make_shared<landauDeGennesLC>();
             sim->setConfiguration(Configuration);
-            sim->communicateHaloSiteRoutine();
             pInit.end();
 
             landauLCForce->setPhaseConstants(a,b,c);
@@ -257,7 +256,7 @@ int main(int argc, char*argv[])
 
             pMinimize.print();
             sim->p1.print();
-   //         sim->saveState("../data/test");
+            sim->saveState("../data/test");
             scalar totalMinTime = pMinimize.timeTaken;
             scalar communicationTime = sim->p1.timeTaken;
             if(myRank != 0)
@@ -273,7 +272,6 @@ int main(int argc, char*argv[])
                 blah.end();
                 blah.print();
           /*
-        sim->communicateHaloSites();
 
         if(myRank%2 == 0) //send and receive
             {
