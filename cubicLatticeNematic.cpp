@@ -54,6 +54,11 @@ int main(int argc, char*argv[])
     char processorName[MPI_MAX_PROCESSOR_NAME];
     int nameLen;
     MPI_Get_processor_name(processorName, &nameLen);
+    int myLocalRank;
+    MPI_Comm shmcomm;
+    MPI_Comm_split_type(MPI_COMM_WORLD, MPI_COMM_TYPE_SHARED, 0,MPI_INFO_NULL, &shmcomm);
+    MPI_Comm_rank(shmcomm, &myLocalRank);
+    printf("processes rank %i, local rank %i\n",myRank,myLocalRank);
 
 //    printf("Hello world from processor %s, rank %d out of %d processors\n",
 //           processorName, myRank, worldSize);

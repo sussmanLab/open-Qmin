@@ -38,11 +38,13 @@ int3 multirankQTensorLatticeModel::indexToPosition(int idx)
 
     if(idx >=totalSites)
         throw std::runtime_error("invalid index requested");
+    int ii = idx - N;
     int directionType = 0;
     int3 ans;
-    while(idx > N+transferStartStopIndexes[directionType].y)
+    while(ii > transferStartStopIndexes[directionType].y)
         directionType += 1;
-    getBufferInt3FromIndex(idx, ans, directionType, false);
+    getBufferInt3FromIndex(ii, ans, directionType, false);
+    if(ans.x < -1) printf("%i, %i, %i\n",idx,ii,directionType);
     return ans;
     }
 
@@ -181,6 +183,9 @@ void multirankQTensorLatticeModel::getBufferInt3FromIndex(int idx, int3 &pos,int
             pos.y = sending ? latticeSites.y-1 : latticeSites.y;
             pos.z = sending ? latticeSites.z-1 : latticeSites.z;
             break;
+        default:
+            printf("direction type %i, position %i %i %i is invalid",directionType,pos.x,pos.y,pos.z);
+            throw std::runtime_error("Fail");
         }
     }
 
@@ -317,6 +322,8 @@ int multirankQTensorLatticeModel::positionToIndex(int3 &pos)
                 return base+7;
             }
         }
+
+    printf("(%i %i %i)\n",pos.x,pos.y,pos.z);
     throw std::runtime_error("invalid site requested");
     }
 

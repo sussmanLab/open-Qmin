@@ -314,12 +314,6 @@ void multirankSimulation::saveState(string fname)
     for (int ii = 0; ii < Conf->totalSites; ++ii)
         {
         int3 pos = Conf->indexToPosition(ii);
-        if(Conf->xHalo)
-            pos.x-=1;
-        if(Conf->yHalo)
-            pos.y-=1;
-        if(Conf->zHalo)
-            pos.z-=1;
         int idx = Conf->positionToIndex(pos);
         myfile << pos.x <<"\t"<<pos.y<<"\t"<<pos.z;
         for (int dd = 0; dd <DIMENSION; ++dd)
