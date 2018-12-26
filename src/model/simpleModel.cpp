@@ -25,41 +25,43 @@ void simpleModel::initializeSimpleModel(int n)
     positions.resize(n);
     velocities.resize(n);
     forces.resize(n);
-    masses.resize(n);
-    radii.resize(n);
+    //masses.resize(n);
+    //radii.resize(n);
     types.resize(n);
     vector<dVec> zeroes(N,make_dVec(0.0));
     vector<scalar> ones(N,1.0);
-    vector<scalar> halves(N,.5);
+    //vector<scalar> halves(N,.5);
     vector<int> units(N,0);
     fillGPUArrayWithVector(units,types);
     fillGPUArrayWithVector(zeroes,positions);
     fillGPUArrayWithVector(zeroes,velocities);
     fillGPUArrayWithVector(zeroes,forces);
-    fillGPUArrayWithVector(ones,masses);
-    fillGPUArrayWithVector(halves,radii);
+    //fillGPUArrayWithVector(ones,masses);
+    //fillGPUArrayWithVector(halves,radii);
     };
 
 scalar simpleModel::computeKineticEnergy(bool verbose)
     {
-    ArrayHandle<scalar> h_m(masses,access_location::host,access_mode::read);
+    //ArrayHandle<scalar> h_m(masses,access_location::host,access_mode::read);
     ArrayHandle<dVec> h_v(velocities);
     scalar en = 0.0;
     for (int ii = 0; ii < N; ++ii)
         {
-        en += 0.5*h_m.data[ii]*dot(h_v.data[ii],h_v.data[ii]);
+        //en += 0.5*h_m.data[ii]*dot(h_v.data[ii],h_v.data[ii]);
+        en += 0.5*dot(h_v.data[ii],h_v.data[ii]);
         }
     return en;
     };
 
 scalar simpleModel::computeInstantaneousTemperature(bool fixedMomentum)
     {
-    ArrayHandle<scalar> h_m(masses,access_location::host,access_mode::read);
+    //ArrayHandle<scalar> h_m(masses,access_location::host,access_mode::read);
     ArrayHandle<dVec> h_v(velocities);
     scalar en = 0.0;
     for (int ii = 0; ii < N; ++ii)
         {
-        en += 1.0*h_m.data[ii]*dot(h_v.data[ii],h_v.data[ii]);
+        //en += 1.0*h_m.data[ii]*dot(h_v.data[ii],h_v.data[ii]);
+        en += 1.0*dot(h_v.data[ii],h_v.data[ii]);
         }
     if(fixedMomentum)
         return en /((N-DIMENSION)*DIMENSION);
@@ -104,23 +106,28 @@ void simpleModel::setParticlePositionsRandomly(noiseSource &noise)
 
 scalar simpleModel::setVelocitiesMaxwellBoltzmann(scalar T,noiseSource &noise)
     {
-    ArrayHandle<scalar> h_m(masses,access_location::host,access_mode::read);
+    //ArrayHandle<scalar> h_m(masses,access_location::host,access_mode::read);
     ArrayHandle<dVec> h_v(velocities);
     scalar KE = 0.0;
     dVec P(0.0);
     for (int ii = 0; ii < N; ++ii)
         {
         for (int dd = 0; dd <DIMENSION; ++dd)
-            h_v.data[ii].x[dd] = noise.getRealNormal(0.0,sqrt(T/h_m.data[ii]));
-        P += h_m.data[ii]*h_v.data[ii];
-        KE += 0.5*h_m.data[ii]*dot(h_v.data[ii],h_v.data[ii]);
+            h_v.data[ii].x[dd] = noise.getRealNormal(0.0,sqrt(T));
+            //h_v.data[ii].x[dd] = noise.getRealNormal(0.0,sqrt(T/h_m.data[ii]));
+        //P += h_m.data[ii]*h_v.data[ii];
+        //KE += 0.5*h_m.data[ii]*dot(h_v.data[ii],h_v.data[ii]);
+        P += 1.0*h_v.data[ii];
+        KE += 0.5*dot(h_v.data[ii],h_v.data[ii]);
         }
     //remove excess momentum, calculate the ke
     KE = 0.0;
     for (int ii = 0; ii < N; ++ii)
         {
-        h_v.data[ii] += (-1.0/(N*h_m.data[ii]))*P;
-        KE += 0.5*h_m.data[ii]*dot(h_v.data[ii],h_v.data[ii]);
+        //h_v.data[ii] += (-1.0/(N*h_m.data[ii]))*P;
+        //KE += 0.5*h_m.data[ii]*dot(h_v.data[ii],h_v.data[ii]);
+        h_v.data[ii] += (-1.0/(N))*P;
+        KE += 0.5*dot(h_v.data[ii],h_v.data[ii]);
         };
     return KE;
     };

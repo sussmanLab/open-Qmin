@@ -37,14 +37,14 @@ void cubicLattice::initializeNSites()
     types.resize(N);
     forces.resize(N);
     //temporary?
-    masses.resize(N);
+    //masses.resize(N);
     velocities.resize(N);
 
     vector<dVec> zeroes(N,make_dVec(0.0));
     vector<int> zeroInts(N,0);
     vector<scalar> unities(N,1.0);
     fillGPUArrayWithVector(zeroInts,types);
-    fillGPUArrayWithVector(unities,masses);
+    //fillGPUArrayWithVector(unities,masses);
     fillGPUArrayWithVector(zeroes,positions);
     fillGPUArrayWithVector(zeroes,forces);
     fillGPUArrayWithVector(zeroes,velocities);

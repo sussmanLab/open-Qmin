@@ -65,12 +65,12 @@ class simpleModel
         virtual GPUArray<dVec> & returnPositions(){return positions;};
         //!return a reference to the GPUArray of the current forces
         virtual GPUArray<dVec> & returnForces(){return forces;};
-        //!return a reference to the GPUArray of the particle radii
-        virtual GPUArray<scalar> & returnRadii(){return radii;};
+        // //!return a reference to the GPUArray of the particle radii
+        //virtual GPUArray<scalar> & returnRadii(){return radii;};
         //!return a reference to the GPUArray of the integer types
         virtual GPUArray<int> & returnTypes(){return types;};
-        //!return a reference to the GPUArray of the masses
-        virtual GPUArray<scalar> & returnMasses(){return masses;};
+        // //!return a reference to the GPUArray of the masses
+        //virtual GPUArray<scalar> & returnMasses(){return masses;};
         //!return a reference to the GPUArray of the current velocities
         virtual GPUArray<dVec> & returnVelocities(){return velocities;};
 
@@ -94,14 +94,14 @@ class simpleModel
                             velocities.resize(1);
                         else
                             velocities.resize(N);
-                        if(freeRadii)
-                            radii.resize(1);
-                        else
-                            radii.resize(N);
-                        if(freeMasses)
-                            masses.resize(1);
-                        else
-                            masses.resize(N);
+                        //if(freeRadii)
+                        //    radii.resize(1);
+                        //else
+                        //    radii.resize(N);
+                        //if(freeMasses)
+                        //    masses.resize(1);
+                        //else
+                        //    masses.resize(N);
                         };
     protected:
         //!The number of particles
@@ -115,9 +115,9 @@ class simpleModel
         //!Forces on particles
         GPUArray<dVec> forces;
         //!particle radii
-        GPUArray<scalar> radii;
+        //GPUArray<scalar> radii;
         //!particle masses
-        GPUArray<scalar> masses;
+        //GPUArray<scalar> masses;
         //!particle types
         GPUArray<int> types;
 

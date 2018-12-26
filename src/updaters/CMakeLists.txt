@@ -6,7 +6,7 @@ include_directories(${CMAKE_SOURCE_DIR}/inc ${CUDA_INCLUDE_DIRS} ../simulation)
 add_library(updater
     baseUpdater.cpp
     velocityVerlet.cpp
-    noseHooverNVT.cpp
+    #noseHooverNVT.cpp
     energyMinimizerFIRE.cpp
     energyMinimizerAdam.cpp
     energyMinimizerNesterovAG.cpp
@@ -17,5 +17,5 @@ cuda_add_library(updaterGPU
     energyMinimizerAdam.cu
     energyMinimizerFIRE.cu
     energyMinimizerNesterovAG.cu
-    noseHooverNVT.cu
+    #noseHooverNVT.cu
     )
