@@ -162,7 +162,7 @@ int main(int argc, char*argv[])
             {
             cout << "non-visual mode activated on rank " << myRank << endl;
             if(myRank >= 0 && gpu >=0)
-                GPU = chooseGPU(myRank);
+                GPU = chooseGPU(myLocalRank);
 
            int3 rankTopology = partitionProcessors(worldSize);
            if(myRank ==0)
@@ -181,8 +181,10 @@ int main(int argc, char*argv[])
             bool yH = (rankTopology.y >1) ? true : false;
             bool zH = (rankTopology.z >1) ? true : false;
             //xH=yH=zH=true;
+            bool edges = nConstants > 1 ? true : false;
+            bool corners = false;
             shared_ptr<multirankQTensorLatticeModel> Configuration = make_shared<multirankQTensorLatticeModel>(boxLx,boxLy,boxLz,xH,yH,zH);
-            shared_ptr<multirankSimulation> sim = make_shared<multirankSimulation>(myRank,rankTopology.x,rankTopology.y,rankTopology.z,false,false);
+            shared_ptr<multirankSimulation> sim = make_shared<multirankSimulation>(myRank,rankTopology.x,rankTopology.y,rankTopology.z,edges,corners);
             shared_ptr<landauDeGennesLC> landauLCForce = make_shared<landauDeGennesLC>();
             sim->setConfiguration(Configuration);
             pInit.end();
