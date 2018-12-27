@@ -50,6 +50,10 @@ int3 multirankQTensorLatticeModel::indexToPosition(int idx)
 
 /*!
 Meant to be used with idx in (transferStartStopIndexes[directionType].x to ".y)
+\param idx the linear index in between 0 and the maximum number of extended sites
+\param pos gets filled with the right lattice position, with correct send/receive dependence
+\param directionType an int specifying the type of face/edge/corner. See comments in determingBufferLayout() for the mapping between 0 and 25 to the possibilities
+\param sending flag the either restricts pos to be withing 0 and latticeSites, or the halo sites if fase
 */
 void multirankQTensorLatticeModel::getBufferInt3FromIndex(int idx, int3 &pos,int directionType, bool sending)
     {

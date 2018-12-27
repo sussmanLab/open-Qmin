@@ -168,9 +168,210 @@ void multirankSimulation::determineCommunicationPattern( bool _edges, bool _corn
             communicationDirectionParity.push_back(sendReceiveParity);
             communicationTargets.push_back(targetRank);
         }
-    if(edges || corners)
-        UNWRITTENCODE("communication pattern for non-faces unwritten");
+    if(edges)
+        {
+        if(rankTopology.x > 1 && rankTopology.y > 1)
+            {
+            sendReceive.x = 6; sendReceive.y = 11; //x-y- to x+y+
+            sendReceiveParity = (rankParity.x%2==0) ? true : false;
+            nodeTarget = rankParity; nodeTarget.y -= 1; nodeTarget.x -= 1;
+            if(nodeTarget.x < 0) nodeTarget.x = parityTest.sizes.x-1;
+            if(nodeTarget.y < 0) nodeTarget.y = parityTest.sizes.y-1;
+            targetRank = parityTest(nodeTarget);
+            communicationDirections.push_back(sendReceive);
+            communicationDirectionParity.push_back(sendReceiveParity);
+            communicationTargets.push_back(targetRank);
 
+            sendReceive.x = 11; sendReceive.y = 6;//x+y+ to x-y-
+            nodeTarget = rankParity; nodeTarget.y += 1; nodeTarget.x += 1;
+            if(nodeTarget.x == parityTest.sizes.x) nodeTarget.x = 0;
+            if(nodeTarget.y == parityTest.sizes.y) nodeTarget.y = 0;
+            targetRank = parityTest(nodeTarget);
+            communicationDirections.push_back(sendReceive);
+            communicationDirectionParity.push_back(sendReceiveParity);
+            communicationTargets.push_back(targetRank);
+
+            sendReceive.x = 7; sendReceive.y = 10;//x-y+ to x+y-
+            nodeTarget = rankParity; nodeTarget.y += 1; nodeTarget.x -= 1;
+            if(nodeTarget.x < 0) nodeTarget.x = parityTest.sizes.x-1;
+            if(nodeTarget.y == parityTest.sizes.y) nodeTarget.y = 0;
+            targetRank = parityTest(nodeTarget);
+            communicationDirections.push_back(sendReceive);
+            communicationDirectionParity.push_back(sendReceiveParity);
+            communicationTargets.push_back(targetRank);
+            
+            sendReceive.x = 10; sendReceive.y = 7;//x+y- to x-y+
+            nodeTarget = rankParity; nodeTarget.y -= 1; nodeTarget.x += 1;
+            if(nodeTarget.y < 0) nodeTarget.y = parityTest.sizes.y-1;
+            if(nodeTarget.x == parityTest.sizes.x) nodeTarget.x = 0;
+            targetRank = parityTest(nodeTarget);
+            communicationDirections.push_back(sendReceive);
+            communicationDirectionParity.push_back(sendReceiveParity);
+            communicationTargets.push_back(targetRank);
+            }
+        if(rankTopology.x > 1 && rankTopology.z > 1)
+            {
+            sendReceive.x = 8; sendReceive.y = 13; //x-z- to x+z+
+            sendReceiveParity = (rankParity.x%2==0) ? true : false;
+            nodeTarget = rankParity; nodeTarget.z -= 1; nodeTarget.x -= 1;
+            if(nodeTarget.x < 0) nodeTarget.x = parityTest.sizes.x-1;
+            if(nodeTarget.z < 0) nodeTarget.z = parityTest.sizes.z-1;
+            targetRank = parityTest(nodeTarget);
+            communicationDirections.push_back(sendReceive);
+            communicationDirectionParity.push_back(sendReceiveParity);
+            communicationTargets.push_back(targetRank);
+
+            sendReceive.x = 13; sendReceive.y = 8;//x+z+ to x-z-
+            nodeTarget = rankParity; nodeTarget.z += 1; nodeTarget.x += 1;
+            if(nodeTarget.x == parityTest.sizes.x) nodeTarget.x = 0;
+            if(nodeTarget.z == parityTest.sizes.z) nodeTarget.z = 0;
+            targetRank = parityTest(nodeTarget);
+            communicationDirections.push_back(sendReceive);
+            communicationDirectionParity.push_back(sendReceiveParity);
+            communicationTargets.push_back(targetRank);
+
+            sendReceive.x = 9; sendReceive.y = 12;//x-z+ to x+z-
+            nodeTarget = rankParity; nodeTarget.z += 1; nodeTarget.x -= 1;
+            if(nodeTarget.x < 0) nodeTarget.x = parityTest.sizes.x-1;
+            if(nodeTarget.z == parityTest.sizes.z) nodeTarget.z = 0;
+            targetRank = parityTest(nodeTarget);
+            communicationDirections.push_back(sendReceive);
+            communicationDirectionParity.push_back(sendReceiveParity);
+            communicationTargets.push_back(targetRank);
+            
+            sendReceive.x = 12; sendReceive.y = 9;//x+z- to x-z+
+            nodeTarget = rankParity; nodeTarget.z -= 1; nodeTarget.x += 1;
+            if(nodeTarget.z < 0) nodeTarget.z = parityTest.sizes.z-1;
+            if(nodeTarget.x == parityTest.sizes.x) nodeTarget.x = 0;
+            targetRank = parityTest(nodeTarget);
+            communicationDirections.push_back(sendReceive);
+            communicationDirectionParity.push_back(sendReceiveParity);
+            communicationTargets.push_back(targetRank);
+            }
+        if(rankTopology.y > 1 && rankTopology.z > 1)
+            {
+            sendReceive.x = 14; sendReceive.y = 17; //y-z- to y+z+
+            sendReceiveParity = (rankParity.y%2==0) ? true : false;
+            nodeTarget = rankParity; nodeTarget.z -= 1; nodeTarget.y -= 1;
+            if(nodeTarget.y < 0) nodeTarget.y = parityTest.sizes.y-1;
+            if(nodeTarget.z < 0) nodeTarget.z = parityTest.sizes.z-1;
+            targetRank = parityTest(nodeTarget);
+            communicationDirections.push_back(sendReceive);
+            communicationDirectionParity.push_back(sendReceiveParity);
+            communicationTargets.push_back(targetRank);
+
+            sendReceive.x = 17; sendReceive.y = 14;//y+z+ to y-z-
+            nodeTarget = rankParity; nodeTarget.z += 1; nodeTarget.y += 1;
+            if(nodeTarget.y == parityTest.sizes.y) nodeTarget.y = 0;
+            if(nodeTarget.z == parityTest.sizes.z) nodeTarget.z = 0;
+            targetRank = parityTest(nodeTarget);
+            communicationDirections.push_back(sendReceive);
+            communicationDirectionParity.push_back(sendReceiveParity);
+            communicationTargets.push_back(targetRank);
+
+            sendReceive.x = 15; sendReceive.y = 16;//y-z+ to y+z-
+            nodeTarget = rankParity; nodeTarget.z += 1; nodeTarget.y -= 1;
+            if(nodeTarget.y < 0) nodeTarget.y = parityTest.sizes.y-1;
+            if(nodeTarget.z == parityTest.sizes.z) nodeTarget.z = 0;
+            targetRank = parityTest(nodeTarget);
+            communicationDirections.push_back(sendReceive);
+            communicationDirectionParity.push_back(sendReceiveParity);
+            communicationTargets.push_back(targetRank);
+            
+            sendReceive.x = 16; sendReceive.y = 15;//y+z- to y-z+
+            nodeTarget = rankParity; nodeTarget.z -= 1; nodeTarget.y += 1;
+            if(nodeTarget.z < 0) nodeTarget.z = parityTest.sizes.z-1;
+            if(nodeTarget.y == parityTest.sizes.y) nodeTarget.y = 0;
+            targetRank = parityTest(nodeTarget);
+            communicationDirections.push_back(sendReceive);
+            communicationDirectionParity.push_back(sendReceiveParity);
+            communicationTargets.push_back(targetRank);
+            }
+        }
+
+    if(corners && rankTopology.x > 1 && rankTopology.y > 1 && rankTopology.z > 1)
+        {
+        sendReceiveParity = (rankParity.x%2==0) ? true : false;
+        sendReceive.x = 18; sendReceive.y = 25; //--- to +++
+        nodeTarget = rankParity; nodeTarget.x -= 1; nodeTarget.y -= 1;nodeTarget.z -= 1;
+        if(nodeTarget.x < 0) nodeTarget.x = parityTest.sizes.x-1;
+        if(nodeTarget.y < 0) nodeTarget.y = parityTest.sizes.y-1;
+        if(nodeTarget.z < 0) nodeTarget.z = parityTest.sizes.z-1;
+        targetRank = parityTest(nodeTarget);
+        communicationDirections.push_back(sendReceive);
+        communicationDirectionParity.push_back(sendReceiveParity);
+        communicationTargets.push_back(targetRank);
+
+        sendReceive.x = 25; sendReceive.y = 18; // +++ to ---
+        nodeTarget = rankParity; nodeTarget.x += 1; nodeTarget.y += 1;nodeTarget.z += 1;
+        if(nodeTarget.x  == parityTest.sizes.x) nodeTarget.x = 0;
+        if(nodeTarget.y  == parityTest.sizes.y) nodeTarget.y = 0;
+        if(nodeTarget.z  == parityTest.sizes.z) nodeTarget.z = 0;
+        targetRank = parityTest(nodeTarget);
+        communicationDirections.push_back(sendReceive);
+        communicationDirectionParity.push_back(sendReceiveParity);
+        communicationTargets.push_back(targetRank);
+
+        sendReceive.x = 19; sendReceive.y = 24; //--+ to ++-
+        nodeTarget = rankParity; nodeTarget.x -= 1; nodeTarget.y -= 1;nodeTarget.z += 1;
+        if(nodeTarget.x < 0) nodeTarget.x = parityTest.sizes.x-1;
+        if(nodeTarget.y < 0) nodeTarget.y = parityTest.sizes.y-1;
+        if(nodeTarget.z  == parityTest.sizes.z) nodeTarget.z = 0;
+        targetRank = parityTest(nodeTarget);
+        communicationDirections.push_back(sendReceive);
+        communicationDirectionParity.push_back(sendReceiveParity);
+        communicationTargets.push_back(targetRank);
+
+        sendReceive.x = 24; sendReceive.y = 19; // ++- to --+
+        nodeTarget = rankParity; nodeTarget.x += 1; nodeTarget.y += 1;nodeTarget.z -= 1;
+        if(nodeTarget.x  == parityTest.sizes.x) nodeTarget.x = 0;
+        if(nodeTarget.y  == parityTest.sizes.y) nodeTarget.y = 0;
+        if(nodeTarget.z < 0) nodeTarget.z = parityTest.sizes.z-1;
+        targetRank = parityTest(nodeTarget);
+        communicationDirections.push_back(sendReceive);
+        communicationDirectionParity.push_back(sendReceiveParity);
+        communicationTargets.push_back(targetRank);
+
+        sendReceive.x = 20; sendReceive.y = 23; //-+- to +-+
+        nodeTarget = rankParity; nodeTarget.x -= 1; nodeTarget.y += 1;nodeTarget.z -= 1;
+        if(nodeTarget.x < 0) nodeTarget.x = parityTest.sizes.x-1;
+        if(nodeTarget.y  == parityTest.sizes.y) nodeTarget.y = 0;
+        if(nodeTarget.z < 0) nodeTarget.z = parityTest.sizes.z-1;
+        targetRank = parityTest(nodeTarget);
+        communicationDirections.push_back(sendReceive);
+        communicationDirectionParity.push_back(sendReceiveParity);
+        communicationTargets.push_back(targetRank);
+
+        sendReceive.x = 23; sendReceive.y = 20; // +-+ to -+-
+        nodeTarget = rankParity; nodeTarget.x += 1; nodeTarget.y -= 1;nodeTarget.z += 1;
+        if(nodeTarget.x  == parityTest.sizes.x) nodeTarget.x = 0;
+        if(nodeTarget.y < 0) nodeTarget.y = parityTest.sizes.y-1;
+        if(nodeTarget.z  == parityTest.sizes.z) nodeTarget.y = 0;
+        targetRank = parityTest(nodeTarget);
+        communicationDirections.push_back(sendReceive);
+        communicationDirectionParity.push_back(sendReceiveParity);
+        communicationTargets.push_back(targetRank);
+
+        sendReceive.x = 21; sendReceive.y = 22; //-++ to +--
+        nodeTarget = rankParity; nodeTarget.x -= 1; nodeTarget.y += 1;nodeTarget.z += 1;
+        if(nodeTarget.x < 0) nodeTarget.x = parityTest.sizes.x-1;
+        if(nodeTarget.y  == parityTest.sizes.y) nodeTarget.y = 0;
+        if(nodeTarget.z  == parityTest.sizes.z) nodeTarget.z = 0;
+        targetRank = parityTest(nodeTarget);
+        communicationDirections.push_back(sendReceive);
+        communicationDirectionParity.push_back(sendReceiveParity);
+        communicationTargets.push_back(targetRank);
+
+        sendReceive.x = 22; sendReceive.y = 21; //+-- to -++
+        nodeTarget = rankParity; nodeTarget.x += 1; nodeTarget.y -= 1;nodeTarget.z -= 1;
+        if(nodeTarget.x  == parityTest.sizes.x) nodeTarget.x = 0;
+        if(nodeTarget.y < 0) nodeTarget.y = parityTest.sizes.y-1;
+        if(nodeTarget.z < 0) nodeTarget.z = parityTest.sizes.z-1;
+        targetRank = parityTest(nodeTarget);
+        communicationDirections.push_back(sendReceive);
+        communicationDirectionParity.push_back(sendReceiveParity);
+        communicationTargets.push_back(targetRank);
+        };
     }
 
 /*!
