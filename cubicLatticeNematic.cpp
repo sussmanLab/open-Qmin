@@ -231,6 +231,7 @@ int main(int argc, char*argv[])
             printf("setting random configuration with S0 = %f\n",S0);
             Configuration->setNematicQTensorRandomly(noise,S0);
             sim->setCPUOperation(!GPU);
+            printf("initialization done\n");
 
         /*
         boundaryObject homeotropicBoundary(boundaryType::homeotropic,1.0,S0);
@@ -263,21 +264,15 @@ int main(int argc, char*argv[])
 
             pMinimize.print();
             sim->p1.print();
-            sim->saveState("../data/test");
+//            sim->saveState("../data/test");
             scalar totalMinTime = pMinimize.timeTaken;
             scalar communicationTime = sim->p1.timeTaken;
             if(myRank != 0)
                 printf("min  time %f\n comm time %f\n percent comm: %f\n",totalMinTime,communicationTime,communicationTime/totalMinTime);
 
-                profiler blah("blah");
-                blah.start();
-            for (int ii = 0; ii < 2; ++ii)
-                Configuration->prepareSendingBuffer(ii);
-
-            for (int ii = 0; ii < 2; ++ii)
-                Configuration->readReceivingBuffer(ii);
-                blah.end();
-                blah.print();
+            cout << "size of configuration " << Configuration->getClassSize() << endl;
+            cout << "size of force computer" << landauLCForce->getClassSize() << endl;
+            cout << "size of fire updater " << fire->getClassSize() << endl;
           /*
 
         if(myRank%2 == 0) //send and receive

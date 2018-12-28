@@ -38,6 +38,12 @@ class baseLatticeForce : public force
         virtual void setModel(shared_ptr<cubicLattice> _model){lattice=_model;model = _model;};
         //!kernelTuner object
         shared_ptr<kernelTuner> forceTuner;
+
+        virtual scalar getClassSize()
+            {
+            return  0.000000001*(sizeof(scalar)+sizeof(kernelTuner)) + force::getClassSize();
+            };
+
     protected:
         shared_ptr<cubicLattice> lattice;
         //!if all lattice interactions are uniform

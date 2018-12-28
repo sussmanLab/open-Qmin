@@ -62,5 +62,10 @@ class qTensorLatticeModel : public cubicLattice
         GPUArray<scalar> defectMeasures;
         //!compute different measures of whether a site is a defect
         void computeDefectMeasures(int defectType);
+
+        virtual scalar getClassSize()
+            {
+            return 0.000000001*(sizeof(scalar)*defectMeasures.getNumElements()) + cubicLattice::getClassSize();
+            }
     };
 #endif

@@ -65,6 +65,13 @@ class energyMinimizerFIRE : public velocityVerlet
         //!Return the maximum force
         virtual scalar getMaxForce(){return forceMax;};
 
+        virtual scalar getClassSize()
+            {
+            scalar thisClassSize = 0.000000001*(sizeof(scalar)*(sumReductions.getNumElements() + sumReductionIntermediate.getNumElements()+sumReductionIntermediate2.getNumElements()+ 12)
+                +2*sizeof(int)+sizeof(kernelTuner));
+            return thisClassSize+equationOfMotion::getClassSize();
+            }
+
     protected:
         //!The cutoff value of the maximum force
         scalar forceMax;

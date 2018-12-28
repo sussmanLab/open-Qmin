@@ -65,6 +65,11 @@ class force
         virtual void setNThreads(int n){nThreads = n;};
         //!number of threads to use if compiled with openmp
         int nThreads=1;
+
+        virtual scalar getClassSize()
+            {
+            return 0.000000001*(2*sizeof(bool) + (1+energyPerParticle.getNumElements())*sizeof(scalar));
+            }
     };
 
 typedef shared_ptr<force> ForcePtr;

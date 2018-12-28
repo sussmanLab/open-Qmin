@@ -103,6 +103,12 @@ class simpleModel
                         //else
                         //    masses.resize(N);
                         };
+
+        //!return size of data in class in GB
+        virtual scalar getClassSize()
+            {
+            return 0.000000001*(DIMENSION*(positions.getNumElements() + velocities.getNumElements()+forces.getNumElements())*sizeof(scalar) + (2+types.getNumElements())*sizeof(int)+sizeof(bool));
+            }
     protected:
         //!The number of particles
         int N;

@@ -127,6 +127,13 @@ class landauDeGennesLC : public baseLatticeForce
         GPUArray<scalar> energyDensity;
         //!the force from stresses at the surface of an object
         GPUArray<scalar3> objectForceArray;
+
+        virtual scalar getClassSize()
+            {
+            scalar thisClassSize = sizeof(scalar)*(energyComponents.size() + energyDensity.getNumElements() + 3*objectForceArray.getNumElements()+20) + 3*sizeof(bool) + 4*sizeof(kernelTuner)+ sizeof(cubicLatticeDerivativeVector)*forceCalculationAssist.getNumElements();
+            return 0.000000001*thisClassSize + baseLatticeForce::getClassSize();
+            }
+
         
     protected:
         //!constants, etc.

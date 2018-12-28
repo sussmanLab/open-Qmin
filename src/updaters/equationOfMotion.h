@@ -29,5 +29,11 @@ class equationOfMotion : public updater
             };
         //!an array of displacements
         GPUArray<dVec> displacement;
+
+        virtual scalar getClassSize()
+            {
+            return 0.000000001*(displacement.getNumElements()*DIMENSION* sizeof(scalar)) + updater::getClassSize();
+            }
+
     };
 #endif

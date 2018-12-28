@@ -81,7 +81,19 @@ class cubicLattice : public simpleModel
         GPUArray<pair<int,dVec> > boundaryMoveAssist1;
         //!An assist vector that can keep track of changes to surface sites during a move. First element is the index a Qtensor (second ) will move to
         GPUArray<pair<int,dVec> > boundaryMoveAssist2;
-
+    
+        virtual scalar getClassSize()
+            {
+            int bsSites = 0;
+            for (int bb = 0; bb < boundarySites.size(); ++bb)
+                bsSites += boundarySites[bb].getNumElements() + surfaceSites[bb].getNumElements();
+            return 0.000000001*(2*sizeof(bool) +
+            (1+neighboringSites.getNumElements()+bsSites+boundaryState.size()+boundaryMoveAssist1.getNumElements()+boundaryMoveAssist2.getNumElements())*sizeof(int) +
+            sizeof(kernelTuner) + sizeof(boundaryObject) +
+            2*sizeof(scalar)*DIMENSION*(boundaryMoveAssist2.getNumElements()+boundaryMoveAssist1.getNumElements()) + 
+            sizeof(Index2D) + sizeof(Index3D)) +
+            simpleModel::getClassSize();
+            }
     protected:
         //!a utility function for initialization
         void initializeNSites();

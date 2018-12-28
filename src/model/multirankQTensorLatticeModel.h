@@ -26,6 +26,13 @@ class multirankQTensorLatticeModel : public qTensorLatticeModel
         GPUArray<int> intTransferBufferReceive;
         GPUArray<scalar> doubleTransferBufferReceive;
 
+        virtual scalar getClassSize()
+            {
+            scalar thisClassSize = 0.000000001*(sizeof(scalar)*(doubleTransferBufferSend.getNumElements()+doubleTransferBufferReceive.getNumElements()) + 
+            3*sizeof(bool)
+            +(3+ intTransferBufferSend.getNumElements()+intTransferBufferReceive.getNumElements() + 2*transferStartStopIndexes.size())*sizeof(int));
+            return thisClassSize + qTensorLatticeModel::getClassSize();
+            }
         void determineBufferLayout();
 
         //! given an  0 <= index < totalSites, return the local lattice position

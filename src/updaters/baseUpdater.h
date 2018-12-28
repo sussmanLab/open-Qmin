@@ -79,6 +79,10 @@ class updater
         int getMaxIterations(){return maxIterations;};
         void setCurrentIterations(int newIterations){iterations=newIterations;};
         
+        virtual scalar getClassSize()
+            {
+            return 0.000000001*(6*sizeof(int) + 2*sizeof(bool) + sizeof(scalar));
+            }
     protected:
         //!number of threads to use
         int nThreads=1;
