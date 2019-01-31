@@ -1,4 +1,5 @@
 #include "landauDeGennesLC.h"
+#include "lcForces.h"
 #include "landauDeGennesLC.cuh"
 #include "qTensorFunctions.h"
 #include "utilities.cuh"
@@ -343,17 +344,13 @@ void landauDeGennesLC::computeForceOneConstantCPU(GPUArray<dVec> &forces, bool z
             dVec spatialTerm(0.0);
             //use the neighbors to compute the distortion
             if(latticeTypes.data[currentIndex] == 0) // if it's in the bulk, things are easy
-                {
-                spatialTerm = L1*(6.0*qCurrent-xDown-xUp-yDown-yUp-zDown-zUp);
-                scalar AxxAyy = spatialTerm[0]+spatialTerm[3];
-                spatialTerm[0] += AxxAyy;
-                spatialTerm[1] *= 2.0;
-                spatialTerm[2] *= 2.0;
-                spatialTerm[3] += AxxAyy;
-                spatialTerm[4] *= 2.0;
-                }
+                lcForce::bulkOneConstantForce(L1,qCurrent,xDown,xUp,yDown,yUp,zDown,zUp,spatialTerm);
             else
                 {//distortion term first
+                lcForce::boundaryOneConstantForce(L1,qCurrent,xDown,xUp,yDown,yUp,zDown,zUp,
+                        latticeTypes.data[ixd],latticeTypes.data[ixu],latticeTypes.data[iyd],
+                        latticeTypes.data[iyu],latticeTypes.data[izd],latticeTypes.data[izu],
+                        spatialTerm);
                 if(latticeTypes.data[ixd] >0)//xDown is a boundary
                     spatialTerm -= (xUp-qCurrent);
                 if(latticeTypes.data[ixu] >0)//xUp is a boundary

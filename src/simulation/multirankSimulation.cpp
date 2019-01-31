@@ -38,10 +38,10 @@ void multirankSimulation::communicateHaloSitesRoutine()
             ArrayHandle<int> iBufR(Conf->intTransferBufferReceive,dataLocation,access_mode::overwrite);
             ArrayHandle<scalar> dBufS(Conf->doubleTransferBufferSend,dataLocation,access_mode::read);
             ArrayHandle<scalar> dBufR(Conf->doubleTransferBufferReceive,dataLocation,access_mode::overwrite);
-            MPI_Send(&iBufS.data[startStop.x],messageSize,MPI_INT,targetRank,messageTag1,MPI_COMM_WORLD);
-            MPI_Recv(&iBufR.data[receiveStart],messageSize,MPI_INT,MPI_ANY_SOURCE,messageTag1,MPI_COMM_WORLD,&mpiStatus);
-            MPI_Send(&dBufS.data[DIMENSION*startStop.x],dMessageSize,MPI_SCALAR,targetRank,messageTag2,MPI_COMM_WORLD);
-            MPI_Recv(&dBufR.data[DIMENSION*receiveStart],dMessageSize,MPI_SCALAR,MPI_ANY_SOURCE,messageTag2,MPI_COMM_WORLD,&mpiStatus);
+            MPI_Isend(&iBufS.data[startStop.x],messageSize,MPI_INT,targetRank,messageTag1,MPI_COMM_WORLD,&mpiRequests[4*ii+0]);
+            MPI_Irecv(&iBufR.data[receiveStart],messageSize,MPI_INT,MPI_ANY_SOURCE,messageTag1,MPI_COMM_WORLD,&mpiRequests[4*ii+1]);
+            MPI_Isend(&dBufS.data[DIMENSION*startStop.x],dMessageSize,MPI_SCALAR,targetRank,messageTag2,MPI_COMM_WORLD,&mpiRequests[4*ii+2]);
+            MPI_Irecv(&dBufR.data[DIMENSION*receiveStart],dMessageSize,MPI_SCALAR,MPI_ANY_SOURCE,messageTag2,MPI_COMM_WORLD,&mpiRequests[4*ii+3]);
             }
         else
             {
@@ -49,14 +49,16 @@ void multirankSimulation::communicateHaloSitesRoutine()
             ArrayHandle<int> iBufR(Conf->intTransferBufferReceive,dataLocation,access_mode::overwrite);
             ArrayHandle<scalar> dBufS(Conf->doubleTransferBufferSend,dataLocation,access_mode::read);
             ArrayHandle<scalar> dBufR(Conf->doubleTransferBufferReceive,dataLocation,access_mode::overwrite);
-            MPI_Recv(&iBufR.data[receiveStart],messageSize,MPI_INT,MPI_ANY_SOURCE,messageTag1,MPI_COMM_WORLD,&mpiStatus);
-            MPI_Send(&iBufS.data[startStop.x],messageSize,MPI_INT,targetRank,messageTag1,MPI_COMM_WORLD);
-            MPI_Recv(&dBufR.data[DIMENSION*receiveStart],dMessageSize,MPI_SCALAR,MPI_ANY_SOURCE,messageTag2,MPI_COMM_WORLD,&mpiStatus);
-            MPI_Send(&dBufS.data[DIMENSION*startStop.x],dMessageSize,MPI_SCALAR,targetRank,messageTag2,MPI_COMM_WORLD);
+            MPI_Irecv(&iBufR.data[receiveStart],messageSize,MPI_INT,MPI_ANY_SOURCE,messageTag1,MPI_COMM_WORLD,&mpiRequests[4*ii+0]);
+            MPI_Isend(&iBufS.data[startStop.x],messageSize,MPI_INT,targetRank,messageTag1,MPI_COMM_WORLD,&mpiRequests[4*ii+1]);
+            MPI_Irecv(&dBufR.data[DIMENSION*receiveStart],dMessageSize,MPI_SCALAR,MPI_ANY_SOURCE,messageTag2,MPI_COMM_WORLD,&mpiRequests[4*ii+2]);
+            MPI_Isend(&dBufS.data[DIMENSION*startStop.x],dMessageSize,MPI_SCALAR,targetRank,messageTag2,MPI_COMM_WORLD,&mpiRequests[4*ii+3]);
             }
         }
     }//end MPI routines
 
+    for(int ii = 0; ii < mpiRequests.size();++ii)
+        MPI_Wait(&mpiRequests[ii],&mpiStatuses[ii]);
     //read readReceivingBuffer
     {
     auto Conf = mConfiguration.lock();
@@ -199,7 +201,7 @@ void multirankSimulation::determineCommunicationPattern( bool _edges, bool _corn
             communicationDirections.push_back(sendReceive);
             communicationDirectionParity.push_back(sendReceiveParity);
             communicationTargets.push_back(targetRank);
-            
+
             sendReceive.x = 10; sendReceive.y = 7;//x+y- to x-y+
             nodeTarget = rankParity; nodeTarget.y -= 1; nodeTarget.x += 1;
             if(nodeTarget.y < 0) nodeTarget.y = parityTest.sizes.y-1;
@@ -238,7 +240,7 @@ void multirankSimulation::determineCommunicationPattern( bool _edges, bool _corn
             communicationDirections.push_back(sendReceive);
             communicationDirectionParity.push_back(sendReceiveParity);
             communicationTargets.push_back(targetRank);
-            
+
             sendReceive.x = 12; sendReceive.y = 9;//x+z- to x-z+
             nodeTarget = rankParity; nodeTarget.z -= 1; nodeTarget.x += 1;
             if(nodeTarget.z < 0) nodeTarget.z = parityTest.sizes.z-1;
@@ -277,7 +279,7 @@ void multirankSimulation::determineCommunicationPattern( bool _edges, bool _corn
             communicationDirections.push_back(sendReceive);
             communicationDirectionParity.push_back(sendReceiveParity);
             communicationTargets.push_back(targetRank);
-            
+
             sendReceive.x = 16; sendReceive.y = 15;//y+z- to y-z+
             nodeTarget = rankParity; nodeTarget.z -= 1; nodeTarget.y += 1;
             if(nodeTarget.z < 0) nodeTarget.z = parityTest.sizes.z-1;
@@ -372,6 +374,8 @@ void multirankSimulation::determineCommunicationPattern( bool _edges, bool _corn
         communicationDirectionParity.push_back(sendReceiveParity);
         communicationTargets.push_back(targetRank);
         };
+    mpiRequests.resize(4*communicationDirections.size());
+    mpiStatuses.resize(4*communicationDirections.size());
     }
 
 /*!

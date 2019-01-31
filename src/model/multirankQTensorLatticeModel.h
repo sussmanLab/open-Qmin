@@ -2,6 +2,7 @@
 #define multirankQTensorLatticeModel_H
 
 #include "qTensorLatticeModel.h"
+#include <mpi.h>
 /*! \file multirankQTensorLatticeModel.h */
 
 class multirankQTensorLatticeModel : public qTensorLatticeModel

@@ -111,6 +111,8 @@ class multirankSimulation : public basicSimulation, public enable_shared_from_th
         bool corners;
 
         MPI_Status mpiStatus;
+        vector<MPI_Status> mpiStatuses;
+        vector<MPI_Request> mpiRequests;
 
     };
 #endif
