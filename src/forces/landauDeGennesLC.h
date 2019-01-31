@@ -20,6 +20,10 @@ class landauDeGennesLC : public baseLatticeForce
         void baseInitialization();
         //!The model setting creates an additional data structure to help with 2- or 3- constant approximation
         virtual void setModel(shared_ptr<cubicLattice> _model);
+
+        //!use the "type" flag to select either bulk or boundary routines
+        virtual void computeForces(GPUArray<dVec> &forces,bool zeroOutForce = true, int type = 0);
+
         //select the force routing based on the number of elastic constants
         virtual void computeForceGPU(GPUArray<dVec> &forces,bool zeroOutForce = true);
 
@@ -30,31 +34,7 @@ class landauDeGennesLC : public baseLatticeForce
 
         void setL24(scalar _l24){L24=_l24;useL24=true;};
 
-        virtual void computeForceCPU(GPUArray<dVec> &forces,bool zeroOutForce = true)
-            {
-            switch (numberOfConstants)
-                {
-                case distortionEnergyType::oneConstant :
-                    computeForceOneConstantCPU(forces,zeroOutForce);
-                    break;
-                case distortionEnergyType::twoConstant :
-                    computeForceTwoConstantCPU(forces,zeroOutForce);
-                    break;
-                case distortionEnergyType::threeConstant :
-                    computeForceThreeConstantCPU(forces,zeroOutForce);
-                    break;
-                };
-            if(lattice->boundaries.getNumElements() >0)
-                {
-                computeBoundaryForcesCPU(forces,false);
-                };
-            if(useL24)
-                computeL24ForcesCPU(forces, false);
-            if(computeEfieldContribution)
-                computeEorHFieldForcesCPU(forces,false, Efield,deltaEpsilon,epsilon0);
-            if(computeHfieldContribution)
-                computeEorHFieldForcesCPU(forces,false,Hfield,deltaChi,mu0);
-            };
+        virtual void computeForceCPU(GPUArray<dVec> &forces,bool zeroOutForce = true, int type = 0);
 
         //!compute the forces on the objects in the system
         virtual void computeObjectForces(int objectIdx);
@@ -77,7 +57,8 @@ class landauDeGennesLC : public baseLatticeForce
         virtual void computeEorHFieldForcesGPU(GPUArray<dVec> &forces,bool zeroOutForce,
                             scalar3 field, scalar anisotropicSusceptibility,scalar vacuumPermeability);
 
-        virtual void computeForceOneConstantCPU(GPUArray<dVec> &forces,bool zeroOutForce);
+        //!"type" is zero for processing bulk sites, and one for boundary sites
+        virtual void computeForceOneConstantCPU(GPUArray<dVec> &forces,bool zeroOutForce,int type);
         virtual void computeForceTwoConstantCPU(GPUArray<dVec> &forces,bool zeroOutForce);
         virtual void computeForceThreeConstantCPU(GPUArray<dVec> &forces,bool zeroOutForce);
 

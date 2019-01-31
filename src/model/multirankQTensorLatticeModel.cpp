@@ -27,7 +27,20 @@ multirankQTensorLatticeModel::multirankQTensorLatticeModel(int lx, int ly, int l
     forces.resize(totalSites);
     velocities.resize(totalSites);
 
-    //printf("%i vs %i\n",totalSites,N+transferStartStopIndexes[25].y);
+    //by default, set sites that interface with the other ranks to a negative type
+    ArrayHandle<int> h_t(types);
+    for (int ii = 0; ii < N; ++ii)
+        {
+        //h_t.data[ii] = -1;
+        int3 site = indexToPosition(ii);
+        if(site.x == 0 || site.y ==0 || site.z ==0 ||
+           site.x == latticeSites.x - 1 || 
+           site.y == latticeSites.y - 1 ||
+           site.z == latticeSites.z - 1)
+            {
+            h_t.data[ii] = -1;
+            }
+        }
     }
 
 int3 multirankQTensorLatticeModel::indexToPosition(int idx)

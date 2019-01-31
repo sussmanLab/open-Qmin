@@ -3,6 +3,7 @@
 
 void multirankSimulation::communicateHaloSitesRoutine()
     {
+    transfersUpToDate = false;
     //first, prepare the send buffers
     {
     auto Conf = mConfiguration.lock();
@@ -56,11 +57,13 @@ void multirankSimulation::communicateHaloSitesRoutine()
             }
         }
     }//end MPI routines
+    }
 
+void multirankSimulation::synchronizeAndTransferBuffers()
+    {
     for(int ii = 0; ii < mpiRequests.size();++ii)
         MPI_Wait(&mpiRequests[ii],&mpiStatuses[ii]);
     //read readReceivingBuffer
-    {
     auto Conf = mConfiguration.lock();
     if(!useGPU)
         {
@@ -72,7 +75,7 @@ void multirankSimulation::communicateHaloSitesRoutine()
         }
     else
         Conf->readReceivingBuffer();//a single call reads and copies the entire buffer
-    }//end buffer read
+    transfersUpToDate = false;
     }
 
 /*!
@@ -420,7 +423,13 @@ void multirankSimulation::computeForces()
         {
         auto frc = forceComputers[f].lock();
         bool zeroForces = (f==0 && !Conf->selfForceCompute);
-        frc->computeForces(Conf->returnForces(),zeroForces);
+        //compute bulk sites... since they are in the bulk they can be done while MPI buffers are transfered...
+        frc->computeForces(Conf->returnForces(),zeroForces,0);
+        //wait for communication...
+        if(!transfersUpToDate)
+            synchronizeAndTransferBuffers();
+        //compute boundary sites
+        frc->computeForces(Conf->returnForces(),false,1);
         };
     Conf->forcesComputed = true;
     };

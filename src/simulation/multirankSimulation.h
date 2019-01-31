@@ -26,6 +26,9 @@ class multirankSimulation : public basicSimulation, public enable_shared_from_th
         //!handles calls to all necessary halo site transfer
         virtual void communicateHaloSitesRoutine();
 
+        //! synchronize mpi and make transfer buffers
+        virtual void synchronizeAndTransferBuffers();
+
         profiler p1 = profiler("total communication time");
         profiler p4 = profiler("MPI recv");
         profiler p3 = profiler("MPI send");
@@ -109,6 +112,9 @@ class multirankSimulation : public basicSimulation, public enable_shared_from_th
         bool edges;
         //!do corner sites?
         bool corners;
+
+        //!have the halo sites been communicated?
+        bool transfersUpToDate;
 
         MPI_Status mpiStatus;
         vector<MPI_Status> mpiStatuses;

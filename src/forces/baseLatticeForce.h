@@ -11,7 +11,7 @@ class baseLatticeForce : public force
     public:
         baseLatticeForce();
         //!the call to compute forces, and store them in the referenced variable
-        virtual void computeForces(GPUArray<dVec> &forces,bool zeroOutForce = true)
+        virtual void computeForces(GPUArray<dVec> &forces,bool zeroOutForce = true, int type = 0)
             {
             if(useGPU)
                 computeForceGPU(forces,zeroOutForce);

@@ -18,7 +18,7 @@ class force
         force();
 
         //!the call to compute forces, and store them in the referenced variable
-        virtual void computeForces(GPUArray<dVec> &forces,bool zeroOutForce = true);
+        virtual void computeForces(GPUArray<dVec> &forces,bool zeroOutForce = true, int type = 0);
 
         //!some generic function to set parameters
         virtual void setForceParameters(vector<scalar> &params);

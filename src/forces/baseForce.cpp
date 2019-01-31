@@ -11,7 +11,7 @@ void force::setForceParameters(vector<scalar> &params)
     {
     };
 
-void force::computeForces(GPUArray<dVec> &forces,bool zeroOutForce)
+void force::computeForces(GPUArray<dVec> &forces,bool zeroOutForce, int type)
     {
     cout << "in the base force computer... that's odd..." << endl;
 

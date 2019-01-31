@@ -75,6 +75,56 @@ void landauDeGennesLC::setModel(shared_ptr<cubicLattice> _model)
         };
     };
 
+void landauDeGennesLC::computeForces(GPUArray<dVec> &forces,bool zeroOutForce, int type)
+    {
+    if(useGPU)
+        computeForceGPU(forces,zeroOutForce);
+    else
+        computeForceCPU(forces,zeroOutForce,type);
+    }
+
+void landauDeGennesLC::computeForceCPU(GPUArray<dVec> &forces,bool zeroOutForce, int type)
+    {
+    if(type == 0 )
+        {
+        switch (numberOfConstants)
+            {
+            case distortionEnergyType::oneConstant :
+                computeForceOneConstantCPU(forces,zeroOutForce,0);
+                break;
+            case distortionEnergyType::twoConstant :
+                computeForceTwoConstantCPU(forces,zeroOutForce);
+                break;
+            case distortionEnergyType::threeConstant :
+                computeForceThreeConstantCPU(forces,zeroOutForce);
+                break;
+            };
+        }
+    else
+        {
+        switch (numberOfConstants)
+            {
+            case distortionEnergyType::oneConstant :
+                computeForceOneConstantCPU(forces,zeroOutForce,1);
+                break;
+            case distortionEnergyType::twoConstant :
+                break;
+            case distortionEnergyType::threeConstant :
+                break;
+            };
+        if(lattice->boundaries.getNumElements() >0)
+            {
+            computeBoundaryForcesCPU(forces,false);
+            };
+        if(useL24)
+            computeL24ForcesCPU(forces, false);
+        if(computeEfieldContribution)
+            computeEorHFieldForcesCPU(forces,false, Efield,deltaEpsilon,epsilon0);
+        if(computeHfieldContribution)
+            computeEorHFieldForcesCPU(forces,false,Hfield,deltaChi,mu0);
+        };
+    };
+
 void landauDeGennesLC::computeObjectForces(int objectIdx)
     {
     GPUArray<Matrix3x3> stressTensors;
@@ -306,7 +356,7 @@ void landauDeGennesLC::computeFirstDerivatives()
         }//end if -- else for using GPU
     };
 
-void landauDeGennesLC::computeForceOneConstantCPU(GPUArray<dVec> &forces, bool zeroOutForce)
+void landauDeGennesLC::computeForceOneConstantCPU(GPUArray<dVec> &forces, bool zeroOutForce, int type)
     {
     ArrayHandle<dVec> h_f(forces);
     ArrayHandle<dVec> Qtensors(lattice->returnPositions());
@@ -316,67 +366,81 @@ void landauDeGennesLC::computeForceOneConstantCPU(GPUArray<dVec> &forces, bool z
     scalar a = 0.5*A;
     scalar b = B/3.0;
     scalar c = 0.25*C;
-
-    for (int i = 0; i < lattice->getNumberOfParticles(); ++i)
+    if(type == 0)
         {
-        dVec qCurrent, xDown, xUp, yDown,yUp,zDown,zUp;
-        //currentIndex = lattice->getNeighbors(i,neighbors,neighNum);
-        int currentIndex = i;
-        dVec force(0.0);
-        if(latticeTypes.data[currentIndex] <= 0)
+        for (int i = 0; i < lattice->getNumberOfParticles(); ++i)
             {
-            qCurrent = Qtensors.data[currentIndex];
-            //compute the phase terms depending only on the current site
-            force -= a*derivativeTrQ2(qCurrent);
-            force -= b*derivativeTrQ3(qCurrent);
-            force -= c*derivativeTrQ2Squared(qCurrent);
+            dVec qCurrent, xDown, xUp, yDown,yUp,zDown,zUp;
+            //currentIndex = lattice->getNeighbors(i,neighbors,neighNum);
+            int currentIndex = i;
+            dVec force(0.0);
+            if(latticeTypes.data[currentIndex] == 0)
+                {
+                qCurrent = Qtensors.data[currentIndex];
+                //compute the phase terms depending only on the current site
+                force -= a*derivativeTrQ2(qCurrent);
+                force -= b*derivativeTrQ3(qCurrent);
+                force -= c*derivativeTrQ2Squared(qCurrent);
 
-            int ixd, ixu,iyd,iyu,izd,izu;
-            ixd =latticeNeighbors.data[lattice->neighborIndex(0,currentIndex)];
-            ixu =latticeNeighbors.data[lattice->neighborIndex(1,currentIndex)];
-            iyd =latticeNeighbors.data[lattice->neighborIndex(2,currentIndex)];
-            iyu =latticeNeighbors.data[lattice->neighborIndex(3,currentIndex)];
-            izd =latticeNeighbors.data[lattice->neighborIndex(4,currentIndex)];
-            izu =latticeNeighbors.data[lattice->neighborIndex(5,currentIndex)];
-            xDown = Qtensors.data[ixd]; xUp = Qtensors.data[ixu];
-            yDown = Qtensors.data[iyd]; yUp = Qtensors.data[iyu];
-            zDown = Qtensors.data[izd]; zUp = Qtensors.data[izu];
-            dVec spatialTerm(0.0);
-            //use the neighbors to compute the distortion
-            if(latticeTypes.data[currentIndex] == 0) // if it's in the bulk, things are easy
+                int ixd, ixu,iyd,iyu,izd,izu;
+                ixd =latticeNeighbors.data[lattice->neighborIndex(0,currentIndex)];
+                ixu =latticeNeighbors.data[lattice->neighborIndex(1,currentIndex)];
+                iyd =latticeNeighbors.data[lattice->neighborIndex(2,currentIndex)];
+                iyu =latticeNeighbors.data[lattice->neighborIndex(3,currentIndex)];
+                izd =latticeNeighbors.data[lattice->neighborIndex(4,currentIndex)];
+                izu =latticeNeighbors.data[lattice->neighborIndex(5,currentIndex)];
+                xDown = Qtensors.data[ixd]; xUp = Qtensors.data[ixu];
+                yDown = Qtensors.data[iyd]; yUp = Qtensors.data[iyu];
+                zDown = Qtensors.data[izd]; zUp = Qtensors.data[izu];
+                dVec spatialTerm(0.0);
+                //use the neighbors to compute the distortion
                 lcForce::bulkOneConstantForce(L1,qCurrent,xDown,xUp,yDown,yUp,zDown,zUp,spatialTerm);
+                force -= spatialTerm;
+            };
+            if(zeroOutForce)
+                h_f.data[currentIndex] = force;
             else
-                {//distortion term first
+                h_f.data[currentIndex] += force;
+            };
+        };
+    if(type == 1)
+        {
+        for (int i = 0; i < lattice->getNumberOfParticles(); ++i)
+            {
+            dVec qCurrent, xDown, xUp, yDown,yUp,zDown,zUp;
+            //currentIndex = lattice->getNeighbors(i,neighbors,neighNum);
+            int currentIndex = i;
+            dVec force(0.0);
+            if(latticeTypes.data[currentIndex] < 0)
+                {
+                qCurrent = Qtensors.data[currentIndex];
+                //compute the phase terms depending only on the current site
+                force -= a*derivativeTrQ2(qCurrent);
+                force -= b*derivativeTrQ3(qCurrent);
+                force -= c*derivativeTrQ2Squared(qCurrent);
+
+                int ixd, ixu,iyd,iyu,izd,izu;
+                ixd =latticeNeighbors.data[lattice->neighborIndex(0,currentIndex)];
+                ixu =latticeNeighbors.data[lattice->neighborIndex(1,currentIndex)];
+                iyd =latticeNeighbors.data[lattice->neighborIndex(2,currentIndex)];
+                iyu =latticeNeighbors.data[lattice->neighborIndex(3,currentIndex)];
+                izd =latticeNeighbors.data[lattice->neighborIndex(4,currentIndex)];
+                izu =latticeNeighbors.data[lattice->neighborIndex(5,currentIndex)];
+                xDown = Qtensors.data[ixd]; xUp = Qtensors.data[ixu];
+                yDown = Qtensors.data[iyd]; yUp = Qtensors.data[iyu];
+                zDown = Qtensors.data[izd]; zUp = Qtensors.data[izu];
+                dVec spatialTerm(0.0);
                 lcForce::boundaryOneConstantForce(L1,qCurrent,xDown,xUp,yDown,yUp,zDown,zUp,
                         latticeTypes.data[ixd],latticeTypes.data[ixu],latticeTypes.data[iyd],
                         latticeTypes.data[iyu],latticeTypes.data[izd],latticeTypes.data[izu],
                         spatialTerm);
-                if(latticeTypes.data[ixd] >0)//xDown is a boundary
-                    spatialTerm -= (xUp-qCurrent);
-                if(latticeTypes.data[ixu] >0)//xUp is a boundary
-                    spatialTerm -= (xDown-qCurrent);//negative derivative and negative nu_x cancel
-                if(latticeTypes.data[iyd] >0)//ydown is a boundary
-                    spatialTerm -= (yUp-qCurrent);
-                if(latticeTypes.data[iyu] >0)
-                    spatialTerm -= (yDown-qCurrent);//negative derivative and negative nu_y cancel
-                if(latticeTypes.data[izd] >0)//zDown is boundary
-                    spatialTerm -= (zUp-qCurrent);
-                if(latticeTypes.data[izu] >0)
-                    spatialTerm -= (zDown-qCurrent);//negative derivative and negative nu_z cancel
-                spatialTerm = spatialTerm*L1;
-                scalar crossTerm = spatialTerm[0]+spatialTerm[3];
-                spatialTerm[0] += crossTerm;
-                spatialTerm[1] *= 2.0;
-                spatialTerm[2] *= 2.0;
-                spatialTerm[3] += crossTerm;
-                spatialTerm[4] *= 2.0;
-                };
-            force -= spatialTerm;
+                force -= spatialTerm;
             };
-        if(zeroOutForce)
-            h_f.data[currentIndex] = force;
-        else
-            h_f.data[currentIndex] += force;
+            if(zeroOutForce)
+                h_f.data[currentIndex] = force;
+            else
+                h_f.data[currentIndex] += force;
+            };
         };
     };
 
