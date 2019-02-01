@@ -212,6 +212,7 @@ int main(int argc, char*argv[])
             scalar alphaDec=0.9; int nMin=4; scalar forceCutoff=1e-12; scalar alphaMin = 0.5;
             scalar cValue = .0001; int mStorage = 8; scalar tau = 1000;
             shared_ptr<energyMinimizerFIRE> fire =  make_shared<energyMinimizerFIRE>(Configuration);
+            /*
             shared_ptr<energyMinimizerLoLBFGS> lolbfgs = make_shared<energyMinimizerLoLBFGS>(Configuration);
             if(programSwitch == 1)
                 {
@@ -220,6 +221,7 @@ int main(int argc, char*argv[])
                 sim->addUpdater(lolbfgs,Configuration);
                 }
             else
+            */
                 sim->addUpdater(fire,Configuration);
 
             fire->setFIREParameters(dt,alphaStart,deltaTMax,deltaTInc,deltaTDec,alphaDec,nMin,forceCutoff,alphaMin);
@@ -273,6 +275,7 @@ int main(int argc, char*argv[])
             cout << "size of configuration " << Configuration->getClassSize() << endl;
             cout << "size of force computer" << landauLCForce->getClassSize() << endl;
             cout << "size of fire updater " << fire->getClassSize() << endl;
+        //    cout << "size of (unused) lolbfgs updater " << lolbfgs->getClassSize() << endl;
           /*
 
         if(myRank%2 == 0) //send and receive

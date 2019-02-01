@@ -50,6 +50,18 @@ class energyMinimizerLoLBFGS : public equationOfMotion
         void setForceCutoff(scalar fc){forceCutoff = fc;};
 
         bool scheduledMomentum = false;
+
+        virtual scalar getClassSize()
+            {
+            scalar thisClassSize = 0;
+            for (int ii = 0; ii < gradientDifference.size();++ii)
+                {
+                thisClassSize += sizeof(scalar)*DIMENSION*(gradientDifference[ii].getNumElements()+secantEquation[ii].getNumElements());
+                }
+            thisClassSize += sizeof(scalar)*DIMENSION*(unscaledStep.getNumElements());
+            thisClassSize += sizeof(scalar)*(alpha.getNumElements()+sDotY.getNumElements()+sumReductionIntermediate.getNumElements()+sumReductionIntermediate2.getNumElements()+reductions.getNumElements());
+            return 0.000000001*thisClassSize+equationOfMotion::getClassSize();
+            }
     protected:
         void LoLBFGSStepCPU();
         void LoLBFGSStepGPU();

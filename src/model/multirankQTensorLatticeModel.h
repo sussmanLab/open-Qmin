@@ -5,6 +5,13 @@
 #include <mpi.h>
 /*! \file multirankQTensorLatticeModel.h */
 
+/*!
+ In the nomenclature of multi-rank models, the "type" of lattice sites corresponds to:
+-2 --> sites that might be communicated to other ranks (this value can be overwritten)
+-1 --> sites that border at least one boundary (colloid, wall, etc.)
+0 --> bulk sites
+[positive number] --> sites that are part of a boundary object
+*/
 class multirankQTensorLatticeModel : public qTensorLatticeModel
     {
     public:

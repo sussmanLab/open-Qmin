@@ -58,8 +58,9 @@ void landauDeGennesLC::setModel(shared_ptr<cubicLattice> _model)
         lattice->fillNeighborLists(0);
         }
     int N = lattice->getNumberOfParticles();
-    forceCalculationAssist.resize(N);
     energyDensity.resize(N);
+    /*
+    forceCalculationAssist.resize(N);
     if(useGPU)
         {
         ArrayHandle<cubicLatticeDerivativeVector> fca(forceCalculationAssist,access_location::device,access_mode::overwrite);
@@ -73,6 +74,7 @@ void landauDeGennesLC::setModel(shared_ptr<cubicLattice> _model)
         for(int ii = 0; ii < N; ++ii)
             fca.data[ii] = zero;
         };
+    */
     };
 
 void landauDeGennesLC::computeForces(GPUArray<dVec> &forces,bool zeroOutForce, int type)
@@ -411,7 +413,8 @@ void landauDeGennesLC::computeForceOneConstantCPU(GPUArray<dVec> &forces, bool z
             //currentIndex = lattice->getNeighbors(i,neighbors,neighNum);
             int currentIndex = i;
             dVec force(0.0);
-            if(latticeTypes.data[currentIndex] < 0)
+            int siteType = latticeTypes.data[currentIndex];
+            if(siteType < 0)
                 {
                 qCurrent = Qtensors.data[currentIndex];
                 //compute the phase terms depending only on the current site
@@ -430,10 +433,13 @@ void landauDeGennesLC::computeForceOneConstantCPU(GPUArray<dVec> &forces, bool z
                 yDown = Qtensors.data[iyd]; yUp = Qtensors.data[iyu];
                 zDown = Qtensors.data[izd]; zUp = Qtensors.data[izu];
                 dVec spatialTerm(0.0);
-                lcForce::boundaryOneConstantForce(L1,qCurrent,xDown,xUp,yDown,yUp,zDown,zUp,
-                        latticeTypes.data[ixd],latticeTypes.data[ixu],latticeTypes.data[iyd],
-                        latticeTypes.data[iyu],latticeTypes.data[izd],latticeTypes.data[izu],
-                        spatialTerm);
+                if(siteType == -2)
+                    lcForce::bulkOneConstantForce(L1,qCurrent,xDown,xUp,yDown,yUp,zDown,zUp,spatialTerm);
+                else
+                    lcForce::boundaryOneConstantForce(L1,qCurrent,xDown,xUp,yDown,yUp,zDown,zUp,
+                            latticeTypes.data[ixd],latticeTypes.data[ixu],latticeTypes.data[iyd],
+                            latticeTypes.data[iyu],latticeTypes.data[izd],latticeTypes.data[izu],
+                            spatialTerm);
                 force -= spatialTerm;
             };
             if(zeroOutForce)

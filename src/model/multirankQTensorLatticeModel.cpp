@@ -31,14 +31,13 @@ multirankQTensorLatticeModel::multirankQTensorLatticeModel(int lx, int ly, int l
     ArrayHandle<int> h_t(types);
     for (int ii = 0; ii < N; ++ii)
         {
-        //h_t.data[ii] = -1;
         int3 site = indexToPosition(ii);
         if(site.x == 0 || site.y ==0 || site.z ==0 ||
            site.x == latticeSites.x - 1 || 
            site.y == latticeSites.y - 1 ||
            site.z == latticeSites.z - 1)
             {
-            h_t.data[ii] = -1;
+            h_t.data[ii] = -2;
             }
         }
     }
