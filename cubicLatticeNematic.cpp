@@ -161,8 +161,11 @@ int main(int argc, char*argv[])
         if(true)
             {
             cout << "non-visual mode activated on rank " << myRank << endl;
-            if(myRank >= 0 && gpu >=0)
+            if(myRank >= 0 && gpu >=0 && worldSize > 1)
                 GPU = chooseGPU(myLocalRank);
+            else if (gpu >=0)
+                GPU = chooseGPU(gpu);
+
 
            int3 rankTopology = partitionProcessors(worldSize);
            if(myRank ==0)
