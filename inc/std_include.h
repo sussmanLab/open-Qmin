@@ -106,6 +106,12 @@ HOSTDEVICE scalar3 operator+(const scalar3 &a, const scalar3 &b)
     return make_scalar3(a.x+b.x,a.y+b.y,a.z+b.z);
     }
 
+//!component-wise subtraction of two int3s
+HOSTDEVICE int3 operator-(const int3 &a, const int3 &b)
+    {
+    return make_int3(a.x-b.x,a.y-b.y,a.z-b.z);
+    }
+
 //!strict comparison of int3s
 HOSTDEVICE bool operator<(const int3 &a,const int3 &b)
     {
@@ -114,6 +120,15 @@ HOSTDEVICE bool operator<(const int3 &a,const int3 &b)
 HOSTDEVICE bool operator>(const int3 &a,const int3 &b)
     {
     return (a.x > b.x && a.y > b.y && a.z > b.z);
+    }
+//!comparison of int3s
+HOSTDEVICE bool operator<=(const int3 &a,const int3 &b)
+    {
+    return (a.x <= b.x && a.y <= b.y && a.z <= b.z);
+    }
+HOSTDEVICE bool operator>=(const int3 &a,const int3 &b)
+    {
+    return (a.x >= b.x && a.y >= b.y && a.z >= b.z);
     }
 
 //!Handle errors in kernel calls...returns file and line numbers if cudaSuccess doesn't pan out

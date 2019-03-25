@@ -175,7 +175,7 @@ int main(int argc, char*argv[])
             scalar b = -phaseB/phaseA;
             scalar c = phaseC/phaseA;
             noiseSource noise(reproducible);
-            noise.setReproducibleSeed(13377+myRank);
+            noise.setReproducibleSeed(13371+myRank);
             printf("setting a rectilinear lattice of size (%i,%i,%i)\n",boxLx,boxLy,boxLz);
             profiler pInit("initialization");
 
@@ -228,7 +228,7 @@ int main(int argc, char*argv[])
             */
             shared_ptr<energyMinimizerFIRE> fire =  make_shared<energyMinimizerFIRE>(Configuration);
             scalar alphaStart=.99; scalar deltaTMax=100*dt; scalar deltaTInc=1.1; scalar deltaTDec=0.95;
-            scalar alphaDec=0.9; int nMin=4; scalar forceCutoff=1e-12; scalar alphaMin = 0.0;
+            scalar alphaDec=0.9; int nMin=4; scalar forceCutoff=1e-12; scalar alphaMin = 0.75;
             fire->setFIREParameters(dt,alphaStart,deltaTMax,deltaTInc,deltaTDec,alphaDec,nMin,forceCutoff,alphaMin);
             fire->setMaximumIterations(maximumIterations);
 
@@ -242,16 +242,14 @@ int main(int argc, char*argv[])
             sim->setCPUOperation(!GPU);
             printf("initialization done\n");
 
-        /*
         boundaryObject homeotropicBoundary(boundaryType::homeotropic,1.0,S0);
-        scalar3 left;
-        left.x = 0.3*boxLx;left.y = 0.5*boxLy;left.z = 0.5*boxLz;
-        //Configuration->createSimpleSpherialColloid(left,0.1*boxLz, homeotropicBoundary);
-        scalar3 right;
-        right.x = 0.7*boxLx;right.y = 0.5*boxLy;right.z = 0.5*boxLz;
-        //Configuration->createSimpleSpherialColloid(right,0.1*boxLz, homeotropicBoundary);
-        Configuration->createSimpleFlatWallNormal(10,2, homeotropicBoundary);
-        */
+        scalar3 left,center, right;
+        left.x = 0.0*boxLx;left.y = 0.5*boxLy;left.z = 0.5*boxLz;
+        center.x = 1.0*boxLx;center.y = 0.5*boxLy;center.z = 0.5*boxLz;
+        right.x = 1.5*boxLx;right.y = 0.5*boxLy;right.z = 0.5*boxLz;
+        sim->createSphericalColloid(left,5,homeotropicBoundary);
+        sim->createSphericalColloid(center,5,homeotropicBoundary);
+        //sim->createSphericalColloid(right,3,homeotropicBoundary);
         /*
         boundaryObject homeotropicBoundary(boundaryType::homeotropic,1.0,S0);
         scalar3 left;
@@ -279,9 +277,11 @@ int main(int argc, char*argv[])
             if(myRank != 0)
                 printf("min  time %f\n comm time %f\n percent comm: %f\n",totalMinTime,communicationTime,communicationTime/totalMinTime);
 
+            /*
             cout << "size of configuration " << Configuration->getClassSize() << endl;
             cout << "size of force computer" << landauLCForce->getClassSize() << endl;
             cout << "size of fire updater " << fire->getClassSize() << endl;
+            */
         //    cout << "size of (unused) lolbfgs updater " << lolbfgs->getClassSize() << endl;
           /*
 

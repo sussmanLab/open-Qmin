@@ -117,22 +117,26 @@ void energyMinimizerFIRE::fireStepGPU()
  */
 void energyMinimizerFIRE::fireStepCPU()
     {
+    int nTotal = Ndof;
     Power = 0.0;
     forceMax = 0.0;
     {//scope for array handles
     //calculate the power, and precompute norms of vectors
+    ArrayHandle<int> h_t(model->returnTypes(),access_location::host,access_mode::read);
     ArrayHandle<dVec> h_f(model->returnForces(),access_location::host,access_mode::read);
     ArrayHandle<dVec> h_v(model->returnVelocities());
     scalar forceNorm = 0.0;
     scalar velocityNorm = 0.0;
     for (int i = 0; i < Ndof; ++i)
         {
+        if(h_t.data[i] != 0 && h_t.data[i]!= -1)
+            nTotal -= 1;
         Power += dot(h_f.data[i],h_v.data[i]);
         scalar fdot = dot(h_f.data[i],h_f.data[i]);
         forceNorm += fdot;
         velocityNorm += dot(h_v.data[i],h_v.data[i]);
         };
-    forceMax = sqrt(forceNorm) / (scalar)Ndof;
+    forceMax = sqrt(forceNorm) / (scalar)nTotal;
     //printf("fnorm = %g\t velocity norm = %g\n",forceNorm,velocityNorm);
     scaling = 0.0;
     if(forceNorm > 0.)

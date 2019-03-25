@@ -7,6 +7,7 @@
 #include "baseUpdater.h"
 #include "baseForce.h"
 #include "multirankQTensorLatticeModel.h"
+#include "latticeBoundaries.h"
 #include <mpi.h>
 
 /*! \file multirankSimulation.h */
@@ -22,6 +23,13 @@ class multirankSimulation : public basicSimulation, public enable_shared_from_th
             }
         //!move particles, and also communicate halo sites
         virtual void moveParticles(GPUArray<dVec> &displacements,scalar scale = 1.0);
+
+        //A section dedicated to various boundary objects
+        //!the flexible base function...given lattice sites composing an object, determine which are on this rank and add the object
+        void createMultirankBoundaryObject(vector<int3> &latticeSites, vector<dVec> &qTensors, boundaryType _type, scalar Param1, scalar Param2);
+        
+        //!make a simple sphere
+        void createSphericalColloid(scalar3 center, scalar radius, boundaryObject &bObj);
 
         //!handles calls to all necessary halo site transfer
         virtual void communicateHaloSitesRoutine();

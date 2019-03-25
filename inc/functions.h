@@ -173,6 +173,16 @@ HOSTDEVICE int wrap(int x,int m)
     return ans;
     }
 
+//!fit integers into non-negative domains
+HOSTDEVICE int3 wrap(int3 x,int3 m)
+    {
+    int3 ans;
+    ans.x = wrap(x.x,m.x);
+    ans.y = wrap(x.y,m.y);
+    ans.z = wrap(x.z,m.z);
+    return ans;
+    }
+
 HOSTDEVICE bool ordered(int a, int b, int c)
     {
     return (a <= b && b <=c);
