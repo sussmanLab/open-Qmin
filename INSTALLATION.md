@@ -11,7 +11,7 @@
 # Requirements
 
 The current iteration of the code was written using some features of C++11, and was compiled using CUDA-8.0.
-Default compilation is via QT, so you need that, and CMake, too.
+Default compilation is via QT, so you need that, and CMake, too. Multirank simulations tested with openMPI 4.0.0
 
 # Helpful websites
 The requirements can be obtained by looking at the info on the following:
