@@ -75,7 +75,7 @@ void multirankSimulation::synchronizeAndTransferBuffers()
         }
     else
         Conf->readReceivingBuffer();//a single call reads and copies the entire buffer
-    transfersUpToDate = false;
+    transfersUpToDate = true;
     }
 
 /*!
@@ -424,14 +424,24 @@ void multirankSimulation::computeForces()
         {
         auto frc = forceComputers[f].lock();
         bool zeroForces = (f==0 && !Conf->selfForceCompute);
-        //compute bulk sites... since they are in the bulk they can be done while MPI buffers are transfered...
-        frc->computeForces(Conf->returnForces(),zeroForces,0);
-        //wait for communication...
-        if(!transfersUpToDate)
-            synchronizeAndTransferBuffers();
-        //compute boundary sites
-        frc->computeForces(Conf->returnForces(),false,1);
+        //compute bulk sites... since they are in the bulk they can be done while MPI buffers are transfered for CPU-mpi jobs. GPU is not like this, though
+        if(!useGPU && forceComputers.size() == 1)
+            {            
+            frc->computeForces(Conf->returnForces(),zeroForces,0);
+            //wait for communication...
+            if(!transfersUpToDate)
+                synchronizeAndTransferBuffers();
+            //compute boundary sites
+            frc->computeForces(Conf->returnForces(),false,1);
+            }
+        else
+            {
+            frc->computeForces(Conf->returnForces(),zeroForces);
+            }
         };
+    if(forceComputers.size() >1 || !transfersUpToDate)
+        synchronizeAndTransferBuffers();
+
     Conf->forcesComputed = true;
     };
 
