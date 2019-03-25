@@ -273,7 +273,7 @@ int main(int argc, char*argv[])
 
             pMinimize.print();
             sim->p1.print();
-//            sim->saveState("../data/test");
+            sim->saveState("../data/test");
             scalar totalMinTime = pMinimize.timeTaken;
             scalar communicationTime = sim->p1.timeTaken;
             if(myRank != 0)

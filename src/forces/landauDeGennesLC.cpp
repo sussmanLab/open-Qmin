@@ -87,33 +87,20 @@ void landauDeGennesLC::computeForces(GPUArray<dVec> &forces,bool zeroOutForce, i
 
 void landauDeGennesLC::computeForceCPU(GPUArray<dVec> &forces,bool zeroOutForce, int type)
     {
-    if(type == 0 )
+    switch (numberOfConstants)
         {
-        switch (numberOfConstants)
-            {
-            case distortionEnergyType::oneConstant :
-                computeForceOneConstantCPU(forces,zeroOutForce,0);
-                break;
-            case distortionEnergyType::twoConstant :
-                computeForceTwoConstantCPU(forces,zeroOutForce);
-                break;
-            case distortionEnergyType::threeConstant :
-                computeForceThreeConstantCPU(forces,zeroOutForce);
-                break;
-            };
-        }
-    else
+        case distortionEnergyType::oneConstant :
+            computeForceOneConstantCPU(forces,zeroOutForce,type);//type = 0 --> bulk sites
+            break;
+        case distortionEnergyType::twoConstant :
+            computeForceTwoConstantCPU(forces,zeroOutForce);
+            break;
+        case distortionEnergyType::threeConstant :
+            computeForceThreeConstantCPU(forces,zeroOutForce);
+            break;
+        };
+    if(type != 0 )
         {
-        switch (numberOfConstants)
-            {
-            case distortionEnergyType::oneConstant :
-                computeForceOneConstantCPU(forces,zeroOutForce,1);
-                break;
-            case distortionEnergyType::twoConstant :
-                break;
-            case distortionEnergyType::threeConstant :
-                break;
-            };
         if(lattice->boundaries.getNumElements() >0)
             {
             computeBoundaryForcesCPU(forces,false);

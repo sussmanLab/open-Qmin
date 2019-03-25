@@ -29,6 +29,7 @@ multirankQTensorLatticeModel::multirankQTensorLatticeModel(int lx, int ly, int l
     velocities.resize(totalSites);
 
     //by default, set sites that interface with the other ranks to a negative type
+    int tTest = 0;
     ArrayHandle<int> h_t(types);
     for (int ii = 0; ii < N; ++ii)
         {
@@ -39,6 +40,7 @@ multirankQTensorLatticeModel::multirankQTensorLatticeModel(int lx, int ly, int l
             h_t.data[ii]=-2;
         if( zHalo && (site.z ==0 || site.z == latticeSites.z-1))
             h_t.data[ii]=-2;
+        if(h_t.data[ii] == -2) tTest +=1;
         }
     }
 

@@ -75,7 +75,7 @@ void multirankSimulation::synchronizeAndTransferBuffers()
         }
     else
         Conf->readReceivingBuffer();//a single call reads and copies the entire buffer
-    transfersUpToDate = true;
+    transfersUpToDate = false;
     }
 
 /*!
@@ -379,7 +379,6 @@ void multirankSimulation::determineCommunicationPattern( bool _edges, bool _corn
         };
     mpiRequests.resize(4*communicationDirections.size());
     mpiStatuses.resize(4*communicationDirections.size());
-    printf("mpiStatus size %i\n",mpiRequests.size());
     }
 
 /*!
@@ -439,7 +438,7 @@ void multirankSimulation::computeForces()
             frc->computeForces(Conf->returnForces(),zeroForces);
             }
         };
-    if(forceComputers.size() >1 || !transfersUpToDate)
+    if(useGPU)
         synchronizeAndTransferBuffers();
 
     Conf->forcesComputed = true;
@@ -531,16 +530,22 @@ void multirankSimulation::saveState(string fname)
     sprintf(fn,"%s_x%iy%iz%i.txt",fname.c_str(),rankParity.x,rankParity.y,rankParity.z);
 
     printf("saving state...\n");
+
+    int xOffset = rankParity.x*Conf->latticeSites.x;
+    int yOffset = rankParity.y*Conf->latticeSites.y;
+    int zOffset = rankParity.z*Conf->latticeSites.z;
+
     Conf->getAverageEigenvalues();
     ArrayHandle<dVec> pp(Conf->returnPositions());
     ArrayHandle<int> tt(Conf->returnTypes());
     ofstream myfile;
     myfile.open(fn);
-    for (int ii = 0; ii < Conf->totalSites; ++ii)
+    for (int ii = 0; ii < Conf->getNumberOfParticles(); ++ii)
+    //for (int ii = 0; ii < Conf->totalSites; ++ii)
         {
         int3 pos = Conf->indexToPosition(ii);
         int idx = Conf->positionToIndex(pos);
-        myfile << pos.x <<"\t"<<pos.y<<"\t"<<pos.z;
+        myfile << pos.x+xOffset <<"\t"<<pos.y+yOffset<<"\t"<<pos.z+zOffset;
         for (int dd = 0; dd <DIMENSION; ++dd)
             myfile <<"\t"<<pp.data[idx][dd];
         myfile << "\t"<<tt.data[idx]<<"\n";
