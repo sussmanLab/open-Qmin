@@ -700,9 +700,11 @@ scalar gpu_gpuarray_dVec_dot_products(
                         GPUArray<dVec> &input2,
                         GPUArray<scalar> &intermediate,
                         GPUArray<scalar> &intermediate2,
+                        int N,
                         int block_size)
     {
-    int N = input1.getNumElements();
+    if (N == 0)
+        N = input1.getNumElements();
     int Nd = DIMENSION*N;
     unsigned int nblocks  = N/block_size + 1;
     GPUArray<scalar> ans(1,false);

@@ -22,6 +22,7 @@ multirankQTensorLatticeModel::multirankQTensorLatticeModel(int lx, int ly, int l
 
     //totalSites = Lx*Ly*Lz;
     totalSites = N+transferStartStopIndexes[25].y;
+    printf("total sites: %i\n",totalSites);
     positions.resize(totalSites);
     types.resize(totalSites);
     forces.resize(totalSites);
@@ -32,13 +33,12 @@ multirankQTensorLatticeModel::multirankQTensorLatticeModel(int lx, int ly, int l
     for (int ii = 0; ii < N; ++ii)
         {
         int3 site = indexToPosition(ii);
-        if(site.x == 0 || site.y ==0 || site.z ==0 ||
-           site.x == latticeSites.x - 1 || 
-           site.y == latticeSites.y - 1 ||
-           site.z == latticeSites.z - 1)
-            {
-            h_t.data[ii] = -2;
-            }
+        if( xHalo && (site.x ==0 || site.x == latticeSites.x-1))
+            h_t.data[ii]=-2;
+        if( yHalo && (site.y ==0 || site.y == latticeSites.y-1))
+            h_t.data[ii]=-2;
+        if( zHalo && (site.z ==0 || site.z == latticeSites.z-1))
+            h_t.data[ii]=-2;
         }
     }
 
@@ -226,7 +226,6 @@ int multirankQTensorLatticeModel::positionToIndex(int3 &pos)
 
     if(pos.x < latticeSites.x && pos.y < latticeSites.y && pos.z < latticeSites.z && pos.x >=0 && pos.y >= 0 && pos.z >= 0)
         return latticeIndex(pos);
-
     int base = N;
     //0: x = -1 face
     base = N + transferStartStopIndexes[0].x;

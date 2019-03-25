@@ -49,6 +49,7 @@ void energyMinimizerFIRE::initializeFromModel()
     {
     //model->freeGPUArrays(false,false,false);
     Ndof = model->getNumberOfParticles();
+    printf("FIRE dof = %i\n",Ndof);
     displacement.resize(Ndof);
     sumReductionIntermediate.resize(Ndof);
     sumReductionIntermediate2.resize(Ndof);
@@ -73,11 +74,11 @@ void energyMinimizerFIRE::fireStepGPU()
     Power = 0.0;
     forceMax = 0.0;
     scalar forceNorm = gpu_gpuarray_dVec_dot_products(model->returnForces(),model->returnForces(),
-                                                sumReductionIntermediate,sumReductionIntermediate2);
+                                                sumReductionIntermediate,sumReductionIntermediate2,Ndof);
     Power = gpu_gpuarray_dVec_dot_products(model->returnForces(),model->returnVelocities(),
-                                                sumReductionIntermediate,sumReductionIntermediate2);
+                                                sumReductionIntermediate,sumReductionIntermediate2,Ndof);
     scalar velocityNorm = gpu_gpuarray_dVec_dot_products(model->returnVelocities(),model->returnVelocities(),
-                                                sumReductionIntermediate,sumReductionIntermediate2);
+                                                sumReductionIntermediate,sumReductionIntermediate2,Ndof);
     forceMax = sqrt(forceNorm) / (scalar)Ndof;
     scaling = 0.0;
     if(forceNorm > 0.)
@@ -128,7 +129,6 @@ void energyMinimizerFIRE::fireStepCPU()
         {
         Power += dot(h_f.data[i],h_v.data[i]);
         scalar fdot = dot(h_f.data[i],h_f.data[i]);
-//        if (fdot > forceMax) forceMax = fdot;
         forceNorm += fdot;
         velocityNorm += dot(h_v.data[i],h_v.data[i]);
         };

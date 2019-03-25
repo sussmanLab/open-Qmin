@@ -92,6 +92,7 @@ scalar gpu_gpuarray_dVec_dot_products(
                     GPUArray<dVec> &input2,
                     GPUArray<scalar> &intermediate,
                     GPUArray<scalar> &intermediate2,
+                    int N = 0,
                     int maxBlockSize=512);
 
 //!access cuda sdk reduction6

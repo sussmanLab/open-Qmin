@@ -119,11 +119,17 @@ void landauDeGennesLC::computeForceCPU(GPUArray<dVec> &forces,bool zeroOutForce,
             computeBoundaryForcesCPU(forces,false);
             };
         if(useL24)
+            {
             computeL24ForcesCPU(forces, false);
+            };
         if(computeEfieldContribution)
+            {
             computeEorHFieldForcesCPU(forces,false, Efield,deltaEpsilon,epsilon0);
+            };
         if(computeHfieldContribution)
+            {
             computeEorHFieldForcesCPU(forces,false,Hfield,deltaChi,mu0);
+            };
         };
     };
 

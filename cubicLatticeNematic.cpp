@@ -84,9 +84,9 @@ int main(int argc, char*argv[])
     ValueArg<int> kSwitchArg("k","nConstants","approximation for distortion term",false,1,"int",cmd);
 
 
-    ValueArg<scalar> l1SwitchArg("","L1","value of L1 term",false,2.32,"scalar",cmd);
-    ValueArg<scalar> l2SwitchArg("","L2","value of L2 term",false,2.32,"scalar",cmd);
-    ValueArg<scalar> l3SwitchArg("","L3","value of L3 term",false,2.32,"scalar",cmd);
+    ValueArg<scalar> l1SwitchArg("","L1","value of L1 term",false,4.64,"scalar",cmd);
+    ValueArg<scalar> l2SwitchArg("","L2","value of L2 term",false,4.64,"scalar",cmd);
+    ValueArg<scalar> l3SwitchArg("","L3","value of L3 term",false,4.64,"scalar",cmd);
 
     ValueArg<int> lSwitchArg("l","boxL","number of lattice sites for cubic box",false,50,"int",cmd);
     ValueArg<int> lxSwitchArg("","Lx","number of lattice sites in x direction",false,50,"int",cmd);
@@ -193,29 +193,30 @@ int main(int argc, char*argv[])
             pInit.end();
 
             landauLCForce->setPhaseConstants(a,b,c);
+            printf("relative phase constants: %f\t%f\t%f\n",a,b,c);
             if(nConstants ==1)
                 {
+                printf("using 1-constant approximation: %f \n",L1);
                 landauLCForce->setElasticConstants(L1,0,0);
                 landauLCForce->setNumberOfConstants(distortionEnergyType::oneConstant);
                 }
             if(nConstants ==2)
                 {
+                printf("using 2-constant approximation: %f\t%f\t%f \n",L1,L2,q0);
                 landauLCForce->setElasticConstants(L1,L2,q0);
                 landauLCForce->setNumberOfConstants(distortionEnergyType::twoConstant);
                 }
             if(nConstants ==3)
                 {
+                printf("using 3-constant approximation: %f\t%f\t%f \n",L1,L2,L3);
                 landauLCForce->setElasticConstants(L1,L2,L3);
                 landauLCForce->setNumberOfConstants(distortionEnergyType::threeConstant);
                 }
             landauLCForce->setModel(Configuration);
             sim->addForce(landauLCForce);
 
-            scalar alphaStart=.99; scalar deltaTMax=100*dt; scalar deltaTInc=1.1; scalar deltaTDec=0.95;
-            scalar alphaDec=0.9; int nMin=4; scalar forceCutoff=1e-12; scalar alphaMin = 0.5;
-            scalar cValue = .0001; int mStorage = 8; scalar tau = 1000;
-            shared_ptr<energyMinimizerFIRE> fire =  make_shared<energyMinimizerFIRE>(Configuration);
             /*
+            scalar cValue = .0001; int mStorage = 8; scalar tau = 1000;
             shared_ptr<energyMinimizerLoLBFGS> lolbfgs = make_shared<energyMinimizerLoLBFGS>(Configuration);
             if(programSwitch == 1)
                 {
@@ -225,10 +226,13 @@ int main(int argc, char*argv[])
                 }
             else
             */
-                sim->addUpdater(fire,Configuration);
-
+            shared_ptr<energyMinimizerFIRE> fire =  make_shared<energyMinimizerFIRE>(Configuration);
+            scalar alphaStart=.99; scalar deltaTMax=100*dt; scalar deltaTInc=1.1; scalar deltaTDec=0.95;
+            scalar alphaDec=0.9; int nMin=4; scalar forceCutoff=1e-12; scalar alphaMin = 0.0;
             fire->setFIREParameters(dt,alphaStart,deltaTMax,deltaTInc,deltaTDec,alphaDec,nMin,forceCutoff,alphaMin);
             fire->setMaximumIterations(maximumIterations);
+
+            sim->addUpdater(fire,Configuration);
 
             sim->setCPUOperation(true);//have cpu and gpu initialized the same...for debugging
             //sim->setNThreads(nThreads);
@@ -265,7 +269,7 @@ int main(int argc, char*argv[])
 
             scalar E1 = sim->computePotentialEnergy(true);
             scalar maxForce = fire->getMaxForce();
-            printf("minimized to %f\t E=%f\t\n",maxForce,E1);
+            printf("minimized to %g\t E=%f\t\n",maxForce,E1);
 
             pMinimize.print();
             sim->p1.print();

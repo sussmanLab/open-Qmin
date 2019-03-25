@@ -73,7 +73,7 @@ class energyMinimizerFIRE : public velocityVerlet
             }
 
     protected:
-        //!The cutoff value of the maximum force
+        //!sqrt(force.force) / N_{dof}
         scalar forceMax;
         //!The cutoff value of the maximum force
         scalar forceCutoff;

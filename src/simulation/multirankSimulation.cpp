@@ -379,6 +379,7 @@ void multirankSimulation::determineCommunicationPattern( bool _edges, bool _corn
         };
     mpiRequests.resize(4*communicationDirections.size());
     mpiStatuses.resize(4*communicationDirections.size());
+    printf("mpiStatus size %i\n",mpiRequests.size());
     }
 
 /*!
