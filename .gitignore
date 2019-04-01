@@ -17,6 +17,7 @@ cmake_install.cmake
 **/cmake_install.cmake
 build/*
 mpiBuild/*
+mpi2/*
 debug/*
 data/*
 doc/doxygenOutput

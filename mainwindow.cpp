@@ -11,12 +11,12 @@
 #include <Qt3DInput/QInputAspect>
 
 #include <Qt3DRender/QRenderAspect>
-#include <Qt3DExtras/Qt3DWindow>
-#include <Qt3DExtras/QForwardRenderer>
-#include <Qt3DExtras/QPhongMaterial>
-#include <Qt3DExtras/QCylinderMesh>
-#include <Qt3DExtras/QSphereMesh>
-#include <Qt3DExtras/QTorusMesh>
+//#include <Qt3DExtras/Qt3DWindow>
+//#include <Qt3DExtras/QForwardRenderer>
+//#include <Qt3DExtras/QPhongMaterial>
+//#include <Qt3DExtras/QCylinderMesh>
+//#include <Qt3DExtras/QSphereMesh>
+//#include <Qt3DExtras/QTorusMesh>
 
 #include <QPropertyAnimation>
 #include <chrono>

@@ -30,7 +30,8 @@ if(APPLE)
     set(Qt5_DIR "/Users/dmsussma/Qt/5.11.2/clang_64/lib/cmake/Qt5")
     set(Qt5OpenGL_DIR "/Users/dmsussma/Qt/5.11.2/clang_64/lib/cmake/Qt5OpenGL")
     find_package(Qt5OpenGL REQUIRED)
-    find_package(Qt5 COMPONENTS Core Gui Widgets 3DCore 3DExtras 3DRender 3DInput OpenGL)
+    #find_package(Qt5 COMPONENTS Core Gui Widgets 3DCore 3DExtras 3DRender 3DInput OpenGL)
+    find_package(Qt5 COMPONENTS Core Gui Widgets 3DCore 3DRender 3DInput OpenGL)
     find_package(OpenGL)
 elseif(UNIX)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
@@ -41,10 +42,11 @@ elseif(UNIX)
     set(Qt53DCore_DIR "/home/user/Qt/5.11.2/gcc_64/lib/cmake/Qt53DCore")
     set(Qt53DRender_DIR "/home/user/Qt/5.11.2/gcc_64/lib/cmake/Qt53DRender")
     set(Qt53DInput_DIR "/home/user/Qt/5.11.2/gcc_64/lib/cmake/Qt53DInput")
-    set(Qt53DExtras_DIR "/home/user/Qt/5.11.2/gcc_64/lib/cmake/Qt53DExtras")
+    #set(Qt53DExtras_DIR "/home/user/Qt/5.11.2/gcc_64/lib/cmake/Qt53DExtras")
     find_package(Qt5Widgets REQUIRED)
     find_package(Qt5OpenGL REQUIRED)
-    find_package(Qt5 COMPONENTS Core Gui Widgets 3DCore 3DExtras 3DRender 3DInput OpenGL)
+    find_package(Qt5 COMPONENTS Core Gui Widgets 3DCore 3DRender 3DInput OpenGL)
+    #find_package(Qt5 COMPONENTS Core Gui Widgets 3DCore 3DExtras 3DRender 3DInput OpenGL)
     find_package(OpenGL)
 endif()
 
@@ -100,7 +102,7 @@ target_link_libraries(landauDeGUI.out ${myLibs} ${CUDA_LIBRARIES} ${OPENGL_LIBRA
     Qt5::Core
     Qt5::Gui
     Qt5::3DCore
-    Qt5::3DExtras
+#    Qt5::3DExtras
     Qt5::3DRender
     Qt5::3DInput)
 qt5_use_modules(landauDeGUI.out Widgets)
