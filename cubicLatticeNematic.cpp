@@ -246,9 +246,14 @@ int main(int argc, char*argv[])
         left.x = 0.0*boxLx;left.y = 0.5*boxLy;left.z = 0.5*boxLz;
         center.x = 1.0*boxLx;center.y = 0.5*boxLy;center.z = 0.5*boxLz;
         right.x = 1.5*boxLx;right.y = 0.5*boxLy;right.z = 0.5*boxLz;
-        sim->createSphericalColloid(left,4,homeotropicBoundary);
-        //sim->createSphericalColloid(center,5,homeotropicBoundary);
-        sim->createSphericalColloid(right,4,homeotropicBoundary);
+        //sim->createSphericalColloid(left,4,homeotropicBoundary);
+        sim->createSphericalColloid(center,5,homeotropicBoundary);
+        //sim->createSphericalColloid(right,4,homeotropicBoundary);
+
+        //sim->createWall(0, 5, homeotropicBoundary);
+        sim->createWall(0, 0, homeotropicBoundary);
+
+        sim->finalizeObjects();
         /*
         boundaryObject homeotropicBoundary(boundaryType::homeotropic,1.0,S0);
         scalar3 left;

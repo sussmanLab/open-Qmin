@@ -3,7 +3,6 @@
 
 void multirankSimulation::communicateHaloSitesRoutine()
     {
-    transfersUpToDate = false;
     //first, prepare the send buffers
     {
     auto Conf = mConfiguration.lock();
@@ -57,6 +56,7 @@ void multirankSimulation::communicateHaloSitesRoutine()
             }
         }
     }//end MPI routines
+    synchronizeAndTransferBuffers();
     }
 
 void multirankSimulation::synchronizeAndTransferBuffers()
@@ -75,7 +75,7 @@ void multirankSimulation::synchronizeAndTransferBuffers()
         }
     else
         Conf->readReceivingBuffer();//a single call reads and copies the entire buffer
-    transfersUpToDate = false;
+    transfersUpToDate = true;
     }
 
 /*!
@@ -88,6 +88,7 @@ void multirankSimulation::moveParticles(GPUArray<dVec> &displacements,scalar sca
     auto Conf = mConfiguration.lock();
     Conf->moveParticles(displacements,scale);
         }
+    transfersUpToDate = false;
     p1.start();
     communicateHaloSitesRoutine();
     p1.end();
@@ -520,6 +521,7 @@ void multirankSimulation::performTimestep()
         {
         auto upd = updaters[u].lock();
         upd->Update(integerTimestep);
+        transfersUpToDate = false;
         };
     };
 
