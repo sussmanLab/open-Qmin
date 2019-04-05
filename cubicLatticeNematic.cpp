@@ -251,7 +251,7 @@ int main(int argc, char*argv[])
         //sim->createSphericalColloid(right,4,homeotropicBoundary);
 
         //sim->createWall(0, 5, homeotropicBoundary);
-        sim->createWall(0, 0, homeotropicBoundary);
+        sim->createWall(1, 0, homeotropicBoundary);
 
         sim->finalizeObjects();
         /*
