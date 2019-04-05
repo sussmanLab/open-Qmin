@@ -6,4 +6,5 @@ include_directories(${CMAKE_SOURCE_DIR}/inc ${CUDA_INCLUDE_DIRS} ${MPI_INCLUDE_P
 add_library(simulation
     basicSimulation.cpp
     simulation.cpp
-    multirankSimulation.cpp)
+    multirankSimulation.cpp
+    multrankSimulationBoundaries.cpp)

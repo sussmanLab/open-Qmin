@@ -24,10 +24,10 @@ class multirankSimulation : public basicSimulation, public enable_shared_from_th
         //!move particles, and also communicate halo sites
         virtual void moveParticles(GPUArray<dVec> &displacements,scalar scale = 1.0);
 
-        //A section dedicated to various boundary objects
+        //A section dedicated to various boundary objects. For convenience, these are implemented in a separate (mmultrankSimulationBoundaries) cpp file
         //!the flexible base function...given lattice sites composing an object, determine which are on this rank and add the object
         void createMultirankBoundaryObject(vector<int3> &latticeSites, vector<dVec> &qTensors, boundaryType _type, scalar Param1, scalar Param2);
-        
+
         //!make a simple sphere
         void createSphericalColloid(scalar3 center, scalar radius, boundaryObject &bObj);
 

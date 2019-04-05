@@ -70,7 +70,7 @@ int main(int argc, char*argv[])
     //define the various command line strings that can be passed in...
     //ValueArg<T> variableName("shortflag","longFlag","description",required or not, default value,"value type",CmdLine object to add to
     ValueArg<int> programSwitchArg("z","programSwitch","an integer controlling program branch",false,0,"int",cmd);
-    SwitchArg nonvisualSwitch("v","nonVisualMode","run without the GUI", cmd, false);
+    SwitchArg visualSwitch("v","visualMode","run with the GUI", cmd, false);
     SwitchArg reproducibleSwitch("r","reproducible","reproducible random number generation", cmd, true);
 
     ValueArg<scalar> aSwitchArg("a","phaseConstantA","value of phase constant A",false,0.172,"scalar",cmd);
@@ -79,7 +79,7 @@ int main(int argc, char*argv[])
 
     ValueArg<scalar> dtSwitchArg("e","deltaT","step size for minimizer",false,0.0005,"scalar",cmd);
 
-    ValueArg<int> gpuSwitchArg("g","GPU","which gpu to use",false,0,"int",cmd);
+    ValueArg<int> gpuSwitchArg("g","GPU","which gpu to use",false,-1,"int",cmd);
     ValueArg<int> iterationsSwitchArg("i","iterations","number of minimization steps",false,100,"int",cmd);
     ValueArg<int> kSwitchArg("k","nConstants","approximation for distortion term",false,1,"int",cmd);
 
@@ -100,7 +100,7 @@ int main(int argc, char*argv[])
     //parse the arguments
     cmd.parse( argc, argv );
     //define variables that correspond to the command line parameters
-    bool nonvisualMode = nonvisualSwitch.getValue();
+    bool visualMode = visualSwitch.getValue();
     bool reproducible = reproducibleSwitch.getValue();
     int gpu = gpuSwitchArg.getValue();
     int programSwitch = programSwitchArg.getValue();
@@ -135,7 +135,7 @@ int main(int argc, char*argv[])
     scalar dt = dtSwitchArg.getValue();
     int maximumIterations = iterationsSwitchArg.getValue();
 
-    if(!nonvisualMode)
+    if(visualMode) //activate the gui
         {
         if(myRank ==0)
             {
@@ -155,9 +155,8 @@ int main(int argc, char*argv[])
             }
         MPI_Finalize();
         }
-    else
-        {//headless mode
-        //if(myRank ==0)
+    else // otherwise, run off of the command line parameters
+        {
         if(true)
             {
             cout << "non-visual mode activated on rank " << myRank << endl;
