@@ -83,6 +83,9 @@ class multirankSimulation : public basicSimulation, public enable_shared_from_th
         //!Call every updater to advance one time step
         void performTimestep();
 
+        //! manipulate data from updaters
+        virtual void sumUpdaterData(vector<scalar> &data);
+
         //!compute the potential energy associated with all of the forces
         virtual scalar computePotentialEnergy(bool verbose = false);
         //!compute the kinetic energy
@@ -111,8 +114,10 @@ class multirankSimulation : public basicSimulation, public enable_shared_from_th
         vector<int2> communicationDirections;
         vector<bool> communicationDirectionParity;
         vector<int> communicationTargets;
-
+        
+        //!integer for this rank
         int myRank;
+        //!total number of ranks
         int nRanks;
         //!the number of ranks per {x,y,z} axis
         int3 rankTopology;
@@ -130,6 +135,6 @@ class multirankSimulation : public basicSimulation, public enable_shared_from_th
         MPI_Status mpiStatus;
         vector<MPI_Status> mpiStatuses;
         vector<MPI_Request> mpiRequests;
-
+        vector<scalar> dataBuffer;
     };
 #endif

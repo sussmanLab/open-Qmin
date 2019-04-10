@@ -7,4 +7,4 @@ add_library(simulation
     basicSimulation.cpp
     simulation.cpp
     multirankSimulation.cpp
-    multrankSimulationBoundaries.cpp)
+    multirankSimulationBoundaries.cpp)

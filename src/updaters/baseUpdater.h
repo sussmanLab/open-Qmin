@@ -83,6 +83,8 @@ class updater
             {
             return 0.000000001*(6*sizeof(int) + 2*sizeof(bool) + sizeof(scalar));
             }
+
+        vector<scalar> updaterData;
     protected:
         //!number of threads to use
         int nThreads=1;

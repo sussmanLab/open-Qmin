@@ -227,7 +227,7 @@ int main(int argc, char*argv[])
             */
             shared_ptr<energyMinimizerFIRE> fire =  make_shared<energyMinimizerFIRE>(Configuration);
             scalar alphaStart=.99; scalar deltaTMax=100*dt; scalar deltaTInc=1.1; scalar deltaTDec=0.95;
-            scalar alphaDec=0.9; int nMin=4; scalar forceCutoff=1e-12; scalar alphaMin = 0.;
+            scalar alphaDec=0.9; int nMin=4; scalar forceCutoff=1e-12; scalar alphaMin = .0;
             fire->setFIREParameters(dt,alphaStart,deltaTMax,deltaTInc,deltaTDec,alphaDec,nMin,forceCutoff,alphaMin);
             fire->setMaximumIterations(maximumIterations);
 
@@ -247,11 +247,11 @@ int main(int argc, char*argv[])
         center.x = 1.0*boxLx;center.y = 0.5*boxLy;center.z = 0.5*boxLz;
         right.x = 1.5*boxLx;right.y = 0.5*boxLy;right.z = 0.5*boxLz;
         //sim->createSphericalColloid(left,4,homeotropicBoundary);
-        sim->createSphericalColloid(center,5,homeotropicBoundary);
+//        sim->createSphericalColloid(center,5,homeotropicBoundary);
         //sim->createSphericalColloid(right,4,homeotropicBoundary);
 
         //sim->createWall(0, 5, homeotropicBoundary);
-        sim->createWall(1, 0, homeotropicBoundary);
+//        sim->createWall(1, 0, homeotropicBoundary);
 
         sim->finalizeObjects();
         /*

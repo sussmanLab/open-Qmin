@@ -1,6 +1,28 @@
 #include "multirankSimulation.h"
 /*! \file multirankSimulation.cpp */
 
+void multirankSimulation::sumUpdaterData(vector<scalar> &data)
+    {
+    int elements = data.size();
+    int rElements = elements * nRanks;
+    if (dataBuffer.size() < rElements)
+        dataBuffer.resize(rElements);
+//    printf("before %i %f %f %f\n",myRank,data[0],data[1],data[2]);
+
+    p1.start();
+    MPI_Allgather(&data[0],elements,MPI_SCALAR,&dataBuffer[0],elements,MPI_SCALAR,MPI_COMM_WORLD);
+    p1.end();
+    for (int ii = 0; ii < elements; ++ii) data[ii] = 0.0;
+
+    for (int ii = 0; ii < elements; ++ii)
+        for (int rr = 0; rr < nRanks; ++rr)
+            {
+            data[ii] += dataBuffer[rr*elements+ii];
+            }
+
+//    printf("after %i %f %f %f\n",myRank,data[0],data[1],data[2]);
+    };
+
 void multirankSimulation::communicateHaloSitesRoutine()
     {
     //first, prepare the send buffers
@@ -102,7 +124,7 @@ void multirankSimulation::setRankTopology(int x, int y, int z)
     int Px, Py, Pz;
     parityTest = Index3D(rankTopology);
     rankParity = parityTest.inverseIndex(myRank);
-
+    nRanks = x*y*z;
     }
 
 void multirankSimulation::determineCommunicationPattern( bool _edges, bool _corners)

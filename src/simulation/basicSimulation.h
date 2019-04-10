@@ -43,6 +43,9 @@ class basicSimulation
         //!reset the simulation clock counter
         virtual void setCurrentTimestep(int _cTime){integerTimestep =_cTime;};
 
+        //! manipulate data from updaters
+        virtual void sumUpdaterData(vector<scalar> &data){};
+
         //!for debugging...
         virtual scalar computeKineticEnergy(bool verbose =false){return 0.0;};
 

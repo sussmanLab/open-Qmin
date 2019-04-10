@@ -38,6 +38,7 @@ void energyMinimizerFIRE::initializeParameters()
     setNMin(5);
     setGPU(false);
     alphaMin = 0.0;
+    updaterData.resize(3);
     };
 
 
@@ -79,6 +80,15 @@ void energyMinimizerFIRE::fireStepGPU()
                                                 sumReductionIntermediate,sumReductionIntermediate2,Ndof);
     scalar velocityNorm = gpu_gpuarray_dVec_dot_products(model->returnVelocities(),model->returnVelocities(),
                                                 sumReductionIntermediate,sumReductionIntermediate2,Ndof);
+
+    updaterData[0] = forceNorm;
+    updaterData[1] = Power;
+    updaterData[2] = velocityNorm;
+    sim->sumUpdaterData(updaterData);
+    forceNorm = updaterData[0];
+    Power = updaterData[1];
+    velocityNorm = updaterData[2];
+
     forceMax = sqrt(forceNorm) / (scalar)Ndof;
     scaling = 0.0;
     if(forceNorm > 0.)
@@ -136,7 +146,16 @@ void energyMinimizerFIRE::fireStepCPU()
         forceNorm += fdot;
         velocityNorm += dot(h_v.data[i],h_v.data[i]);
         };
-    forceMax = sqrt(forceNorm) / (scalar)nTotal;
+
+    updaterData[0] = forceNorm;
+    updaterData[1] = Power;
+    updaterData[2] = velocityNorm;
+    sim->sumUpdaterData(updaterData);
+    forceNorm = updaterData[0];
+    Power = updaterData[1];
+    velocityNorm = updaterData[2];
+
+    forceMax = sqrt(forceNorm) / (scalar)Ndof;
     //printf("fnorm = %g\t velocity norm = %g\n",forceNorm,velocityNorm);
     scaling = 0.0;
     if(forceNorm > 0.)
@@ -149,7 +168,6 @@ void energyMinimizerFIRE::fireStepCPU()
         };
     };
 
-    //if (Power < 0 || iterations % 100 == 1)
     if (Power < 0)
         {
         NSinceNegativePower = 0;
@@ -187,7 +205,7 @@ void energyMinimizerFIRE::minimize()
     sim->computeForces();
     int curIterations = iterations;
     //always iterate at least once
-    while(iterations < maxIterations )// remove while so that MPI ranks don't desync//&& (forceMax > forceCutoff)) || iterations == curIterations )
+    while((iterations < maxIterations && forceMax > forceCutoff) || iterations == curIterations)
         {
         iterations +=1;
         integrateEquationOfMotion();
