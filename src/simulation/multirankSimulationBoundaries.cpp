@@ -30,6 +30,40 @@ void multirankSimulation::finalizeObjects()
     cout << " objects finalized" << endl;
     }
 
+void multirankSimulation::createMultirankBoundaryObject(vector<int3> &latticeSites, vector<dVec> &qTensors, boundaryType _type, scalar Param1, scalar Param2)
+    {
+    auto Conf = mConfiguration.lock();
+    ArrayHandle<dVec> pos(Conf->returnPositions());
+    int3 globalLatticeSize;//the maximum size of the combined simulation
+    int3 latticeMin;//where this rank sites in that lattice (min)
+    int3 latticeMax;//...and (max)
+    globalLatticeSize.x = rankTopology.x*Conf->latticeSites.x;
+    globalLatticeSize.y = rankTopology.y*Conf->latticeSites.y;
+    globalLatticeSize.z = rankTopology.z*Conf->latticeSites.z;
+    latticeMin.x = rankParity.x*Conf->latticeSites.x;
+    latticeMin.y = rankParity.y*Conf->latticeSites.y;
+    latticeMin.z = rankParity.z*Conf->latticeSites.z;
+    latticeMax.x = (1+rankParity.x)*Conf->latticeSites.x;
+    latticeMax.y = (1+rankParity.y)*Conf->latticeSites.y;
+    latticeMax.z = (1+rankParity.z)*Conf->latticeSites.z;
+    vector<int> latticeSitesToEmploy;
+    for (int ii = 0; ii < latticeSites.size(); ++ii)
+        {
+        //make sure the site is within the simulation box
+        int3 currentSite = wrap(latticeSites[ii],globalLatticeSize);;
+        //check if it is within control of this rank
+        if(currentSite >=latticeMin && currentSite < latticeMax)
+            {
+            int3 currentLatticePos = currentSite - latticeMin;
+            int currentLatticeSite = Conf->positionToIndex(currentLatticePos);
+            latticeSitesToEmploy.push_back(currentLatticeSite);
+            pos.data[currentLatticeSite] = qTensors[ii];
+
+            };
+        };
+    Conf->createBoundaryObject(latticeSitesToEmploy,_type,Param1,Param2);
+    };
+
 /*!
 /param xyz int that is 0, 1, or 2 for wall normal x, y, and z, respectively
 */
@@ -132,6 +166,10 @@ void multirankSimulation::createSphericalColloid(scalar3 center, scalar radius, 
                         }
                     case boundaryType::degeneratePlanar:
                         {
+                        scalar nrm = norm(disp);
+                        disp.x /=nrm;
+                        disp.y /=nrm;
+                        disp.z /=nrm;
                         Qtensor[0]=disp.x; Qtensor[1] = disp.y; Qtensor[2] = disp.z;
                         break;
                         }
@@ -145,36 +183,118 @@ void multirankSimulation::createSphericalColloid(scalar3 center, scalar radius, 
     createMultirankBoundaryObject(boundSites,qTensors,bObj.boundary,bObj.P1,bObj.P2);
     };
 
-void multirankSimulation::createMultirankBoundaryObject(vector<int3> &latticeSites, vector<dVec> &qTensors, boundaryType _type, scalar Param1, scalar Param2)
+void multirankSimulation::createSphericalCavity(scalar3 center, scalar radius, boundaryObject &bObj)
     {
-    auto Conf = mConfiguration.lock();
-    ArrayHandle<dVec> pos(Conf->returnPositions());
+    dVec Qtensor(0.);
+    scalar S0 = bObj.P2;
     int3 globalLatticeSize;//the maximum size of the combined simulation
-    int3 latticeMin;//where this rank sites in that lattice (min)
-    int3 latticeMax;//...and (max)
+    auto Conf = mConfiguration.lock();
     globalLatticeSize.x = rankTopology.x*Conf->latticeSites.x;
     globalLatticeSize.y = rankTopology.y*Conf->latticeSites.y;
     globalLatticeSize.z = rankTopology.z*Conf->latticeSites.z;
-    latticeMin.x = rankParity.x*Conf->latticeSites.x;
-    latticeMin.y = rankParity.y*Conf->latticeSites.y;
-    latticeMin.z = rankParity.z*Conf->latticeSites.z;
-    latticeMax.x = (1+rankParity.x)*Conf->latticeSites.x;
-    latticeMax.y = (1+rankParity.y)*Conf->latticeSites.y;
-    latticeMax.z = (1+rankParity.z)*Conf->latticeSites.z;
-    vector<int> latticeSitesToEmploy;
-    for (int ii = 0; ii < latticeSites.size(); ++ii)
-        {
-        //make sure the site is within the simulation box
-        int3 currentSite = wrap(latticeSites[ii],globalLatticeSize);;
-        //check if it is within control of this rank
-        if(currentSite >=latticeMin && currentSite < latticeMax)
+    vector<int3> boundSites;
+    vector<dVec> qTensors;
+    scalar radiusSquared = radius*radius;
+    for (int xx = 0; xx < globalLatticeSize.x; ++xx)
+        for (int yy = 0; yy < globalLatticeSize.y; ++yy)
+            for (int zz = 0; zz < globalLatticeSize.z; ++zz)
             {
-            int3 currentLatticePos = currentSite - latticeMin;
-            int currentLatticeSite = Conf->positionToIndex(currentLatticePos);
-            latticeSitesToEmploy.push_back(currentLatticeSite);
-            pos.data[currentLatticeSite] = qTensors[ii];
+            scalar3 disp;
+            disp.x = xx - center.x;
+            disp.y = yy - center.y;
+            disp.z = zz - center.z;
 
-            };
-        };
-    Conf->createBoundaryObject(latticeSitesToEmploy,_type,Param1,Param2);
+            if((disp.x*disp.x+disp.y*disp.y+disp.z*disp.z) < radiusSquared)
+                {
+                int3 sitePos;
+                sitePos.x = xx;
+                sitePos.y = yy;
+                sitePos.z = zz;
+                boundSites.push_back(sitePos);
+                switch(bObj.boundary)
+                    {
+                    case boundaryType::homeotropic:
+                        {
+                        qTensorFromDirector(disp, S0, Qtensor);
+                        break;
+                        }
+                    case boundaryType::degeneratePlanar:
+                        {
+                        scalar nrm = norm(disp);
+                        disp.x /=nrm;
+                        disp.y /=nrm;
+                        disp.z /=nrm;
+                        Qtensor[0]=disp.x; Qtensor[1] = disp.y; Qtensor[2] = disp.z;
+                        break;
+                        }
+                    default:
+                        UNWRITTENCODE("non-defined boundary type is attempting to create a boundary");
+                    };
+                qTensors.push_back(Qtensor);
+                };
+            }
+    printf("sphercal cavity with %lu sites created\n",boundSites.size());
+    createMultirankBoundaryObject(boundSites,qTensors,bObj.boundary,bObj.P1,bObj.P2);
+    };
+/*!
+define a cylinder by it's two endpoints and it's prependicular radius. 
+\param colloidOrCapillary if true, points inside the radius are the object (i.e., a colloid), else points outside are the object (i.e., a surrounding capillary)
+*/
+void multirankSimulation::createCylindricalObject(scalar3 cylinderStart, scalar3 cylinderEnd, scalar radius, bool colloidOrCapillary, boundaryObject &bObj)
+    {
+    dVec Qtensor(0.);
+    scalar S0 = bObj.P2;
+    int3 globalLatticeSize;//the maximum size of the combined simulation
+    auto Conf = mConfiguration.lock();
+    globalLatticeSize.x = rankTopology.x*Conf->latticeSites.x;
+    globalLatticeSize.y = rankTopology.y*Conf->latticeSites.y;
+    globalLatticeSize.z = rankTopology.z*Conf->latticeSites.z;
+    vector<int3> boundSites;
+    vector<dVec> qTensors;
+    scalar radiusSquared = radius*radius;
+    for (int xx = 0; xx < globalLatticeSize.x; ++xx)
+        for (int yy = 0; yy < globalLatticeSize.y; ++yy)
+            for (int zz = 0; zz < globalLatticeSize.z; ++zz)
+                {
+                //p is the lattice point, disp will get the direction from lattice point to cylinder center
+                scalar3 p,disp;
+                p.x=xx;p.y=yy;p.z=zz;
+                scalar dist = truncatedPointSegmentDistance(p,cylinderStart,cylinderEnd,disp);
+                if(dist <0) //the shortest distance is past one of the endpoints
+                    continue;
+                if((dist < radius && colloidOrCapillary)
+                        || (dist > radius && !colloidOrCapillary))
+                    {
+                    int3 sitePos;
+                    sitePos.x = xx;
+                    sitePos.y = yy;
+                    sitePos.z = zz;
+                    boundSites.push_back(sitePos);
+                    switch(bObj.boundary)
+                        {
+                        case boundaryType::homeotropic:
+                            {
+                            qTensorFromDirector(disp, S0, Qtensor);
+                            break;
+                            }
+                        case boundaryType::degeneratePlanar:
+                            {
+                            scalar nrm = norm(disp);
+                            disp.x /=nrm;
+                            disp.y /=nrm;
+                            disp.z /=nrm;
+                            Qtensor[0]=disp.x; Qtensor[1] = disp.y; Qtensor[2] = disp.z;
+                            break;
+                            }
+                        default:
+                            UNWRITTENCODE("non-defined boundary type is attempting to create a boundary");
+                        };
+                    qTensors.push_back(Qtensor);
+                    }
+                }
+    if(colloidOrCapillary)
+        printf("cylindrical colloid with %lu sites created\n",boundSites.size());
+    else
+        printf("cylindrical capillary with %lu sites created\n",boundSites.size());
+    createMultirankBoundaryObject(boundSites,qTensors,bObj.boundary,bObj.P1,bObj.P2);
     };

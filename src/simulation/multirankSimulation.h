@@ -31,8 +31,12 @@ class multirankSimulation : public basicSimulation, public enable_shared_from_th
         void createMultirankBoundaryObject(vector<int3> &latticeSites, vector<dVec> &qTensors, boundaryType _type, scalar Param1, scalar Param2);
         //!make a wall with x, y, or z normal
         void createWall(int xyz, int plane, boundaryObject &bObj);
-        //!make a simple sphere
+        //!make a simple sphere, setting all points within radius of center to be the object
         void createSphericalColloid(scalar3 center, scalar radius, boundaryObject &bObj);
+        //!make a simple sphere, setting all points farther than radius of center to be the object
+        void createSphericalCavity(scalar3 center, scalar radius, boundaryObject &bObj);
+        //! make a cylindrical object, with either the inside or ooutside defined as the object
+        void createCylindricalObject(scalar3 cylinderStart, scalar3 cylinderEnd, scalar radius, bool colloidOrCapillary, boundaryObject &bObj);
 
         //!handles calls to all necessary halo site transfer
         virtual void communicateHaloSitesRoutine();

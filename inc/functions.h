@@ -156,11 +156,93 @@ HOSTDEVICE int dot(const iVec &p1, const iVec &p2)
     return ans;
     };
 
+//!The dot product between scalar3's
+HOSTDEVICE scalar dot(const scalar3 &p1, const scalar3 &p2)
+    {
+    return p1.x*p2.x+p1.y*p2.y+p1.z*p2.z;
+    };
+
+//!The norm of a scalar3's
+HOSTDEVICE scalar norm(const scalar3 &p)
+    {
+    return sqrt(dot(p,p));
+    };
+
+//!The dot product between scalar3's
+HOSTDEVICE scalar r3Distance(const scalar3 &p1, const scalar3 &p2)
+    {
+    scalar3 disp; 
+    disp.x =p1.x-p2.x;
+    disp.y =p1.y-p2.y;
+    disp.z =p1.z-p2.z;
+    return norm(disp);
+    };
+
+//!The norm of a scalar3's
+HOSTDEVICE scalar3 cross(const scalar3 &p1, scalar3 &p2)
+    {
+    scalar3 ans;
+    ans.x = p1.y*p2.z - p1.z*p2.y;
+    ans.y = p1.x*p2.z - p1.z*p2.x;
+    ans.z = p1.x*p2.y - p1.y*p2.x;
+    return ans;
+    };
+
 //!The norm of a d-Dimensional vector
 HOSTDEVICE scalar norm(const dVec &p)
     {
     return sqrt(dot(p,p));
     };
+
+//!point-segment distance in 3D
+HOSTDEVICE scalar pointSegmentDistance(const scalar3 &p, const scalar3 &s1, const scalar3 &s2)
+    {
+    scalar3 v,w;
+    v.x = s2.x-s1.x;
+    v.y = s2.y-s1.y;
+    v.z = s2.z-s1.z;
+    w.x = p.x-s1.x;
+    w.y = p.y-s1.y;
+    w.z = p.z-s1.z;
+    scalar c1 = dot(w,v);
+    if (c1 <= 0)
+        return r3Distance(p,s1);
+    scalar c2 = dot(v,v);
+    if(c2 <= c1)
+        return r3Distance(p,s2);
+    scalar b = c1/c2;
+    scalar3 Pb;
+    Pb.x = s1.x + b*v.x;
+    Pb.y = s1.y + b*v.y;
+    Pb.z = s1.z + b*v.z;
+    return r3Distance(p,Pb);
+    }
+//!point-segment distance in 3D
+HOSTDEVICE scalar truncatedPointSegmentDistance(const scalar3 &p, const scalar3 &s1, const scalar3 &s2, scalar3 &dir)
+    {
+    scalar3 v,w;
+    v.x = s2.x-s1.x;
+    v.y = s2.y-s1.y;
+    v.z = s2.z-s1.z;
+    w.x = p.x-s1.x;
+    w.y = p.y-s1.y;
+    w.z = p.z-s1.z;
+    scalar c1 = dot(w,v);
+    if (c1 <= 0)
+        return -1;
+    scalar c2 = dot(v,v);
+    if(c2 <= c1)
+        return -1;
+    scalar b = c1/c2;
+    scalar3 Pb;
+    Pb.x = s1.x + b*v.x;
+    Pb.y = s1.y + b*v.y;
+    Pb.z = s1.z + b*v.z;
+    dir.x = Pb.x - p.x;
+    dir.y = Pb.y - p.y;
+    dir.z = Pb.z - p.z;
+    return r3Distance(p,Pb);
+    }
 
 //!fit integers into non-negative domains
 HOSTDEVICE int wrap(int x,int m)
