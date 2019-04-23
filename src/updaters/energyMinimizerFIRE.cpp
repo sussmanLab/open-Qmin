@@ -50,7 +50,7 @@ void energyMinimizerFIRE::initializeFromModel()
     {
     //model->freeGPUArrays(false,false,false);
     Ndof = model->getNumberOfParticles();
-    printf("FIRE dof = %i\n",Ndof);
+    //printf("FIRE dof = %i\n",Ndof);
     displacement.resize(Ndof);
     sumReductionIntermediate.resize(Ndof);
     sumReductionIntermediate2.resize(Ndof);
