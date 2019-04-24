@@ -195,7 +195,7 @@ HOSTDEVICE scalar norm(const dVec &p)
     };
 
 //!point-segment distance in 3D
-HOSTDEVICE scalar pointSegmentDistance(const scalar3 &p, const scalar3 &s1, const scalar3 &s2)
+HOSTDEVICE scalar pointSegmentDistance(const scalar3 &p, const scalar3 &s1, const scalar3 &s2, scalar3 &dir)
     {
     scalar3 v,w;
     v.x = s2.x-s1.x;
@@ -206,17 +206,31 @@ HOSTDEVICE scalar pointSegmentDistance(const scalar3 &p, const scalar3 &s1, cons
     w.z = p.z-s1.z;
     scalar c1 = dot(w,v);
     if (c1 <= 0)
+        {
+        dir.x = s1.x - p.x;
+        dir.y = s1.y - p.y;
+        dir.z = s1.z - p.z;
         return r3Distance(p,s1);
+        }
     scalar c2 = dot(v,v);
     if(c2 <= c1)
+        {
+        dir.x = s2.x - p.x;
+        dir.y = s2.y - p.y;
+        dir.z = s2.z - p.z;
         return r3Distance(p,s2);
+        }
     scalar b = c1/c2;
     scalar3 Pb;
     Pb.x = s1.x + b*v.x;
     Pb.y = s1.y + b*v.y;
     Pb.z = s1.z + b*v.z;
+    dir.x = Pb.x - p.x;
+    dir.y = Pb.y - p.y;
+    dir.z = Pb.z - p.z;
     return r3Distance(p,Pb);
     }
+
 //!point-segment distance in 3D
 HOSTDEVICE scalar truncatedPointSegmentDistance(const scalar3 &p, const scalar3 &s1, const scalar3 &s2, scalar3 &dir)
     {

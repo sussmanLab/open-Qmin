@@ -236,6 +236,7 @@ void multirankSimulation::createSphericalCavity(scalar3 center, scalar radius, b
     printf("sphercal cavity with %lu sites created\n",boundSites.size());
     createMultirankBoundaryObject(boundSites,qTensors,bObj.boundary,bObj.P1,bObj.P2);
     };
+
 /*!
 define a cylinder by it's two endpoints and it's prependicular radius. 
 \param colloidOrCapillary if true, points inside the radius are the object (i.e., a colloid), else points outside are the object (i.e., a surrounding capillary)
@@ -296,5 +297,60 @@ void multirankSimulation::createCylindricalObject(scalar3 cylinderStart, scalar3
         printf("cylindrical colloid with %lu sites created\n",boundSites.size());
     else
         printf("cylindrical capillary with %lu sites created\n",boundSites.size());
+    createMultirankBoundaryObject(boundSites,qTensors,bObj.boundary,bObj.P1,bObj.P2);
+    };
+
+void multirankSimulation::createSpherocylinder(scalar3 cylinderStart, scalar3 cylinderEnd, scalar radius, boundaryObject &bObj)
+    {
+    dVec Qtensor(0.);
+    scalar S0 = bObj.P2;
+    int3 globalLatticeSize;//the maximum size of the combined simulation
+    auto Conf = mConfiguration.lock();
+    globalLatticeSize.x = rankTopology.x*Conf->latticeSites.x;
+    globalLatticeSize.y = rankTopology.y*Conf->latticeSites.y;
+    globalLatticeSize.z = rankTopology.z*Conf->latticeSites.z;
+    vector<int3> boundSites;
+    vector<dVec> qTensors;
+    scalar radiusSquared = radius*radius;
+    for (int xx = 0; xx < globalLatticeSize.x; ++xx)
+        for (int yy = 0; yy < globalLatticeSize.y; ++yy)
+            for (int zz = 0; zz < globalLatticeSize.z; ++zz)
+                {
+                //p is the lattice point, disp will get the direction from lattice point to cylinder center
+                scalar3 p,disp;
+                p.x=xx;p.y=yy;p.z=zz;
+                scalar dist = pointSegmentDistance(p,cylinderStart,cylinderEnd,disp);
+                if(dist <0) //the shortest distance is past one of the endpoints
+                    continue;
+                if(dist < radius)
+                    {
+                    int3 sitePos;
+                    sitePos.x = xx;
+                    sitePos.y = yy;
+                    sitePos.z = zz;
+                    boundSites.push_back(sitePos);
+                    switch(bObj.boundary)
+                        {
+                        case boundaryType::homeotropic:
+                            {
+                            qTensorFromDirector(disp, S0, Qtensor);
+                            break;
+                            }
+                        case boundaryType::degeneratePlanar:
+                            {
+                            scalar nrm = norm(disp);
+                            disp.x /=nrm;
+                            disp.y /=nrm;
+                            disp.z /=nrm;
+                            Qtensor[0]=disp.x; Qtensor[1] = disp.y; Qtensor[2] = disp.z;
+                            break;
+                            }
+                        default:
+                            UNWRITTENCODE("non-defined boundary type is attempting to create a boundary");
+                        };
+                    qTensors.push_back(Qtensor);
+                    }
+                }
+    printf("spherocylindrical colloid with %lu sites created\n",boundSites.size());
     createMultirankBoundaryObject(boundSites,qTensors,bObj.boundary,bObj.P1,bObj.P2);
     };

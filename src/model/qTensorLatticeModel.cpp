@@ -285,6 +285,10 @@ void qTensorLatticeModel::createSimpleSpherialColloid(scalar3 center, scalar rad
                         }
                     case boundaryType::degeneratePlanar:
                         {
+                        scalar nrm = norm(disp);
+                        disp.x /=nrm;
+                        disp.y /=nrm;
+                        disp.z /=nrm;
                         Qtensor[0]=disp.x; Qtensor[1] = disp.y; Qtensor[2] = disp.z;
                         break;
                         }

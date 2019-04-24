@@ -246,6 +246,7 @@ int main(int argc, char*argv[])
         left.x = 0.5*boxLx;left.y = 0.5*boxLy;left.z = 0.5*boxLz;
         center.x = 1.0*boxLx;center.y = 0.5*boxLy;center.z = 0.5*boxLz;
         right.x = 1.5*boxLx;right.y = 0.5*boxLy;right.z = 0.5*boxLz;
+        sim->createSpherocylinder(left,right,5.0,homeotropicBoundary);
         //sim->createCylindricalObject(left,right,5.0,false,homeotropicBoundary);
         //sim->createSphericalColloid(left,4,homeotropicBoundary);
 //        sim->createSphericalColloid(center,5,homeotropicBoundary);

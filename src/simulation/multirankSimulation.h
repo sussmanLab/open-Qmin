@@ -37,6 +37,8 @@ class multirankSimulation : public basicSimulation, public enable_shared_from_th
         void createSphericalCavity(scalar3 center, scalar radius, boundaryObject &bObj);
         //! make a cylindrical object, with either the inside or ooutside defined as the object
         void createCylindricalObject(scalar3 cylinderStart, scalar3 cylinderEnd, scalar radius, bool colloidOrCapillary, boundaryObject &bObj);
+        //!make a spherocylinder, defined by the start and end of the cylindrical section and the radius
+        void createSpherocylinder(scalar3 cylinderStart, scalar3 cylinderEnd, scalar radius, boundaryObject &bObj);
 
         //!handles calls to all necessary halo site transfer
         virtual void communicateHaloSitesRoutine();
