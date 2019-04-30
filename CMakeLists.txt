@@ -91,9 +91,10 @@ set(HEADERS
        oglwidget.h
     )
 
-add_executable(landauDeGUI.out cubicLatticeNematic.cpp ${SOURCES} ${HEADERS} ${UI_HEADERS})
-
-target_link_libraries(landauDeGUI.out ${myLibs} ${CUDA_LIBRARIES} ${OPENGL_LIBRARIES}
+# list the names of cpp files corresponding to linked executables you'd like...
+foreach(ARG cubicLatticeNematic minimizationTiming)
+add_executable("${ARG}.out" "${ARG}.cpp" ${SOURCES} ${HEADERS} ${UI_HEADERS})
+target_link_libraries("${ARG}.out" ${myLibs} ${CUDA_LIBRARIES} ${OPENGL_LIBRARIES}
     ${MPI_LIBRARIES}
     Qt5::Widgets
     Qt5::Core
@@ -103,11 +104,11 @@ target_link_libraries(landauDeGUI.out ${myLibs} ${CUDA_LIBRARIES} ${OPENGL_LIBRA
 #    Qt5::3DRender
 #    Qt5::3DInput
     )
-qt5_use_modules(landauDeGUI.out Widgets)
-
+qt5_use_modules("${ARG}.out" Widgets)
 if(MPI_COMPILE_FLAGS)
-    set_target_properties(landauDeGUI.out PROPERTIES COMPILE_FLAGS "${MPI_COMPILE_FLAGS}")
+    set_target_properties("${ARG}.out" PROPERTIES COMPILE_FLAGS "${MPI_COMPILE_FLAGS}")
 endif()
 if(MPI_LINK_FLAGS)
-    set_target_properties(landauDeGUI.out PROPERTIES LINK_FLAGS "${MPI_LINK_FLAGS}")
+    set_target_properties("${ARG}.out" PROPERTIES LINK_FLAGS "${MPI_LINK_FLAGS}")
 endif()
+endforeach()
