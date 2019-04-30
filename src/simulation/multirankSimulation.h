@@ -112,6 +112,11 @@ class multirankSimulation : public basicSimulation, public enable_shared_from_th
         //!save a file for each rank recording the expanded lattice
         void saveState(string fname);
 
+        //!integer for this rank
+        int myRank;
+        //!total number of ranks
+        int nRanks;
+
     protected:
         void setRankTopology(int x, int y, int z);
 
@@ -120,11 +125,8 @@ class multirankSimulation : public basicSimulation, public enable_shared_from_th
         vector<int2> communicationDirections;
         vector<bool> communicationDirectionParity;
         vector<int> communicationTargets;
-        
-        //!integer for this rank
-        int myRank;
-        //!total number of ranks
-        int nRanks;
+
+
         //!the number of ranks per {x,y,z} axis
         int3 rankTopology;
         //! the local {x,y,z} rank coordinate

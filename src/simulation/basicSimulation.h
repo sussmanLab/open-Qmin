@@ -49,6 +49,11 @@ class basicSimulation
         //!for debugging...
         virtual scalar computeKineticEnergy(bool verbose =false){return 0.0;};
 
+        //!integer for this rank
+        int myRank;
+        //!total number of ranks
+        int nRanks;
+
     protected:
         //! Determines how frequently the spatial sorter be called...once per sortPeriod Timesteps. When sortPeriod < 0 no sorting occurs
         int sortPeriod;
