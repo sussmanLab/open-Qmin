@@ -70,6 +70,8 @@ int main(int argc, char*argv[])
     //define the various command line strings that can be passed in...
     //ValueArg<T> variableName("shortflag","longFlag","description",required or not, default value,"value type",CmdLine object to add to
     ValueArg<int> programSwitchArg("z","programSwitch","an integer controlling program branch",false,0,"int",cmd);
+    ValueArg<int> minimizerSwitchArg("m","minimizerSwitch","an integer controlling program branch",false,0,"int",cmd);
+
     SwitchArg visualSwitch("v","visualMode","run with the GUI", cmd, false);
     SwitchArg reproducibleSwitch("r","reproducible","reproducible random number generation", cmd, true);
 
@@ -104,6 +106,7 @@ int main(int argc, char*argv[])
     bool reproducible = reproducibleSwitch.getValue();
     int gpu = gpuSwitchArg.getValue();
     int programSwitch = programSwitchArg.getValue();
+    int minimizerSwitch = minimizerSwitchArg.getValue();
     int nDev;
     cudaGetDeviceCount(&nDev);
     if(nDev == 0)
@@ -215,17 +218,22 @@ int main(int argc, char*argv[])
             sim->addForce(landauLCForce);
 
             scalar forceCutoff=1e-12;
-            shared_ptr<energyMinimizerGradientDescent> minimizer = make_shared<energyMinimizerGradientDescent>(Configuration);
-            minimizer->setGradientDescentParameters(dt,forceCutoff);
-            /*
-            shared_ptr<energyMinimizerFIRE> minimizer =  make_shared<energyMinimizerFIRE>(Configuration);
-            scalar alphaStart=.99; scalar deltaTMax=100*dt; scalar deltaTInc=1.1; scalar deltaTDec=0.95;
-            scalar alphaDec=0.9; int nMin=4;scalar alphaMin = .0;
-            minimizer->setFIREParameters(dt,alphaStart,deltaTMax,deltaTInc,deltaTDec,alphaDec,nMin,forceCutoff,alphaMin);
-            */
-
-            minimizer->setMaximumIterations(maximumIterations);
-            sim->addUpdater(minimizer,Configuration);
+            shared_ptr<energyMinimizerGradientDescent> GDminimizer = make_shared<energyMinimizerGradientDescent>(Configuration);
+            GDminimizer->setMaximumIterations(maximumIterations);
+            shared_ptr<energyMinimizerFIRE> Fminimizer =  make_shared<energyMinimizerFIRE>(Configuration);
+            Fminimizer->setMaximumIterations(maximumIterations);
+            if(minimizerSwitch ==1)
+                {
+                GDminimizer->setGradientDescentParameters(dt,forceCutoff);
+                sim->addUpdater(GDminimizer,Configuration);
+                }
+            else
+                {
+                scalar alphaStart=.99; scalar deltaTMax=100*dt; scalar deltaTInc=1.1; scalar deltaTDec=0.95;
+                scalar alphaDec=0.9; int nMin=4;scalar alphaMin = .0;
+                Fminimizer->setFIREParameters(dt,alphaStart,deltaTMax,deltaTInc,deltaTDec,alphaDec,nMin,forceCutoff,alphaMin);
+                sim->addUpdater(Fminimizer,Configuration);
+                }
 
             sim->setCPUOperation(true);//have cpu and gpu initialized the same...for debugging
             //sim->setNThreads(nThreads);
@@ -266,7 +274,12 @@ int main(int argc, char*argv[])
             pMinimize.end();
 
             scalar E1 = sim->computePotentialEnergy(true);
-            scalar maxForce = minimizer->getMaxForce();
+        scalar maxForce;
+        if(minimizerSwitch == 1)
+            maxForce = GDminimizer->getMaxForce();
+        else
+            maxForce = Fminimizer->getMaxForce();
+
             printf("minimized to %g\t E=%f\t\n",maxForce,E1);
 
             pMinimize.print();
