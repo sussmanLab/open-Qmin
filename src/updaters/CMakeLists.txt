@@ -11,6 +11,7 @@ add_library(updater
     energyMinimizerAdam.cpp
     energyMinimizerNesterovAG.cpp
     energyMinimizerLoLBFGS.cpp
+    energyMinimizerGradientDescent.cpp
     )
 cuda_add_library(updaterGPU
     velocityVerlet.cu

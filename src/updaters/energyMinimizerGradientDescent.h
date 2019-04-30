@@ -5,7 +5,7 @@
 #include "gpuarray.h"
 #include "simpleModel.h"
 #include "kernelTuner.h"
-
+#include "equationOfMotion.h"
 
 /*! \file energyMinimizerGradientDescent.h */
 //!Implement energy minimization via the FIRE algorithm

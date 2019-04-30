@@ -112,11 +112,6 @@ class multirankSimulation : public basicSimulation, public enable_shared_from_th
         //!save a file for each rank recording the expanded lattice
         void saveState(string fname);
 
-        //!integer for this rank
-        int myRank;
-        //!total number of ranks
-        int nRanks;
-
     protected:
         void setRankTopology(int x, int y, int z);
 

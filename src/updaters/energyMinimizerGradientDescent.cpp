@@ -26,7 +26,6 @@ void energyMinimizerGradientDescent::initializeParameters()
     setForceCutoff(1e-7);
     setDeltaT(0.01);
     setGPU(false);
-    alphaMin = 0.0;
     updaterData.resize(1);
     };
 
@@ -76,10 +75,10 @@ void energyMinimizerGradientDescent::gradientDescentCPU()
     {
     sim->moveParticles(model->returnForces(),deltaT);
     sim->computeForces();
+    scalar forceNorm = 0.0;
     {//scope for array handles
     ArrayHandle<dVec> h_f(model->returnForces());
     //ArrayHandle<scalar> h_m(model->returnMasses());
-    scalar forceNorm = 0.0;
     for (int i = 0; i < Ndof; ++i)
         {
         //update displacement
@@ -97,7 +96,7 @@ void energyMinimizerGradientDescent::gradientDescentCPU()
  * Perform a GD minimization sequence...attempts to get attain:
  * (1/N)\sum_i|f_i|^2 < forceCutoff
  */
-void energyMinimizerFIRE::minimize()
+void energyMinimizerGradientDescent::minimize()
     {
     //cout << "attempting a minimization" << endl;
     if (Ndof != model->getNumberOfParticles())
@@ -112,9 +111,9 @@ void energyMinimizerFIRE::minimize()
 
         gradientDescentStep();
         if(iterations%1000 == 999)
-            printf("step %i max force:%.3g \tpower: %.3g\t alpha %.3g\t dt %g \t scaling %.3g \n",iterations,forceMax,Power,alpha,deltaT,scaling);cout.flush();
+            printf("step %i max force:%.3g \n",iterations,forceMax);cout.flush();
         };
-        printf("fire finished: step %i max force:%.3g \tpower: %.3g\t alpha %.3g\t dt %g \tscaling %.3g \n",iterations,forceMax,Power,alpha,deltaT,scaling);cout.flush();
+        printf("fire finished: step %i max force:%.3g \n",iterations,forceMax);cout.flush();
     };
 
 

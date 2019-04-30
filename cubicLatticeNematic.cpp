@@ -214,24 +214,18 @@ int main(int argc, char*argv[])
             landauLCForce->setModel(Configuration);
             sim->addForce(landauLCForce);
 
+            scalar forceCutoff=1e-12;
+            shared_ptr<energyMinimizerGradientDescent> minimizer = make_shared<energyMinimizerGradientDescent>(Configuration);
+            minimizer->setGradientDescentParameters(dt,forceCutoff);
             /*
-            scalar cValue = .0001; int mStorage = 8; scalar tau = 1000;
-            shared_ptr<energyMinimizerLoLBFGS> lolbfgs = make_shared<energyMinimizerLoLBFGS>(Configuration);
-            if(programSwitch == 1)
-                {
-                lolbfgs->setMaximumIterations(maximumIterations);
-                lolbfgs->setLoLBFGSParameters(mStorage,dt,cValue,forceCutoff,tau);
-                sim->addUpdater(lolbfgs,Configuration);
-                }
-            else
-            */
-            shared_ptr<energyMinimizerFIRE> fire =  make_shared<energyMinimizerFIRE>(Configuration);
+            shared_ptr<energyMinimizerFIRE> minimizer =  make_shared<energyMinimizerFIRE>(Configuration);
             scalar alphaStart=.99; scalar deltaTMax=100*dt; scalar deltaTInc=1.1; scalar deltaTDec=0.95;
-            scalar alphaDec=0.9; int nMin=4; scalar forceCutoff=1e-12; scalar alphaMin = .0;
-            fire->setFIREParameters(dt,alphaStart,deltaTMax,deltaTInc,deltaTDec,alphaDec,nMin,forceCutoff,alphaMin);
-            fire->setMaximumIterations(maximumIterations);
+            scalar alphaDec=0.9; int nMin=4;scalar alphaMin = .0;
+            minimizer->setFIREParameters(dt,alphaStart,deltaTMax,deltaTInc,deltaTDec,alphaDec,nMin,forceCutoff,alphaMin);
+            */
 
-            sim->addUpdater(fire,Configuration);
+            minimizer->setMaximumIterations(maximumIterations);
+            sim->addUpdater(minimizer,Configuration);
 
             sim->setCPUOperation(true);//have cpu and gpu initialized the same...for debugging
             //sim->setNThreads(nThreads);
@@ -272,7 +266,7 @@ int main(int argc, char*argv[])
             pMinimize.end();
 
             scalar E1 = sim->computePotentialEnergy(true);
-            scalar maxForce = fire->getMaxForce();
+            scalar maxForce = minimizer->getMaxForce();
             printf("minimized to %g\t E=%f\t\n",maxForce,E1);
 
             pMinimize.print();

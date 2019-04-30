@@ -12,6 +12,7 @@
 #include "energyMinimizerNesterovAG.h"
 #include "energyMinimizerLoLBFGS.h"
 #include "energyMinimizerAdam.h"
+#include "energyMinimizerGradientDescent.h"
 #include "noiseSource.h"
 #include "indexer.h"
 #include "qTensorFunctions.h"
