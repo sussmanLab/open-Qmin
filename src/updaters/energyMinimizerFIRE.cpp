@@ -100,7 +100,7 @@ void energyMinimizerFIRE::fireStepGPU()
     }
 
     //check how the power is doing
-    if (Power > 0)
+    if (Power > 0 && iterations % 1000 != 0)
         {
         if (NSinceNegativePower > NMin)
             {
@@ -168,7 +168,17 @@ void energyMinimizerFIRE::fireStepCPU()
         };
     };
 
-    if (Power < 0)
+    if (Power > 0 && iterations % 1000 != 0)
+        {
+        if (NSinceNegativePower > NMin)
+            {
+            deltaT = min(deltaT*deltaTInc,deltaTMax);
+            alpha = alpha * alphaDec;
+            alpha = max(alpha, alphaMin);
+            };
+        NSinceNegativePower += 1;
+        }
+    else
         {
         NSinceNegativePower = 0;
         deltaT = deltaT*deltaTDec;
@@ -179,16 +189,6 @@ void energyMinimizerFIRE::fireStepCPU()
             {
             h_v.data[i] = make_dVec(0.0);
             };
-        }
-    else
-        {
-        if (NSinceNegativePower > NMin)
-            {
-            deltaT = min(deltaT*deltaTInc,deltaTMax);
-            alpha = alpha * alphaDec;
-            alpha = max(alpha, alphaMin);
-            };
-        NSinceNegativePower += 1;
         }
     };
 

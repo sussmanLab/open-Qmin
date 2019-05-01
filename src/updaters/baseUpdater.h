@@ -85,6 +85,10 @@ class updater
             }
 
         vector<scalar> updaterData;
+
+        //!The number of iterations performed
+        int iterations;
+
     protected:
         //!number of threads to use
         int nThreads=1;
@@ -100,8 +104,6 @@ class updater
         bool reproducible;
         //!The internal time step size
         scalar deltaT;
-        //!The number of iterations performed
-        int iterations;
         //!The maximum number of iterations allowed
         int maxIterations;
     };

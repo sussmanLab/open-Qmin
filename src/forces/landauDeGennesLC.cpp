@@ -919,6 +919,23 @@ void landauDeGennesLC::computeBoundaryForcesCPU(GPUArray<dVec> &forces,bool zero
         }
     };
 
+void landauDeGennesLC::computeEnergyGPU(bool verbose)
+    {
+    computeEnergyCPU(verbose);
+    /*
+    int N = lattice->getNumberOfParticles();
+    ArrayHandle<dVec> d_force(forces,access_location::device,access_mode::readwrite);
+    ArrayHandle<dVec> d_spins(lattice->returnPositions(),access_location::device,access_mode::read);
+    ArrayHandle<int>  d_latticeTypes(lattice->returnTypes(),access_location::device,access_mode::read);
+    ArrayHandle<int>  d_latticeNeighbors(lattice->neighboringSites,access_location::device,access_mode::read);
+            forceTuner->begin();
+            gpu_qTensor_oneConstantForce(d_force.data, d_spins.data, d_latticeTypes.data, d_latticeNeighbors.data,
+                                         lattice->neighborIndex,
+                                         A,B,C,L1,N,
+                                         zeroOutForce,forceTuner->getParameter());
+    */
+    }
+
 void landauDeGennesLC::computeForceGPU(GPUArray<dVec> &forces,bool zeroOutForce)
     {
     int N = lattice->getNumberOfParticles();

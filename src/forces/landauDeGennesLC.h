@@ -63,7 +63,7 @@ class landauDeGennesLC : public baseLatticeForce
         virtual void computeForceThreeConstantCPU(GPUArray<dVec> &forces,bool zeroOutForce);
 
         virtual void computeEnergyCPU(bool verbose = false);
-        virtual void computeEnergyGPU(bool verbose = false){computeEnergyCPU();};//NOT DONE YET;
+        virtual void computeEnergyGPU(bool verbose = false);
 
         //!A vector storing the components of energy (phase,distortion,anchoring)
         vector<scalar> energyComponents;

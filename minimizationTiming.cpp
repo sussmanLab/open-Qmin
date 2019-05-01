@@ -11,6 +11,7 @@
 #include "qTensorFunctions.h"
 #include "latticeBoundaries.h"
 #include "profiler.h"
+#include "logSpacedIntegers.h"
 #include <tclap/CmdLine.h>
 #include <mpi.h>
 #include "cuda_profiler_api.h"
@@ -126,6 +127,12 @@ int main(int argc, char*argv[])
     else if (gpu >=0)
         GPU = chooseGPU(gpu);
 
+    logSpacedIntegers logIntTest(0,0.05);
+    for (int tt = 0 ;tt < maximumIterations; ++tt)
+        logIntTest.update();
+    cout << "max iterations set to " << logIntTest.nextSave << endl;
+
+
 
     int3 rankTopology = partitionProcessors(worldSize);
     if(myRank ==0)
@@ -180,9 +187,9 @@ int main(int argc, char*argv[])
 
 
     shared_ptr<energyMinimizerGradientDescent> GDminimizer = make_shared<energyMinimizerGradientDescent>(Configuration);
-    GDminimizer->setMaximumIterations(iterationsPerStep);
+    GDminimizer->setMaximumIterations(1);
     shared_ptr<energyMinimizerFIRE> Fminimizer =  make_shared<energyMinimizerFIRE>(Configuration);
-    Fminimizer->setMaximumIterations(iterationsPerStep);
+    Fminimizer->setMaximumIterations(1);
     if(minimizerSwitch ==1)
         {
         GDminimizer->setGradientDescentParameters(dt,forceCutoff);
@@ -190,7 +197,7 @@ int main(int argc, char*argv[])
         }
     else
         {
-        scalar alphaStart=.99; scalar deltaTMax=100*dt; scalar deltaTInc=1.1; scalar deltaTDec=0.95;
+        scalar alphaStart=.99; scalar deltaTMax=100*dt; scalar deltaTInc=1.1; scalar deltaTDec=0.5;
         scalar alphaDec=0.9; int nMin=4;scalar alphaMin = .0;
         Fminimizer->setFIREParameters(dt,alphaStart,deltaTMax,deltaTInc,deltaTDec,alphaDec,nMin,forceCutoff,alphaMin);
         sim->addUpdater(Fminimizer,Configuration);
@@ -220,42 +227,78 @@ int main(int argc, char*argv[])
     sim->finalizeObjects();
 
     char filename[256];
-    sprintf(filename,"../data/minimizationTiming_z%i_m%i_dt%.5f_rank%i.txt",programSwitch,minimizerSwitch,dt,myRank);
+    sprintf(filename,"../data/minimizationTiming_g%i_z%i_m%i_dt%.5f_rank%i.txt",gpu,programSwitch,minimizerSwitch,dt,myRank);
     ofstream myfile;
     myfile.open(filename);
     myfile.setf(ios_base::scientific);
     myfile << setprecision(10);
-    
+
     profiler pMinimize("minimization");
     pMinimize.start();
-    int totalMinimizerCalls = maximumIterations / iterationsPerStep + 1;
-    int currentIterationMax = iterationsPerStep;
+
+    /* for linear spaced data saving
+    int totalMinimizerCalls = maximumIterations / iterationsPerStep;
+    vector<int> minimizationIntervals;
+    minimizationIntervals.push_back(2);
+    minimizationIntervals.push_back(7);
+    minimizationIntervals.push_back(20);
+    minimizationIntervals.push_back(30);
+    minimizationIntervals.push_back(40);
+    for (int tt = 0;tt < totalMinimizerCalls; ++tt)
+        minimizationIntervals.push_back(iterationsPerStep);
+    */
+
+    logSpacedIntegers logInts(0,0.05);
+    int currentIterationMax = 1;
+    logInts.update();
+
     scalar E1;
     scalar maxForce;
     chrono::time_point<chrono::high_resolution_clock>  startTime;
     chrono::time_point<chrono::high_resolution_clock>  endTime;
+
+    chrono::time_point<chrono::high_resolution_clock>  s1,e1;
+    scalar remTime = 0.0;
+
     startTime = chrono::high_resolution_clock::now();
     scalar workingTime;
-    for (int tt = 0; tt < totalMinimizerCalls; ++tt)
+    //for (int tt = 0; tt < minimizationIntervals.size(); ++tt)
+    for (int tt = 0; tt < maximumIterations; ++tt)
         {
         sim->performTimestep();
-        currentIterationMax += iterationsPerStep;
+
+        //compute the energy, but don't count it towards the minimization time
+        s1 = chrono::high_resolution_clock::now();
         E1 = sim->computePotentialEnergy(true);
+        e1 = chrono::high_resolution_clock::now();
+        chrono::duration<double> del = e1-s1;
+        remTime += del.count();
+
+        int iters;
         if(minimizerSwitch ==1)
             {
-            GDminimizer->setMaximumIterations(currentIterationMax);
             maxForce = GDminimizer->getMaxForce();
+            iters = GDminimizer->iterations;
             }
         else
             {
-            Fminimizer->setMaximumIterations(currentIterationMax);
             maxForce = Fminimizer->getMaxForce();
+            iters = Fminimizer->iterations;
             }
+
         endTime = chrono::high_resolution_clock::now();
         chrono::duration<double> difference = endTime-startTime;
-        workingTime = difference.count();
-        printf("%i \t %g\t %g\t %g \n",currentIterationMax-iterationsPerStep,E1,maxForce,workingTime);
-        myfile << currentIterationMax-iterationsPerStep <<"\t" << workingTime <<"\t" << E1 <<"\t"<< maxForce <<"\n";
+        workingTime = difference.count() - remTime;
+        printf("%i \t %g\t %g\t %g \n",iters,E1,maxForce,workingTime);
+        myfile << iters <<"\t" << workingTime <<"\t" << E1 <<"\t"<< maxForce <<"\n";
+
+        currentIterationMax = logInts.nextSave;
+        logInts.update();
+        //currentIterationMax += minimizationIntervals[tt];
+        if(minimizerSwitch ==1)
+            GDminimizer->setMaximumIterations(currentIterationMax);
+        else
+            Fminimizer->setMaximumIterations(currentIterationMax);
         }
     pMinimize.end();
     myfile.close();
