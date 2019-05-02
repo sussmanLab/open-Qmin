@@ -27,6 +27,14 @@ void multirankSimulation::finalizeObjects()
         }
     }
     communicateHaloSitesRoutine();
+
+    //let updaters know number of non-object sites
+    for (int u = 0; u < updaters.size(); ++u)
+        {
+        auto upd = updaters[u].lock();
+        upd->getNTotal();
+        };
+
     cout << " objects finalized" << endl;
     }
 

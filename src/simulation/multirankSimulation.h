@@ -35,7 +35,7 @@ class multirankSimulation : public basicSimulation, public enable_shared_from_th
         void createSphericalColloid(scalar3 center, scalar radius, boundaryObject &bObj);
         //!make a simple sphere, setting all points farther than radius of center to be the object
         void createSphericalCavity(scalar3 center, scalar radius, boundaryObject &bObj);
-        //! make a cylindrical object, with either the inside or ooutside defined as the object
+        //! make a cylindrical object, with either the inside or outside defined as the object
         void createCylindricalObject(scalar3 cylinderStart, scalar3 cylinderEnd, scalar radius, bool colloidOrCapillary, boundaryObject &bObj);
         //!make a spherocylinder, defined by the start and end of the cylindrical section and the radius
         void createSpherocylinder(scalar3 cylinderStart, scalar3 cylinderEnd, scalar radius, boundaryObject &bObj);

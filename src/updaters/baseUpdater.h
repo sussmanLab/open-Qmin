@@ -83,7 +83,9 @@ class updater
             {
             return 0.000000001*(6*sizeof(int) + 2*sizeof(bool) + sizeof(scalar));
             }
-
+        
+        //!communicate the number of non-object sites across ranks
+        void getNTotal();
         vector<scalar> updaterData;
 
         //!The number of iterations performed
@@ -98,8 +100,10 @@ class updater
         int Phase;
         //!whether the updater does its work on the GPU or not
         bool useGPU;
-        //!some measure of the number of degrees of freedom the equations of motion might need to know about
+        //!some measure of the number of degrees of freedom the equations of motion might need to know about locally
         int Ndof;
+        //!the total number of non-object sites across all ranks
+        int nTotal;
         //!whether the RNGs give reproducible results
         bool reproducible;
         //!The internal time step size

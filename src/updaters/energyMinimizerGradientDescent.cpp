@@ -65,7 +65,7 @@ void energyMinimizerGradientDescent::gradientDescentGPU()
     updaterData[0] = forceNorm;
     sim->sumUpdaterData(updaterData);
     forceNorm = updaterData[0];
-    forceMax = sqrt(forceNorm) / ((scalar)Ndof * sim->nRanks);
+    forceMax = sqrt(forceNorm) / ((scalar)nTotal);
     };
 
 /*!
@@ -89,7 +89,7 @@ void energyMinimizerGradientDescent::gradientDescentCPU()
     updaterData[0] = forceNorm;
     sim->sumUpdaterData(updaterData);
     forceNorm = updaterData[0];
-    forceMax = sqrt(forceNorm) / ((scalar)Ndof * sim->nRanks);
+    forceMax = sqrt(forceNorm) / ((scalar)nTotal);
     };
 
 /*!

@@ -182,7 +182,7 @@ int main(int argc, char*argv[])
     landauLCForce->setModel(Configuration);
     sim->addForce(landauLCForce);
 
-    scalar forceCutoff=1e-18;
+    scalar forceCutoff=1e-13;
     int iterationsPerStep = 100;
 
 
@@ -211,18 +211,38 @@ int main(int argc, char*argv[])
     printf("initialization done\n");
 
     boundaryObject homeotropicBoundary(boundaryType::homeotropic,1.0,S0);
-    scalar3 left,center, right;
-    left.x = 0.75*boxLx;left.y = 0.5*boxLy;left.z = 0.5*boxLz;
-    center.x = 1.0*boxLx;center.y = 0.5*boxLy;center.z = 0.5*boxLz;
-    right.x = 1.25*boxLx;right.y = 0.5*boxLy;right.z = 0.5*boxLz;
-    //sim->createSpherocylinder(left,right,8.0,homeotropicBoundary);
-    //sim->createCylindricalObject(left,right,5.0,false,homeotropicBoundary);
-    //sim->createSphericalColloid(left,4,homeotropicBoundary);
-    //sim->createSphericalColloid(center,5,homeotropicBoundary);
-    //sim->createSphericalColloid(right,4,homeotropicBoundary);
-
-    //sim->createWall(0, 5, homeotropicBoundary);
-    //sim->createWall(1, 0, homeotropicBoundary);
+    boundaryObject planarDegenerateBoundary(boundaryType::degeneratePlanar,0.58,S0);
+    scalar3 left,center, right,down,up;
+    left.x = 0.0*boxLx;left.y = 0.5*boxLy;left.z = 0.5*boxLz;
+    center.x = 0.5*boxLx;center.y = 0.5*boxLy;center.z = 0.5*boxLz;
+    right.x = 1.*boxLx;right.y = 0.5*boxLy;right.z = 0.5*boxLz;
+    //use program switches to define what objects are in the simulation
+    switch(programSwitch)
+        {
+        case 1:
+            sim->createWall(2, 0, homeotropicBoundary); // z-normal wall on plane 0
+            left.x = 0.3*boxLx;left.y = 0.5*boxLy;left.z = 0.5*boxLz;
+            right.x = .7*boxLx;right.y = 0.5*boxLy;right.z = 0.5*boxLz;
+            sim->createSphericalColloid(left,0.12*boxLx,homeotropicBoundary);
+            sim->createSphericalColloid(right,0.12*boxLx,homeotropicBoundary);
+            break;
+        case 2:
+            left.x = 0.38*boxLx;left.y = 0.5*boxLy;left.z = 0.5*boxLz;
+            right.x = .62*boxLx;right.y = 0.5*boxLy;right.z = 0.5*boxLz;
+            sim->createWall(2, 0, planarDegenerateBoundary); // z-normal wall on plane 0
+            sim->createSpherocylinder(left,right,0.12*boxLx,homeotropicBoundary);
+            break;
+        case 3:
+            sim->createSphericalCavity(center,0.5*boxLx-1.5,homeotropicBoundary);
+            break;
+        case 4:
+            down.x = 0.5*boxLx;down.y = 0.5*boxLy;down.z = 0.0*boxLz-1;
+            up.x =   0.5*boxLx;  up.y = 0.5*boxLy;  up.z = 1.0*boxLz+1;
+            sim->createCylindricalObject(down, up,0.5*boxLx-1.5, false, homeotropicBoundary);
+            break;
+        default:
+            break;
+        }
 
     sim->finalizeObjects();
 
@@ -289,7 +309,7 @@ int main(int argc, char*argv[])
         endTime = chrono::high_resolution_clock::now();
         chrono::duration<double> difference = endTime-startTime;
         workingTime = difference.count() - remTime;
-        printf("%i \t %g\t %g\t %g \n",iters,E1,maxForce,workingTime);
+        printf("%i \t %g\t %g\t %g\t\t %g \n",iters,E1,maxForce,workingTime, remTime);
         myfile << iters <<"\t" << workingTime <<"\t" << E1 <<"\t"<< maxForce <<"\n";
 
         currentIterationMax = logInts.nextSave;
@@ -303,16 +323,12 @@ int main(int argc, char*argv[])
     pMinimize.end();
     myfile.close();
 
-    if(minimizerSwitch == 1)
-        maxForce = GDminimizer->getMaxForce();
-    else
-        maxForce = Fminimizer->getMaxForce();
-
-    printf("minimized to %g\t E=%f\t\n",maxForce,E1);
+    char savename[256];
+    sprintf(savename,"../data/finalConfiguration_g%i_z%i_m%i_dt%.5f.txt",gpu,programSwitch,minimizerSwitch,dt);
 
     pMinimize.print();
     sim->p1.print();
-    //sim->saveState("../data/test");
+    sim->saveState(savename);
     /*
     scalar totalMinTime = pMinimize.timeTaken;
     scalar communicationTime = sim->p1.timeTaken;

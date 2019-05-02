@@ -39,6 +39,7 @@ void energyMinimizerFIRE::initializeParameters()
     setGPU(false);
     alphaMin = 0.0;
     updaterData.resize(3);
+    nTotal = Ndof;
     };
 
 
@@ -89,7 +90,7 @@ void energyMinimizerFIRE::fireStepGPU()
     Power = updaterData[1];
     velocityNorm = updaterData[2];
 
-    forceMax = sqrt(forceNorm) / ((scalar)Ndof * sim->nRanks);
+    forceMax = sqrt(forceNorm) / ((scalar)nTotal);
     scaling = 0.0;
     if(forceNorm > 0.)
         scaling = sqrt(velocityNorm/forceNorm);
@@ -127,7 +128,6 @@ void energyMinimizerFIRE::fireStepGPU()
  */
 void energyMinimizerFIRE::fireStepCPU()
     {
-    int nTotal = Ndof;
     Power = 0.0;
     forceMax = 0.0;
     {//scope for array handles
@@ -139,8 +139,6 @@ void energyMinimizerFIRE::fireStepCPU()
     scalar velocityNorm = 0.0;
     for (int i = 0; i < Ndof; ++i)
         {
-        if(h_t.data[i] != 0 && h_t.data[i]!= -1)
-            nTotal -= 1;
         Power += dot(h_f.data[i],h_v.data[i]);
         scalar fdot = dot(h_f.data[i],h_f.data[i]);
         forceNorm += fdot;
@@ -155,7 +153,7 @@ void energyMinimizerFIRE::fireStepCPU()
     Power = updaterData[1];
     velocityNorm = updaterData[2];
 
-    forceMax = sqrt(forceNorm) / ((scalar)Ndof * sim->nRanks);
+    forceMax = sqrt(forceNorm) / ((scalar)nTotal);
     //printf("fnorm = %g\t velocity norm = %g\n",forceNorm,velocityNorm);
     scaling = 0.0;
     if(forceNorm > 0.)
