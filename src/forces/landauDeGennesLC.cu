@@ -253,7 +253,7 @@ __global__ void gpu_qTensor_oneConstantForce_kernel(dVec *d_force,
     dVec qCurrent, xDown, xUp, yDown,yUp,zDown,zUp;
     dVec force(0.0);
 
-    if(d_types[idx] <= 0) //no force on sites that are part of boundaries
+    if(d_types[idx] <= 0) //only compute forces on sites that aren't boundaries
         {
         //phase part is simple
         qCurrent = d_spins[idx];

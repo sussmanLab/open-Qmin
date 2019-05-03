@@ -73,6 +73,8 @@ class simpleModel
         //virtual GPUArray<scalar> & returnMasses(){return masses;};
         //!return a reference to the GPUArray of the current velocities
         virtual GPUArray<dVec> & returnVelocities(){return velocities;};
+        //!return a reference to the GPUArray of the current defects
+        virtual GPUArray<scalar> & returnDefectMeasures(){return defectMeasures;};
 
         //!Does this model have a special force it needs to compute itself?
         bool selfForceCompute;
@@ -104,6 +106,8 @@ class simpleModel
                         //    masses.resize(N);
                         };
 
+        //!scalars that can represent different defect measures
+        GPUArray<scalar> defectMeasures;
         //!return size of data in class in GB
         virtual scalar getClassSize()
             {

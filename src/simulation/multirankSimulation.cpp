@@ -446,7 +446,19 @@ void multirankSimulation::computeForces()
         {
         auto frc = forceComputers[f].lock();
         bool zeroForces = (f==0 && !Conf->selfForceCompute);
+        synchronizeAndTransferBuffers();
+        if(!useGPU)
+            {
+            frc->computeForces(Conf->returnForces(),zeroForces,0);
+            frc->computeForces(Conf->returnForces(),zeroForces,1);
+            }
+        else
+            {
+            frc->computeForces(Conf->returnForces(),zeroForces);
+            }
+
         //compute bulk sites... since they are in the bulk they can be done while MPI buffers are transfered for CPU-mpi jobs. GPU is not like this, though
+        /*
         if(!useGPU && forceComputers.size() == 1)
             {
             frc->computeForces(Conf->returnForces(),zeroForces,0);
@@ -458,11 +470,11 @@ void multirankSimulation::computeForces()
             }
         else
             {
+            synchronizeAndTransferBuffers();
             frc->computeForces(Conf->returnForces(),zeroForces);
             }
+        */
         };
-    if(useGPU)
-        synchronizeAndTransferBuffers();
 
     Conf->forcesComputed = true;
     };
@@ -560,8 +572,10 @@ void multirankSimulation::saveState(string fname)
     int zOffset = rankParity.z*Conf->latticeSites.z;
 
     Conf->getAverageEigenvalues();
+    Conf->computeDefectMeasures(0);
     ArrayHandle<dVec> pp(Conf->returnPositions());
     ArrayHandle<int> tt(Conf->returnTypes());
+    ArrayHandle<scalar> defects(Conf->returnDefectMeasures(),access_location::host,access_mode::read);
     ofstream myfile;
     myfile.open(fn);
     for (int ii = 0; ii < Conf->getNumberOfParticles(); ++ii)
@@ -572,7 +586,7 @@ void multirankSimulation::saveState(string fname)
         myfile << pos.x+xOffset <<"\t"<<pos.y+yOffset<<"\t"<<pos.z+zOffset;
         for (int dd = 0; dd <DIMENSION; ++dd)
             myfile <<"\t"<<pp.data[idx][dd];
-        myfile << "\t"<<tt.data[idx]<<"\n";
+        myfile << "\t"<<tt.data[idx]<< "\t"<< defects.data[idx] <<"\n";
         }
 
     myfile.close();

@@ -36,11 +36,11 @@ void landauDeGennesLC::baseInitialization()
     useL24 = false;
     computeEfieldContribution=false;
     computeHfieldContribution=false;
-    forceTuner = make_shared<kernelTuner>(32,256,32,10,200000);
-    boundaryForceTuner = make_shared<kernelTuner>(32,256,32,10,200000);
-    l24ForceTuner = make_shared<kernelTuner>(32,256,32,10,200000);
-    fieldForceTuner = make_shared<kernelTuner>(32,256,32,10,200000);
-    forceAssistTuner = make_shared<kernelTuner>(32,256,32,10,200000);
+    forceTuner = make_shared<kernelTuner>(128,256,32,10,200000);
+    boundaryForceTuner = make_shared<kernelTuner>(128,256,32,10,200000);
+    l24ForceTuner = make_shared<kernelTuner>(128,256,32,10,200000);
+    fieldForceTuner = make_shared<kernelTuner>(128,256,32,10,200000);
+    forceAssistTuner = make_shared<kernelTuner>(128,256,32,10,200000);
     energyComponents.resize(5);
     }
 
@@ -859,7 +859,6 @@ void landauDeGennesLC::computeL24ForcesCPU(GPUArray<dVec> &forces,bool zeroOutFo
 
 void landauDeGennesLC::computeBoundaryForcesCPU(GPUArray<dVec> &forces,bool zeroOutForce)
     {
-
     ArrayHandle<dVec> h_f(forces);
     if(zeroOutForce)
         for(int pp = 0; pp < lattice->getNumberOfParticles(); ++pp)

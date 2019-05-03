@@ -16,9 +16,6 @@
 #include <mpi.h>
 #include "cuda_profiler_api.h"
 
-/*!
-This file has been used to make timing information about finding minima in the presence of various objects and boundary conditions
- */
 int3 partitionProcessors(int numberOfProcesses)
     {
     int3 ans;
@@ -130,13 +127,6 @@ int main(int argc, char*argv[])
     else if (gpu >=0)
         GPU = chooseGPU(gpu);
 
-    logSpacedIntegers logIntTest(0,0.05);
-    for (int tt = 0 ;tt < maximumIterations; ++tt)
-        logIntTest.update();
-    cout << "max iterations set to " << logIntTest.nextSave << endl;
-
-
-
     int3 rankTopology = partitionProcessors(worldSize);
     if(myRank ==0)
         printf("lattice divisions: {%i, %i, %i}\n",rankTopology.x,rankTopology.y,rankTopology.z);
@@ -156,6 +146,32 @@ int main(int argc, char*argv[])
     //xH=yH=zH=true;
     bool edges = nConstants > 1 ? true : false;
     bool corners = false;
+
+
+    vector<int> boxSizes;
+    boxSizes.push_back(10);
+    boxSizes.push_back(20);
+    boxSizes.push_back(30);
+    boxSizes.push_back(50);
+    boxSizes.push_back(70);
+    boxSizes.push_back(100);
+    boxSizes.push_back(150);
+    boxSizes.push_back(200);
+    boxSizes.push_back(250);
+    if(gpu=1 || gpu <0)
+        {
+        boxSizes.push_back(300);
+        boxSizes.push_back(325);
+        }
+    char filename[256];
+    sprintf(filename,"../data/speedScaling_g%i_z%i_m%i_rank%i.txt",gpu,programSwitch,minimizerSwitch,myRank);
+    ofstream myfile;
+    myfile.open(filename);
+    myfile.setf(ios_base::scientific);
+    myfile << setprecision(10);
+    for(int ll = 0; ll < boxSizes.size(); ++ll)
+    {
+    boxLx = boxLy=boxLz=boxL = boxSizes[ll];
     shared_ptr<multirankQTensorLatticeModel> Configuration = make_shared<multirankQTensorLatticeModel>(boxLx,boxLy,boxLz,xH,yH,zH);
     shared_ptr<multirankSimulation> sim = make_shared<multirankSimulation>(myRank,rankTopology.x,rankTopology.y,rankTopology.z,edges,corners);
     shared_ptr<landauDeGennesLC> landauLCForce = make_shared<landauDeGennesLC>();
@@ -185,14 +201,14 @@ int main(int argc, char*argv[])
     landauLCForce->setModel(Configuration);
     sim->addForce(landauLCForce);
 
-    scalar forceCutoff=1e-16;
+    scalar forceCutoff=1e-17;
     int iterationsPerStep = 100;
 
 
     shared_ptr<energyMinimizerGradientDescent> GDminimizer = make_shared<energyMinimizerGradientDescent>(Configuration);
-    GDminimizer->setMaximumIterations(1);
+    GDminimizer->setMaximumIterations(maximumIterations);
     shared_ptr<energyMinimizerFIRE> Fminimizer =  make_shared<energyMinimizerFIRE>(Configuration);
-    Fminimizer->setMaximumIterations(1);
+    Fminimizer->setMaximumIterations(maximumIterations);
     if(minimizerSwitch ==1)
         {
         GDminimizer->setGradientDescentParameters(dt,forceCutoff);
@@ -213,49 +229,8 @@ int main(int argc, char*argv[])
     sim->setCPUOperation(!GPU);
     printf("initialization done\n");
 
-    boundaryObject homeotropicBoundary(boundaryType::homeotropic,0.58,S0);
-    boundaryObject planarDegenerateBoundary(boundaryType::degeneratePlanar,0.58,S0);
-    scalar3 left,center, right,down,up;
-    left.x = 0.0*boxLx;left.y = 0.5*boxLy;left.z = 0.5*boxLz;
-    center.x = 0.5*boxLx;center.y = 0.5*boxLy;center.z = 0.5*boxLz;
-    right.x = 1.*boxLx;right.y = 0.5*boxLy;right.z = 0.5*boxLz;
-    //use program switches to define what objects are in the simulation
-    switch(programSwitch)
-        {
-        case 1:
-            sim->createWall(2, 0, homeotropicBoundary); // z-normal wall on plane 0
-            left.x = 0.3*boxLx;left.y = 0.5*boxLy;left.z = 0.5*boxLz;
-            right.x = .7*boxLx;right.y = 0.5*boxLy;right.z = 0.5*boxLz;
-            //sim->createSphericalColloid(left,0.12*boxLx,homeotropicBoundary);
-            //sim->createSphericalColloid(right,0.12*boxLx,homeotropicBoundary);
-            sim->createSphericalColloid(center,0.25*boxLx,homeotropicBoundary);
-            break;
-        case 2:
-            left.x = 0.4*boxLx;left.y = 0.5*boxLy;left.z = 0.5*boxLz;
-            right.x = .6*boxLx;right.y = 0.5*boxLy;right.z = 0.5*boxLz;
-            sim->createWall(2, 0, planarDegenerateBoundary); // z-normal wall on plane 0
-            sim->createSpherocylinder(left,right,0.1*boxLx,homeotropicBoundary);
-            break;
-        case 3:
-            sim->createSphericalCavity(center,0.5*boxLx-1.5,homeotropicBoundary);
-            break;
-        case 4:
-            down.x = 0.5*boxLx;down.y = 0.5*boxLy;down.z = 0.0*boxLz-1;
-            up.x =   0.5*boxLx;  up.y = 0.5*boxLy;  up.z = 1.0*boxLz+1;
-            sim->createCylindricalObject(down, up,0.5*boxLx-1.5, false, homeotropicBoundary);
-            break;
-        default:
-            break;
-        }
-
     sim->finalizeObjects();
 
-    char filename[256];
-    sprintf(filename,"../data/minimizationTiming_g%i_z%i_m%i_dt%.5f_rank%i.txt",gpu,programSwitch,minimizerSwitch,dt,myRank);
-    ofstream myfile;
-    myfile.open(filename);
-    myfile.setf(ios_base::scientific);
-    myfile << setprecision(10);
 
     profiler pMinimize("minimization");
     pMinimize.start();
@@ -272,10 +247,6 @@ int main(int argc, char*argv[])
         minimizationIntervals.push_back(iterationsPerStep);
     */
 
-    logSpacedIntegers logInts(0,0.05);
-    int currentIterationMax = 1;
-    logInts.update();
-
     scalar E1;
     scalar maxForce;
     chrono::time_point<chrono::high_resolution_clock>  startTime;
@@ -284,67 +255,21 @@ int main(int argc, char*argv[])
     chrono::time_point<chrono::high_resolution_clock>  s1,e1;
     scalar remTime = 0.0;
 
-    startTime = chrono::high_resolution_clock::now();
     scalar workingTime;
-    //for (int tt = 0; tt < minimizationIntervals.size(); ++tt)
-    for (int tt = 0; tt < maximumIterations; ++tt)
-        {
-        sim->performTimestep();
+    startTime = chrono::high_resolution_clock::now();
+    sim->performTimestep();
 
-        //compute the energy, but don't count it towards the minimization time
-        s1 = chrono::high_resolution_clock::now();
-        E1 = sim->computePotentialEnergy(true);
-        e1 = chrono::high_resolution_clock::now();
-        chrono::duration<double> del = e1-s1;
-        remTime += del.count();
+    endTime = chrono::high_resolution_clock::now();
+    chrono::duration<double> difference = endTime-startTime;
+    workingTime = difference.count() / (scalar) maximumIterations;
+    myfile << boxL*boxL*boxL <<"\t" << workingTime <<"\n";
 
-        int iters;
-        if(minimizerSwitch ==1)
-            {
-            maxForce = GDminimizer->getMaxForce();
-            iters = GDminimizer->iterations;
-            }
-        else
-            {
-            maxForce = Fminimizer->getMaxForce();
-            iters = Fminimizer->iterations;
-            }
-
-        endTime = chrono::high_resolution_clock::now();
-        chrono::duration<double> difference = endTime-startTime;
-        workingTime = difference.count() - remTime;
-        printf("%i \t %g\t %g\t %g\t\t %g \n",iters,E1,maxForce,workingTime, remTime);
-        myfile << iters <<"\t" << workingTime <<"\t" << E1 <<"\t"<< maxForce <<"\n";
-
-        currentIterationMax = logInts.nextSave;
-        logInts.update();
-        //currentIterationMax += minimizationIntervals[tt];
-        if(minimizerSwitch ==1)
-            GDminimizer->setMaximumIterations(currentIterationMax);
-        else
-            Fminimizer->setMaximumIterations(currentIterationMax);
-        }
     pMinimize.end();
-    myfile.close();
-
-    char savename[256];
-    sprintf(savename,"../data/finalConfiguration_g%i_z%i_m%i_dt%.5f.txt",gpu,programSwitch,minimizerSwitch,dt);
 
     pMinimize.print();
     sim->p1.print();
-    sim->saveState(savename);
-    /*
-    scalar totalMinTime = pMinimize.timeTaken;
-    scalar communicationTime = sim->p1.timeTaken;
-    if(myRank != 0)
-        printf("min  time %f\n comm time %f\n percent comm: %f\n",totalMinTime,communicationTime,communicationTime/totalMinTime);
-    */
-    /*
-    cout << "size of configuration " << Configuration->getClassSize() << endl;
-    cout << "size of force computer" << landauLCForce->getClassSize() << endl;
-    cout << "size of fire updater " << Fminimizer->getClassSize() << endl;
-    cout << "size of gd updater " << GDminimizer->getClassSize() << endl;
-    */
+    }
+    myfile.close();
     MPI_Finalize();
         return 0;
 };

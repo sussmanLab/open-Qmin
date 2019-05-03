@@ -34,7 +34,7 @@ qTensorLatticeModel::qTensorLatticeModel(int lx,int ly,int lz, bool _useGPU)
 /*!
 defectType==0 stores the largest eigenvalue of Q at each site
 defectType==1 stores the determinant of Q each site
-defectType==0 stores the (Tr(Q^2))^3-54 det(Q)^2 at each site
+defectType==2 stores the (Tr(Q^2))^3-54 det(Q)^2 at each site
 */
 void qTensorLatticeModel::computeDefectMeasures(int defectType)
     {
