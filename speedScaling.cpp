@@ -158,7 +158,7 @@ int main(int argc, char*argv[])
     boxSizes.push_back(150);
     boxSizes.push_back(200);
     boxSizes.push_back(250);
-    if(gpu=1 || gpu <0)
+    if(gpu==1 || gpu <0)
         {
         boxSizes.push_back(300);
         boxSizes.push_back(325);

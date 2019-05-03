@@ -212,7 +212,7 @@ void multirankSimulation::createSphericalCavity(scalar3 center, scalar radius, b
             disp.y = yy - center.y;
             disp.z = zz - center.z;
 
-            if((disp.x*disp.x+disp.y*disp.y+disp.z*disp.z) < radiusSquared)
+            if((disp.x*disp.x+disp.y*disp.y+disp.z*disp.z) > radiusSquared)
                 {
                 int3 sitePos;
                 sitePos.x = xx;
