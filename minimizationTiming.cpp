@@ -162,7 +162,6 @@ int main(int argc, char*argv[])
     sim->setConfiguration(Configuration);
     pInit.end();
 
-    landauLCForce->setPhaseConstants(a,b,c);
     printf("relative phase constants: %f\t%f\t%f\n",a,b,c);
     if(nConstants ==1)
         {
@@ -183,6 +182,7 @@ int main(int argc, char*argv[])
         landauLCForce->setNumberOfConstants(distortionEnergyType::threeConstant);
         }
     landauLCForce->setModel(Configuration);
+    landauLCForce->setPhaseConstants(a,b,c);
     sim->addForce(landauLCForce);
 
     scalar forceCutoff=1e-16;
@@ -197,13 +197,16 @@ int main(int argc, char*argv[])
         {
         GDminimizer->setGradientDescentParameters(dt,forceCutoff);
         sim->addUpdater(GDminimizer,Configuration);
+        printf("gradient descent minimizer added\n");
         }
     else
         {
         scalar alphaStart=.99; scalar deltaTMax=100*dt; scalar deltaTInc=1.1; scalar deltaTDec=0.5;
         scalar alphaDec=0.9; int nMin=4;scalar alphaMin = .0;
         Fminimizer->setFIREParameters(dt,alphaStart,deltaTMax,deltaTInc,deltaTDec,alphaDec,nMin,forceCutoff,alphaMin);
+        Fminimizer->setCurrentIterations(0);
         sim->addUpdater(Fminimizer,Configuration);
+        printf("FIRE minimizer added\n");
         }
 
     sim->setCPUOperation(true);//have cpu and gpu initialized the same...for debugging

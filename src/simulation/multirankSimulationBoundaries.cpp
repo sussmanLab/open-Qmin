@@ -3,6 +3,7 @@
 
 void multirankSimulation::finalizeObjects()
     {
+    /* this section of code now handled in the base "createBoundaryObject() function
     {
     auto Conf = mConfiguration.lock();
     ArrayHandle<int> type(Conf->returnTypes());
@@ -22,10 +23,13 @@ void multirankSimulation::finalizeObjects()
                     otherpos.z += zz;
                     int otheridx = Conf->positionToIndex(otherpos);
                     if (type.data[otheridx] > 0)
+                        {
                         type.data[idx] = -1;
+                        }
                     };
         }
     }
+    */
     communicateHaloSitesRoutine();
 
     //let updaters know number of non-object sites

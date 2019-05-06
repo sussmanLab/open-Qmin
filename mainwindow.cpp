@@ -206,8 +206,8 @@ void MainWindow::on_initializeButton_released()
 
 void MainWindow::simulationInitialize()
 {
-     Configuration = make_shared<qTensorLatticeModel>(BoxX,BoxY,BoxZ);
-     sim = make_shared<Simulation>();
+     Configuration = make_shared<multirankQTensorLatticeModel>(BoxX,BoxY,BoxZ,false,false,false);
+     sim = make_shared<multirankSimulation>(0,1,1,1,false,false);
      landauLCForce = make_shared<landauDeGennesLC>();
 
      sim->setConfiguration(Configuration);
@@ -572,12 +572,14 @@ void MainWindow::on_addSphereButton_released()
     if(ui->anchoringComboBox->currentText() ==homeotropic)
         {
         boundaryObject homeotropicBoundary(boundaryType::homeotropic,W0,s0b);
-        Configuration->createSimpleSpherialColloid(spherePos,rad, homeotropicBoundary);
+        sim->createSphericalColloid(spherePos,rad,homeotropicBoundary);
+        //Configuration->createSimpleSpherialColloid(spherePos,rad, homeotropicBoundary);
         }
     else if(ui->anchoringComboBox->currentText() ==planarDegenerate)
         {
         boundaryObject planarDegenerateBoundary(boundaryType::degeneratePlanar,W0,s0b);
-        Configuration->createSimpleSpherialColloid(spherePos,rad, planarDegenerateBoundary);
+        sim->createSphericalColloid(spherePos,rad,planarDegenerateBoundary);
+        //Configuration->createSimpleSpherialColloid(spherePos,rad, planarDegenerateBoundary);
         }
     spherePositions.push_back(spherePos);
     sphereRadii.push_back(rad);
@@ -608,12 +610,14 @@ void MainWindow::on_addWallButton_released()
     if(ui->anchoringComboBox->currentText() ==homeotropic)
         {
         boundaryObject homeotropicBoundary(boundaryType::homeotropic,W0,s0b);
-        Configuration->createSimpleFlatWallNormal(plane,xyz,homeotropicBoundary);
+        sim->createWall(xyz,plane,homeotropicBoundary);
+        //Configuration->createSimpleFlatWallNormal(plane,xyz,homeotropicBoundary);
         }
     else if(ui->anchoringComboBox->currentText() ==planarDegenerate)
         {
         boundaryObject planarDegenerateBoundary(boundaryType::degeneratePlanar,W0,s0b);
-        Configuration->createSimpleFlatWallNormal(plane,xyz,planarDegenerateBoundary);
+        sim->createWall(xyz,plane,planarDegenerateBoundary);
+        //Configuration->createSimpleFlatWallNormal(plane,xyz,planarDegenerateBoundary);
         wallType = 1;
         }
     int3 pnt; pnt.x = plane; pnt.y = xyz; pnt.z=wallType;
@@ -637,6 +641,7 @@ void MainWindow::on_addWallButton_released()
 void MainWindow::on_finishedWithObjectsButton_released()
 {
     on_drawStuffButton_released();
+    sim->finalizeObjects();
     QString printable1 = QStringLiteral("finished adding objects...for now");
     ui->testingBox->setText(printable1);
 }
@@ -695,6 +700,7 @@ void MainWindow::on_importFileNowButton_released()
     QString fname = ui->fileNameBox->text();
     string fn = fname.toStdString();
     Configuration->createBoundaryFromFile(fn,true);cout.flush();
+    sim->finalizeObjects();
     QString printable1 = QStringLiteral("boundary imported from file");
     ui->testingBox->setText(printable1);
 }
@@ -717,6 +723,8 @@ void MainWindow::on_saveFileNowButton_released()
         myfile << "\t"<<tt.data[ii]<<"\n";
         };
 
+    sim->saveState("../data/saveTesting.txt");
+
     myfile.close();
     QString printable1 = QStringLiteral("File saved");
     ui->testingBox->setText(printable1);
@@ -734,12 +742,14 @@ void MainWindow::on_multithreadingButton_released()
 {
     ui->multithreadingWidget->hide();
     int nThreads = ui->multithreadingBox->text().toInt();
-    sim->setNThreads(nThreads);
+    //sim->setNThreads(nThreads);
     QString printable1;
     if(nThreads ==1 )
         printable1 = QStringLiteral("requesting single-threaded operation");
     else
-        printable1 = QStringLiteral("requesting %1 threads").arg(nThreads);
+        printable1 = QStringLiteral("non-functional in multiranke sim mode");
+//    else
+  //      printable1 = QStringLiteral("requesting %1 threads").arg(nThreads);
     ui->testingBox->setText(printable1);
 }
 

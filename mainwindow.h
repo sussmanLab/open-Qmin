@@ -3,10 +3,8 @@
 #include <QMainWindow>
 
 #include "functions.h"
-#include "gpuarray.h"
 #include "multirankSimulation.h"
-#include "simulation.h"
-#include "qTensorLatticeModel.h"
+#include "multirankQTensorLatticeModel.h"
 #include "landauDeGennesLC.h"
 #include "energyMinimizerFIRE.h"
 #include "energyMinimizerNesterovAG.h"
@@ -135,8 +133,8 @@ public:
 
     noiseSource noise;
 
-    shared_ptr<qTensorLatticeModel> Configuration;
-    shared_ptr<Simulation> sim;
+    shared_ptr<multirankQTensorLatticeModel> Configuration;
+    shared_ptr<multirankSimulation> sim;
     shared_ptr<landauDeGennesLC> landauLCForce;
     shared_ptr<energyMinimizerFIRE> fire;
     shared_ptr<energyMinimizerNesterovAG> nesterov;

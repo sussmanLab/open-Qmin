@@ -153,7 +153,6 @@ int main(int argc, char*argv[])
             w.move(x,y);
             QTimer::singleShot(750,splash,SLOT(close()));
             QTimer::singleShot(750,&w,SLOT(show()));
-            MPI_Finalize();
             return a.exec();
             }
         MPI_Finalize();

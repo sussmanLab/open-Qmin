@@ -82,7 +82,6 @@ class multirankSimulation : public basicSimulation, public enable_shared_from_th
         //!A utility function that just checks the first updater for a max force
         scalar getMaxForce()
             {
-            cout <<"needs to be multiranked " << endl;
             auto upd = updaters[0].lock();
             return upd->getMaxForce();
             };
