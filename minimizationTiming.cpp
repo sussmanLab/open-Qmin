@@ -229,9 +229,9 @@ int main(int argc, char*argv[])
             sim->createWall(2, 0, homeotropicBoundary); // z-normal wall on plane 0
             left.x = 0.3*boxLx;left.y = 0.5*boxLy;left.z = 0.5*boxLz;
             right.x = .7*boxLx;right.y = 0.5*boxLy;right.z = 0.5*boxLz;
-            //sim->createSphericalColloid(left,0.12*boxLx,homeotropicBoundary);
-            //sim->createSphericalColloid(right,0.12*boxLx,homeotropicBoundary);
-            sim->createSphericalColloid(center,0.25*boxLx,homeotropicBoundary);
+            sim->createSphericalColloid(left,0.12*boxLx,homeotropicBoundary);
+            sim->createSphericalColloid(right,0.12*boxLx,homeotropicBoundary);
+            //sim->createSphericalColloid(center,0.25*boxLx,homeotropicBoundary);
             break;
         case 2:
             left.x = 0.4*boxLx;left.y = 0.5*boxLy;left.z = 0.5*boxLz;
