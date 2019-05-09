@@ -61,9 +61,11 @@ int main(int argc, char*argv[])
     //ValueArg<T> variableName("shortflag","longFlag","description",required or not, default value,"value type",CmdLine object to add to
     ValueArg<int> programSwitchArg("z","programSwitch","an integer controlling program branch",false,0,"int",cmd);
     ValueArg<int> minimizerSwitchArg("m","minimizerSwitch","an integer controlling program branch",false,0,"int",cmd);
+    ValueArg<int> savestateSwitchArg("s","savestateSwitch","an integer controlling the level of configurational output",false,0,"int",cmd);
+    ValueArg<int> fileidxSwitchArg("f","fileidxSwitch","an integer controlling part of the RNG seed used",false,0,"int",cmd);
+
 
     SwitchArg reproducibleSwitch("r","reproducible","reproducible random number generation", cmd, true);
-
     ValueArg<scalar> aSwitchArg("a","phaseConstantA","value of phase constant A",false,0.172,"scalar",cmd);
     ValueArg<scalar> bSwitchArg("b","phaseConstantB","value of phase constant B",false,2.12,"scalar",cmd);
     ValueArg<scalar> cSwitchArg("c","phaseConstantC","value of phase constant C",false,1.73,"scalar",cmd);
@@ -95,6 +97,8 @@ int main(int argc, char*argv[])
     int gpu = gpuSwitchArg.getValue();
     int programSwitch = programSwitchArg.getValue();
     int minimizerSwitch = minimizerSwitchArg.getValue();
+    int savestate = savestateSwitchArg.getValue();
+    int fileidx = fileidxSwitchArg.getValue();
     int nDev;
     cudaGetDeviceCount(&nDev);
     if(nDev == 0)
@@ -103,6 +107,7 @@ int main(int argc, char*argv[])
     scalar phaseA = aSwitchArg.getValue();
     scalar phaseB = bSwitchArg.getValue();
     scalar phaseC = cSwitchArg.getValue();
+
 
     int boxL = lSwitchArg.getValue();
     int boxLx = lxSwitchArg.getValue();
@@ -145,7 +150,7 @@ int main(int argc, char*argv[])
     scalar b = -phaseB/phaseA;
     scalar c = phaseC/phaseA;
     noiseSource noise(reproducible);
-    noise.setReproducibleSeed(13371+myRank);
+    noise.setReproducibleSeed(13371+myRank+fileidx);
     printf("setting a rectilinear lattice of size (%i,%i,%i)\n",boxLx,boxLy,boxLz);
     profiler pInit("initialization");
 
@@ -162,7 +167,6 @@ int main(int argc, char*argv[])
     sim->setConfiguration(Configuration);
     pInit.end();
 
-    printf("relative phase constants: %f\t%f\t%f\n",a,b,c);
     if(nConstants ==1)
         {
         printf("using 1-constant approximation: %f \n",L1);
@@ -182,7 +186,6 @@ int main(int argc, char*argv[])
         landauLCForce->setNumberOfConstants(distortionEnergyType::threeConstant);
         }
     landauLCForce->setModel(Configuration);
-    landauLCForce->setPhaseConstants(a,b,c);
     sim->addForce(landauLCForce);
 
     scalar forceCutoff=1e-16;
@@ -211,6 +214,14 @@ int main(int argc, char*argv[])
 
     sim->setCPUOperation(true);//have cpu and gpu initialized the same...for debugging
     scalar S0 = (-b+sqrt(b*b-24*a*c))/(6*c);
+    S0=0.53;
+    //FIX S0=0.53
+    c = (2.0-b*S0)/(3.0*S0*S0);
+    S0 = (-b+sqrt(b*b-24*a*c))/(6*c);
+
+    landauLCForce->setPhaseConstants(a,b,c);
+
+    printf("relative phase constants: %f\t%f\t%f\n",a,b,c);
     printf("setting random configuration with S0 = %f\n",S0);
     Configuration->setNematicQTensorRandomly(noise,S0);
     sim->setCPUOperation(!GPU);
@@ -247,6 +258,19 @@ int main(int argc, char*argv[])
             up.x =   0.5*boxLx;  up.y = 0.5*boxLy;  up.z = 1.0*boxLz+1;
             sim->createCylindricalObject(down, up,0.5*boxLx-1.5, false, homeotropicBoundary);
             break;
+        case 5:
+            sim->createWall(2, 0, homeotropicBoundary); // z-normal wall on plane 0
+            sim->createSphericalColloid(center,0.25*boxLx,homeotropicBoundary);
+            sim->setDipolarField(center,3.14, 0.25*boxLx, 0.75*boxLx,S0);
+//            sim->saveState("../data/dipoleTest");
+            //sim->createSphericalColloid(center,0.25*boxLx,homeotropicBoundary);
+            break;
+        case 6:
+            sim->createWall(2, 0, homeotropicBoundary); // z-normal wall on plane 0
+            sim->createSphericalColloid(center,0.25*boxLx,homeotropicBoundary);
+//            sim->saveState("../data/dipoleTest");
+            //sim->createSphericalColloid(center,0.25*boxLx,homeotropicBoundary);
+            break;
         default:
             break;
         }
@@ -254,7 +278,7 @@ int main(int argc, char*argv[])
     sim->finalizeObjects();
 
     char filename[256];
-    sprintf(filename,"../data/minimizationTiming_g%i_z%i_m%i_dt%.5f_rank%i.txt",gpu,programSwitch,minimizerSwitch,dt,myRank);
+    sprintf(filename,"../data/minimizationTiming_L%i_g%i_z%i_m%i_dt%.5f_fidx%i_rank%i.txt",boxLx,gpu,programSwitch,minimizerSwitch,dt,fileidx,myRank);
     ofstream myfile;
     myfile.open(filename);
     myfile.setf(ios_base::scientific);
@@ -328,14 +352,16 @@ int main(int argc, char*argv[])
             Fminimizer->setMaximumIterations(currentIterationMax);
         }
     pMinimize.end();
+    pMinimize.print();
     myfile.close();
 
-    char savename[256];
-    sprintf(savename,"../data/finalConfiguration_g%i_z%i_m%i_dt%.5f.txt",gpu,programSwitch,minimizerSwitch,dt);
-
-    pMinimize.print();
-    sim->p1.print();
-    sim->saveState(savename);
+    if(savestate >0 || fileidx == 0)
+        {
+        char savename[256];
+        sprintf(savename,"../data/finalConfiguration_g%i_z%i_m%i_dt%.5f_fidx%i",gpu,programSwitch,minimizerSwitch,dt,fileidx);
+        sim->p1.print();
+        sim->saveState(savename);
+        }
     /*
     scalar totalMinTime = pMinimize.timeTaken;
     scalar communicationTime = sim->p1.timeTaken;

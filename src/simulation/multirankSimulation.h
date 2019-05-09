@@ -40,6 +40,9 @@ class multirankSimulation : public basicSimulation, public enable_shared_from_th
         //!make a spherocylinder, defined by the start and end of the cylindrical section and the radius
         void createSpherocylinder(scalar3 cylinderStart, scalar3 cylinderEnd, scalar radius, boundaryObject &bObj);
 
+        //!a function of convenience... make a dipolar field a la Lubensky et al.
+        void setDipolarField(scalar3 center, scalar ThetaD, scalar radius,scalar range, scalar S0);
+
         //!handles calls to all necessary halo site transfer
         virtual void communicateHaloSitesRoutine();
 

@@ -366,3 +366,80 @@ void multirankSimulation::createSpherocylinder(scalar3 cylinderStart, scalar3 cy
     printf("spherocylindrical colloid with %lu sites created\n",boundSites.size());
     createMultirankBoundaryObject(boundSites,qTensors,bObj.boundary,bObj.P1,bObj.P2);
     };
+
+/*!
+for lattice sites within range of center, create a z-aligned dipolar field with opening angle
+ThetaD about an object of radius "radius"
+Functional form from Lubensky, Pettey, Currier, and Stark. PRE 57, 610, 1998
+ */ 
+void multirankSimulation::setDipolarField(scalar3 center, scalar ThetaD, scalar radius, scalar range, scalar S0)
+    {
+    auto Conf = mConfiguration.lock();
+    ArrayHandle<dVec> pos(Conf->returnPositions());
+    ArrayHandle<int> types(Conf->returnTypes());
+    int3 globalLatticeSize;//the maximum size of the combined simulation
+    int3 latticeMin;//where this rank sites in that lattice (min)
+    int3 latticeMax;//...and (max)
+    globalLatticeSize.x = rankTopology.x*Conf->latticeSites.x;
+    globalLatticeSize.y = rankTopology.y*Conf->latticeSites.y;
+    globalLatticeSize.z = rankTopology.z*Conf->latticeSites.z;
+    latticeMin.x = rankParity.x*Conf->latticeSites.x;
+    latticeMin.y = rankParity.y*Conf->latticeSites.y;
+    latticeMin.z = rankParity.z*Conf->latticeSites.z;
+    latticeMax.x = (1+rankParity.x)*Conf->latticeSites.x;
+    latticeMax.y = (1+rankParity.y)*Conf->latticeSites.y;
+    latticeMax.z = (1+rankParity.z)*Conf->latticeSites.z;
+
+    scalar k = 0.32;
+    scalar rd = 1.22;
+    scalar td = ThetaD;
+    for (int ii = 0; ii < Conf->getNumberOfParticles(); ++ii)
+        {
+        //skip sites that are part of boundaries
+        if(types.data[ii] > 0)
+            continue;
+        int3 site = Conf->indexToPosition(ii);
+        scalar3 globalSitePosition;
+        globalSitePosition.x = latticeMin.x+site.x;
+        globalSitePosition.y = latticeMin.y+site.y;
+        globalSitePosition.z = latticeMin.z+site.z;
+        scalar3 relativePosition;
+        relativePosition.x = globalSitePosition.x - center.x;
+        relativePosition.y = globalSitePosition.y - center.y;
+        relativePosition.z = globalSitePosition.z - center.z;
+        scalar r ,t, p, Theta;
+        scalar3 director;
+        r= norm(relativePosition);
+        if(r < range && r >radius)
+            {
+            t = acos(relativePosition.z/r);
+            p = atan2(relativePosition.y,relativePosition.x);
+            r = r/radius; //normalize properly
+
+            scalar ri = 1./r;
+            scalar ri2 = ri/r;
+            scalar ri3= ri2/r;
+            scalar rdi = 1./rd;
+            scalar rdi2 = rdi/rd;
+            scalar rdi3= rdi2/rd;
+            Theta = 2*t;
+            Theta -= 0.5*( atan2(r*Sin(t) - rd*Sin(td),r*Cos(t) - rd*Cos(td))
+                          +atan2(r*Sin(t) + rd*Sin(td),r*Cos(t) - rd*Cos(td))
+                          +atan2(r*rd*Sin(t) - Sin(td),r*rd*Cos(t) - Cos(td))
+                          +atan2(r*rd*Sin(t) + Sin(td),r*rd*Cos(t) - Cos(td)) );
+            Theta += exp(-k*ri3)*
+                            ( (rd+rdi)*(ri-ri2)*Cos(td)*Sin(t)
+                             +(rd*rd+rdi2)*(ri2-ri3)*(2.*Cos(td)*Cos(td)-1.)*Sin(t)*Cos(t)
+                             +1./3.*(rd*rd*rd+rdi3)*(ri3-ri3/r)*Cos(td)*(4.*Cos(td)*Cos(td)-3.)*Sin(t)*(4.*Cos(t)*Cos(t) - 1.) );
+            director.x = Sin(Theta)*Cos(p);
+            director.y = Sin(Theta)*Sin(p);
+            director.z = Cos(Theta);
+            if(Theta == 0 && p ==0)
+                {
+                director.x=0;director.y=0;director.z=0;
+                }
+            qTensorFromDirector(director, S0, pos.data[ii]);
+            }
+
+        }
+    };
