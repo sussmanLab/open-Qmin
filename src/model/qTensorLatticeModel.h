@@ -38,13 +38,7 @@ class qTensorLatticeModel : public cubicLattice
         void setNematicQTensorRandomly(noiseSource &noise, scalar s0,bool globallyAligned = false);
 
         //!get field-averaged eigenvalues
-        void getAverageEigenvalues()
-            {
-            scalar a,b,c;
-            dVec meanQ = averagePosition();
-            eigenvaluesOfQ(meanQ,a,b,c);
-            printf("eigenvalues: %f\t%f\t%f\n",a,b,c);
-            };
+        void getAverageEigenvalues();
 
         //!import a boundary object from a (carefully prepared) text file
         void createBoundaryFromFile(string fname, bool verbose = false);

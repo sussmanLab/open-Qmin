@@ -31,6 +31,28 @@ qTensorLatticeModel::qTensorLatticeModel(int lx,int ly,int lz, bool _useGPU)
         }
     };
 
+void qTensorLatticeModel::getAverageEigenvalues()
+    {
+    ArrayHandle<dVec> Q(positions,access_location::host,access_mode::read);
+    ArrayHandle<int> t(types,access_location::host,access_mode::read);
+    scalar a ,b,c;
+    a = b = c = 0.;
+    int n = 0;
+    for (int pp = 0; pp < N; ++pp)
+        {
+        scalar a1,b1,c1;
+        if(t.data[pp] <=0)
+            {
+            eigenvaluesOfQ(Q.data[pp],a1,b1,c1);
+            a += a1;
+            b += b1;
+            c += c1;
+            n += 1;
+            }
+        }
+    printf("average eigenvalues: %f\t%f\t%f\n",a/n,b/n,c/n);
+    }
+
 /*!
 defectType==0 stores the largest eigenvalue of Q at each site
 defectType==1 stores the determinant of Q each site
