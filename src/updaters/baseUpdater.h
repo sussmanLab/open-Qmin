@@ -100,6 +100,8 @@ class updater
         int Phase;
         //!whether the updater does its work on the GPU or not
         bool useGPU;
+        //!whether the updater never does work on the GPU
+        bool neverGPU;
         //!some measure of the number of degrees of freedom the equations of motion might need to know about locally
         int Ndof;
         //!the total number of non-object sites across all ranks

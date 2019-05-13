@@ -15,10 +15,10 @@ class cubicLattice : public simpleModel
     {
     public:
         //!The base constructor takes the number of lattice sites along the cubic edge
-        cubicLattice(int l, bool _slice = false,bool _useGPU = false);
+        cubicLattice(int l, bool _slice = false,bool _useGPU = false, bool _neverGPU = false);
 
         //!A rectilinear set of lattice sits
-        cubicLattice(int lx, int ly, int lz, bool _slice = false,bool _useGPU = false);
+        cubicLattice(int lx, int ly, int lz, bool _slice = false,bool _useGPU = false, bool _neverGPU = false);
 
         //!move the degrees of freedom
         virtual void moveParticles(GPUArray<dVec> &displacements,scalar scale = 1.);

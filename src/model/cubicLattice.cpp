@@ -3,10 +3,10 @@
 #include "functions.h"
 /*! \file cubicLattice.cpp */
 
-cubicLattice::cubicLattice(int l, bool _slice, bool _useGPU)
+cubicLattice::cubicLattice(int l, bool _slice, bool _useGPU, bool _neverGPU)
     {
     useGPU=_useGPU;
-    latticeIndex = Index3D(l);
+    neverGPU = _neverGPU;
     sliceSites = _slice;
     N = l*l*l;
     L=l;
@@ -14,11 +14,13 @@ cubicLattice::cubicLattice(int l, bool _slice, bool _useGPU)
     selfForceCompute = false;
     initializeNSites();
     normalizeSpins = true;
+    latticeIndex = Index3D(l);
     };
 
-cubicLattice::cubicLattice(int lx, int ly, int lz, bool _slice, bool _useGPU)
+cubicLattice::cubicLattice(int lx, int ly, int lz, bool _slice, bool _useGPU, bool _neverGPU)
     {
     useGPU=_useGPU;
+    neverGPU = _neverGPU;
     int3 idx;
     idx.x=lx;idx.y=ly;idx.z=lz;
     latticeIndex = Index3D(idx);
@@ -33,21 +35,15 @@ cubicLattice::cubicLattice(int lx, int ly, int lz, bool _slice, bool _useGPU)
 
 void cubicLattice::initializeNSites()
     {
-    positions.resize(N);
-    types.resize(N);
-    forces.resize(N);
-    //temporary?
-    //masses.resize(N);
-    velocities.resize(N);
+    if(neverGPU)
+        {
+        neighboringSites.noGPU = true;
+        boundaries.noGPU = true;
+        boundaryMoveAssist1.noGPU = true;
+        boundaryMoveAssist2.noGPU = true;
+        }
+    initializeSimpleModel(N);
 
-    vector<dVec> zeroes(N,make_dVec(0.0));
-    vector<int> zeroInts(N,0);
-    vector<scalar> unities(N,1.0);
-    fillGPUArrayWithVector(zeroInts,types);
-    //fillGPUArrayWithVector(unities,masses);
-    fillGPUArrayWithVector(zeroes,positions);
-    fillGPUArrayWithVector(zeroes,forces);
-    fillGPUArrayWithVector(zeroes,velocities);
     moveParticlesTuner = make_shared<kernelTuner>(512,1024,128,10,200000);
     };
 
@@ -303,8 +299,13 @@ void cubicLattice::createBoundaryObject(vector<int> &latticeSites, boundaryType 
 
     //add object and surface sites to the vectors
     GPUArray<int> newBoundarySites;
-    fillGPUArrayWithVector(latticeSites, newBoundarySites);
     GPUArray<int> newSurfaceSites;
+    if(neverGPU)
+        {
+        newBoundarySites.noGPU = true;
+        newSurfaceSites.noGPU = true;
+        }
+    fillGPUArrayWithVector(latticeSites, newBoundarySites);
     fillGPUArrayWithVector(surfaceSite, newSurfaceSites);
 
     boundarySites.push_back(newBoundarySites);

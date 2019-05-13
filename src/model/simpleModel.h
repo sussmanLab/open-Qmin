@@ -31,7 +31,7 @@ class simpleModel
     {
     public:
         //!The base constructor requires the number of particles
-        simpleModel(int n, bool _useGPU = false);
+        simpleModel(int n, bool _useGPU = false,bool _neverGPU = false);
         //!a blank default constructor
         simpleModel(){};
         //!initialize the size of the basic data structure arrays
@@ -113,6 +113,8 @@ class simpleModel
             {
             return 0.000000001*(DIMENSION*(positions.getNumElements() + velocities.getNumElements()+forces.getNumElements())*sizeof(scalar) + (2+types.getNumElements())*sizeof(int)+sizeof(bool));
             }
+        //!Whereas useGPU can be turned on and off, neverGPU is fixed
+        bool neverGPU;
     protected:
         //!The number of particles
         int N;
@@ -124,12 +126,12 @@ class simpleModel
         GPUArray<dVec> velocities;
         //!Forces on particles
         GPUArray<dVec> forces;
+        //!particle types
+        GPUArray<int> types;
         //!particle radii
         //GPUArray<scalar> radii;
         //!particle masses
         //GPUArray<scalar> masses;
-        //!particle types
-        GPUArray<int> types;
 
         //!Whether the GPU should be used to compute anything
         bool useGPU;

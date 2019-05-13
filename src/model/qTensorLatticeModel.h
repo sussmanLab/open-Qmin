@@ -28,8 +28,8 @@ class qTensorLatticeModel : public cubicLattice
     {
     public:
         //! construct an underlying cubic lattice
-        qTensorLatticeModel(int l,bool _useGPU = false);
-        qTensorLatticeModel(int lx,int ly,int lz,bool _useGPU = false);
+        qTensorLatticeModel(int l,bool _useGPU = false, bool _neverGPU=false);
+        qTensorLatticeModel(int lx,int ly,int lz,bool _useGPU = false, bool _neverGPU=false);
 
         //!(possibly) need to rewrite how the Q tensors update with respect to a displacement call
         virtual void moveParticles(GPUArray<dVec> &displacements, scalar scale = 1.);

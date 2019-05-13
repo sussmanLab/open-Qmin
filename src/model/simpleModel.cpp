@@ -6,8 +6,8 @@
 /*!
  * Set the size of basic data structures...
 */
-simpleModel::simpleModel(int n, bool _useGPU) :
-    N(n), useGPU(_useGPU)
+simpleModel::simpleModel(int n, bool _useGPU, bool _neverGPU) :
+    N(n), useGPU(_useGPU),neverGPU(_neverGPU)
     {
     cout << "initializing a model with "<< N << " particles" << endl;
     initializeSimpleModel(n);
@@ -21,13 +21,21 @@ simpleModel::simpleModel(int n, bool _useGPU) :
 void simpleModel::initializeSimpleModel(int n)
     {
     N=n;
+    if(neverGPU)
+        {
+        positions.noGPU = true;
+        velocities.noGPU = true;
+        forces.noGPU = true;
+        types.noGPU = true;
+        defectMeasures.noGPU=true;
+        }
     selfForceCompute = false;
     positions.resize(n);
     velocities.resize(n);
     forces.resize(n);
+    types.resize(n);
     //masses.resize(n);
     //radii.resize(n);
-    types.resize(n);
     vector<dVec> zeroes(N,make_dVec(0.0));
     vector<scalar> ones(N,1.0);
     //vector<scalar> halves(N,.5);

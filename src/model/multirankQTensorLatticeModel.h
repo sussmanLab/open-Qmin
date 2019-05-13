@@ -15,7 +15,7 @@
 class multirankQTensorLatticeModel : public qTensorLatticeModel
     {
     public:
-        multirankQTensorLatticeModel(int lx, int ly, int lz, bool _xHalo, bool _yHalo, bool _zHalo, bool _useGPU = false);
+        multirankQTensorLatticeModel(int lx, int ly, int lz, bool _xHalo, bool _yHalo, bool _zHalo, bool _useGPU = false, bool _neverGPU=false);
 
         //! N is the number of sites controlled, totalSites includes halo sites
         int totalSites;

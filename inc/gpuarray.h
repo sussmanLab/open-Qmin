@@ -111,9 +111,9 @@ template<class T> class ArrayHandle
 template<class T> class GPUArray
     {
     public:
-        GPUArray(bool _register=false);
+        GPUArray(bool neverGPU = false, bool _register=false);
         //! The most common constructor takes in the desired size of the array
-        GPUArray(unsigned int num_elements,bool _register=false);
+        GPUArray(unsigned int num_elements,bool neverGPU = false,bool _register=false);
         virtual ~GPUArray();
 
         GPUArray(const GPUArray& from);
@@ -136,6 +136,7 @@ template<class T> class GPUArray
         virtual void resize(unsigned int num_elements);
 
         mutable data_location::Enum Data_location;    //!< Tracks the current location of the data
+        bool noGPU;
         
     protected:
         inline void memclear(unsigned int first=0);
@@ -188,15 +189,15 @@ template<class T> ArrayHandle<T>::~ArrayHandle()
 // ******************************************
 // GPUArray implementation
 // *****************************************
-template<class T> GPUArray<T>::GPUArray(bool _register) :
-        Num_elements(0), Acquired(false), Data_location(data_location::host), RegisterArray(_register),
+template<class T> GPUArray<T>::GPUArray(bool neverGPU, bool _register) :
+        Num_elements(0), Acquired(false), Data_location(data_location::host), RegisterArray(_register),noGPU(neverGPU),
         d_data(NULL),
         h_data(NULL)
     {
     }
 
-template<class T> GPUArray<T>::GPUArray(unsigned int num_elements, bool _register) :
-        Num_elements(num_elements), Acquired(false), Data_location(data_location::host), RegisterArray(_register),
+template<class T> GPUArray<T>::GPUArray(unsigned int num_elements, bool neverGPU, bool _register) :
+        Num_elements(num_elements), Acquired(false), Data_location(data_location::host), RegisterArray(_register),noGPU(neverGPU),
         d_data(NULL),
         h_data(NULL)
     {
@@ -511,7 +512,8 @@ template<class T> T* GPUArray<T>::resizeDeviceArray(unsigned int num_elements)
 template<class T> void GPUArray<T>::resize(unsigned int num_elements)
     {
     resizeHostArray(num_elements);
-    resizeDeviceArray(num_elements);
+    if(!noGPU)
+        resizeDeviceArray(num_elements);
     Num_elements = num_elements;
     }
 

@@ -111,7 +111,6 @@ int main(int argc, char*argv[])
     cudaGetDeviceCount(&nDev);
     if(nDev == 0)
         gpu = -1;
-    bool GPU = false;
     scalar phaseA = aSwitchArg.getValue();
     scalar phaseB = bSwitchArg.getValue();
     scalar phaseC = cSwitchArg.getValue();
@@ -162,11 +161,11 @@ int main(int argc, char*argv[])
         if(true)
             {
             cout << "non-visual mode activated on rank " << myRank << endl;
+            bool GPU = false;
             if(myRank >= 0 && gpu >=0 && worldSize > 1)
                 GPU = chooseGPU(myLocalRank);
             else if (gpu >=0)
                 GPU = chooseGPU(gpu);
-
 
            int3 rankTopology = partitionProcessors(worldSize);
            if(myRank ==0)
@@ -179,17 +178,16 @@ int main(int argc, char*argv[])
             noise.setReproducibleSeed(13371+myRank);
             printf("setting a rectilinear lattice of size (%i,%i,%i)\n",boxLx,boxLy,boxLz);
             profiler pInit("initialization");
-
             pInit.start();
             bool xH = (rankTopology.x >1) ? true : false;
             bool yH = (rankTopology.y >1) ? true : false;
             bool zH = (rankTopology.z >1) ? true : false;
-            //xH=yH=zH=true;
             bool edges = nConstants > 1 ? true : false;
-            bool corners = false;
-            shared_ptr<multirankQTensorLatticeModel> Configuration = make_shared<multirankQTensorLatticeModel>(boxLx,boxLy,boxLz,xH,yH,zH);
+            bool corners = nConstants > 1 ? true : false;
+            bool neverGPU = !GPU;
+            shared_ptr<multirankQTensorLatticeModel> Configuration = make_shared<multirankQTensorLatticeModel>(boxLx,boxLy,boxLz,xH,yH,zH,false,neverGPU);
             shared_ptr<multirankSimulation> sim = make_shared<multirankSimulation>(myRank,rankTopology.x,rankTopology.y,rankTopology.z,edges,corners);
-            shared_ptr<landauDeGennesLC> landauLCForce = make_shared<landauDeGennesLC>();
+            shared_ptr<landauDeGennesLC> landauLCForce = make_shared<landauDeGennesLC>(neverGPU);
             sim->setConfiguration(Configuration);
             pInit.end();
 

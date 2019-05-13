@@ -37,6 +37,13 @@ Initialize the minimizer with some default parameters.
 void energyMinimizerGradientDescent::initializeFromModel()
     {
     Ndof = model->getNumberOfParticles();
+    neverGPU = model->neverGPU;
+    if(neverGPU)
+        {
+        displacement.noGPU = true;
+        sumReductionIntermediate.noGPU=true;
+        sumReductionIntermediate2.noGPU=true;
+        }
     displacement.resize(Ndof);
     sumReductionIntermediate.resize(Ndof);
     sumReductionIntermediate2.resize(Ndof);

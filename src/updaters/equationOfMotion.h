@@ -25,6 +25,9 @@ class equationOfMotion : public updater
         virtual void initializeFromModel()
             {
             Ndof = model->getNumberOfParticles();
+            neverGPU = model->neverGPU;
+            if(neverGPU)
+                displacement.noGPU = true;
             displacement.resize(Ndof);
             };
         //!an array of displacements

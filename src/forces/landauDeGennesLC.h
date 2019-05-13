@@ -12,7 +12,7 @@ class landauDeGennesLC : public baseLatticeForce
     {
     public:
 
-        landauDeGennesLC();
+        landauDeGennesLC(bool _neverGPU = false);
         landauDeGennesLC(scalar _A, scalar _B, scalar _C, scalar _L1);
         landauDeGennesLC(scalar _A, scalar _B, scalar _C, scalar _L1, scalar _L2,scalar _L3orWavenumber, distortionEnergyType _type);
 
@@ -115,7 +115,6 @@ class landauDeGennesLC : public baseLatticeForce
             return 0.000000001*thisClassSize + baseLatticeForce::getClassSize();
             }
 
-        
     protected:
         //!constants, etc.
         scalar A;

@@ -7,10 +7,12 @@ This simply calls the cubic lattice constructor (without slicing optimization, s
 operational).
 Additionally, throws an exception if the dimensionality is incorrect.
  */
-qTensorLatticeModel::qTensorLatticeModel(int l, bool _useGPU)
-    : cubicLattice(l,false,_useGPU)
+qTensorLatticeModel::qTensorLatticeModel(int l, bool _useGPU, bool _neverGPU)
+    : cubicLattice(l,false,_useGPU, neverGPU)
     {
     normalizeSpins = false;
+    if(neverGPU)
+        defectMeasures.noGPU = true;
     defectMeasures.resize(N);
     if(DIMENSION !=5)
         {
@@ -19,10 +21,12 @@ qTensorLatticeModel::qTensorLatticeModel(int l, bool _useGPU)
         }
     };
 
-qTensorLatticeModel::qTensorLatticeModel(int lx,int ly,int lz, bool _useGPU)
-    : cubicLattice(lx,ly,lz,false,_useGPU)
+qTensorLatticeModel::qTensorLatticeModel(int lx,int ly,int lz, bool _useGPU, bool _neverGPU)
+    : cubicLattice(lx,ly,lz,false,_useGPU,_neverGPU)
     {
     normalizeSpins = false;
+    if(neverGPU)
+        defectMeasures.noGPU = true;
     defectMeasures.resize(N);
     if(DIMENSION !=5)
         {

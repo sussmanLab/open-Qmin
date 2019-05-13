@@ -22,7 +22,6 @@ Initialize the minimizer with some default parameters. that do not depend on Ndo
 void energyMinimizerFIRE::initializeParameters()
     {
     dotProductTuner = make_shared<kernelTuner>(1024,1024,32,5,200000);
-    sumReductions.resize(3);
     iterations = 0;
     Power = 0;
     NSinceNegativePower = 0;
@@ -51,7 +50,16 @@ void energyMinimizerFIRE::initializeFromModel()
     {
     //model->freeGPUArrays(false,false,false);
     Ndof = model->getNumberOfParticles();
+    neverGPU = model->neverGPU;
+    if(neverGPU)
+        {
+        displacement.noGPU = true;
+        sumReductions.noGPU=true;
+        sumReductionIntermediate.noGPU=true;
+        sumReductionIntermediate2.noGPU=true;
+        }
     //printf("FIRE dof = %i\n",Ndof);
+    sumReductions.resize(3);
     displacement.resize(Ndof);
     sumReductionIntermediate.resize(Ndof);
     sumReductionIntermediate2.resize(Ndof);

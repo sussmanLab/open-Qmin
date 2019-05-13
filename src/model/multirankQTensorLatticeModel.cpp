@@ -2,8 +2,8 @@
 #include "multirankQTensorLatticeModel.cuh"
 /*! \file multirankQTensorLatticeModel.cpp" */
 
-multirankQTensorLatticeModel::multirankQTensorLatticeModel(int lx, int ly, int lz, bool _xHalo, bool _yHalo, bool _zHalo, bool _useGPU)
-    : qTensorLatticeModel(lx,ly,lz,_useGPU), xHalo(_xHalo), yHalo(_yHalo), zHalo(_zHalo)
+multirankQTensorLatticeModel::multirankQTensorLatticeModel(int lx, int ly, int lz, bool _xHalo, bool _yHalo, bool _zHalo, bool _useGPU, bool _neverGPU)
+    : qTensorLatticeModel(lx,ly,lz,_useGPU,_neverGPU), xHalo(_xHalo), yHalo(_yHalo), zHalo(_zHalo)
     {
     int Lx = lx;
     int Ly = ly;
@@ -11,6 +11,13 @@ multirankQTensorLatticeModel::multirankQTensorLatticeModel(int lx, int ly, int l
     latticeSites.x = Lx;
     latticeSites.y = Ly;
     latticeSites.z = Lz;
+    if(neverGPU)
+        {
+        intTransferBufferSend.noGPU = true;
+        intTransferBufferReceive.noGPU = true;
+        doubleTransferBufferSend.noGPU = true;
+        doubleTransferBufferReceive.noGPU = true;
+        }
     determineBufferLayout();
 
     if(xHalo)

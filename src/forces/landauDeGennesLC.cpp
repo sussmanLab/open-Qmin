@@ -5,8 +5,16 @@
 #include "utilities.cuh"
 /*! \file landauDeGennesLC.cpp */
 
-landauDeGennesLC::landauDeGennesLC()
+landauDeGennesLC::landauDeGennesLC(bool _neverGPU)
     {
+    neverGPU = _neverGPU;
+    if(neverGPU)
+        {
+        energyDensity.noGPU =true;
+        objectForceArray.noGPU = true;
+        forceCalculationAssist.noGPU=true;
+        energyPerParticle.noGPU = true;
+        }
     baseInitialization();
     }
 

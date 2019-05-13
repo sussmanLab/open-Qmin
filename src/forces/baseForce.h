@@ -48,6 +48,8 @@ class force
             };
         //!whether the updater does its work on the GPU or not
         bool useGPU;
+        //!whether the updater never does work on the GPU
+        bool neverGPU;
 
         //!Forces might update the total energy associated with them
         scalar energy;
