@@ -226,6 +226,8 @@ void landauDeGennesLC::computeStressTensors(GPUArray<int> &sites,GPUArray<Matrix
 void landauDeGennesLC::computeFirstDerivatives()
     {
     int N = lattice->getNumberOfParticles();
+    if(forceCalculationAssist.getNumElements() < N)
+        forceCalculationAssist.resize(N);
     if(useGPU)
         {
         ArrayHandle<cubicLatticeDerivativeVector> d_derivatives(forceCalculationAssist,access_location::device,access_mode::readwrite);

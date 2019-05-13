@@ -234,6 +234,7 @@ int main(int argc, char*argv[])
     center.x = 0.5*boxLx;center.y = 0.5*boxLy;center.z = 0.5*boxLz;
     right.x = 1.*boxLx;right.y = 0.5*boxLy;right.z = 0.5*boxLz;
     //use program switches to define what objects are in the simulation
+    scalar newRadius = 0.35*boxLx;
     switch(programSwitch)
         {
         case 1:
@@ -260,14 +261,14 @@ int main(int argc, char*argv[])
             break;
         case 5:
             sim->createWall(2, 0, homeotropicBoundary); // z-normal wall on plane 0
-            sim->createSphericalColloid(center,0.25*boxLx,homeotropicBoundary);
-            sim->setDipolarField(center,3.14, 0.25*boxLx, 0.75*boxLx,S0);
+            sim->createSphericalColloid(center,newRadius,homeotropicBoundary);
+            sim->setDipolarField(center,3.14, newRadius, 0.75*boxLx,S0);
 //            sim->saveState("../data/dipoleTest");
             //sim->createSphericalColloid(center,0.25*boxLx,homeotropicBoundary);
             break;
         case 6:
             sim->createWall(2, 0, homeotropicBoundary); // z-normal wall on plane 0
-            sim->createSphericalColloid(center,0.25*boxLx,homeotropicBoundary);
+            sim->createSphericalColloid(center,newRadius,homeotropicBoundary);
 //            sim->saveState("../data/dipoleTest");
             //sim->createSphericalColloid(center,0.25*boxLx,homeotropicBoundary);
             break;
