@@ -92,10 +92,10 @@ class simpleModel
         //!some situations do not require us to maintain various data structures
         virtual void freeGPUArrays(bool freeVelocities, bool freeRadii, bool freeMasses)
                         {
-                        if(freeVelocities)
-                            velocities.resize(1);
-                        else
-                            velocities.resize(N);
+                        //if(freeVelocities)
+                        //    velocities.resize(1);
+                        //else
+                        //    velocities.resize(N);
                         //if(freeRadii)
                         //    radii.resize(1);
                         //else
@@ -111,7 +111,7 @@ class simpleModel
         //!return size of data in class in GB
         virtual scalar getClassSize()
             {
-            return 0.000000001*(DIMENSION*(positions.getNumElements() + velocities.getNumElements()+forces.getNumElements())*sizeof(scalar) + (2+types.getNumElements())*sizeof(int)+sizeof(bool));
+            return 0.000000001*(DIMENSION*(positions.getNumElements() + velocities.getNumElements()+forces.getNumElements())*sizeof(scalar) + (2+types.getNumElements())*sizeof(int)+sizeof(bool) + sizeof(scalar)*defectMeasures.getNumElements());
             }
         //!Whereas useGPU can be turned on and off, neverGPU is fixed
         bool neverGPU;

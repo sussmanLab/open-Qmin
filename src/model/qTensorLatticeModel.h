@@ -57,7 +57,7 @@ class qTensorLatticeModel : public cubicLattice
 
         virtual scalar getClassSize()
             {
-            return 0.000000001*(sizeof(scalar)*defectMeasures.getNumElements()) + cubicLattice::getClassSize();
+            return cubicLattice::getClassSize();
             }
     };
 #endif
