@@ -450,7 +450,7 @@ void multirankSimulation::computeForces()
         if(!useGPU)
             {
             frc->computeForces(Conf->returnForces(),zeroForces,0);
-            frc->computeForces(Conf->returnForces(),zeroForces,1);
+            frc->computeForces(Conf->returnForces(),false,1);
             }
         else
             {
