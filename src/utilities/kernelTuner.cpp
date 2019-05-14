@@ -21,21 +21,22 @@ kernelTuner::kernelTuner(int start, int end, int step, int nSamples, int _period
     sampleMedian.resize(possibleParameters.size());
     for(int ii = 0; ii < possibleParameters.size();++ii)
         sampleData[ii].resize(samplesPerValue);
-    cudaEventCreate(&startEvent);
-    cudaEventCreate(&stopEvent);
+    //cudaEventCreate(&startEvent);
+    //cudaEventCreate(&stopEvent);
 
     };
 
 kernelTuner::~kernelTuner()
     {
-    cudaEventDestroy(startEvent);
-    cudaEventDestroy(stopEvent);
+    //cudaEventDestroy(startEvent);
+    //cudaEventDestroy(stopEvent);
     };
 
 void kernelTuner::begin()
     {
     if (internalState != IDLE)
-        cudaEventRecord(startEvent,0);
+        startTime = chrono::high_resolution_clock::now();
+        //cudaEventRecord(startEvent,0);
     };
 
 void kernelTuner::end()
@@ -43,9 +44,12 @@ void kernelTuner::end()
     //record the timing data
     if(internalState != IDLE)
         {
-        cudaEventRecord(stopEvent,0);
-        cudaEventSynchronize(stopEvent);
-        cudaEventElapsedTime(&sampleData[currentParameterIndex][currentSample],startEvent,stopEvent);
+        endTime = chrono::high_resolution_clock::now();
+        chrono::duration<double> difference = endTime-startTime;
+        //cudaEventRecord(stopEvent,0);
+        //cudaEventSynchronize(stopEvent);
+        sampleData[currentParameterIndex][currentSample] = difference.count();
+        //cudaEventElapsedTime(&sampleData[currentParameterIndex][currentSample],startEvent,stopEvent);
         };
 
     //handle all of the parameter scanning updates

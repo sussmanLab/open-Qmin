@@ -2,6 +2,7 @@
 #define kernelTuner_H
 
 #include "std_include.h"
+#include <chrono>
 /*!\file kernelTuner.h */
 
 //!A class that tries to dynamically optimize a kernel parameter
@@ -59,7 +60,10 @@ class kernelTuner
         vector<vector< float> > sampleData;
         vector<float> sampleMedian;
 
-        cudaEvent_t startEvent;
-        cudaEvent_t stopEvent;
+        //cudaEvent_t startEvent;
+        //cudaEvent_t stopEvent;
+        chrono::time_point<chrono::high_resolution_clock>  startTime;
+        chrono::time_point<chrono::high_resolution_clock>  endTime;
+
     };
 #endif
