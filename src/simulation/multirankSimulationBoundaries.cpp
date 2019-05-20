@@ -36,7 +36,7 @@ void multirankSimulation::finalizeObjects()
     for (int u = 0; u < updaters.size(); ++u)
         {
         auto upd = updaters[u].lock();
-        upd->getNTotal();
+        NActive=upd->getNTotal();
         };
 
     cout << " objects finalized" << endl;
@@ -443,3 +443,54 @@ void multirankSimulation::setDipolarField(scalar3 center, scalar ThetaD, scalar 
 
         }
     };
+
+/*!
+for lattice sites within range of center, create a dipolar field in the direction specified
+about an object of radius "radius"
+ */ 
+void multirankSimulation::setDipolarField(scalar3 center, scalar3 direction, scalar radius, scalar range, scalar S0)
+    {
+    auto Conf = mConfiguration.lock();
+    ArrayHandle<dVec> pos(Conf->returnPositions());
+    ArrayHandle<int> types(Conf->returnTypes());
+    int3 globalLatticeSize;//the maximum size of the combined simulation
+    int3 latticeMin;//where this rank sites in that lattice (min)
+    int3 latticeMax;//...and (max)
+    globalLatticeSize.x = rankTopology.x*Conf->latticeSites.x;
+    globalLatticeSize.y = rankTopology.y*Conf->latticeSites.y;
+    globalLatticeSize.z = rankTopology.z*Conf->latticeSites.z;
+    latticeMin.x = rankParity.x*Conf->latticeSites.x;
+    latticeMin.y = rankParity.y*Conf->latticeSites.y;
+    latticeMin.z = rankParity.z*Conf->latticeSites.z;
+    latticeMax.x = (1+rankParity.x)*Conf->latticeSites.x;
+    latticeMax.y = (1+rankParity.y)*Conf->latticeSites.y;
+    latticeMax.z = (1+rankParity.z)*Conf->latticeSites.z;
+
+    scalar3 i = direction*(1.0/norm(direction));
+    scalar P = 2.08;
+    for (int ii = 0; ii < Conf->getNumberOfParticles(); ++ii)
+        {
+        //skip sites that are part of boundaries
+        if(types.data[ii] > 0 || types.data[ii] < -1)
+            continue;
+        int3 site = Conf->indexToPosition(ii);
+        scalar3 globalSitePosition;
+        globalSitePosition.x = latticeMin.x+site.x;
+        globalSitePosition.y = latticeMin.y+site.y;
+        globalSitePosition.z = latticeMin.z+site.z;
+        scalar3 relativePosition;
+        relativePosition.x = globalSitePosition.x - center.x;
+        relativePosition.y = globalSitePosition.y - center.y;
+        relativePosition.z = globalSitePosition.z - center.z;
+        scalar3 director;
+        scalar r= norm(relativePosition);
+        if(r < range && r >radius)
+            {
+            scalar ri3 = 1.0/(r*r*r);
+            director = i + (P)*radius*radius*ri3*relativePosition;
+            director = director*(1.0/norm(director));
+            qTensorFromDirector(director, S0, pos.data[ii]);
+            }
+        }
+    };
+

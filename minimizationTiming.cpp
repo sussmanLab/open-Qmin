@@ -229,7 +229,7 @@ int main(int argc, char*argv[])
 
     boundaryObject homeotropicBoundary(boundaryType::homeotropic,0.58,S0);
     boundaryObject planarDegenerateBoundary(boundaryType::degeneratePlanar,0.58,S0);
-    scalar3 left,center, right,down,up;
+    scalar3 left,center, right,down,up,direction;
     left.x = 0.0*boxLx;left.y = 0.5*boxLy;left.z = 0.5*boxLz;
     center.x = 0.5*boxLx;center.y = 0.5*boxLy;center.z = 0.5*boxLz;
     right.x = 1.*boxLx;right.y = 0.5*boxLy;right.z = 0.5*boxLz;
@@ -262,7 +262,8 @@ int main(int argc, char*argv[])
         case 5:
             sim->createWall(2, 0, homeotropicBoundary); // z-normal wall on plane 0
             sim->createSphericalColloid(center,newRadius,homeotropicBoundary);
-            sim->setDipolarField(center,3.14, newRadius, 0.75*boxLx,S0);
+            direction.x=0;direction.y=0;direction.z=1.;
+            sim->setDipolarField(center,direction, newRadius, 1.0*boxLx,S0);
 //            sim->saveState("../data/dipoleTest");
             //sim->createSphericalColloid(center,0.25*boxLx,homeotropicBoundary);
             break;

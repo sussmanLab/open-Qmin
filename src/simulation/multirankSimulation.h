@@ -42,6 +42,8 @@ class multirankSimulation : public basicSimulation, public enable_shared_from_th
 
         //!a function of convenience... make a dipolar field a la Lubensky et al.
         void setDipolarField(scalar3 center, scalar ThetaD, scalar radius,scalar range, scalar S0);
+        //!a function of convenience... make a dipolar field a la Lubensky et al. Simpler, uses the ravnik expression
+        void setDipolarField(scalar3 center, scalar3 direction, scalar radius,scalar range, scalar S0);
 
         //!handles calls to all necessary halo site transfer
         virtual void communicateHaloSitesRoutine();

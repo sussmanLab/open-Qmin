@@ -106,6 +106,7 @@ void MainWindow::hideControls()
     ui->nesterovMinimizationButton->hide();
     ui->computeEnergyButton->hide();
     ui->lolbfgsMinimizationButton->hide();
+    ui->dipoleWidget->hide();
 }
 void MainWindow::showControls()
 {
@@ -179,7 +180,7 @@ void MainWindow::on_initializeButton_released()
 
     sim->setCPUOperation(!GPU);
     ui->progressBar->setValue(50);
-    scalar S0 = (-B+sqrt(B*B-24*A*C))/(6*C);
+    S0 = (-B+sqrt(B*B-24*A*C))/(6*C);
     Configuration->setNematicQTensorRandomly(noise,S0);
 
     landauLCForce->setPhaseConstants(A,B,C);
@@ -217,6 +218,30 @@ void MainWindow::simulationInitialize()
      sim->addForce(landauLCForce);
      on_fireParamButton_released();
      ui->reproducibleButton->setEnabled(true);
+}
+
+void MainWindow::on_phaseS0Box_textEdited(const QString &arg1)
+{
+    A=ui->phaseABox->text().toDouble();
+    B=ui->phaseBBox->text().toDouble();
+    C=ui->phaseCBox->text().toDouble();
+    S0=ui->phaseS0Box->text().toDouble();
+    C = (2.0-B*S0)/(3.0*S0*S0);
+    printf("testing %f\n",C);
+    QString valueAsString = QString::number(C);
+    ui->phaseCBox->setText(valueAsString);
+}
+
+void MainWindow::on_phaseBBox_textEdited(const QString &arg1)
+{
+    A=ui->phaseABox->text().toDouble();
+    B=ui->phaseBBox->text().toDouble();
+    C=ui->phaseCBox->text().toDouble();
+    S0=ui->phaseS0Box->text().toDouble();
+    C = (2.0-B*S0)/(3.0*S0*S0);
+    printf("testing %f\n",C);
+    QString valueAsString = QString::number(C);
+    ui->phaseCBox->setText(valueAsString);
 }
 
 void MainWindow::on_setPhaseConstantsButton_released()
@@ -318,9 +343,10 @@ void MainWindow::on_minimizeButton_released()
         {
             upd->setMaximumIterations(upd->getCurrentIterations()+stepsToTake/10);
             sim->performTimestep();
+            QString printable2 = QStringLiteral("minimizing");
+            ui->testingBox->setText(printable2);
             on_drawStuffButton_released();
             ui->progressBar->setValue(10*ii);
-            QString printable2 = QStringLiteral("minimizing");
             ui->testingBox->setText(printable2);
         };
     };
@@ -1040,4 +1066,17 @@ void MainWindow::on_linearTrajectoryButton_released()
     traceString += fname;
     ui->testingBox->setText(traceString);
 
+}
+
+void MainWindow::on_dipoleSetFieldButton_released()
+{
+    scalar3 center;
+    scalar3 direction; direction.x=0;direction.y=0;direction.z=1;
+    center.x = BoxX*ui->dipoleXPosBox->text().toDouble();
+    center.y = BoxX*ui->dipoleYPosBox->text().toDouble();
+    center.z = BoxX*ui->dipoleZPosBox->text().toDouble();
+    scalar radius = BoxX*ui->dipoleRadiusBox->text().toDouble();
+    scalar range = BoxX*ui->dipoleRangeBox->text().toDouble();
+    sim->setDipolarField(center,PI,radius,range,S0);
+    ui->dipoleWidget->hide();
 }

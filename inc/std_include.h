@@ -100,6 +100,16 @@ HOSTDEVICE scalar3 make_scalar3(scalar x, scalar y,scalar z)
     ans.z=z;
     return ans;
     }
+//!scalar multiplication of scalar3
+HOSTDEVICE scalar3 operator*(const scalar3 &a, const scalar &b)
+    {
+    return make_scalar3(a.x*b,a.y*b,a.z*b);
+    }
+//!scalar multiplication of scalar3
+HOSTDEVICE scalar3 operator*(const scalar b,const scalar3 &a)
+    {
+    return make_scalar3(a.x*b,a.y*b,a.z*b);
+    }
 //!component-wise addition of two scalar3s
 HOSTDEVICE scalar3 operator+(const scalar3 &a, const scalar3 &b)
     {

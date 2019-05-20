@@ -7,7 +7,7 @@ void updater::performUpdate()
     sim->computeForces();
     };
 
-void updater::getNTotal()
+int updater::getNTotal()
     {
     if(updaterData.size()<1)
         updaterData.resize(1);
@@ -24,4 +24,5 @@ void updater::getNTotal()
         nTotal = updaterData[0];
         }
     printf("nTotal set to %i\n",nTotal);
+    return nTotal;
     }

@@ -110,6 +110,12 @@ private slots:
 
     void on_lolbfgsParamButton_released();
 
+    void on_dipoleSetFieldButton_released();
+
+    void on_phaseS0Box_textEdited(const QString &arg1);
+
+    void on_phaseBBox_textEdited(const QString &arg1);
+
 private:
     Ui::MainWindow *ui;
 
@@ -127,6 +133,7 @@ public:
     double A=0;
     double B=0;
     double C=0;
+    double S0=0.0;
     int zoom = 1;
     vector<scalar3> spherePositions;
     vector<scalar> sphereRadii;

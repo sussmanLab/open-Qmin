@@ -800,10 +800,10 @@ border: 1px solid black
    <widget class="QWidget" name="setPhaseConstants" native="true">
     <property name="geometry">
      <rect>
-      <x>300</x>
+      <x>260</x>
       <y>80</y>
-      <width>251</width>
-      <height>171</height>
+      <width>361</width>
+      <height>181</height>
      </rect>
     </property>
     <property name="styleSheet">
@@ -931,6 +931,110 @@ border: 1px solid black
      </property>
      <property name="text">
       <string>10.0581</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_71">
+     <property name="geometry">
+      <rect>
+       <x>300</x>
+       <y>65</y>
+       <width>21</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>S0</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="phaseS0Box">
+     <property name="geometry">
+      <rect>
+       <x>270</x>
+       <y>85</y>
+       <width>81</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>0.53</string>
+     </property>
+    </widget>
+    <widget class="Line" name="line_3">
+     <property name="geometry">
+      <rect>
+       <x>240</x>
+       <y>80</y>
+       <width>12</width>
+       <height>2</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: black</string>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Plain</enum>
+     </property>
+     <property name="lineWidth">
+      <number>10</number>
+     </property>
+     <property name="midLineWidth">
+      <number>-2</number>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+    <widget class="Line" name="line_6">
+     <property name="geometry">
+      <rect>
+       <x>250</x>
+       <y>80</y>
+       <width>2</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: black</string>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Plain</enum>
+     </property>
+     <property name="lineWidth">
+      <number>10</number>
+     </property>
+     <property name="midLineWidth">
+      <number>1</number>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+    </widget>
+    <widget class="Line" name="line_4">
+     <property name="geometry">
+      <rect>
+       <x>240</x>
+       <y>110</y>
+       <width>12</width>
+       <height>2</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: black</string>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Plain</enum>
+     </property>
+     <property name="lineWidth">
+      <number>10</number>
+     </property>
+     <property name="midLineWidth">
+      <number>-2</number>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
      </property>
     </widget>
    </widget>
@@ -3772,7 +3876,225 @@ border: 1px solid purple</string>
      <string>LoLBFGS</string>
     </property>
    </widget>
-   <zorder>initializationFrame</zorder>
+   <widget class="QWidget" name="dipoleWidget" native="true">
+    <property name="geometry">
+     <rect>
+      <x>210</x>
+      <y>80</y>
+      <width>471</width>
+      <height>241</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background: white; 
+border: 1px solid purple</string>
+    </property>
+    <widget class="QLabel" name="label_88">
+     <property name="geometry">
+      <rect>
+       <x>80</x>
+       <y>150</y>
+       <width>71</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>range</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="dipoleRangeBox">
+     <property name="geometry">
+      <rect>
+       <x>190</x>
+       <y>150</y>
+       <width>116</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>2.0</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="dipoleSetFieldButton">
+     <property name="geometry">
+      <rect>
+       <x>180</x>
+       <y>190</y>
+       <width>114</width>
+       <height>32</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background: light gray</string>
+     </property>
+     <property name="text">
+      <string>Set Field</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_89">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>10</y>
+       <width>451</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>Set a dipolar field in the z-directoin</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="dipoleXPosBox">
+     <property name="geometry">
+      <rect>
+       <x>130</x>
+       <y>60</y>
+       <width>51</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>0.5</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_90">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>60</y>
+       <width>91</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>x (units of Lx)</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_92">
+     <property name="geometry">
+      <rect>
+       <x>50</x>
+       <y>120</y>
+       <width>111</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>radius (units of Lx)</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="dipoleRadiusBox">
+     <property name="geometry">
+      <rect>
+       <x>190</x>
+       <y>120</y>
+       <width>122</width>
+       <height>19</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>0.35</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="dipoleYPosBox">
+     <property name="geometry">
+      <rect>
+       <x>230</x>
+       <y>60</y>
+       <width>51</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>0.5</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_91">
+     <property name="geometry">
+      <rect>
+       <x>200</x>
+       <y>60</y>
+       <width>21</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>y</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_93">
+     <property name="geometry">
+      <rect>
+       <x>310</x>
+       <y>60</y>
+       <width>21</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>y</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="dipoleZPosBox">
+     <property name="geometry">
+      <rect>
+       <x>340</x>
+       <y>60</y>
+       <width>51</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>z</string>
+     </property>
+    </widget>
+   </widget>
+   <zorder>fileImportWidget</zorder>
+   <zorder>setDistortionConstants3</zorder>
+   <zorder>setDistortionConstants2</zorder>
+   <zorder>setDistortionConstants1</zorder>
+   <zorder>colloidalTrajectoryWidget</zorder>
+   <zorder>LOLBFGSWidget</zorder>
+   <zorder>dipoleWidget</zorder>
    <zorder>fileSaveWidget</zorder>
    <zorder>nesterovWidget</zorder>
    <zorder>applyFieldWidget</zorder>
@@ -3782,10 +4104,6 @@ border: 1px solid purple</string>
    <zorder>fireParametersWidget</zorder>
    <zorder>multithreadingWidget</zorder>
    <zorder>setPhaseConstants</zorder>
-   <zorder>setDistortionConstants3</zorder>
-   <zorder>fileImportWidget</zorder>
-   <zorder>setDistortionConstants2</zorder>
-   <zorder>setDistortionConstants1</zorder>
    <zorder>addIterationsBox</zorder>
    <zorder>addIterationsButton</zorder>
    <zorder>testingBox</zorder>
@@ -3822,9 +4140,8 @@ border: 1px solid purple</string>
    <zorder>label_57</zorder>
    <zorder>nesterovMinimizationButton</zorder>
    <zorder>computeEnergyButton</zorder>
-   <zorder>colloidalTrajectoryWidget</zorder>
-   <zorder>LOLBFGSWidget</zorder>
    <zorder>lolbfgsMinimizationButton</zorder>
+   <zorder>initializationFrame</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
@@ -3832,7 +4149,7 @@ border: 1px solid purple</string>
      <x>0</x>
      <y>0</y>
      <width>1182</width>
-     <height>22</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuSet_constants">
@@ -3857,6 +4174,7 @@ border: 1px solid purple</string>
     </property>
     <addaction name="actionReset_the_system"/>
     <addaction name="actionCPU_multi_threading"/>
+    <addaction name="actionDipolar_Field_Initialization"/>
    </widget>
    <widget class="QMenu" name="menuFile">
     <property name="title">
@@ -3950,6 +4268,11 @@ border: 1px solid purple</string>
   <action name="actionobject_trajectory_with_energy_trace">
    <property name="text">
     <string>object trajectory with energy trace</string>
+   </property>
+  </action>
+  <action name="actionDipolar_Field_Initialization">
+   <property name="text">
+    <string>Dipolar Field Initialization</string>
    </property>
   </action>
  </widget>
@@ -4347,6 +4670,22 @@ border: 1px solid purple</string>
     <hint type="destinationlabel">
      <x>445</x>
      <y>235</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionDipolar_Field_Initialization</sender>
+   <signal>triggered()</signal>
+   <receiver>dipoleWidget</receiver>
+   <slot>show()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>445</x>
+     <y>232</y>
     </hint>
    </hints>
   </connection>

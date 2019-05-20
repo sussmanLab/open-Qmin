@@ -78,14 +78,14 @@ class updater
         int getCurrentIterations(){return iterations;};
         int getMaxIterations(){return maxIterations;};
         void setCurrentIterations(int newIterations){iterations=newIterations;};
-        
+
         virtual scalar getClassSize()
             {
             return 0.000000001*(6*sizeof(int) + 2*sizeof(bool) + sizeof(scalar));
             }
-        
+
         //!communicate the number of non-object sites across ranks
-        void getNTotal();
+        int getNTotal();
         vector<scalar> updaterData;
 
         //!The number of iterations performed

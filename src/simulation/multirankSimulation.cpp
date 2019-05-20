@@ -482,10 +482,13 @@ void multirankSimulation::computeForces()
 scalar multirankSimulation::computePotentialEnergy(bool verbose)
     {
     scalar PE = 0.0;
+    vector<scalar> ePerRank(1);
     for (int f = 0; f < forceComputers.size(); ++f)
         {
         auto frc = forceComputers[f].lock();
-        PE += frc->computeEnergy(verbose);
+        ePerRank[0] = frc->computeEnergy(verbose) /(1.0*NActive);
+        sumUpdaterData(ePerRank);
+        PE += ePerRank[0];
         };
     return PE;
     };
