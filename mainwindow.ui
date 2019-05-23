@@ -1958,7 +1958,7 @@ border: 1px black solid</string>
       <string notr="true">border: 1px solid black</string>
      </property>
      <property name="text">
-      <string>0.18</string>
+      <string>0.25</string>
      </property>
     </widget>
     <widget class="QComboBox" name="anchoringComboBox">
@@ -2029,7 +2029,7 @@ border: 1px black solid</string>
       <string notr="true">border: 1px solid black</string>
      </property>
      <property name="text">
-      <string>0.58</string>
+      <string>5.8</string>
      </property>
     </widget>
     <widget class="QLineEdit" name="boundaryS0Box">
@@ -3892,9 +3892,9 @@ border: 1px solid purple</string>
     <widget class="QLabel" name="label_88">
      <property name="geometry">
       <rect>
-       <x>80</x>
+       <x>50</x>
        <y>150</y>
-       <width>71</width>
+       <width>121</width>
        <height>20</height>
       </rect>
      </property>
@@ -3902,7 +3902,7 @@ border: 1px solid purple</string>
       <string notr="true">border: white</string>
      </property>
      <property name="text">
-      <string>range</string>
+      <string>range (units of Lx)</string>
      </property>
     </widget>
     <widget class="QLineEdit" name="dipoleRangeBox">
@@ -3966,7 +3966,7 @@ border: 1px solid purple</string>
      <property name="geometry">
       <rect>
        <x>130</x>
-       <y>60</y>
+       <y>50</y>
        <width>51</width>
        <height>20</height>
       </rect>
@@ -3979,7 +3979,7 @@ border: 1px solid purple</string>
      <property name="geometry">
       <rect>
        <x>30</x>
-       <y>60</y>
+       <y>50</y>
        <width>91</width>
        <height>20</height>
       </rect>
@@ -4020,14 +4020,14 @@ border: 1px solid purple</string>
       </rect>
      </property>
      <property name="text">
-      <string>0.35</string>
+      <string>0.25</string>
      </property>
     </widget>
     <widget class="QLineEdit" name="dipoleYPosBox">
      <property name="geometry">
       <rect>
        <x>230</x>
-       <y>60</y>
+       <y>50</y>
        <width>51</width>
        <height>20</height>
       </rect>
@@ -4040,7 +4040,7 @@ border: 1px solid purple</string>
      <property name="geometry">
       <rect>
        <x>200</x>
-       <y>60</y>
+       <y>50</y>
        <width>21</width>
        <height>20</height>
       </rect>
@@ -4059,7 +4059,7 @@ border: 1px solid purple</string>
      <property name="geometry">
       <rect>
        <x>310</x>
-       <y>60</y>
+       <y>50</y>
        <width>21</width>
        <height>20</height>
       </rect>
@@ -4068,7 +4068,7 @@ border: 1px solid purple</string>
       <string notr="true">border: white</string>
      </property>
      <property name="text">
-      <string>y</string>
+      <string>z</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
@@ -4078,13 +4078,59 @@ border: 1px solid purple</string>
      <property name="geometry">
       <rect>
        <x>340</x>
-       <y>60</y>
+       <y>50</y>
        <width>51</width>
        <height>20</height>
       </rect>
      </property>
      <property name="text">
-      <string>z</string>
+      <string>0.5</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_94">
+     <property name="geometry">
+      <rect>
+       <x>50</x>
+       <y>90</y>
+       <width>111</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>theta_D/pi</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="dipoleThetaDBox">
+     <property name="geometry">
+      <rect>
+       <x>190</x>
+       <y>90</y>
+       <width>122</width>
+       <height>19</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>1</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_95">
+     <property name="geometry">
+      <rect>
+       <x>320</x>
+       <y>79</y>
+       <width>111</width>
+       <height>51</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>(1=dipole, 
+.5=quadrupole)</string>
      </property>
     </widget>
    </widget>
@@ -4094,13 +4140,11 @@ border: 1px solid purple</string>
    <zorder>setDistortionConstants1</zorder>
    <zorder>colloidalTrajectoryWidget</zorder>
    <zorder>LOLBFGSWidget</zorder>
-   <zorder>dipoleWidget</zorder>
    <zorder>fileSaveWidget</zorder>
    <zorder>nesterovWidget</zorder>
    <zorder>applyFieldWidget</zorder>
    <zorder>moveObjectWidget</zorder>
    <zorder>colloidalEvolutionWidget</zorder>
-   <zorder>addObjectsWidget</zorder>
    <zorder>fireParametersWidget</zorder>
    <zorder>multithreadingWidget</zorder>
    <zorder>setPhaseConstants</zorder>
@@ -4142,6 +4186,8 @@ border: 1px solid purple</string>
    <zorder>computeEnergyButton</zorder>
    <zorder>lolbfgsMinimizationButton</zorder>
    <zorder>initializationFrame</zorder>
+   <zorder>addObjectsWidget</zorder>
+   <zorder>dipoleWidget</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">

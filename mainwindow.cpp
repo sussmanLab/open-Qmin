@@ -891,12 +891,12 @@ void MainWindow::on_fieldTypeComboBox_currentTextChanged(const QString &arg1)
 void MainWindow::on_computeEnergyButton_released()
 {
      ui->progressBar->setValue(0);
-    landauLCForce->computeEnergy();
+    scalar totalEnergyPer = sim->computePotentialEnergy();
      ui->progressBar->setValue(90);
     scalar totalEnergy = 0.0;
     for(int ii = 0; ii < landauLCForce->energyComponents.size();++ii)
         totalEnergy+=landauLCForce->energyComponents[ii];
-    QString energyString = QStringLiteral("Total energy: %1, components (phase, distortion, anchoring, E, H):  ").arg(totalEnergy);
+    QString energyString = QStringLiteral("Total energy: %1, components (phase, distortion, anchoring, E, H):  ").arg(totalEnergyPer);
     for(int ii = 0; ii < landauLCForce->energyComponents.size();++ii)
         energyString += QStringLiteral(" %1,  ").arg(landauLCForce->energyComponents[ii]);
     ui->testingBox->setText(energyString);
@@ -1077,6 +1077,8 @@ void MainWindow::on_dipoleSetFieldButton_released()
     center.z = BoxX*ui->dipoleZPosBox->text().toDouble();
     scalar radius = BoxX*ui->dipoleRadiusBox->text().toDouble();
     scalar range = BoxX*ui->dipoleRangeBox->text().toDouble();
-    sim->setDipolarField(center,PI,radius,range,S0);
+    scalar thetaD = PI*(ui->dipoleThetaDBox->text().toDouble());
+    sim->setDipolarField(center,thetaD,radius,range,S0);
+    //sim->setDipolarField(center,direction,radius,range,S0);
     ui->dipoleWidget->hide();
 }
