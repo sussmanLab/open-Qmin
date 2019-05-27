@@ -190,6 +190,7 @@ int main(int argc, char*argv[])
     //int nThreads = threadsSwitchArg.getValue();
 
     scalar dt = dtSwitchArg.getValue();
+    dt = dt*pow(2/phaseB,.25);
     int maximumIterations = iterationsSwitchArg.getValue();
     bool GPU = false;
     if(myRank >= 0 && gpu >=0 && worldSize > 1)
@@ -250,7 +251,7 @@ int main(int argc, char*argv[])
     landauLCForce->setModel(Configuration);
     sim->addForce(landauLCForce);
 
-    scalar forceCutoff=1e-16;
+    scalar forceCutoff=1e-13;
     int iterationsPerStep = 100;
 
 
@@ -382,16 +383,6 @@ int main(int argc, char*argv[])
     for (int tt = 0; tt < maximumIterations; ++tt)
         {
         sim->performTimestep();
-
-        //compute the energy, but don't count it towards the minimization time
-        s1 = chrono::high_resolution_clock::now();
-        E1 = sim->computePotentialEnergy();
-
-        scalar hedgehogDistance =distanceFromDipolarConfiguration(Configuration,center,newRadius,PI,S0);
-        scalar quadrupolarDistance =distanceFromDipolarConfiguration(Configuration,center,newRadius,0.5*PI,S0);
-        e1 = chrono::high_resolution_clock::now();
-        chrono::duration<double> del = e1-s1;
-        remTime += del.count();
         int iters;
         if(minimizerSwitch ==1)
             {
@@ -404,13 +395,25 @@ int main(int argc, char*argv[])
             iters = Fminimizer->iterations;
             }
 
-        endTime = chrono::high_resolution_clock::now();
-        chrono::duration<double> difference = endTime-startTime;
-        workingTime = difference.count() - remTime;
-        printf("(iterations, E1, maxForce, workingTime, remTime)%i \t %g\t %g\t %g\t\t %g \n",iters,E1,maxForce,workingTime, remTime);
-        printf("hedgehogDistance = %g\t saturn ring distance = %g\t \n",hedgehogDistance,quadrupolarDistance);
-       myfile << iters <<"\t" << E1 <<"\t"<< maxForce <<"\t" << hedgehogDistance<< "\t" << quadrupolarDistance <<"\n";
+        if(iters > 10)
+            {
+            //compute the energy, but don't count it towards the minimization time
+            s1 = chrono::high_resolution_clock::now();
+            E1 = sim->computePotentialEnergy();
 
+            scalar hedgehogDistance =distanceFromDipolarConfiguration(Configuration,center,newRadius,PI,S0);
+            scalar quadrupolarDistance =distanceFromDipolarConfiguration(Configuration,center,newRadius,0.5*PI,S0);
+            e1 = chrono::high_resolution_clock::now();
+            chrono::duration<double> del = e1-s1;
+            remTime += del.count();
+
+            endTime = chrono::high_resolution_clock::now();
+            chrono::duration<double> difference = endTime-startTime;
+            workingTime = difference.count() - remTime;
+            printf("(iterations, E1, maxForce, workingTime, remTime)%i \t %g\t %g\t %g\t\t %g \n",iters,E1,maxForce,workingTime, remTime);
+            printf("hedgehogDistance = %g\t saturn ring distance = %g\t \n",hedgehogDistance,quadrupolarDistance);
+           myfile << iters <<"\t" << E1 <<"\t"<< maxForce <<"\t" << hedgehogDistance<< "\t" << quadrupolarDistance <<"\n";
+            }
         currentIterationMax = logInts.nextSave;
         logInts.update();
         //currentIterationMax += minimizationIntervals[tt];
