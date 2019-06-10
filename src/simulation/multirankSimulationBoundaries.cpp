@@ -59,6 +59,7 @@ void multirankSimulation::createMultirankBoundaryObject(vector<int3> &latticeSit
     latticeMax.y = (1+rankParity.y)*Conf->latticeSites.y;
     latticeMax.z = (1+rankParity.z)*Conf->latticeSites.z;
     vector<int> latticeSitesToEmploy;
+    latticeSitesToEmploy.reserve(latticeSites.size());
     for (int ii = 0; ii < latticeSites.size(); ++ii)
         {
         //make sure the site is within the simulation box
@@ -191,7 +192,7 @@ void multirankSimulation::createSphericalColloid(scalar3 center, scalar radius, 
                 qTensors.push_back(Qtensor);
                 };
             }
-    printf("sphere with %lu sites created\n",boundSites.size());
+    printf("sphere of radius %f with %lu sites created\n",radius, boundSites.size());
     createMultirankBoundaryObject(boundSites,qTensors,bObj.boundary,bObj.P1,bObj.P2);
     };
 
@@ -393,6 +394,8 @@ void multirankSimulation::setDipolarField(scalar3 center, scalar ThetaD, scalar 
     scalar k = 0.32;
     scalar rd = 1.22;
     scalar td = ThetaD;
+    if(td < 0.75*PI)
+        rd = 1.1;
     for (int ii = 0; ii < Conf->getNumberOfParticles(); ++ii)
         {
         //skip sites that are part of boundaries

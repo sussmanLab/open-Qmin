@@ -38,6 +38,10 @@ scalar distanceFromDipolarConfiguration(shared_ptr<multirankQTensorLatticeModel>
     dVec qTensorTarget;
     scalar k = 0.32;
     scalar rd = 1.22;
+
+    if (thetaD < 0.75*PI)
+        rd = 1.1;
+
     scalar td = thetaD;
     for (int ii = 0; ii < N; ++ii)
         {
@@ -251,7 +255,7 @@ int main(int argc, char*argv[])
     landauLCForce->setModel(Configuration);
     sim->addForce(landauLCForce);
 
-    scalar forceCutoff=1e-13;
+    scalar forceCutoff=1e-12;
     int iterationsPerStep = 100;
 
 
@@ -272,7 +276,7 @@ int main(int argc, char*argv[])
         Fminimizer->setFIREParameters(dt,alphaStart,deltaTMax,deltaTInc,deltaTDec,alphaDec,nMin,forceCutoff,alphaMin);
         Fminimizer->setCurrentIterations(0);
         sim->addUpdater(Fminimizer,Configuration);
-        printf("FIRE minimizer added\n");
+        //printf("FIRE minimizer added\n");
         }
 
     sim->setCPUOperation(!GPU);
@@ -284,8 +288,7 @@ int main(int argc, char*argv[])
 
     landauLCForce->setPhaseConstants(a,b,c);
 
-    printf("relative phase constants: %f\t%f\t%f\n",a,b,c);
-    printf("setting random configuration with S0 = %f\n",S0);
+    printf("relative phase constants: %.3f  %.3f  %.3f  \t setting random configuration with S0 = %f\n",a,b,c,S0);
     Configuration->setNematicQTensorRandomly(noise,S0);
     sim->setCPUOperation(!GPU);
     printf("initialization done\n");
@@ -357,7 +360,7 @@ int main(int argc, char*argv[])
 
     sim->finalizeObjects();
     char filename[256];
-    sprintf(filename,"../data/hedgehogTesting_z%i_L%i_g%i_b%i_r%i.txt",programSwitch,boxLx,gpu,(int)phaseB,(int)newRadius);
+    sprintf(filename,"../data/hedgehogTesting_z%i_L%i_g%i_b%.3g_r%i.txt",programSwitch,boxLx,gpu,phaseB,(int)newRadius);
     ofstream myfile;
     myfile.open(filename);
     myfile.setf(ios_base::scientific);
@@ -426,12 +429,11 @@ int main(int argc, char*argv[])
     pMinimize.print();
     myfile.close();
 
-    sprintf(filename,"../data/hedgehogTesting_z%i_L%i_g%i_b%i_r%i.txt",programSwitch,boxLx,gpu,(int)phaseB,(int)newRadius);
 
     if(programSwitch ==0)
         {
         char savename[256];
-        sprintf(savename,"../data/hhConfigConfiguration_L%i_b%i_r%i",boxLx,(int)phaseB,(int)newRadius);
+        sprintf(savename,"../data/hhConfiguration_L%i_b%.3g_r%i",boxLx,phaseB,(int)newRadius);
         sim->p1.print();
         sim->saveState(savename);
         }

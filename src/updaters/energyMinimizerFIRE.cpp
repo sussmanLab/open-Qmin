@@ -109,7 +109,7 @@ void energyMinimizerFIRE::fireStepGPU()
     }
 
     //check how the power is doing
-    if (Power > 0 && iterations % 1000 != 0)
+    if (Power > 0 && iterations % 500 != 0)
         {
         if (NSinceNegativePower > NMin)
             {
@@ -174,7 +174,7 @@ void energyMinimizerFIRE::fireStepCPU()
         };
     };
 
-    if (Power > 0 && iterations % 1000 != 0)
+    if (Power > 0 && iterations % 500 != 0)
         {
         if (NSinceNegativePower > NMin)
             {
