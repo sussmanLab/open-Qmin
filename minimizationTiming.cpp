@@ -61,7 +61,7 @@ int main(int argc, char*argv[])
     //ValueArg<T> variableName("shortflag","longFlag","description",required or not, default value,"value type",CmdLine object to add to
     ValueArg<int> programSwitchArg("z","programSwitch","an integer controlling program branch",false,0,"int",cmd);
     ValueArg<int> minimizerSwitchArg("m","minimizerSwitch","an integer controlling program branch",false,0,"int",cmd);
-    ValueArg<int> savestateSwitchArg("s","savestateSwitch","an integer controlling the level of configurational output",false,0,"int",cmd);
+    ValueArg<int> savestateSwitchArg("s","savestateSwitch","an integer controlling the level of configurational output",false,-1,"int",cmd);
     ValueArg<int> fileidxSwitchArg("f","fileidxSwitch","an integer controlling part of the RNG seed used",false,0,"int",cmd);
 
 
@@ -73,7 +73,7 @@ int main(int argc, char*argv[])
     ValueArg<scalar> dtSwitchArg("e","deltaT","step size for minimizer",false,0.0005,"scalar",cmd);
 
     ValueArg<int> gpuSwitchArg("g","GPU","which gpu to use",false,-1,"int",cmd);
-    ValueArg<int> iterationsSwitchArg("i","iterations","number of minimization steps",false,100,"int",cmd);
+    ValueArg<int> iterationsSwitchArg("i","iterations","number of minimization steps",false,20,"int",cmd);
     ValueArg<int> kSwitchArg("k","nConstants","approximation for distortion term",false,1,"int",cmd);
 
 
@@ -138,7 +138,8 @@ int main(int argc, char*argv[])
     logSpacedIntegers logIntTest(0,0.05);
     for (int tt = 0 ;tt < maximumIterations; ++tt)
         logIntTest.update();
-    cout << "max iterations set to " << logIntTest.nextSave << endl;
+    if(myRank ==0)
+        cout << "max iterations set to " << logIntTest.nextSave << endl;
 
 
 
@@ -151,7 +152,9 @@ int main(int argc, char*argv[])
     scalar c = phaseC/phaseA;
     noiseSource noise(reproducible);
     noise.setReproducibleSeed(13371+myRank+fileidx);
-    printf("setting a rectilinear lattice of size (%i,%i,%i)\n",boxLx,boxLy,boxLz);
+
+    if(myRank ==0)
+        printf("setting a rectilinear lattice of size (%i,%i,%i)\n",boxLx,boxLy,boxLz);
     profiler pInit("initialization");
 
     pInit.start();
@@ -169,7 +172,8 @@ int main(int argc, char*argv[])
 
     if(nConstants ==1)
         {
-        printf("using 1-constant approximation: %f \n",L1);
+        if(myRank ==0)
+            printf("using 1-constant approximation: %f \n",L1);
         landauLCForce->setElasticConstants(L1,0,0);
         landauLCForce->setNumberOfConstants(distortionEnergyType::oneConstant);
         }
@@ -192,14 +196,14 @@ int main(int argc, char*argv[])
     int iterationsPerStep = 100;
 
 
-    shared_ptr<energyMinimizerGradientDescent> GDminimizer = make_shared<energyMinimizerGradientDescent>(Configuration);
-    GDminimizer->setMaximumIterations(1);
+//    shared_ptr<energyMinimizerGradientDescent> GDminimizer = make_shared<energyMinimizerGradientDescent>(Configuration);
+//    GDminimizer->setMaximumIterations(1);
     shared_ptr<energyMinimizerFIRE> Fminimizer =  make_shared<energyMinimizerFIRE>(Configuration);
     Fminimizer->setMaximumIterations(1);
     if(minimizerSwitch ==1)
         {
-        GDminimizer->setGradientDescentParameters(dt,forceCutoff);
-        sim->addUpdater(GDminimizer,Configuration);
+//        GDminimizer->setGradientDescentParameters(dt,forceCutoff);
+//        sim->addUpdater(GDminimizer,Configuration);
         printf("gradient descent minimizer added\n");
         }
     else
@@ -209,7 +213,8 @@ int main(int argc, char*argv[])
         Fminimizer->setFIREParameters(dt,alphaStart,deltaTMax,deltaTInc,deltaTDec,alphaDec,nMin,forceCutoff,alphaMin);
         Fminimizer->setCurrentIterations(0);
         sim->addUpdater(Fminimizer,Configuration);
-        printf("FIRE minimizer added\n");
+        if(myRank ==0)
+            printf("FIRE minimizer added\n");
         }
 
     sim->setCPUOperation(true);//have cpu and gpu initialized the same...for debugging
@@ -221,11 +226,14 @@ int main(int argc, char*argv[])
 
     landauLCForce->setPhaseConstants(a,b,c);
 
-    printf("relative phase constants: %f\t%f\t%f\n",a,b,c);
-    printf("setting random configuration with S0 = %f\n",S0);
     Configuration->setNematicQTensorRandomly(noise,S0);
     sim->setCPUOperation(!GPU);
-    printf("initialization done\n");
+    if(myRank ==0)
+        {
+        printf("relative phase constants: %f\t%f\t%f\n",a,b,c);
+        printf("setting random configuration with S0 = %f\n",S0);
+        printf("initialization done\n");
+        };
 
     boundaryObject homeotropicBoundary(boundaryType::homeotropic,0.58,S0);
     boundaryObject planarDegenerateBoundary(boundaryType::degeneratePlanar,0.58,S0);
@@ -282,9 +290,12 @@ int main(int argc, char*argv[])
     char filename[256];
     sprintf(filename,"../data/minimizationTiming_L%i_g%i_z%i_m%i_dt%.5f_fidx%i_rank%i.txt",boxLx,gpu,programSwitch,minimizerSwitch,dt,fileidx,myRank);
     ofstream myfile;
-    myfile.open(filename);
-    myfile.setf(ios_base::scientific);
-    myfile << setprecision(10);
+    if(myRank ==0)
+        {
+        myfile.open(filename);
+        myfile.setf(ios_base::scientific);
+        myfile << setprecision(10);
+        };
 
     profiler pMinimize("minimization");
     pMinimize.start();
@@ -330,8 +341,8 @@ int main(int argc, char*argv[])
         int iters;
         if(minimizerSwitch ==1)
             {
-            maxForce = GDminimizer->getMaxForce();
-            iters = GDminimizer->iterations;
+//            maxForce = GDminimizer->getMaxForce();
+//            iters = GDminimizer->iterations;
             }
         else
             {
@@ -342,34 +353,40 @@ int main(int argc, char*argv[])
         endTime = chrono::high_resolution_clock::now();
         chrono::duration<double> difference = endTime-startTime;
         workingTime = difference.count() - remTime;
-        printf("%i \t %g\t %g\t %g\t\t %g \n",iters,E1,maxForce,workingTime, remTime);
-        myfile << iters <<"\t" << workingTime <<"\t" << E1 <<"\t"<< maxForce <<"\n";
+        if(myRank ==0)
+            {
+            printf("\n%i \t %g\t %g\t %g\t\t %g \n",iters,E1,maxForce,workingTime, remTime);
+            myfile << iters <<"\t" << workingTime <<"\t" << E1 <<"\t"<< maxForce <<"\n";
+            }
 
         currentIterationMax = logInts.nextSave;
         logInts.update();
         //currentIterationMax += minimizationIntervals[tt];
         if(minimizerSwitch ==1)
-            GDminimizer->setMaximumIterations(currentIterationMax);
+            {
+//            GDminimizer->setMaximumIterations(currentIterationMax);
+            }
         else
             Fminimizer->setMaximumIterations(currentIterationMax);
         }
     pMinimize.end();
-    pMinimize.print();
-    myfile.close();
+    if(myRank==0)
+        {
+        pMinimize.print();
+        myfile.close();
+        }
 
-    if(savestate >0 || fileidx == 0)
+    if(savestate >0 || (savestate >=0 &&fileidx == 0))
         {
         char savename[256];
         sprintf(savename,"../data/finalConfiguration_g%i_z%i_m%i_dt%.5f_fidx%i",gpu,programSwitch,minimizerSwitch,dt,fileidx);
         sim->p1.print();
         sim->saveState(savename);
         }
-    /*
-    scalar totalMinTime = pMinimize.timeTaken;
+    scalar totalMinTime = workingTime;
     scalar communicationTime = sim->p1.timeTaken;
-    if(myRank != 0)
-        printf("min  time %f\n comm time %f\n percent comm: %f\n",totalMinTime,communicationTime,communicationTime/totalMinTime);
-    */
+    if(myRank == 0)
+        printf("rank: %i\n min  time %f\n energy time %f\n comm time %f\n percent comm: %f\n",myRank,totalMinTime,remTime,communicationTime,communicationTime/totalMinTime);
     /*
     cout << "size of configuration " << Configuration->getClassSize() << endl;
     cout << "size of force computer" << landauLCForce->getClassSize() << endl;

@@ -39,7 +39,7 @@ void multirankSimulation::finalizeObjects()
         NActive=upd->getNTotal();
         };
 
-    cout << " objects finalized" << endl;
+//    cout << " objects finalized" << endl;
     }
 
 void multirankSimulation::createMultirankBoundaryObject(vector<int3> &latticeSites, vector<dVec> &qTensors, boundaryType _type, scalar Param1, scalar Param2)
