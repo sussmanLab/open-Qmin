@@ -258,11 +258,11 @@ void MainWindow::on_setPhaseConstantsButton_released()
 
 void MainWindow::on_setOneConstant_released()
 {
-    scalar _l1=ui->oneConstantL1Box->text().toDouble();
+    L1 =ui->oneConstantL1Box->text().toDouble();
     ui->setDistortionConstants1->hide();
-    landauLCForce->setElasticConstants(_l1,0,0);
+    landauLCForce->setElasticConstants(L1,0,0,0,0);
     landauLCForce->setNumberOfConstants(distortionEnergyType::oneConstant);
-    QString printable = QStringLiteral("One-elastic-constant approximation set: L1 %1").arg((_l1));
+    QString printable = QStringLiteral("One-elastic-constant approximation set: L1 %1").arg((L1));
     ui->testingBox->setText(printable);
     landauLCForce->setModel(Configuration);
     showControls();
@@ -270,13 +270,15 @@ void MainWindow::on_setOneConstant_released()
 
 void MainWindow::on_setTwoConstants_released()
 {
-    scalar _l1=ui->twoConstantL1Box->text().toDouble();
-    scalar _l2=ui->twoConstantL2Box->text().toDouble();
-    scalar _q0=ui->twoConstantQ0Box->text().toDouble();
+    L1=ui->twoConstantL1Box->text().toDouble();
+    L2=ui->twoConstantL2Box->text().toDouble();
+    L3=0;
+    L4=ui->twoConstantQ0Box->text().toDouble();
+    L6=0;
     ui->setDistortionConstants2->hide();
-    landauLCForce->setElasticConstants(_l1,_l2,_q0);
-    landauLCForce->setNumberOfConstants(distortionEnergyType::twoConstant);
-    QString printable = QStringLiteral("Two-elastic-constant approximation set: Lx %1 Ly %2 q0 %3 ").arg(_l1).arg(_l2).arg(_q0);
+    landauLCForce->setElasticConstants(L1,L2,L3,L4,L6);
+    landauLCForce->setNumberOfConstants(distortionEnergyType::multiConstant);
+    QString printable = QStringLiteral("Two-elastic-constant approximation set: Lx %1 Ly %2 q0 %3 ").arg(L1).arg(L2).arg(L4);
     ui->testingBox->setText(printable);
     landauLCForce->setModel(Configuration);
     showControls();
@@ -284,13 +286,15 @@ void MainWindow::on_setTwoConstants_released()
 
 void MainWindow::on_setThreeConstants_released()
 {
-    scalar _l1=ui->threeConstantL1Box->text().toDouble();
-    scalar _l2=ui->threeConstantL2Box->text().toDouble();
-    scalar _l3=ui->threeConstantL3Box->text().toDouble();
+    L1=ui->threeConstantL1Box->text().toDouble();
+    L2=ui->threeConstantL2Box->text().toDouble();
+    L3=0;
+    L4=0;
+    L6=ui->threeConstantL3Box->text().toDouble();
     ui->setDistortionConstants3->hide();
-    landauLCForce->setElasticConstants(_l1,_l2,_l3);
-    landauLCForce->setNumberOfConstants(distortionEnergyType::threeConstant);
-    QString printable = QStringLiteral("three-elastic-constant approximation set: L1 %1 L2 %2 L3 %3 ").arg(_l1).arg(_l2).arg(_l3);
+    landauLCForce->setElasticConstants(L1,L2,L3,L4,L6);
+    landauLCForce->setNumberOfConstants(distortionEnergyType::multiConstant);
+    QString printable = QStringLiteral("three-elastic-constant approximation set: L1 %1 L2 %2 L3 %3 ").arg(L1).arg(L2).arg(L6);
     ui->testingBox->setText(printable);
     landauLCForce->setModel(Configuration);
     showControls();

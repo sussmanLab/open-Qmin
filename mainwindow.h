@@ -133,6 +133,11 @@ public:
     double A=0;
     double B=0;
     double C=0;
+    double L1=0;
+    double L2=0;
+    double L3=0;
+    double L4=0;
+    double L6=0;
     double S0=0.0;
     int zoom = 1;
     vector<scalar3> spherePositions;

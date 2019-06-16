@@ -7,6 +7,7 @@ add_library(force
     baseForce.cpp
     baseLatticeForce.cpp
     landauDeGennesLC.cpp
+    landauDeGennesLCDistortionTerms.cpp
     landauDeGennesLCOtherForces.cpp
     )
 cuda_add_library(forceGPU

@@ -199,18 +199,6 @@ int main(int argc, char*argv[])
                 landauLCForce->setElasticConstants(L1,0,0);
                 landauLCForce->setNumberOfConstants(distortionEnergyType::oneConstant);
                 }
-            if(nConstants ==2)
-                {
-                printf("using 2-constant approximation: %f\t%f\t%f \n",L1,L2,q0);
-                landauLCForce->setElasticConstants(L1,L2,q0);
-                landauLCForce->setNumberOfConstants(distortionEnergyType::twoConstant);
-                }
-            if(nConstants ==3)
-                {
-                printf("using 3-constant approximation: %f\t%f\t%f \n",L1,L2,L3);
-                landauLCForce->setElasticConstants(L1,L2,L3);
-                landauLCForce->setNumberOfConstants(distortionEnergyType::threeConstant);
-                }
             landauLCForce->setModel(Configuration);
             sim->addForce(landauLCForce);
 

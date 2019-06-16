@@ -5,7 +5,7 @@
 #include "landauDeGennesLCBoundary.h"
 /*! \file landauDeGennesLC.h */
 
-enum class distortionEnergyType {oneConstant,twoConstant,threeConstant};
+enum class distortionEnergyType {oneConstant,multiConstant};
 
 //!A landau-de gennes  q-tensor framework force computer...currently working with the one-constant approximation for the distortion term
 class landauDeGennesLC : public baseLatticeForce
@@ -14,6 +14,7 @@ class landauDeGennesLC : public baseLatticeForce
 
         landauDeGennesLC(bool _neverGPU = false);
         landauDeGennesLC(scalar _A, scalar _B, scalar _C, scalar _L1);
+        landauDeGennesLC(scalar _A, scalar _B, scalar _C, scalar _L1,scalar _L2, scalar _L3, scalar _L4, scalar _L6);
         landauDeGennesLC(scalar _A, scalar _B, scalar _C, scalar _L1, scalar _L2,scalar _L3orWavenumber, distortionEnergyType _type);
 
         //!set up a few basic things (common force tuners, number of energy components, etc.)
@@ -28,11 +29,8 @@ class landauDeGennesLC : public baseLatticeForce
         virtual void computeForceGPU(GPUArray<dVec> &forces,bool zeroOutForce = true);
 
         void setPhaseConstants(scalar _a=-1, scalar _b =-12.325581395, scalar _c =  10.058139535){A=_a;B=_b;C=_c;};
-        void setElasticConstants(scalar _l1=2.32,scalar _l2=2.32, scalar _l3orq0=0){L1=_l1;L2=_l2;L3=_l3orq0; q0=_l3orq0;};
+        void setElasticConstants(scalar _l1=2.32,scalar _l2=0, scalar _l3=0, scalar _l4 = 0, scalar _l6=0){L1=_l1;L2=_l2;L3=_l3; L4=_l4; L6 = _l6;};
         void setNumberOfConstants(distortionEnergyType _type);
-
-
-        void setL24(scalar _l24){L24=_l24;useL24=true;};
 
         virtual void computeForceCPU(GPUArray<dVec> &forces,bool zeroOutForce = true, int type = 0);
 
@@ -48,19 +46,11 @@ class landauDeGennesLC : public baseLatticeForce
         virtual void computeBoundaryForcesCPU(GPUArray<dVec> &forces,bool zeroOutForce);
         virtual void computeBoundaryForcesGPU(GPUArray<dVec> &forces,bool zeroOutForce);
 
-        virtual void computeL24ForcesCPU(GPUArray<dVec> &forces,bool zeroOutForce);
-        virtual void computeL24ForcesGPU(GPUArray<dVec> &forces,bool zeroOutForce);
-
         virtual void computeEorHFieldForcesCPU(GPUArray<dVec> &forces,bool zeroOutForce,
                                     scalar3 field, scalar anisotropicSusceptibility,scalar vacuumPermeability);
 
         virtual void computeEorHFieldForcesGPU(GPUArray<dVec> &forces,bool zeroOutForce,
                             scalar3 field, scalar anisotropicSusceptibility,scalar vacuumPermeability);
-
-        //!"type" is zero for processing bulk sites, and one for boundary sites
-        virtual void computeForceOneConstantCPU(GPUArray<dVec> &forces,bool zeroOutForce,int type);
-        virtual void computeForceTwoConstantCPU(GPUArray<dVec> &forces,bool zeroOutForce);
-        virtual void computeForceThreeConstantCPU(GPUArray<dVec> &forces,bool zeroOutForce);
 
         virtual void computeEnergyCPU(bool verbose = false);
         virtual void computeEnergyGPU(bool verbose = false);
@@ -81,11 +71,6 @@ class landauDeGennesLC : public baseLatticeForce
                 {
                 printf("BoundaryForceTuner\n");
                 boundaryForceTuner->printTimingData();
-                };
-            if(useL24)
-                {
-                printf("L24ForceTuner\n");
-                l24ForceTuner->printTimingData();
                 };
             };
         void setEField(scalar3 field, scalar eps, scalar eps0,scalar deltaEps)
@@ -123,7 +108,9 @@ class landauDeGennesLC : public baseLatticeForce
         scalar L1;
         scalar L2;
         scalar L3;
-        scalar L24;
+        scalar L4;
+        scalar L6;
+
         scalar q0;
 
         scalar3 Efield;
@@ -139,7 +126,6 @@ class landauDeGennesLC : public baseLatticeForce
         //!number of elastic constants
         distortionEnergyType numberOfConstants;
         //!switches for extra parts of the energy/force calculations
-        bool useL24;
         bool computeEfieldContribution;
         bool computeHfieldContribution;
 
@@ -159,6 +145,17 @@ class landauDeGennesLC : public baseLatticeForce
         shared_ptr<kernelTuner> l24ForceTuner;
         //!performance for the E/H field force kernel
         shared_ptr<kernelTuner> fieldForceTuner;
+
+        virtual void computeL1BulkCPU(GPUArray<dVec> &forces,bool zeroOutForce);
+        virtual void computeL1BoundaryCPU(GPUArray<dVec> &forces,bool zeroOutForce);
+        virtual void computeL2BulkCPU(GPUArray<dVec> &forces,bool zeroOutForce);
+        virtual void computeL2BoundaryCPU(GPUArray<dVec> &forces,bool zeroOutForce);
+        virtual void computeL3BulkCPU(GPUArray<dVec> &forces,bool zeroOutForce);
+        virtual void computeL3BoundaryCPU(GPUArray<dVec> &forces,bool zeroOutForce);
+        virtual void computeL4BulkCPU(GPUArray<dVec> &forces,bool zeroOutForce);
+        virtual void computeL4BoundaryCPU(GPUArray<dVec> &forces,bool zeroOutForce);
+        virtual void computeL6BulkCPU(GPUArray<dVec> &forces,bool zeroOutForce);
+        virtual void computeL6BoundaryCPU(GPUArray<dVec> &forces,bool zeroOutForce);
     };
 
 #endif
