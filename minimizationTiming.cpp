@@ -22,10 +22,20 @@ This file has been used to make timing information about finding minima in the p
 int3 partitionProcessors(int numberOfProcesses)
     {
     int3 ans;
-    ans.z = floor(pow(numberOfProcesses,1./3.));
-    int nLeft = floor(numberOfProcesses/ans.z);
-    ans.y = floor(sqrt(nLeft));
-    ans.x = floor(nLeft / ans.y);
+    int cubeTest = round(pow(numberOfProcesses,1./3.));
+    if(cubeTest*cubeTest*cubeTest == numberOfProcesses)
+        {
+        ans.x = cubeTest;
+        ans.y = cubeTest;
+        ans.z = cubeTest;
+        }
+    else
+        {
+        ans.z = floor(pow(numberOfProcesses,1./3.));
+        int nLeft = floor(numberOfProcesses/ans.z);
+        ans.y = floor(sqrt(nLeft));
+        ans.x = floor(nLeft / ans.y);
+        }
     return ans;
     }
 
@@ -288,7 +298,7 @@ int main(int argc, char*argv[])
     sim->finalizeObjects();
 
     char filename[256];
-    sprintf(filename,"../data/minimizationTiming_L%i_g%i_z%i_m%i_dt%.5f_fidx%i_rank%i.txt",boxLx,gpu,programSwitch,minimizerSwitch,dt,fileidx,myRank);
+    sprintf(filename,"../data/minimizationTiming_L%i_g%i_z%i_m%i_dt%.5f_fidx%i_rank%i_worldSize%i.txt",boxLx,gpu,programSwitch,minimizerSwitch,dt,fileidx,myRank,worldSize);
     ofstream myfile;
     if(myRank ==0)
         {
@@ -327,18 +337,18 @@ int main(int argc, char*argv[])
     startTime = chrono::high_resolution_clock::now();
     scalar workingTime;
     //for (int tt = 0; tt < minimizationIntervals.size(); ++tt)
+    int iters;
     for (int tt = 0; tt < maximumIterations; ++tt)
         {
         sim->performTimestep();
 
         //compute the energy, but don't count it towards the minimization time
-        s1 = chrono::high_resolution_clock::now();
-        E1 = sim->computePotentialEnergy(true);
-        e1 = chrono::high_resolution_clock::now();
-        chrono::duration<double> del = e1-s1;
-        remTime += del.count();
+//        s1 = chrono::high_resolution_clock::now();
+//        E1 = sim->computePotentialEnergy(true);
+//        e1 = chrono::high_resolution_clock::now();
+//        chrono::duration<double> del = e1-s1;
+//        remTime += del.count();
 
-        int iters;
         if(minimizerSwitch ==1)
             {
 //            maxForce = GDminimizer->getMaxForce();
@@ -369,13 +379,8 @@ int main(int argc, char*argv[])
         else
             Fminimizer->setMaximumIterations(currentIterationMax);
         }
+    iters = Fminimizer->iterations;
     pMinimize.end();
-    if(myRank==0)
-        {
-        pMinimize.print();
-        myfile.close();
-        }
-
     if(savestate >0 || (savestate >=0 &&fileidx == 0))
         {
         char savename[256];
@@ -385,8 +390,15 @@ int main(int argc, char*argv[])
         }
     scalar totalMinTime = workingTime;
     scalar communicationTime = sim->p1.timeTaken;
-    if(myRank == 0)
+    if(myRank==0)
+        {
         printf("rank: %i\n min  time %f\n energy time %f\n comm time %f\n percent comm: %f\n",myRank,totalMinTime,remTime,communicationTime,communicationTime/totalMinTime);
+        pMinimize.print();
+        myfile << "final info\n";
+        myfile << myRank <<"\t"<<worldSize <<"\t"<<iters<<"\t"<<totalMinTime<<"\t"<<remTime<<"\t"<<communicationTime<<"\n";
+        myfile.close();
+        }
+
     /*
     cout << "size of configuration " << Configuration->getClassSize() << endl;
     cout << "size of force computer" << landauLCForce->getClassSize() << endl;

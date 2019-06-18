@@ -105,7 +105,7 @@ class updater
         //!some measure of the number of degrees of freedom the equations of motion might need to know about locally
         int Ndof;
         //!the total number of non-object sites across all ranks
-        int nTotal;
+        long long int nTotal;
         //!whether the RNGs give reproducible results
         bool reproducible;
         //!The internal time step size
