@@ -9,7 +9,7 @@
 simpleModel::simpleModel(int n, bool _useGPU, bool _neverGPU) :
     N(n), useGPU(_useGPU),neverGPU(_neverGPU)
     {
-    cout << "initializing a model with "<< N << " particles" << endl;
+//    cout << "initializing a model with "<< N << " particles" << endl;
     initializeSimpleModel(n);
     Box = make_shared<periodicBoundaryConditions>(pow(N,1.0/DIMENSION));
     };

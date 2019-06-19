@@ -20,4 +20,6 @@ mpiBuild/*
 mpi2/*
 debug/*
 data/*
+script/*
+*.slurm
 doc/doxygenOutput

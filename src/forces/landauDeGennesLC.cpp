@@ -377,6 +377,6 @@ void landauDeGennesLC::computeEnergyCPU(bool verbose)
     energyComponents[3] = eFieldEnergy;
     energyComponents[4] = hFieldEnergy;
 
-    if(verbose)
-        printf("%f %f %f %f %f\n",phaseEnergy , distortionEnergy , anchoringEnergy , eFieldEnergy , hFieldEnergy);
+//    if(verbose)
+//        printf("%f %f %f %f %f\n",phaseEnergy , distortionEnergy , anchoringEnergy , eFieldEnergy , hFieldEnergy);
     };

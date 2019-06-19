@@ -22,35 +22,6 @@ set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} --expt-relaxed-constexpr
                                         ")
                                         #")#-gencode arch=compute_30,code=sm_30 -Wno-deprecated-gpu-targets ")#-Xptxas -O3 -Xcompiler -O3")
 
-if(APPLE)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Xpreprocessor -Wno-deprecated-declarations")
-    set(Qt5_DIR "/Users/dmsussma/Qt/5.11.2/clang_64/lib/cmake/Qt5")
-    set(Qt5OpenGL_DIR "/Users/dmsussma/Qt/5.11.2/clang_64/lib/cmake/Qt5OpenGL")
-    find_package(Qt5OpenGL REQUIRED)
-    #find_package(Qt5 COMPONENTS Core Gui Widgets 3DCore 3DExtras 3DRender 3DInput OpenGL)
-    find_package(Qt5 COMPONENTS Core Gui Widgets OpenGL)
-    find_package(OpenGL)
-elseif(UNIX)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-    set(Qt5_DIR "/home/user/Qt/5.11.2/gcc_64/lib/cmake/Qt5")
-    set(Qt5Core_DIR "/home/user/Qt/5.11.2/gcc_64/lib/cmake/Qt5Core")
-    set(Qt5Gui_DIR "/home/user/Qt/5.11.2/gcc_64/lib/cmake/Qt5Gui")
-    set(Qt5Widgets_DIR "/home/user/Qt/5.11.2/gcc_64/lib/cmake/Qt5Widgets")
-    #set(Qt53DCore_DIR "/home/user/Qt/5.11.2/gcc_64/lib/cmake/Qt53DCore")
-    #set(Qt53DRender_DIR "/home/user/Qt/5.11.2/gcc_64/lib/cmake/Qt53DRender")
-    #set(Qt53DInput_DIR "/home/user/Qt/5.11.2/gcc_64/lib/cmake/Qt53DInput")
-    #set(Qt53DExtras_DIR "/home/user/Qt/5.11.2/gcc_64/lib/cmake/Qt53DExtras")
-    find_package(Qt5Widgets REQUIRED)
-    find_package(Qt5OpenGL REQUIRED)
-    find_package(Qt5 COMPONENTS Core Gui Widgets OpenGL)
-    #find_package(Qt5 COMPONENTS Core Gui Widgets 3DCore 3DExtras 3DRender 3DInput OpenGL)
-    find_package(OpenGL)
-endif()
-
-add_definitions( ${QT_DEFINITIONS} )
-
-
-
 find_package(CUDA REQUIRED)
 
 if(${CMAKE_BUILD_TYPE} MATCHES "Debug")
@@ -68,7 +39,7 @@ message("culibs = " "${CUDA_LIBRARIES}")
 
 add_subdirectory(src)
 
-include_directories(inc ${CUDA_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIRS}/GL /home/user/CGAL/CGAL-4.9/include/CGAL/ src src/utilities src/simulation src/model src/forces src/updaters ${MPI_INCLUDE_PATH})
+include_directories(inc ${CUDA_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIRS} /home/user/CGAL/CGAL-4.9/include/CGAL/ src src/utilities src/simulation src/model src/forces src/updaters ${MPI_INCLUDE_PATH})
 link_directories(${CUDA_LIBRARY_DIRS})
 
 set(myLibs
@@ -84,27 +55,16 @@ set(myLibs
     )
 message("libraries = " "${myLibs}")
 
-qt5_wrap_ui(UI_HEADERS mainwindow.ui)
-set(SOURCES mainwindow.cpp oglwidget.cpp)
+set(SOURCES)
 set(HEADERS
-       mainwindow.h
-       oglwidget.h
     )
 
 # list the names of cpp files corresponding to linked executables you'd like...
-foreach(ARG cubicLatticeNematic minimizationTiming speedScaling hedgehogTesting)
+foreach(ARG minimizationTiming speedScaling hedgehogTesting)
 add_executable("${ARG}.out" "${ARG}.cpp" ${SOURCES} ${HEADERS} ${UI_HEADERS})
-target_link_libraries("${ARG}.out" ${myLibs} ${CUDA_LIBRARIES} ${OPENGL_LIBRARIES}
+target_link_libraries("${ARG}.out" ${myLibs} ${CUDA_LIBRARIES}
     ${MPI_LIBRARIES}
-    Qt5::Widgets
-    Qt5::Core
-    Qt5::Gui
-#    Qt5::3DCore
-#    Qt5::3DExtras
-#    Qt5::3DRender
-#    Qt5::3DInput
     )
-qt5_use_modules("${ARG}.out" Widgets)
 if(MPI_COMPILE_FLAGS)
     set_target_properties("${ARG}.out" PROPERTIES COMPILE_FLAGS "${MPI_COMPILE_FLAGS}")
 endif()

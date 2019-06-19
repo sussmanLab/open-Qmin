@@ -116,6 +116,9 @@ class multirankSimulation : public basicSimulation, public enable_shared_from_th
         //!save a file for each rank recording the expanded lattice
         void saveState(string fname);
 
+        //!in multi-rank simulations, this stores the lowest (x,y,z) coordinate controlled by the current rank
+        int3 latticeMinPosition;
+
     protected:
         void setRankTopology(int x, int y, int z);
 

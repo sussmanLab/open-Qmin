@@ -22,14 +22,24 @@ This file has been used to make timing information about finding minima in the p
 int3 partitionProcessors(int numberOfProcesses)
     {
     int3 ans;
-    ans.z = floor(pow(numberOfProcesses,1./3.));
-    int nLeft = floor(numberOfProcesses/ans.z);
-    ans.y = floor(sqrt(nLeft));
-    ans.x = floor(nLeft / ans.y);
+    int cubeTest = round(pow(numberOfProcesses,1./3.));
+    if(cubeTest*cubeTest*cubeTest == numberOfProcesses)
+        {
+        ans.x = cubeTest;
+        ans.y = cubeTest;
+        ans.z = cubeTest;
+        }
+    else
+        {
+        ans.z = floor(pow(numberOfProcesses,1./3.));
+        int nLeft = floor(numberOfProcesses/ans.z);
+        ans.y = floor(sqrt(nLeft));
+        ans.x = floor(nLeft / ans.y);
+        }
     return ans;
     }
 
-scalar distanceFromDipolarConfiguration(shared_ptr<multirankQTensorLatticeModel> conf, scalar3 center, scalar radius, scalar thetaD,scalar S0)
+scalar distanceFromDipolarConfiguration(shared_ptr<multirankQTensorLatticeModel> conf, scalar3 center, scalar radius, scalar thetaD,scalar S0,int3 latticeMin)
     {
     scalar answer = 0.0;
     ArrayHandle<dVec> pos(conf->returnPositions());
@@ -47,7 +57,7 @@ scalar distanceFromDipolarConfiguration(shared_ptr<multirankQTensorLatticeModel>
         {
         if(t.data[ii] >0)
             continue;
-        int3 globalSitePosition = conf->indexToPosition(ii);
+        int3 globalSitePosition = latticeMin+conf->indexToPosition(ii);
         scalar3 relativePosition;
         relativePosition.x = globalSitePosition.x - center.x;
         relativePosition.y = globalSitePosition.y - center.y;
@@ -112,7 +122,8 @@ int main(int argc, char*argv[])
     MPI_Comm shmcomm;
     MPI_Comm_split_type(MPI_COMM_WORLD, MPI_COMM_TYPE_SHARED, 0,MPI_INFO_NULL, &shmcomm);
     MPI_Comm_rank(shmcomm, &myLocalRank);
-    printf("processes rank %i, local rank %i\n",myRank,myLocalRank);
+    if(myRank ==0)
+        printf("processes rank %i, local rank %i\n",myRank,myLocalRank);
 
 //    printf("Hello world from processor %s, rank %d out of %d processors\n",
 //           processorName, myRank, worldSize);
@@ -218,7 +229,8 @@ int main(int argc, char*argv[])
     scalar c = phaseC/phaseA;
     noiseSource noise(reproducible);
     noise.setReproducibleSeed(13371+myRank+fileidx);
-    printf("setting a rectilinear lattice of size (%i,%i,%i)\n",boxLx,boxLy,boxLz);
+    if(myRank ==0)
+        printf("setting a rectilinear lattice of size (%i,%i,%i)\n",rankTopology.x*boxLx,rankTopology.y*boxLy,rankTopology.z*boxLz);
     profiler pInit("initialization");
 
     pInit.start();
@@ -236,6 +248,7 @@ int main(int argc, char*argv[])
 
     if(nConstants ==1)
         {
+    if(myRank ==0)
         printf("using 1-constant approximation: %f \n",L1);
         landauLCForce->setElasticConstants(L1,0,0);
         landauLCForce->setNumberOfConstants(distortionEnergyType::oneConstant);
@@ -243,7 +256,7 @@ int main(int argc, char*argv[])
     landauLCForce->setModel(Configuration);
     sim->addForce(landauLCForce);
 
-    scalar forceCutoff=1e-12;
+    scalar forceCutoff=1e-10;
     int iterationsPerStep = 100;
 
 
@@ -276,29 +289,32 @@ int main(int argc, char*argv[])
 
     landauLCForce->setPhaseConstants(a,b,c);
 
-    printf("relative phase constants: %.3f  %.3f  %.3f  \t setting random configuration with S0 = %f\n",a,b,c,S0);
+    //printf("relative phase constants: %f\t%f\t%f\n",a,b,c);
+    //printf("setting random configuration with S0 = %f\n",S0);
     Configuration->setNematicQTensorRandomly(noise,S0);
     sim->setCPUOperation(!GPU);
-    printf("initialization done\n");
+    //printf("initialization done\n");
 
     boundaryObject homeotropicBoundary(boundaryType::homeotropic,5.8,S0);
     boundaryObject planarDegenerateBoundary(boundaryType::degeneratePlanar,0.58,S0);
     scalar3 left,center, right,down,up,direction;
-    left.x = 0.0*boxLx;left.y = 0.5*boxLy;left.z = 0.5*boxLz;
-    center.x = 0.5*boxLx;center.y = 0.5*boxLy;center.z = 0.5*boxLz;
-    right.x = 1.*boxLx;right.y = 0.5*boxLy;right.z = 0.5*boxLz;
+    //left.x = 0.0*boxLx;left.y = 0.5*boxLy;left.z = 0.5*boxLz;
+    center.x = rankTopology.x*0.5*boxLx;center.y = rankTopology.y*0.5*boxLy;center.z = rankTopology.z*0.5*boxLz;
+    //right.x = 1.*boxLx;right.y = 0.5*boxLy;right.z = 0.5*boxLz;
     //use program switches to define what objects are in the simulation
-    scalar newRadius = floor(radiusFactor*boxLx);
+
+
+    scalar newRadius = floor(radiusFactor*rankTopology.x*boxLx);
     sim->createSphericalColloid(center,newRadius,homeotropicBoundary);
     direction.x=0;direction.y=0;direction.z=1.;
     if(programSwitch ==0)
         {
-        sim->setDipolarField(center,PI, newRadius, 1.0*boxLx,S0);
+        sim->setDipolarField(center,PI, newRadius, rankTopology.x*1.0*boxLx,S0);
         cout << "setting hedgehog initial conditions" << endl;
         }
     else
         {
-        sim->setDipolarField(center,0.5*PI, newRadius, 1.0*boxLx,S0);
+        sim->setDipolarField(center,0.5*PI, newRadius, rankTopology.x*1.0*boxLx,S0);
         cout << "setting quadrupolar initial conditions" << endl;
         }
 
@@ -392,8 +408,14 @@ int main(int argc, char*argv[])
             s1 = chrono::high_resolution_clock::now();
             E1 = sim->computePotentialEnergy();
 
-            scalar hedgehogDistance =distanceFromDipolarConfiguration(Configuration,center,newRadius,PI,S0);
-            scalar quadrupolarDistance =distanceFromDipolarConfiguration(Configuration,center,newRadius,0.5*PI,S0);
+            scalar hedgehogDistance =distanceFromDipolarConfiguration(Configuration,center,newRadius,PI,S0,sim->latticeMinPosition);
+            scalar quadrupolarDistance =distanceFromDipolarConfiguration(Configuration,center,newRadius,0.5*PI,S0,sim->latticeMinPosition);
+
+            vector<scalar> distances; distances.push_back(hedgehogDistance);distances.push_back(quadrupolarDistance);
+            sim->sumUpdaterData(distances);
+            hedgehogDistance = distances[0];
+            quadrupolarDistance=distances[1];
+
             e1 = chrono::high_resolution_clock::now();
             chrono::duration<double> del = e1-s1;
             remTime += del.count();
@@ -401,9 +423,12 @@ int main(int argc, char*argv[])
             endTime = chrono::high_resolution_clock::now();
             chrono::duration<double> difference = endTime-startTime;
             workingTime = difference.count() - remTime;
-            printf("(iterations, E1, maxForce, workingTime, remTime)%i \t %g\t %g\t %g\t\t %g \n",iters,E1,maxForce,workingTime, remTime);
-            printf("hedgehogDistance = %g\t saturn ring distance = %g\t \n",hedgehogDistance,quadrupolarDistance);
+            if(myRank ==0)
+                {
+                printf("(iterations, E1, maxForce, workingTime, remTime)%i \t %g\t %g\t %g\t\t %g \n",iters,E1,maxForce,workingTime, remTime);
+                printf("hedgehogDistance = %g\t saturn ring distance = %g\t \n",hedgehogDistance,quadrupolarDistance);
            myfile << iters <<"\t" << E1 <<"\t"<< maxForce <<"\t" << hedgehogDistance<< "\t" << quadrupolarDistance <<"\n";
+                };
             }
         currentIterationMax = logInts.nextSave;
         logInts.update();
@@ -416,7 +441,6 @@ int main(int argc, char*argv[])
     pMinimize.end();
     pMinimize.print();
     myfile.close();
-
 
     if(programSwitch ==0)
         {
