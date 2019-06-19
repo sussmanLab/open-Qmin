@@ -121,6 +121,11 @@ HOSTDEVICE int3 operator-(const int3 &a, const int3 &b)
     {
     return make_int3(a.x-b.x,a.y-b.y,a.z-b.z);
     }
+//!component-wise addition of two int3s
+HOSTDEVICE int3 operator+(const int3 &a, const int3 &b)
+    {
+    return make_int3(a.x+b.x,a.y+b.y,a.z+b.z);
+    }
 
 //!strict comparison of int3s
 HOSTDEVICE bool operator<(const int3 &a,const int3 &b)

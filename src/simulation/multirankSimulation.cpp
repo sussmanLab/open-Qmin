@@ -432,6 +432,11 @@ void multirankSimulation::setConfiguration(MConfigPtr _config)
     mConfiguration = _config;
     Box = _config->Box;
     communicateHaloSitesRoutine();
+
+    auto Conf = mConfiguration.lock();
+    latticeMinPosition.x = rankParity.x*Conf->latticeSites.x;
+    latticeMinPosition.y = rankParity.y*Conf->latticeSites.y;
+    latticeMinPosition.z = rankParity.z*Conf->latticeSites.z;
     };
 
 /*!

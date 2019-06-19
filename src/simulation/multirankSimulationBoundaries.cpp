@@ -39,7 +39,7 @@ void multirankSimulation::finalizeObjects()
         NActive=upd->getNTotal();
         };
 
-    cout << " objects finalized" << endl;
+//    cout << " objects finalized" << endl;
     }
 
 void multirankSimulation::createMultirankBoundaryObject(vector<int3> &latticeSites, vector<dVec> &qTensors, boundaryType _type, scalar Param1, scalar Param2)
@@ -47,14 +47,10 @@ void multirankSimulation::createMultirankBoundaryObject(vector<int3> &latticeSit
     auto Conf = mConfiguration.lock();
     ArrayHandle<dVec> pos(Conf->returnPositions());
     int3 globalLatticeSize;//the maximum size of the combined simulation
-    int3 latticeMin;//where this rank sites in that lattice (min)
     int3 latticeMax;//...and (max)
     globalLatticeSize.x = rankTopology.x*Conf->latticeSites.x;
     globalLatticeSize.y = rankTopology.y*Conf->latticeSites.y;
     globalLatticeSize.z = rankTopology.z*Conf->latticeSites.z;
-    latticeMin.x = rankParity.x*Conf->latticeSites.x;
-    latticeMin.y = rankParity.y*Conf->latticeSites.y;
-    latticeMin.z = rankParity.z*Conf->latticeSites.z;
     latticeMax.x = (1+rankParity.x)*Conf->latticeSites.x;
     latticeMax.y = (1+rankParity.y)*Conf->latticeSites.y;
     latticeMax.z = (1+rankParity.z)*Conf->latticeSites.z;
@@ -65,9 +61,9 @@ void multirankSimulation::createMultirankBoundaryObject(vector<int3> &latticeSit
         //make sure the site is within the simulation box
         int3 currentSite = wrap(latticeSites[ii],globalLatticeSize);;
         //check if it is within control of this rank
-        if(currentSite >=latticeMin && currentSite < latticeMax)
+        if(currentSite >=latticeMinPosition && currentSite < latticeMax)
             {
-            int3 currentLatticePos = currentSite - latticeMin;
+            int3 currentLatticePos = currentSite - latticeMinPosition;
             int currentLatticeSite = Conf->positionToIndex(currentLatticePos);
             latticeSitesToEmploy.push_back(currentLatticeSite);
             pos.data[currentLatticeSite] = qTensors[ii];
@@ -379,14 +375,10 @@ void multirankSimulation::setDipolarField(scalar3 center, scalar ThetaD, scalar 
     ArrayHandle<dVec> pos(Conf->returnPositions());
     ArrayHandle<int> types(Conf->returnTypes());
     int3 globalLatticeSize;//the maximum size of the combined simulation
-    int3 latticeMin;//where this rank sites in that lattice (min)
     int3 latticeMax;//...and (max)
     globalLatticeSize.x = rankTopology.x*Conf->latticeSites.x;
     globalLatticeSize.y = rankTopology.y*Conf->latticeSites.y;
     globalLatticeSize.z = rankTopology.z*Conf->latticeSites.z;
-    latticeMin.x = rankParity.x*Conf->latticeSites.x;
-    latticeMin.y = rankParity.y*Conf->latticeSites.y;
-    latticeMin.z = rankParity.z*Conf->latticeSites.z;
     latticeMax.x = (1+rankParity.x)*Conf->latticeSites.x;
     latticeMax.y = (1+rankParity.y)*Conf->latticeSites.y;
     latticeMax.z = (1+rankParity.z)*Conf->latticeSites.z;
@@ -403,9 +395,9 @@ void multirankSimulation::setDipolarField(scalar3 center, scalar ThetaD, scalar 
             continue;
         int3 site = Conf->indexToPosition(ii);
         scalar3 globalSitePosition;
-        globalSitePosition.x = latticeMin.x+site.x;
-        globalSitePosition.y = latticeMin.y+site.y;
-        globalSitePosition.z = latticeMin.z+site.z;
+        globalSitePosition.x = latticeMinPosition.x+site.x;
+        globalSitePosition.y = latticeMinPosition.y+site.y;
+        globalSitePosition.z = latticeMinPosition.z+site.z;
         scalar3 relativePosition;
         relativePosition.x = globalSitePosition.x - center.x;
         relativePosition.y = globalSitePosition.y - center.y;
@@ -457,14 +449,10 @@ void multirankSimulation::setDipolarField(scalar3 center, scalar3 direction, sca
     ArrayHandle<dVec> pos(Conf->returnPositions());
     ArrayHandle<int> types(Conf->returnTypes());
     int3 globalLatticeSize;//the maximum size of the combined simulation
-    int3 latticeMin;//where this rank sites in that lattice (min)
     int3 latticeMax;//...and (max)
     globalLatticeSize.x = rankTopology.x*Conf->latticeSites.x;
     globalLatticeSize.y = rankTopology.y*Conf->latticeSites.y;
     globalLatticeSize.z = rankTopology.z*Conf->latticeSites.z;
-    latticeMin.x = rankParity.x*Conf->latticeSites.x;
-    latticeMin.y = rankParity.y*Conf->latticeSites.y;
-    latticeMin.z = rankParity.z*Conf->latticeSites.z;
     latticeMax.x = (1+rankParity.x)*Conf->latticeSites.x;
     latticeMax.y = (1+rankParity.y)*Conf->latticeSites.y;
     latticeMax.z = (1+rankParity.z)*Conf->latticeSites.z;
@@ -478,9 +466,9 @@ void multirankSimulation::setDipolarField(scalar3 center, scalar3 direction, sca
             continue;
         int3 site = Conf->indexToPosition(ii);
         scalar3 globalSitePosition;
-        globalSitePosition.x = latticeMin.x+site.x;
-        globalSitePosition.y = latticeMin.y+site.y;
-        globalSitePosition.z = latticeMin.z+site.z;
+        globalSitePosition.x = latticeMinPosition.x+site.x;
+        globalSitePosition.y = latticeMinPosition.y+site.y;
+        globalSitePosition.z = latticeMinPosition.z+site.z;
         scalar3 relativePosition;
         relativePosition.x = globalSitePosition.x - center.x;
         relativePosition.y = globalSitePosition.y - center.y;
@@ -496,4 +484,3 @@ void multirankSimulation::setDipolarField(scalar3 center, scalar3 direction, sca
             }
         }
     };
-
