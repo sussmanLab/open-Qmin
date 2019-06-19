@@ -729,7 +729,7 @@ void MainWindow::on_importFileNowButton_released()
     ui->fileImportWidget->hide();
     QString fname = ui->fileNameBox->text();
     string fn = fname.toStdString();
-    Configuration->createBoundaryFromFile(fn,true);cout.flush();
+    sim->createBoundaryFromFile(fn,true);cout.flush();
     sim->finalizeObjects();
     QString printable1 = QStringLiteral("boundary imported from file");
     ui->testingBox->setText(printable1);

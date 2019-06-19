@@ -1,76 +1,83 @@
 #include "multirankSimulation.h"
 /*! \file multrankSimulationBoundaries.cpp */
 
-void multirankSimulation::finalizeObjects()
-    {
-    /* this section of code now handled in the base "createBoundaryObject() function
-    {
-    auto Conf = mConfiguration.lock();
-    ArrayHandle<int> type(Conf->returnTypes());
-    for(int ii = 0; ii < Conf->getNumberOfParticles();++ii)
-        {
-        int3 pos = Conf->indexToPosition(ii);
-        int idx = Conf->positionToIndex(pos);
-        if(type.data[idx] != 0)
-            continue;
-        for (int xx = -1; xx <=1; ++xx)
-            for (int yy = -1; yy <=1; ++yy)
-                for (int zz = -1; zz <=1; ++zz)
-                    {
-                    int3 otherpos = pos;
-                    otherpos.x += xx;
-                    otherpos.y += yy;
-                    otherpos.z += zz;
-                    int otheridx = Conf->positionToIndex(otherpos);
-                    if (type.data[otheridx] > 0)
-                        {
-                        type.data[idx] = -1;
-                        }
-                    };
-        }
-    }
-    */
-    communicateHaloSitesRoutine();
+/*!
+Reads a carefully prepared text file to create a new boundary object...
+The first line must be a single integer specifying the number of objects to be read in.
 
-    //let updaters know number of non-object sites
-    for (int u = 0; u < updaters.size(); ++u)
-        {
-        auto upd = updaters[u].lock();
-        NActive=upd->getNTotal();
-        };
+Each subsequent block must be formatted as follows (with no additional lines between the blocks):
+The first line MUST be formatted as
+a b c d
+where a=0 means homeotropic, a=1 means degeneratePlanar
+b is a scalar setting the anchoring strength
+c is the preferred value of S0
+d is an integer specifying the number of sites.
 
-//    cout << " objects finalized" << endl;
-    }
-
-void multirankSimulation::createMultirankBoundaryObject(vector<int3> &latticeSites, vector<dVec> &qTensors, boundaryType _type, scalar Param1, scalar Param2)
+Every subsequent line MUST be
+x y z Qxx Qxy Qxz Qyy Qyz,
+where x y z are the integer lattice sites,
+and the Q-tensor components correspond to the desired anchoring conditions.
+For homeotropic boundaries, Q^B = 3 S_0/2*(\nu^s \nu^s - \delta_{ab}/3), where \nu^s is the
+locally preferred director.
+For degenerate planar anchoring the boundary site should be,
+Q^B[0] = \hat{nu}_x
+Q^B[1] = \hat{nu}_y
+Q^B[2] = \hat{nu}_z
+where \nu^s = {Cos[\[Phi]] Sin[\[theta]], Sin[\[Phi]] Sin[\[theta]], Cos[\[theta]]}
+ is the direction to which the LC should try to be orthogonal
+*/
+void multirankSimulation::createBoundaryFromFile(string fname, bool verbose)
     {
-    auto Conf = mConfiguration.lock();
-    ArrayHandle<dVec> pos(Conf->returnPositions());
-    int3 globalLatticeSize;//the maximum size of the combined simulation
-    int3 latticeMax;//...and (max)
-    globalLatticeSize.x = rankTopology.x*Conf->latticeSites.x;
-    globalLatticeSize.y = rankTopology.y*Conf->latticeSites.y;
-    globalLatticeSize.z = rankTopology.z*Conf->latticeSites.z;
-    latticeMax.x = (1+rankParity.x)*Conf->latticeSites.x;
-    latticeMax.y = (1+rankParity.y)*Conf->latticeSites.y;
-    latticeMax.z = (1+rankParity.z)*Conf->latticeSites.z;
-    vector<int> latticeSitesToEmploy;
-    latticeSitesToEmploy.reserve(latticeSites.size());
-    for (int ii = 0; ii < latticeSites.size(); ++ii)
+    ifstream inFile(fname);
+    string line,name;
+    scalar sVar1,sVar2,sVar3,sVar4,sVar5;
+    int iVar1,iVar2,iVar3;
+    int nObjects;
+
+    getline(inFile,line);
+    istringstream ss(line);
+    ss >> nObjects;
+
+    for (int ii = 0; ii < nObjects;++ii)
         {
-        //make sure the site is within the simulation box
-        int3 currentSite = wrap(latticeSites[ii],globalLatticeSize);;
-        //check if it is within control of this rank
-        if(currentSite >=latticeMinPosition && currentSite < latticeMax)
+        getline(inFile,line);
+        istringstream ss(line);
+        ss >>iVar1 >> sVar1 >> sVar2 >>iVar2;
+
+        scalar Wb = sVar1;
+        scalar s0 = sVar2;
+        int nEntries = iVar2;
+        int bType = iVar1;
+        boundaryType bound;
+        if(bType == 0)
+            bound = boundaryType::homeotropic;
+        else
+            bound = boundaryType::degeneratePlanar;
+        if(verbose)
+            printf("reading boudary type %i with %f %f and %i entries\n",iVar1,sVar1,sVar2,iVar2);
+
+        dVec Qtensor;
+        vector<int3> boundSites;
+        boundSites.reserve(nEntries);
+        vector<dVec> qTensors;
+        qTensors.reserve(nEntries);
+        int3 sitePos;
+        int entriesRead = 0;
+        while (entriesRead < nEntries && getline(inFile,line) )
             {
-            int3 currentLatticePos = currentSite - latticeMinPosition;
-            int currentLatticeSite = Conf->positionToIndex(currentLatticePos);
-            latticeSitesToEmploy.push_back(currentLatticeSite);
-            pos.data[currentLatticeSite] = qTensors[ii];
+            istringstream linestream(line);
+            linestream >> iVar1 >> iVar2 >> iVar3 >> Qtensor[0] >> Qtensor[1] >> Qtensor[2] >>Qtensor[3] >> Qtensor[4];
+            sitePos.x = iVar1; sitePos.y=iVar2; sitePos.z=iVar3;
+            
+            boundSites.push_back(sitePos);
+            qTensors.push_back(Qtensor);
 
+            entriesRead += 1;
             };
+        if(verbose)
+            printf("object with %lu sites created\n",boundSites.size());
+        createMultirankBoundaryObject(boundSites,qTensors,bound,Wb,s0);
         };
-    Conf->createBoundaryObject(latticeSitesToEmploy,_type,Param1,Param2);
     };
 
 /*!
@@ -247,7 +254,7 @@ void multirankSimulation::createSphericalCavity(scalar3 center, scalar radius, b
     };
 
 /*!
-define a cylinder by it's two endpoints and it's prependicular radius. 
+define a cylinder by its two endpoints and its prependicular radius.
 \param colloidOrCapillary if true, points inside the radius are the object (i.e., a colloid), else points outside are the object (i.e., a surrounding capillary)
 */
 void multirankSimulation::createCylindricalObject(scalar3 cylinderStart, scalar3 cylinderEnd, scalar radius, bool colloidOrCapillary, boundaryObject &bObj)
@@ -368,7 +375,7 @@ void multirankSimulation::createSpherocylinder(scalar3 cylinderStart, scalar3 cy
 for lattice sites within range of center, create a z-aligned dipolar field with opening angle
 ThetaD about an object of radius "radius"
 Functional form from Lubensky, Pettey, Currier, and Stark. PRE 57, 610, 1998
- */ 
+ */
 void multirankSimulation::setDipolarField(scalar3 center, scalar ThetaD, scalar radius, scalar range, scalar S0)
     {
     auto Conf = mConfiguration.lock();
@@ -442,7 +449,7 @@ void multirankSimulation::setDipolarField(scalar3 center, scalar ThetaD, scalar 
 /*!
 for lattice sites within range of center, create a dipolar field in the direction specified
 about an object of radius "radius"
- */ 
+ */
 void multirankSimulation::setDipolarField(scalar3 center, scalar3 direction, scalar radius, scalar range, scalar S0)
     {
     auto Conf = mConfiguration.lock();
@@ -483,4 +490,75 @@ void multirankSimulation::setDipolarField(scalar3 center, scalar3 direction, sca
             qTensorFromDirector(director, S0, pos.data[ii]);
             }
         }
+    };
+
+void multirankSimulation::createMultirankBoundaryObject(vector<int3> &latticeSites, vector<dVec> &qTensors, boundaryType _type, scalar Param1, scalar Param2)
+    {
+    auto Conf = mConfiguration.lock();
+    ArrayHandle<dVec> pos(Conf->returnPositions());
+    int3 globalLatticeSize;//the maximum size of the combined simulation
+    int3 latticeMax;//...and (max)
+    globalLatticeSize.x = rankTopology.x*Conf->latticeSites.x;
+    globalLatticeSize.y = rankTopology.y*Conf->latticeSites.y;
+    globalLatticeSize.z = rankTopology.z*Conf->latticeSites.z;
+    latticeMax.x = (1+rankParity.x)*Conf->latticeSites.x;
+    latticeMax.y = (1+rankParity.y)*Conf->latticeSites.y;
+    latticeMax.z = (1+rankParity.z)*Conf->latticeSites.z;
+    vector<int> latticeSitesToEmploy;
+    latticeSitesToEmploy.reserve(latticeSites.size());
+    for (int ii = 0; ii < latticeSites.size(); ++ii)
+        {
+        //make sure the site is within the simulation box
+        int3 currentSite = wrap(latticeSites[ii],globalLatticeSize);;
+        //check if it is within control of this rank
+        if(currentSite >=latticeMinPosition && currentSite < latticeMax)
+            {
+            int3 currentLatticePos = currentSite - latticeMinPosition;
+            int currentLatticeSite = Conf->positionToIndex(currentLatticePos);
+            latticeSitesToEmploy.push_back(currentLatticeSite);
+            pos.data[currentLatticeSite] = qTensors[ii];
+            };
+        };
+    Conf->createBoundaryObject(latticeSitesToEmploy,_type,Param1,Param2);
+    };
+
+void multirankSimulation::finalizeObjects()
+    {
+    /* this section of code now handled in the base "createBoundaryObject() function
+    {
+    auto Conf = mConfiguration.lock();
+    ArrayHandle<int> type(Conf->returnTypes());
+    for(int ii = 0; ii < Conf->getNumberOfParticles();++ii)
+        {
+        int3 pos = Conf->indexToPosition(ii);
+        int idx = Conf->positionToIndex(pos);
+        if(type.data[idx] != 0)
+            continue;
+        for (int xx = -1; xx <=1; ++xx)
+            for (int yy = -1; yy <=1; ++yy)
+                for (int zz = -1; zz <=1; ++zz)
+                    {
+                    int3 otherpos = pos;
+                    otherpos.x += xx;
+                    otherpos.y += yy;
+                    otherpos.z += zz;
+                    int otheridx = Conf->positionToIndex(otherpos);
+                    if (type.data[otheridx] > 0)
+                        {
+                        type.data[idx] = -1;
+                        }
+                    };
+        }
+    }
+    */
+    communicateHaloSitesRoutine();
+
+    //let updaters know number of non-object sites
+    for (int u = 0; u < updaters.size(); ++u)
+        {
+        auto upd = updaters[u].lock();
+        NActive=upd->getNTotal();
+        };
+
+//    cout << " objects finalized" << endl;
     };
