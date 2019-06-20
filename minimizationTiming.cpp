@@ -60,10 +60,6 @@ int main(int argc, char*argv[])
     MPI_Comm_rank(shmcomm, &myLocalRank);
     printf("processes rank %i, local rank %i\n",myRank,myLocalRank);
 
-//    printf("Hello world from processor %s, rank %d out of %d processors\n",
-//           processorName, myRank, worldSize);
-
-
     //First, we set up a basic command line parser with some message and version
     CmdLine cmd("dDimSim applied to a lattice of XY-spins", ' ', "V0.5");
 
