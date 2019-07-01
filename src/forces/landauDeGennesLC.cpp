@@ -144,45 +144,39 @@ void landauDeGennesLC::computeForceCPU(GPUArray<dVec> &forces,bool zeroOutForce,
             {
             bool zeroForce = zeroOutForce;
             computeFirstDerivatives();
-            if(L1 != 0)
-                {
-                if(type ==0)
-                    computeL1BulkCPU(forces,zeroForce);
-                if(type ==1)
-                    computeL1BoundaryCPU(forces,zeroForce);
-                zeroForce = false;
-                }
+            //Always compute L1 term, since it also computes the phase contribution
+            if(type ==0)
+                computeL1BulkCPU(forces,zeroForce);
+            if(type ==1)
+                computeL1BoundaryCPU(forces,zeroForce);
+            zeroForce = false;
             if(L2 != 0)
                 {
                 if(type ==0)
-                    computeL2BulkCPU(forces,zeroOutForce);
+                    computeOtherDistortionTermsBulkCPU(forces,L2,2);
                 if(type ==1)
-                    computeL2BoundaryCPU(forces,zeroOutForce);
-                zeroForce = false;
+                    computeOtherDistortionTermsBoundaryCPU(forces,L2,2);
                 }
             if(L3 != 0)
                 {
                 if(type ==0)
-                    computeL3BulkCPU(forces,zeroOutForce);
+                    computeOtherDistortionTermsBulkCPU(forces,L3,3);
                 if(type ==1)
-                    computeL3BoundaryCPU(forces,zeroOutForce);
-                zeroForce = false;
+                    computeOtherDistortionTermsBoundaryCPU(forces,L3,3);
                 }
             if(L4 != 0)
                 {
                 if(type ==0)
-                    computeL4BulkCPU(forces,zeroOutForce);
+                    computeOtherDistortionTermsBulkCPU(forces,L4,4);
                 if(type ==1)
-                    computeL4BoundaryCPU(forces,zeroOutForce);
-                zeroForce = false;
+                    computeOtherDistortionTermsBoundaryCPU(forces,L4,4);
                 }
             if(L6 != 0)
                 {
                 if(type ==0)
-                    computeL6BulkCPU(forces,zeroOutForce);
+                    computeOtherDistortionTermsBulkCPU(forces,L6,6);
                 if(type ==1)
-                    computeL6BoundaryCPU(forces,zeroOutForce);
-                zeroForce = false;
+                    computeOtherDistortionTermsBoundaryCPU(forces,L6,6);
                 }
             break;
             };

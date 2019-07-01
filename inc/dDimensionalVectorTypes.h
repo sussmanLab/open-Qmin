@@ -32,6 +32,8 @@ class MY_ALIGN(8) dVec
 
         HOSTDEVICE scalar& operator[](int i){return x[i];};
 
+        HOSTDEVICE const scalar& operator[](int i) const {return x[i];};
+
         //mutating operators
         HOSTDEVICE dVec& operator=(const dVec &other)
             {
@@ -73,6 +75,8 @@ class cubicLatticeDerivativeVector
         scalar x[3*DIMENSION];
 
         HOSTDEVICE scalar& operator[](int i){return x[i];};
+
+        HOSTDEVICE const scalar& operator[](int i) const {return x[i];};
     };
 
 //!Less than operator for dVecs just sorts by the x-coordinate

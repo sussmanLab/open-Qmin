@@ -148,14 +148,9 @@ class landauDeGennesLC : public baseLatticeForce
 
         virtual void computeL1BulkCPU(GPUArray<dVec> &forces,bool zeroOutForce);
         virtual void computeL1BoundaryCPU(GPUArray<dVec> &forces,bool zeroOutForce);
-        virtual void computeL2BulkCPU(GPUArray<dVec> &forces,bool zeroOutForce);
-        virtual void computeL2BoundaryCPU(GPUArray<dVec> &forces,bool zeroOutForce);
-        virtual void computeL3BulkCPU(GPUArray<dVec> &forces,bool zeroOutForce);
-        virtual void computeL3BoundaryCPU(GPUArray<dVec> &forces,bool zeroOutForce);
-        virtual void computeL4BulkCPU(GPUArray<dVec> &forces,bool zeroOutForce);
-        virtual void computeL4BoundaryCPU(GPUArray<dVec> &forces,bool zeroOutForce);
-        virtual void computeL6BulkCPU(GPUArray<dVec> &forces,bool zeroOutForce);
-        virtual void computeL6BoundaryCPU(GPUArray<dVec> &forces,bool zeroOutForce);
+
+        virtual void computeOtherDistortionTermsBulkCPU(GPUArray<dVec> &forces,scalar L, int distortionTerm);
+        virtual void computeOtherDistortionTermsBoundaryCPU(GPUArray<dVec> &forces,scalar L, int distortionTerm);
     };
 
 #endif
