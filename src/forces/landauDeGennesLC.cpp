@@ -302,50 +302,39 @@ void landauDeGennesLC::computeEnergyCPU(bool verbose)
                 energyPerSite.data[i] +=anchoringEnergyAtSite;
                 }
             scalar distortionEnergyAtSite=0.0;
-            if(L1 != 0)
-                {
-                //L1
-                distortionEnergyAtSite += L1*(dot(firstDerivativeX,firstDerivativeX) + firstDerivativeX[0]*firstDerivativeX[3]);
-                distortionEnergyAtSite += L1*(dot(firstDerivativeY,firstDerivativeY) + firstDerivativeY[0]*firstDerivativeY[3]);
-                distortionEnergyAtSite += L1*(dot(firstDerivativeZ,firstDerivativeZ) + firstDerivativeZ[0]*firstDerivativeZ[3]);
-                };
+            if(L1 !=0 )
+        		{
+        		distortionEnergyAtSite+=L1*(firstDerivativeX[0]*firstDerivativeX[3] + firstDerivativeY[0]*firstDerivativeY[3] + firstDerivativeZ[0]*firstDerivativeZ[3] + firstDerivativeX[0]*firstDerivativeX[0] + firstDerivativeX[1]*firstDerivativeX[1] + firstDerivativeX[2]*firstDerivativeX[2] + firstDerivativeX[3]*firstDerivativeX[3] + firstDerivativeX[4]*firstDerivativeX[4] + firstDerivativeY[0]*firstDerivativeY[0]
+                                        + firstDerivativeY[1]*firstDerivativeY[1] + firstDerivativeY[2]*firstDerivativeY[2] + firstDerivativeY[3]*firstDerivativeY[3] + firstDerivativeY[4]*firstDerivativeY[4] + firstDerivativeZ[0]*firstDerivativeZ[0] + firstDerivativeZ[1]*firstDerivativeZ[1] + firstDerivativeZ[2]*firstDerivativeZ[2] + firstDerivativeZ[3]*firstDerivativeZ[3] + firstDerivativeZ[4]*firstDerivativeZ[4]);
+        		};
+        	if(L2 !=0 )
+        		{
+        		distortionEnergyAtSite+=(L2*(2*firstDerivativeX[2]*firstDerivativeY[4] - 2*firstDerivativeX[2]*firstDerivativeZ[0] - 2*firstDerivativeY[4]*firstDerivativeZ[0] + 2*firstDerivativeY[1]*firstDerivativeZ[2] + 2*firstDerivativeX[0]*(firstDerivativeY[1] + firstDerivativeZ[2]) - 2*firstDerivativeX[2]*firstDerivativeZ[3] - 2*firstDerivativeY[4]*firstDerivativeZ[3] + 2*firstDerivativeZ[0]*firstDerivativeZ[3]
+                                        + 2*firstDerivativeY[3]*firstDerivativeZ[4] + 2*firstDerivativeX[1]*(firstDerivativeY[3] + firstDerivativeZ[4]) + firstDerivativeX[0]*firstDerivativeX[0] + firstDerivativeX[1]*firstDerivativeX[1] + firstDerivativeX[2]*firstDerivativeX[2] + firstDerivativeY[1]*firstDerivativeY[1] + firstDerivativeY[3]*firstDerivativeY[3] + firstDerivativeY[4]*firstDerivativeY[4]
+                                        + firstDerivativeZ[0]*firstDerivativeZ[0] + firstDerivativeZ[2]*firstDerivativeZ[2] + firstDerivativeZ[3]*firstDerivativeZ[3] + firstDerivativeZ[4]*firstDerivativeZ[4]))/2.;
+        		};
+        	if(L3 !=0 )
+        		{
+        		distortionEnergyAtSite+=(L3*(2*firstDerivativeX[1]*firstDerivativeY[0] + 2*firstDerivativeX[3]*firstDerivativeY[1] + 2*firstDerivativeX[4]*firstDerivativeY[2] + 2*firstDerivativeX[2]*firstDerivativeZ[0] + 2*firstDerivativeX[4]*firstDerivativeZ[1] + 2*firstDerivativeY[2]*firstDerivativeZ[1] - 2*firstDerivativeX[0]*firstDerivativeZ[2] - 2*firstDerivativeX[3]*firstDerivativeZ[2]
+                                        + 2*firstDerivativeY[4]*firstDerivativeZ[3] + 2*firstDerivativeZ[0]*firstDerivativeZ[3] - 2*firstDerivativeY[0]*firstDerivativeZ[4] - 2*firstDerivativeY[3]*firstDerivativeZ[4] + firstDerivativeX[0]*firstDerivativeX[0] + firstDerivativeX[1]*firstDerivativeX[1] + firstDerivativeX[2]*firstDerivativeX[2] + firstDerivativeY[1]*firstDerivativeY[1]
+                                        + firstDerivativeY[3]*firstDerivativeY[3] + firstDerivativeY[4]*firstDerivativeY[4] + firstDerivativeZ[0]*firstDerivativeZ[0] + firstDerivativeZ[2]*firstDerivativeZ[2] + firstDerivativeZ[3]*firstDerivativeZ[3] + firstDerivativeZ[4]*firstDerivativeZ[4]))/2.;
+        		};
+        	if(L4 !=0 )
+        		{
+        		distortionEnergyAtSite+=(L4*(-(firstDerivativeY[4]*qCurrent[0]) + firstDerivativeZ[4]*qCurrent[0] + firstDerivativeX[2]*qCurrent[1] - firstDerivativeY[4]*qCurrent[1] - firstDerivativeZ[2]*qCurrent[1] + firstDerivativeZ[4]*qCurrent[1] - firstDerivativeY[4]*qCurrent[2] + firstDerivativeZ[4]*qCurrent[2] + firstDerivativeX[2]*qCurrent[3] - firstDerivativeZ[2]*qCurrent[3]
+                                        + firstDerivativeX[1]*(qCurrent[0] - qCurrent[2] + qCurrent[3] - qCurrent[4]) + firstDerivativeX[2]*qCurrent[4] - firstDerivativeZ[2]*qCurrent[4] + firstDerivativeY[1]*(-qCurrent[0] + qCurrent[2] - qCurrent[3] + qCurrent[4])))/2.;
+        		};
+        	if(L6 !=0 )
+        		{
+        		distortionEnergyAtSite+=L6*(-(firstDerivativeZ[0]*firstDerivativeZ[3]*qCurrent[0]) + firstDerivativeX[0]*firstDerivativeX[0]*qCurrent[0] + firstDerivativeX[1]*firstDerivativeX[1]*qCurrent[0] + firstDerivativeX[2]*firstDerivativeX[2]*qCurrent[0] + firstDerivativeX[3]*firstDerivativeX[3]*qCurrent[0] + firstDerivativeX[4]*firstDerivativeX[4]*qCurrent[0]
+                                        - firstDerivativeZ[0]*firstDerivativeZ[0]*qCurrent[0] - firstDerivativeZ[1]*firstDerivativeZ[1]*qCurrent[0] - firstDerivativeZ[2]*firstDerivativeZ[2]*qCurrent[0] - firstDerivativeZ[3]*firstDerivativeZ[3]*qCurrent[0] - firstDerivativeZ[4]*firstDerivativeZ[4]*qCurrent[0] + firstDerivativeX[3]*firstDerivativeY[0]*qCurrent[1]
+                                        + 2*firstDerivativeX[2]*firstDerivativeY[2]*qCurrent[1] + 2*firstDerivativeX[3]*firstDerivativeY[3]*qCurrent[1] + 2*firstDerivativeX[4]*firstDerivativeY[4]*qCurrent[1] + firstDerivativeX[3]*firstDerivativeZ[0]*qCurrent[2] + 2*firstDerivativeX[2]*firstDerivativeZ[2]*qCurrent[2] + 2*firstDerivativeX[3]*firstDerivativeZ[3]*qCurrent[2]
+                                        + 2*firstDerivativeX[4]*firstDerivativeZ[4]*qCurrent[2] + 2*firstDerivativeX[1]*(firstDerivativeY[1]*qCurrent[1] + firstDerivativeZ[1]*qCurrent[2]) + firstDerivativeX[0]*(firstDerivativeX[3]*qCurrent[0] + 2*firstDerivativeY[0]*qCurrent[1] + firstDerivativeY[3]*qCurrent[1] + 2*firstDerivativeZ[0]*qCurrent[2] + firstDerivativeZ[3]*qCurrent[2])
+                                        + firstDerivativeY[0]*firstDerivativeY[3]*qCurrent[3] - firstDerivativeZ[0]*firstDerivativeZ[3]*qCurrent[3] + firstDerivativeY[0]*firstDerivativeY[0]*qCurrent[3] + firstDerivativeY[1]*firstDerivativeY[1]*qCurrent[3] + firstDerivativeY[2]*firstDerivativeY[2]*qCurrent[3] + firstDerivativeY[3]*firstDerivativeY[3]*qCurrent[3]
+                                        + firstDerivativeY[4]*firstDerivativeY[4]*qCurrent[3] - firstDerivativeZ[0]*firstDerivativeZ[0]*qCurrent[3] - firstDerivativeZ[1]*firstDerivativeZ[1]*qCurrent[3] - firstDerivativeZ[2]*firstDerivativeZ[2]*qCurrent[3] - firstDerivativeZ[3]*firstDerivativeZ[3]*qCurrent[3] - firstDerivativeZ[4]*firstDerivativeZ[4]*qCurrent[3]
+                                        + 2*firstDerivativeY[0]*firstDerivativeZ[0]*qCurrent[4] + firstDerivativeY[3]*firstDerivativeZ[0]*qCurrent[4] + 2*firstDerivativeY[1]*firstDerivativeZ[1]*qCurrent[4] + 2*firstDerivativeY[2]*firstDerivativeZ[2]*qCurrent[4] + firstDerivativeY[0]*firstDerivativeZ[3]*qCurrent[4] + 2*firstDerivativeY[3]*firstDerivativeZ[3]*qCurrent[4] + 2*firstDerivativeY[4]*firstDerivativeZ[4]*qCurrent[4]);
+        		};
 
-            /*
-            switch (numberOfConstants)
-                {
-                case distortionEnergyType::oneConstant :
-                    {
-                    break;
-                    }
-                case distortionEnergyType::twoConstant :
-                    {
-                    //L2
-                    distortionEnergyAtSite += (L2*(2*firstDerivativeX[2]*firstDerivativeY[4] - 2*firstDerivativeX[2]*firstDerivativeZ[0] - 2*firstDerivativeY[4]*firstDerivativeZ[0] + 2*firstDerivativeY[1]*firstDerivativeZ[2] + 2*firstDerivativeX[0]*(firstDerivativeY[1] + firstDerivativeZ[2]) - 2*firstDerivativeX[2]*firstDerivativeZ[3] - 2*firstDerivativeY[4]*firstDerivativeZ[3] + 2*firstDerivativeZ[0]*firstDerivativeZ[3] + 2*firstDerivativeY[3]*firstDerivativeZ[4] + 2*firstDerivativeX[1]*(firstDerivativeY[3] + firstDerivativeZ[4]) + firstDerivativeX[0]*firstDerivativeX[0] + firstDerivativeX[1]*firstDerivativeX[1] + firstDerivativeX[2]*firstDerivativeX[2] + firstDerivativeY[1]*firstDerivativeY[1] + firstDerivativeY[3]*firstDerivativeY[3] + firstDerivativeY[4]*firstDerivativeY[4] + firstDerivativeZ[0]*firstDerivativeZ[0] + firstDerivativeZ[2]*firstDerivativeZ[2] + firstDerivativeZ[3]*firstDerivativeZ[3] + firstDerivativeZ[4]*firstDerivativeZ[4]))/2.;
-                    //L1 with chiral
-                    distortionEnergyAtSite +=(L1*(-2*firstDerivativeX[3]*firstDerivativeY[1] - 2*firstDerivativeX[4]*firstDerivativeY[2] + 2*firstDerivativeY[0]*firstDerivativeY[3] - 2*firstDerivativeX[2]*firstDerivativeZ[0] - 2*firstDerivativeX[4]*firstDerivativeZ[1] - 2*firstDerivativeY[2]*firstDerivativeZ[1] + 2*firstDerivativeX[3]*firstDerivativeZ[2] - 2*firstDerivativeY[4]*firstDerivativeZ[3] + 2*firstDerivativeY[0]*firstDerivativeZ[4] + 2*firstDerivativeY[3]*firstDerivativeZ[4] + firstDerivativeX[0]*firstDerivativeX[0] + firstDerivativeX[1]*firstDerivativeX[1] + firstDerivativeX[2]*firstDerivativeX[2] + 2*(firstDerivativeX[3]*firstDerivativeX[3]) + 2*(firstDerivativeX[4]*firstDerivativeX[4]) + 2*(firstDerivativeY[0]*firstDerivativeY[0]) + firstDerivativeY[1]*firstDerivativeY[1] + 2*(firstDerivativeY[2]*firstDerivativeY[2]) + firstDerivativeY[3]*firstDerivativeY[3] + firstDerivativeY[4]*firstDerivativeY[4] + firstDerivativeZ[0]*firstDerivativeZ[0] + 2*(firstDerivativeZ[1]*firstDerivativeZ[1]) + firstDerivativeZ[2]*firstDerivativeZ[2] + firstDerivativeZ[3]*firstDerivativeZ[3] + firstDerivativeZ[4]*firstDerivativeZ[4] + 648*(q0*q0)*(qCurrent[0]*qCurrent[0]) + 648*(q0*q0)*(qCurrent[1]*qCurrent[1]) + 648*(q0*q0)*(qCurrent[2]*qCurrent[2]) + 648*(q0*q0)*(qCurrent[3]*qCurrent[3]) + 648*(q0*q0)*(qCurrent[4]*qCurrent[4]) - 36*q0*firstDerivativeX[4]*qCurrent[0] + 72*q0*firstDerivativeY[2]*qCurrent[0] - 36*q0*firstDerivativeZ[1]*qCurrent[0] - 36*q0*firstDerivativeX[2]*qCurrent[1] + 36*q0*firstDerivativeY[4]*qCurrent[1] + 36*q0*firstDerivativeZ[0]*qCurrent[1] - 36*q0*firstDerivativeZ[3]*qCurrent[1] - 72*q0*firstDerivativeY[0]*qCurrent[2] - 36*q0*firstDerivativeY[3]*qCurrent[2] - 36*q0*firstDerivativeZ[4]*qCurrent[2] - 2*firstDerivativeX[1]*(firstDerivativeY[0] -18*q0*qCurrent[2]) - 72*q0*firstDerivativeX[4]*qCurrent[3] + 36*q0*firstDerivativeY[2]*qCurrent[3] + 36*q0*firstDerivativeZ[1]*qCurrent[3] + 648*(q0*q0)*qCurrent[0]*qCurrent[3] + 72*q0*firstDerivativeX[3]*qCurrent[4] - 36*q0*firstDerivativeY[1]*qCurrent[4] + 36*q0*firstDerivativeZ[2]*qCurrent[4] + 2*firstDerivativeX[0]*(firstDerivativeX[3] + firstDerivativeZ[2] + 18*q0*qCurrent[4])))/2.;
-                    break;
-                    }
-                case distortionEnergyType::threeConstant :
-                    {
-                    //L1
-                    distortionEnergyAtSite += l*(dot(firstDerivativeX,firstDerivativeX) + firstDerivativeX[0]*firstDerivativeX[3]);
-                    distortionEnergyAtSite += l*(dot(firstDerivativeY,firstDerivativeY) + firstDerivativeY[0]*firstDerivativeY[3]);
-                    distortionEnergyAtSite += l*(dot(firstDerivativeZ,firstDerivativeZ) + firstDerivativeZ[0]*firstDerivativeZ[3]);
-                    //L2
-                    distortionEnergyAtSite += (L2*(2*firstDerivativeX[2]*firstDerivativeY[4] - 2*firstDerivativeX[2]*firstDerivativeZ[0] - 2*firstDerivativeY[4]*firstDerivativeZ[0] + 2*firstDerivativeY[1]*firstDerivativeZ[2] + 2*firstDerivativeX[0]*(firstDerivativeY[1] + firstDerivativeZ[2]) - 2*firstDerivativeX[2]*firstDerivativeZ[3] - 2*firstDerivativeY[4]*firstDerivativeZ[3] + 2*firstDerivativeZ[0]*firstDerivativeZ[3] + 2*firstDerivativeY[3]*firstDerivativeZ[4] + 2*firstDerivativeX[1]*(firstDerivativeY[3] + firstDerivativeZ[4]) + firstDerivativeX[0]*firstDerivativeX[0] + firstDerivativeX[1]*firstDerivativeX[1] + firstDerivativeX[2]*firstDerivativeX[2] + firstDerivativeY[1]*firstDerivativeY[1] + firstDerivativeY[3]*firstDerivativeY[3] + firstDerivativeY[4]*firstDerivativeY[4] + firstDerivativeZ[0]*firstDerivativeZ[0] + firstDerivativeZ[2]*firstDerivativeZ[2] + firstDerivativeZ[3]*firstDerivativeZ[3] + firstDerivativeZ[4]*firstDerivativeZ[4]))/2.;
-                    //L3
-                    distortionEnergyAtSite += L3*((firstDerivativeX[0]*firstDerivativeX[3] - firstDerivativeZ[0]*firstDerivativeZ[3] + firstDerivativeX[0]*firstDerivativeX[0] + firstDerivativeX[1]*firstDerivativeX[1] + firstDerivativeX[2]*firstDerivativeX[2] + firstDerivativeX[3]*firstDerivativeX[3] + firstDerivativeX[4]*firstDerivativeX[4] - firstDerivativeZ[0]*firstDerivativeZ[0] - firstDerivativeZ[1]*firstDerivativeZ[1] - firstDerivativeZ[2]*firstDerivativeZ[2] - firstDerivativeZ[3]*firstDerivativeZ[3] - firstDerivativeZ[4]*firstDerivativeZ[4])*qCurrent[0] + 2*firstDerivativeX[0]*firstDerivativeY[0]*qCurrent[1] + firstDerivativeX[3]*firstDerivativeY[0]*qCurrent[1] + 2*firstDerivativeX[1]*firstDerivativeY[1]*qCurrent[1] + 2*firstDerivativeX[2]*firstDerivativeY[2]*qCurrent[1] + firstDerivativeX[0]*firstDerivativeY[3]*qCurrent[1] + 2*firstDerivativeX[3]*firstDerivativeY[3]*qCurrent[1] + 2*firstDerivativeX[4]*firstDerivativeY[4]*qCurrent[1] + 2*firstDerivativeX[0]*firstDerivativeZ[0]*qCurrent[2] + firstDerivativeX[3]*firstDerivativeZ[0]*qCurrent[2] + 2*firstDerivativeX[1]*firstDerivativeZ[1]*qCurrent[2] + 2*firstDerivativeX[2]*firstDerivativeZ[2]*qCurrent[2] + firstDerivativeX[0]*firstDerivativeZ[3]*qCurrent[2] + 2*firstDerivativeX[3]*firstDerivativeZ[3]*qCurrent[2] + 2*firstDerivativeX[4]*firstDerivativeZ[4]*qCurrent[2] + (firstDerivativeY[0]*firstDerivativeY[3] - firstDerivativeZ[0]*firstDerivativeZ[3] + firstDerivativeY[0]*firstDerivativeY[0] + firstDerivativeY[1]*firstDerivativeY[1] + firstDerivativeY[2]*firstDerivativeY[2] + firstDerivativeY[3]*firstDerivativeY[3] + firstDerivativeY[4]*firstDerivativeY[4] - firstDerivativeZ[0]*firstDerivativeZ[0] - firstDerivativeZ[1]*firstDerivativeZ[1] - firstDerivativeZ[2]*firstDerivativeZ[2] - firstDerivativeZ[3]*firstDerivativeZ[3] - firstDerivativeZ[4]*firstDerivativeZ[4])*qCurrent[3] + 2*firstDerivativeY[0]*firstDerivativeZ[0]*qCurrent[4] + firstDerivativeY[3]*firstDerivativeZ[0]*qCurrent[4] + 2*firstDerivativeY[1]*firstDerivativeZ[1]*qCurrent[4] + 2*firstDerivativeY[2]*firstDerivativeZ[2]*qCurrent[4] + firstDerivativeY[0]*firstDerivativeZ[3]*qCurrent[4] + 2*firstDerivativeY[3]*firstDerivativeZ[3]*qCurrent[4] + 2*firstDerivativeY[4]*firstDerivativeZ[4]*qCurrent[4]);
-                    break;
-                    }
-
-                };
-                */
-                /*
-            if(useL24)
-                {
-                distortionEnergyAtSite += 3*L24*(firstDerivativeX[1]*firstDerivativeY[0] - firstDerivativeX[0]*firstDerivativeY[1] + firstDerivativeX[3]*firstDerivativeY[1] + firstDerivativeX[4]*firstDerivativeY[2] - firstDerivativeX[1]*firstDerivativeY[3] - firstDerivativeX[2]*firstDerivativeY[4] + 2*firstDerivativeX[2]*firstDerivativeZ[0] + firstDerivativeY[4]*firstDerivativeZ[0] + firstDerivativeX[4]*firstDerivativeZ[1] + firstDerivativeY[2]*firstDerivativeZ[1] - (2*firstDerivativeX[0] + firstDerivativeX[3] + firstDerivativeY[1])*firstDerivativeZ[2] + firstDerivativeX[2]*firstDerivativeZ[3] + 2*firstDerivativeY[4]*firstDerivativeZ[3] - (firstDerivativeX[1] + firstDerivativeY[0] + 2*firstDerivativeY[3])*firstDerivativeZ[4]);
-                }
-                */
             distortionEnergy+=distortionEnergyAtSite;
             energyPerSite.data[i] +=distortionEnergyAtSite;
             }
