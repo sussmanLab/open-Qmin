@@ -896,6 +896,7 @@ void MainWindow::on_computeEnergyButton_released()
 {
      ui->progressBar->setValue(0);
     scalar totalEnergyPer = sim->computePotentialEnergy();
+    printf("%f\n",totalEnergyPer);
      ui->progressBar->setValue(90);
     scalar totalEnergy = 0.0;
     if(GPU)

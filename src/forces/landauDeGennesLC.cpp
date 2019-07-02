@@ -196,7 +196,7 @@ void landauDeGennesLC::computeEnergyGPU(bool verbose)
     ArrayHandle<dVec> Qtensors(lattice->returnPositions(),access_location::device,access_mode::read);
     ArrayHandle<int> latticeTypes(lattice->returnTypes(),access_location::device,access_mode::read);
     ArrayHandle<boundaryObject> bounds(lattice->boundaries,access_location::device,access_mode::read);
-    ArrayHandle<scalar> energyPerSite(energyDensity,access_location::device,access_mode::read);
+    ArrayHandle<scalar> energyPerSite(energyDensity,access_location::device,access_mode::readwrite);
     ArrayHandle<int>  latticeNeighbors(lattice->neighboringSites,access_location::device,access_mode::read);
     scalar a = 0.5*A;
     scalar b = B/3.0;
@@ -209,6 +209,7 @@ void landauDeGennesLC::computeEnergyGPU(bool verbose)
                             Chi,mu0,deltaChi,Hfield,
                             N);
     }
+
     //now reduce to get total energy
     int numBlocks = 0;
     int numThreads = 0;
