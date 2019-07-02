@@ -898,11 +898,18 @@ void MainWindow::on_computeEnergyButton_released()
     scalar totalEnergyPer = sim->computePotentialEnergy();
      ui->progressBar->setValue(90);
     scalar totalEnergy = 0.0;
-    for(int ii = 0; ii < landauLCForce->energyComponents.size();++ii)
-        totalEnergy+=landauLCForce->energyComponents[ii];
+    if(GPU)
+        {
+        totalEnergy=totalEnergyPer;
+        }
+    else
+        for(int ii = 0; ii < landauLCForce->energyComponents.size();++ii)
+            totalEnergy+=landauLCForce->energyComponents[ii];
+
     QString energyString = QStringLiteral("Total energy: %1, components (phase, distortion, anchoring, E, H):  ").arg(totalEnergyPer);
-    for(int ii = 0; ii < landauLCForce->energyComponents.size();++ii)
-        energyString += QStringLiteral(" %1,  ").arg(landauLCForce->energyComponents[ii]);
+    if(!GPU)
+        for(int ii = 0; ii < landauLCForce->energyComponents.size();++ii)
+            energyString += QStringLiteral(" %1,  ").arg(landauLCForce->energyComponents[ii]);
     ui->testingBox->setText(energyString);
     ui->progressBar->setValue(100);
 }

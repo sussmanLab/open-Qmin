@@ -239,6 +239,137 @@ __global__ void gpu_qTensor_computeObjectForceFromStresses_kernel(int *sites,
     objectForces[idx] = surfaceArea*stress[idx];
     }
 
+__global__ void gpu_energyPerSite_kernel(scalar *energyPerSite,
+                               dVec *Qtensors,
+                               int *latticeTypes,
+                               boundaryObject *bounds,
+                               int *d_latticeNeighbors,
+                               Index2D neighborIndex,
+                               scalar a, scalar b, scalar c,
+                               scalar L1, scalar L2, scalar L3, scalar L4, scalar L6,
+                               bool computeEfieldContribution,
+                               bool computeHfieldContribution,
+                               scalar epsilon, scalar epsilon0, scalar deltaEpsilon, scalar3 Efield,
+                               scalar Chi, scalar mu0, scalar deltaChi, scalar3 Hfield,
+                               int N)
+    {
+    unsigned int idx = blockDim.x * blockIdx.x + threadIdx.x;
+
+    if (idx >= N)
+        return;
+    dVec qCurrent, xDown, xUp, yDown,yUp,zDown,zUp;
+    energyPerSite[idx] = 0.0;
+    if(latticeTypes[idx] <= 0) //only compute forces on sites that aren't boundaries
+        {
+        //phase part is simple
+        qCurrent = Qtensors[idx];
+        energyPerSite[idx] += a*TrQ2(qCurrent) + b*TrQ3(qCurrent) + c* TrQ2Squared(qCurrent);
+
+        //external fields are also simple
+        if(computeEfieldContribution)
+            {
+            scalar eFieldAtSite = epsilon0*(-0.5*Efield.x*Efield.x*(epsilon + deltaEpsilon*qCurrent[0]) -
+                          deltaEpsilon*Efield.x*Efield.y*qCurrent[1] - deltaEpsilon*Efield.x*Efield.z*qCurrent[2] -
+                          0.5*Efield.z*Efield.z*(epsilon - deltaEpsilon*qCurrent[0] - deltaEpsilon*qCurrent[3]) -
+                          0.5*Efield.y*Efield.y*(epsilon + deltaEpsilon*qCurrent[3]) - deltaEpsilon*Efield.y*Efield.z*qCurrent[4]);
+            energyPerSite[idx] += eFieldAtSite;
+            }
+        if(computeHfieldContribution)
+            {
+            scalar hFieldAtSite=mu0*(-0.5*Hfield.x*Hfield.x*(Chi + deltaChi*qCurrent[0]) -
+                      deltaChi*Hfield.x*Hfield.y*qCurrent[1] - deltaChi*Hfield.x*Hfield.z*qCurrent[2] -
+                      0.5*Hfield.z*Hfield.z*(Chi - deltaChi*qCurrent[0] - deltaChi*qCurrent[3]) -
+                      0.5*Hfield.y*Hfield.y*(Chi + deltaChi*qCurrent[3]) - deltaChi*Hfield.y*Hfield.z*qCurrent[4]);
+            energyPerSite[idx] +=hFieldAtSite;
+            }
+
+        //get neighbor indices and data
+        int ixd, ixu,iyd,iyu,izd,izu;
+        ixd =d_latticeNeighbors[neighborIndex(0,idx)];
+        ixu =d_latticeNeighbors[neighborIndex(1,idx)];
+        iyd =d_latticeNeighbors[neighborIndex(2,idx)];
+        iyu =d_latticeNeighbors[neighborIndex(3,idx)];
+        izd =d_latticeNeighbors[neighborIndex(4,idx)];
+        izu =d_latticeNeighbors[neighborIndex(5,idx)];
+        xDown = Qtensors[ixd]; xUp = Qtensors[ixu];
+        yDown = Qtensors[iyd]; yUp = Qtensors[iyu];
+        zDown = Qtensors[izd]; zUp = Qtensors[izu];
+
+        dVec firstDerivativeX = 0.5*(xUp - xDown);
+        dVec firstDerivativeY = 0.5*(yUp - yDown);
+        dVec firstDerivativeZ = 0.5*(zUp - zDown);
+        scalar anchoringEnergyAtSite = 0.0;
+        if(latticeTypes[idx] <0)
+            {
+            if(latticeTypes[ixd]>0)
+                {
+                anchoringEnergyAtSite+= computeBoundaryEnergy(qCurrent, xDown, bounds[latticeTypes[ixd]-1]);
+                firstDerivativeX = xUp - qCurrent;
+                }
+            if(latticeTypes[ixu]>0)
+                {
+                anchoringEnergyAtSite += computeBoundaryEnergy(qCurrent, xUp, bounds[latticeTypes[ixu]-1]);
+                firstDerivativeX = qCurrent - xDown;
+                }
+            if(latticeTypes[iyd]>0)
+                {
+                anchoringEnergyAtSite += computeBoundaryEnergy(qCurrent, yDown, bounds[latticeTypes[iyd]-1]);
+                firstDerivativeY = yUp - qCurrent;
+                }
+            if(latticeTypes[iyu]>0)
+                {
+                anchoringEnergyAtSite += computeBoundaryEnergy(qCurrent, yUp, bounds[latticeTypes[iyu]-1]);
+                firstDerivativeY = qCurrent - yDown;
+                }
+            if(latticeTypes[izd]>0)
+                {
+                anchoringEnergyAtSite += computeBoundaryEnergy(qCurrent, zDown, bounds[latticeTypes[izd]-1]);
+                firstDerivativeZ = zUp - qCurrent;
+                }
+            if(latticeTypes[izu]>0)
+                {
+                anchoringEnergyAtSite += computeBoundaryEnergy(qCurrent, zUp, bounds[latticeTypes[izu]-1]);
+                firstDerivativeZ = qCurrent - zDown;
+                }
+            energyPerSite[idx] += anchoringEnergyAtSite;
+            }
+        scalar distortionEnergyAtSite=0.0;
+        if(L1 !=0 )
+            {
+            distortionEnergyAtSite+=L1*(firstDerivativeX[0]*firstDerivativeX[3] + firstDerivativeY[0]*firstDerivativeY[3] + firstDerivativeZ[0]*firstDerivativeZ[3] + firstDerivativeX[0]*firstDerivativeX[0] + firstDerivativeX[1]*firstDerivativeX[1] + firstDerivativeX[2]*firstDerivativeX[2] + firstDerivativeX[3]*firstDerivativeX[3] + firstDerivativeX[4]*firstDerivativeX[4] + firstDerivativeY[0]*firstDerivativeY[0]
+                                    + firstDerivativeY[1]*firstDerivativeY[1] + firstDerivativeY[2]*firstDerivativeY[2] + firstDerivativeY[3]*firstDerivativeY[3] + firstDerivativeY[4]*firstDerivativeY[4] + firstDerivativeZ[0]*firstDerivativeZ[0] + firstDerivativeZ[1]*firstDerivativeZ[1] + firstDerivativeZ[2]*firstDerivativeZ[2] + firstDerivativeZ[3]*firstDerivativeZ[3] + firstDerivativeZ[4]*firstDerivativeZ[4]);
+            };
+        if(L2 !=0 )
+            {
+            distortionEnergyAtSite+=(L2*(2*firstDerivativeX[2]*firstDerivativeY[4] - 2*firstDerivativeX[2]*firstDerivativeZ[0] - 2*firstDerivativeY[4]*firstDerivativeZ[0] + 2*firstDerivativeY[1]*firstDerivativeZ[2] + 2*firstDerivativeX[0]*(firstDerivativeY[1] + firstDerivativeZ[2]) - 2*firstDerivativeX[2]*firstDerivativeZ[3] - 2*firstDerivativeY[4]*firstDerivativeZ[3] + 2*firstDerivativeZ[0]*firstDerivativeZ[3]
+                                    + 2*firstDerivativeY[3]*firstDerivativeZ[4] + 2*firstDerivativeX[1]*(firstDerivativeY[3] + firstDerivativeZ[4]) + firstDerivativeX[0]*firstDerivativeX[0] + firstDerivativeX[1]*firstDerivativeX[1] + firstDerivativeX[2]*firstDerivativeX[2] + firstDerivativeY[1]*firstDerivativeY[1] + firstDerivativeY[3]*firstDerivativeY[3] + firstDerivativeY[4]*firstDerivativeY[4]
+                                    + firstDerivativeZ[0]*firstDerivativeZ[0] + firstDerivativeZ[2]*firstDerivativeZ[2] + firstDerivativeZ[3]*firstDerivativeZ[3] + firstDerivativeZ[4]*firstDerivativeZ[4]))/2.;
+            };
+        if(L3 !=0 )
+            {
+            distortionEnergyAtSite+=(L3*(2*firstDerivativeX[1]*firstDerivativeY[0] + 2*firstDerivativeX[3]*firstDerivativeY[1] + 2*firstDerivativeX[4]*firstDerivativeY[2] + 2*firstDerivativeX[2]*firstDerivativeZ[0] + 2*firstDerivativeX[4]*firstDerivativeZ[1] + 2*firstDerivativeY[2]*firstDerivativeZ[1] - 2*firstDerivativeX[0]*firstDerivativeZ[2] - 2*firstDerivativeX[3]*firstDerivativeZ[2]
+                                    + 2*firstDerivativeY[4]*firstDerivativeZ[3] + 2*firstDerivativeZ[0]*firstDerivativeZ[3] - 2*firstDerivativeY[0]*firstDerivativeZ[4] - 2*firstDerivativeY[3]*firstDerivativeZ[4] + firstDerivativeX[0]*firstDerivativeX[0] + firstDerivativeX[1]*firstDerivativeX[1] + firstDerivativeX[2]*firstDerivativeX[2] + firstDerivativeY[1]*firstDerivativeY[1]
+                                    + firstDerivativeY[3]*firstDerivativeY[3] + firstDerivativeY[4]*firstDerivativeY[4] + firstDerivativeZ[0]*firstDerivativeZ[0] + firstDerivativeZ[2]*firstDerivativeZ[2] + firstDerivativeZ[3]*firstDerivativeZ[3] + firstDerivativeZ[4]*firstDerivativeZ[4]))/2.;
+            };
+        if(L4 !=0 )
+            {
+            distortionEnergyAtSite+=(L4*(-(firstDerivativeY[4]*qCurrent[0]) + firstDerivativeZ[4]*qCurrent[0] + firstDerivativeX[2]*qCurrent[1] - firstDerivativeY[4]*qCurrent[1] - firstDerivativeZ[2]*qCurrent[1] + firstDerivativeZ[4]*qCurrent[1] - firstDerivativeY[4]*qCurrent[2] + firstDerivativeZ[4]*qCurrent[2] + firstDerivativeX[2]*qCurrent[3] - firstDerivativeZ[2]*qCurrent[3]
+                                    + firstDerivativeX[1]*(qCurrent[0] - qCurrent[2] + qCurrent[3] - qCurrent[4]) + firstDerivativeX[2]*qCurrent[4] - firstDerivativeZ[2]*qCurrent[4] + firstDerivativeY[1]*(-qCurrent[0] + qCurrent[2] - qCurrent[3] + qCurrent[4])))/2.;
+            };
+        if(L6 !=0 )
+            {
+            distortionEnergyAtSite+=L6*(-(firstDerivativeZ[0]*firstDerivativeZ[3]*qCurrent[0]) + firstDerivativeX[0]*firstDerivativeX[0]*qCurrent[0] + firstDerivativeX[1]*firstDerivativeX[1]*qCurrent[0] + firstDerivativeX[2]*firstDerivativeX[2]*qCurrent[0] + firstDerivativeX[3]*firstDerivativeX[3]*qCurrent[0] + firstDerivativeX[4]*firstDerivativeX[4]*qCurrent[0]
+                                    - firstDerivativeZ[0]*firstDerivativeZ[0]*qCurrent[0] - firstDerivativeZ[1]*firstDerivativeZ[1]*qCurrent[0] - firstDerivativeZ[2]*firstDerivativeZ[2]*qCurrent[0] - firstDerivativeZ[3]*firstDerivativeZ[3]*qCurrent[0] - firstDerivativeZ[4]*firstDerivativeZ[4]*qCurrent[0] + firstDerivativeX[3]*firstDerivativeY[0]*qCurrent[1]
+                                    + 2*firstDerivativeX[2]*firstDerivativeY[2]*qCurrent[1] + 2*firstDerivativeX[3]*firstDerivativeY[3]*qCurrent[1] + 2*firstDerivativeX[4]*firstDerivativeY[4]*qCurrent[1] + firstDerivativeX[3]*firstDerivativeZ[0]*qCurrent[2] + 2*firstDerivativeX[2]*firstDerivativeZ[2]*qCurrent[2] + 2*firstDerivativeX[3]*firstDerivativeZ[3]*qCurrent[2]
+                                    + 2*firstDerivativeX[4]*firstDerivativeZ[4]*qCurrent[2] + 2*firstDerivativeX[1]*(firstDerivativeY[1]*qCurrent[1] + firstDerivativeZ[1]*qCurrent[2]) + firstDerivativeX[0]*(firstDerivativeX[3]*qCurrent[0] + 2*firstDerivativeY[0]*qCurrent[1] + firstDerivativeY[3]*qCurrent[1] + 2*firstDerivativeZ[0]*qCurrent[2] + firstDerivativeZ[3]*qCurrent[2])
+                                    + firstDerivativeY[0]*firstDerivativeY[3]*qCurrent[3] - firstDerivativeZ[0]*firstDerivativeZ[3]*qCurrent[3] + firstDerivativeY[0]*firstDerivativeY[0]*qCurrent[3] + firstDerivativeY[1]*firstDerivativeY[1]*qCurrent[3] + firstDerivativeY[2]*firstDerivativeY[2]*qCurrent[3] + firstDerivativeY[3]*firstDerivativeY[3]*qCurrent[3]
+                                    + firstDerivativeY[4]*firstDerivativeY[4]*qCurrent[3] - firstDerivativeZ[0]*firstDerivativeZ[0]*qCurrent[3] - firstDerivativeZ[1]*firstDerivativeZ[1]*qCurrent[3] - firstDerivativeZ[2]*firstDerivativeZ[2]*qCurrent[3] - firstDerivativeZ[3]*firstDerivativeZ[3]*qCurrent[3] - firstDerivativeZ[4]*firstDerivativeZ[4]*qCurrent[3]
+                                    + 2*firstDerivativeY[0]*firstDerivativeZ[0]*qCurrent[4] + firstDerivativeY[3]*firstDerivativeZ[0]*qCurrent[4] + 2*firstDerivativeY[1]*firstDerivativeZ[1]*qCurrent[4] + 2*firstDerivativeY[2]*firstDerivativeZ[2]*qCurrent[4] + firstDerivativeY[0]*firstDerivativeZ[3]*qCurrent[4] + 2*firstDerivativeY[3]*firstDerivativeZ[3]*qCurrent[4] + 2*firstDerivativeY[4]*firstDerivativeZ[4]*qCurrent[4]);
+            };
+        energyPerSite[idx] +=distortionEnergyAtSite;
+        };
+    };
+
 __global__ void gpu_qTensor_oneConstantForce_kernel(dVec *d_force,
                                 dVec *d_spins,
                                 int *d_types,
@@ -559,7 +690,7 @@ bool gpu_qTensor_multiConstantForce(dVec *d_force,
                                                                 N,zeroForce);
     HANDLE_ERROR(cudaGetLastError());
     return cudaSuccess;
-    }
+    };
 
 bool gpu_qTensor_computeUniformFieldForcesGPU(dVec * d_force,
                                        int *d_types,
@@ -576,6 +707,34 @@ bool gpu_qTensor_computeUniformFieldForcesGPU(dVec * d_force,
                                                                 vacuumPermeability, zeroOutForce);
     HANDLE_ERROR(cudaGetLastError());
     return cudaSuccess;
-    };;
+    };
+
+bool gpu_computeAllEnergyTerms(scalar *energyPerSite,
+                               dVec *Qtensors,
+                               int *latticeTypes,
+                               boundaryObject *bounds,
+                               int *d_latticeNeighbors,
+                               Index2D neighborIndex,
+                               scalar a, scalar b, scalar c,
+                               scalar L1, scalar L2, scalar L3, scalar L4, scalar L6,
+                               bool computeEfieldContribution,
+                               bool computeHfieldContribution,
+                               scalar epsilon, scalar epsilon0, scalar deltaEpsilon, scalar3 Efield,
+                               scalar Chi, scalar mu0, scalar deltaChi, scalar3 Hfield,
+                               int N)
+    {
+    int maxBlockSize=256;
+    unsigned int block_size = maxBlockSize;
+    unsigned int nblocks = N/block_size+1;
+    gpu_energyPerSite_kernel<<<nblocks,block_size>>>(energyPerSite,Qtensors,latticeTypes,bounds,
+                                                             d_latticeNeighbors,neighborIndex,a,b,c,
+                                                             L1,L2,L3,L4,L6,
+                                                             computeEfieldContribution,computeHfieldContribution,
+                                                             epsilon,epsilon0,deltaEpsilon,Efield,
+                                                             Chi,mu0,deltaChi,Hfield,
+                                                             N);
+    HANDLE_ERROR(cudaGetLastError());
+    return cudaSuccess;
+    };
 
 /** @} */ //end of group declaration

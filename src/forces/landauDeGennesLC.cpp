@@ -10,6 +10,7 @@ landauDeGennesLC::landauDeGennesLC(bool _neverGPU)
     if(neverGPU)
         {
         energyDensity.noGPU =true;
+        energyDensityReduction.noGPU=true;
         objectForceArray.noGPU = true;
         forceCalculationAssist.noGPU=true;
         energyPerParticle.noGPU = true;
@@ -66,6 +67,7 @@ void landauDeGennesLC::setModel(shared_ptr<cubicLattice> _model)
         }
     int N = lattice->getNumberOfParticles();
     energyDensity.resize(N);
+    energyDensityReduction.resize(N);
     /*
     forceCalculationAssist.resize(N);
     if(useGPU)
@@ -188,19 +190,34 @@ void landauDeGennesLC::computeForceCPU(GPUArray<dVec> &forces,bool zeroOutForce,
 
 void landauDeGennesLC::computeEnergyGPU(bool verbose)
     {
-    computeEnergyCPU(verbose);
-    /*
     int N = lattice->getNumberOfParticles();
-    ArrayHandle<dVec> d_force(forces,access_location::device,access_mode::readwrite);
-    ArrayHandle<dVec> d_spins(lattice->returnPositions(),access_location::device,access_mode::read);
-    ArrayHandle<int>  d_latticeTypes(lattice->returnTypes(),access_location::device,access_mode::read);
-    ArrayHandle<int>  d_latticeNeighbors(lattice->neighboringSites,access_location::device,access_mode::read);
-            forceTuner->begin();
-            gpu_qTensor_oneConstantForce(d_force.data, d_spins.data, d_latticeTypes.data, d_latticeNeighbors.data,
-                                         lattice->neighborIndex,
-                                         A,B,C,L1,N,
-                                         zeroOutForce,forceTuner->getParameter());
-    */
+    energy=0.0;
+    {//scope for initial arrays
+    ArrayHandle<dVec> Qtensors(lattice->returnPositions(),access_location::device,access_mode::read);
+    ArrayHandle<int> latticeTypes(lattice->returnTypes(),access_location::device,access_mode::read);
+    ArrayHandle<boundaryObject> bounds(lattice->boundaries,access_location::device,access_mode::read);
+    ArrayHandle<scalar> energyPerSite(energyDensity,access_location::device,access_mode::read);
+    ArrayHandle<int>  latticeNeighbors(lattice->neighboringSites,access_location::device,access_mode::read);
+    scalar a = 0.5*A;
+    scalar b = B/3.0;
+    scalar c = 0.25*C;
+    gpu_computeAllEnergyTerms(energyPerSite.data,Qtensors.data,latticeTypes.data,bounds.data,
+                                latticeNeighbors.data, lattice->neighborIndex,
+                            a,b,c,L1,L2,L3,L4,L6,
+                            computeEfieldContribution,computeHfieldContribution,
+                            epsilon,epsilon0,deltaEpsilon,Efield,
+                            Chi,mu0,deltaChi,Hfield,
+                            N);
+    }
+    //now reduce to get total energy
+    int numBlocks = 0;
+    int numThreads = 0;
+    int maxBlocks = 64;
+    int maxThreads = 256;
+    getNumBlocksAndThreads(N, maxBlocks, maxThreads, numBlocks, numThreads);
+    ArrayHandle<scalar> energyPerSite(energyDensity,access_location::device,access_mode::read);
+    ArrayHandle<scalar> energyPerSiteReduction(energyDensityReduction,access_location::device,access_mode::readwrite);
+    energy = gpuReduction(N,numThreads,numBlocks,maxThreads,maxBlocks,energyPerSite.data,energyPerSiteReduction.data);
     }
 
 void landauDeGennesLC::computeEnergyCPU(bool verbose)

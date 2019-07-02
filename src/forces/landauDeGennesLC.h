@@ -91,6 +91,8 @@ class landauDeGennesLC : public baseLatticeForce
             };
         //!the free energy density at each lattice site
         GPUArray<scalar> energyDensity;
+        //!A helper array for energy reductions
+        GPUArray<scalar> energyDensityReduction;
         //!the force from stresses at the surface of an object
         GPUArray<scalar3> objectForceArray;
 
@@ -121,7 +123,6 @@ class landauDeGennesLC : public baseLatticeForce
         scalar deltaChi;
         scalar Chi;
         scalar mu0;
-
 
         //!number of elastic constants
         distortionEnergyType numberOfConstants;

@@ -33,6 +33,20 @@ bool gpu_qTensor_multiConstantForce(dVec *d_force,
                                 bool zeroForce,
                                 int maxBlockSize);
 
+bool gpu_computeAllEnergyTerms(scalar *energyPerSite,
+                               dVec *Qtensors,
+                               int *latticeTypes,
+                               boundaryObject *bounds,
+                               int *d_latticeNeighbors,
+                               Index2D neighborIndex,
+                               scalar a, scalar b, scalar c,
+                               scalar L1, scalar L2, scalar L3, scalar L4, scalar L6,
+                               bool computeEfieldContribution,
+                               bool computeHfieldContribution,
+                               scalar epsilon, scalar epsilon0, scalar deltaEpsilon, scalar3 Efield,
+                               scalar Chi, scalar mu0, scalar deltaChi, scalar3 Hfield,
+                               int N);
+
 bool gpu_qTensor_computeUniformFieldForcesGPU(dVec * d_force,
                                        int *d_types,
                                        int N,
