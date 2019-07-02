@@ -499,7 +499,7 @@ void landauDeGennesLC::computeL1BoundaryCPU(GPUArray<dVec> &forces,bool zeroOutF
                     lcForce::bulkL1Force(L1,qCurrent,xDown,xUp,yDown,yUp,zDown,zUp,spatialTerm);
             else
                     lcForce::boundaryL1Force(L1,qCurrent,xDown,xUp,yDown,yUp,zDown,zUp,
-                                    latticeTypes.data[ixd],latticeTypes.data[ixu],latticeTypes.data[iyd],
+                            latticeTypes.data[ixd],latticeTypes.data[ixu],latticeTypes.data[iyd],
                             latticeTypes.data[iyu],latticeTypes.data[izd],latticeTypes.data[izu],
                             spatialTerm);
             force -= spatialTerm;

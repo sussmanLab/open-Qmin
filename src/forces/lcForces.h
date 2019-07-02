@@ -3,13 +3,18 @@
 #include "std_include.h"
 /*! \file lcForces.h */
 
+#ifdef NVCC
+#define HOSTDEVICE __host__ __device__ inline
+#else
+#define HOSTDEVICE inline __attribute__((always_inline))
+#endif
+
 /*!
 Note that all of these "forces" actually return the negative of a force
 */
 namespace lcForce
     {
-
-    inline int getBoundaryCase(int xd, int xu, int yd, int yu, int zd, int zu)
+    HOSTDEVICE int getBoundaryCase(int xd, int xu, int yd, int yu, int zd, int zu)
         {
         int xx = 0;
         int yy = 0;
@@ -23,7 +28,7 @@ namespace lcForce
         return xx + 4*yy+16*zz;
         }
 
-    inline void bulkL1Force(const scalar L1, const dVec &qCurrent,
+    HOSTDEVICE void bulkL1Force(const scalar L1, const dVec &qCurrent,
                 const dVec &xDown, const dVec &xUp, const dVec &yDown, const dVec &yUp, const dVec &zDown, const dVec &zUp,
                 dVec &spatialTerm)
         {
@@ -36,7 +41,7 @@ namespace lcForce
         spatialTerm[4] *= 2.0;
         };
 
-    inline void boundaryL1Force(const scalar L1, const dVec &qCurrent,
+    HOSTDEVICE void boundaryL1Force(const scalar L1, const dVec &qCurrent,
                 const dVec &xDown, const dVec &xUp, const dVec &yDown, const dVec &yUp, const dVec &zDown, const dVec &zUp,
                 const int &ixd,const int &ixu,const int &iyd,const int &iyu,const int &izd,const int &izu,
                 dVec &spatialTerm)
@@ -62,7 +67,7 @@ namespace lcForce
         spatialTerm[4] *= 2.0;
         };
 
-    inline void bulkL2Force(const scalar L2, const dVec &qCurrent,
+    HOSTDEVICE void bulkL2Force(const scalar L2, const dVec &qCurrent,
             const dVec &xDown, const dVec &xUp, const dVec &yDown, const dVec &yUp, const dVec &zDown, const dVec &zUp,
             const cubicLatticeDerivativeVector &xDownDerivative, const cubicLatticeDerivativeVector &xUpDerivative,
             const cubicLatticeDerivativeVector &yDownDerivative, const cubicLatticeDerivativeVector &yUpDerivative,
@@ -77,7 +82,7 @@ namespace lcForce
         spatialTerm = (0.5*L2)*spatialTerm;
         };
 
-    inline void boundaryL2Force(const scalar L2, int boundaryCase, const dVec &qCurrent,
+    HOSTDEVICE void boundaryL2Force(const scalar L2, int boundaryCase, const dVec &qCurrent,
         const dVec &xDown, const dVec &xUp, const dVec &yDown, const dVec &yUp, const dVec &zDown, const dVec &zUp,
         const cubicLatticeDerivativeVector &xDownDerivative, const cubicLatticeDerivativeVector &xUpDerivative,
         const cubicLatticeDerivativeVector &yDownDerivative, const cubicLatticeDerivativeVector &yUpDerivative,
@@ -305,7 +310,7 @@ namespace lcForce
         spatialTerm = (0.5*L2)*spatialTerm;
         };
 
-    inline void bulkL3Force(const scalar L3, const dVec &qCurrent,
+    HOSTDEVICE void bulkL3Force(const scalar L3, const dVec &qCurrent,
             const dVec &xDown, const dVec &xUp, const dVec &yDown, const dVec &yUp, const dVec &zDown, const dVec &zUp,
             const cubicLatticeDerivativeVector &xDownDerivative, const cubicLatticeDerivativeVector &xUpDerivative,
             const cubicLatticeDerivativeVector &yDownDerivative, const cubicLatticeDerivativeVector &yUpDerivative,
@@ -320,7 +325,7 @@ namespace lcForce
         spatialTerm = (0.5*L3)*spatialTerm;
         };
 
-    inline void boundaryL3Force(const scalar L3, int boundaryCase, const dVec &qCurrent,
+    HOSTDEVICE void boundaryL3Force(const scalar L3, int boundaryCase, const dVec &qCurrent,
         const dVec &xDown, const dVec &xUp, const dVec &yDown, const dVec &yUp, const dVec &zDown, const dVec &zUp,
         const cubicLatticeDerivativeVector &xDownDerivative, const cubicLatticeDerivativeVector &xUpDerivative,
         const cubicLatticeDerivativeVector &yDownDerivative, const cubicLatticeDerivativeVector &yUpDerivative,
@@ -546,7 +551,7 @@ namespace lcForce
         spatialTerm = (0.5*L3)*spatialTerm;
         };
 
-    inline void bulkL4Force(const scalar L4, const dVec &qCurrent,
+    HOSTDEVICE void bulkL4Force(const scalar L4, const dVec &qCurrent,
             const dVec &xDown, const dVec &xUp, const dVec &yDown, const dVec &yUp, const dVec &zDown, const dVec &zUp,
             const cubicLatticeDerivativeVector &xDownDerivative, const cubicLatticeDerivativeVector &xUpDerivative,
             const cubicLatticeDerivativeVector &yDownDerivative, const cubicLatticeDerivativeVector &yUpDerivative,
@@ -561,7 +566,7 @@ namespace lcForce
         spatialTerm = (0.5*L4)*spatialTerm;
         };
 
-    inline void boundaryL4Force(const scalar L4, int boundaryCase, const dVec &qCurrent,
+    HOSTDEVICE void boundaryL4Force(const scalar L4, int boundaryCase, const dVec &qCurrent,
         const dVec &xDown, const dVec &xUp, const dVec &yDown, const dVec &yUp, const dVec &zDown, const dVec &zUp,
         const cubicLatticeDerivativeVector &xDownDerivative, const cubicLatticeDerivativeVector &xUpDerivative,
         const cubicLatticeDerivativeVector &yDownDerivative, const cubicLatticeDerivativeVector &yUpDerivative,
@@ -788,7 +793,7 @@ namespace lcForce
         spatialTerm = (0.5*L4)*spatialTerm;
         };
 
-    inline void bulkL6Force(const scalar L6, const dVec &qCurrent,
+    HOSTDEVICE void bulkL6Force(const scalar L6, const dVec &qCurrent,
             const dVec &xDown, const dVec &xUp, const dVec &yDown, const dVec &yUp, const dVec &zDown, const dVec &zUp,
             const cubicLatticeDerivativeVector &xDownDerivative, const cubicLatticeDerivativeVector &xUpDerivative,
             const cubicLatticeDerivativeVector &yDownDerivative, const cubicLatticeDerivativeVector &yUpDerivative,
@@ -804,7 +809,7 @@ namespace lcForce
         spatialTerm = (0.5*L6)*spatialTerm;
         };
 
-    inline void boundaryL6Force(const scalar L6, int boundaryCase, const dVec &qCurrent,
+    HOSTDEVICE void boundaryL6Force(const scalar L6, int boundaryCase, const dVec &qCurrent,
         const dVec &xDown, const dVec &xUp, const dVec &yDown, const dVec &yUp, const dVec &zDown, const dVec &zUp,
         const cubicLatticeDerivativeVector &xDownDerivative, const cubicLatticeDerivativeVector &xUpDerivative,
         const cubicLatticeDerivativeVector &yDownDerivative, const cubicLatticeDerivativeVector &yUpDerivative,
@@ -1031,5 +1036,6 @@ namespace lcForce
         spatialTerm = (0.5*L6)*spatialTerm;
         };
 
-    }
+    }//end namespace
+#undef HOSTDEVICE
 #endif

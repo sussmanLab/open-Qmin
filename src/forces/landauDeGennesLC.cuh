@@ -20,33 +20,18 @@ bool gpu_qTensor_oneConstantForce(dVec *d_force,
                                 bool zeroForce,
                                 int maxBlockSize);
 
-bool gpu_qTensor_twoConstantForce(dVec *d_force,
+bool gpu_qTensor_multiConstantForce(dVec *d_force,
                                 dVec *d_spins,
                                 int *d_types,
                                 cubicLatticeDerivativeVector *d_derivatives,
-                                Index3D latticeIndex,
-                                scalar A,scalar B,scalar C,scalar L1,scalar L2, scalar q0,
+                                int *d_latticeNeighbors,
+                                Index2D neighborIndex,
+                                scalar A,scalar B,scalar C,
+                                scalar L1,scalar L2,scalar L3,
+                                scalar L4,scalar L6,
                                 int N,
                                 bool zeroForce,
                                 int maxBlockSize);
-
-bool gpu_qTensor_threeConstantForce(dVec *d_force,
-                                dVec *d_spins,
-                                int *d_types,
-                                cubicLatticeDerivativeVector *d_derivatives,
-                                Index3D latticeIndex,
-                                scalar A,scalar B,scalar C,scalar L1,scalar L2, scalar L3,
-                                int N,
-                                bool zeroForce,
-                                int maxBlockSize);
-
-bool gpu_qTensor_computeL24ForcesGPU(dVec *d_force,
-                                    int *d_types,
-                                    cubicLatticeDerivativeVector *d_derivatives,
-                                    Index3D latticeIndex,
-                                    int N, scalar L24,
-                                    bool zeroOutForce,
-                                    int maxBlockSize);
 
 bool gpu_qTensor_computeUniformFieldForcesGPU(dVec * d_force,
                                        int *d_types,

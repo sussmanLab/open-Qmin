@@ -99,11 +99,11 @@ void landauDeGennesLC::computeForceGPU(GPUArray<dVec> &forces,bool zeroOutForce)
     ArrayHandle<dVec> d_spins(lattice->returnPositions(),access_location::device,access_mode::read);
     ArrayHandle<int>  d_latticeTypes(lattice->returnTypes(),access_location::device,access_mode::read);
     ArrayHandle<int>  d_latticeNeighbors(lattice->neighboringSites,access_location::device,access_mode::read);
+    forceTuner->begin();
     switch (numberOfConstants)
         {
         case distortionEnergyType::oneConstant :
             {
-            forceTuner->begin();
             gpu_qTensor_oneConstantForce(d_force.data, d_spins.data, d_latticeTypes.data, d_latticeNeighbors.data,
                                          lattice->neighborIndex,
                                          A,B,C,L1,N,
@@ -114,6 +114,11 @@ void landauDeGennesLC::computeForceGPU(GPUArray<dVec> &forces,bool zeroOutForce)
             {
             bool zeroForce = zeroOutForce;
             computeFirstDerivatives();
+            ArrayHandle<cubicLatticeDerivativeVector> d_derivatives(forceCalculationAssist,access_location::device,access_mode::read);
+            gpu_qTensor_multiConstantForce(d_force.data, d_spins.data, d_latticeTypes.data, d_derivatives.data,
+                                        d_latticeNeighbors.data, lattice->neighborIndex,
+                                         A,B,C,L1,L2,L3,L4,L6,N,
+                                         zeroOutForce,forceTuner->getParameter());
             break;
             };
         };
@@ -197,7 +202,6 @@ void landauDeGennesLC::computeEnergyGPU(bool verbose)
                                          zeroOutForce,forceTuner->getParameter());
     */
     }
-
 
 void landauDeGennesLC::computeEnergyCPU(bool verbose)
     {
