@@ -146,38 +146,21 @@ void landauDeGennesLC::computeForceCPU(GPUArray<dVec> &forces,bool zeroOutForce,
             computeFirstDerivatives();
             //Always compute L1 term, since it also computes the phase contribution
             if(type ==0)
+                {
                 computeL1BulkCPU(forces,zeroForce);
+                computeOtherDistortionTermsBulkCPU(forces,L2,L3,L4,L6);
+                }
             if(type ==1)
+                {
                 computeL1BoundaryCPU(forces,zeroForce);
+                computeOtherDistortionTermsBoundaryCPU(forces,L2,L3,L4,L6);
+                }
             zeroForce = false;
-            if(L2 != 0)
-                {
-                if(type ==0)
-                    computeOtherDistortionTermsBulkCPU(forces,L2,2);
-                if(type ==1)
-                    computeOtherDistortionTermsBoundaryCPU(forces,L2,2);
-                }
-            if(L3 != 0)
-                {
-                if(type ==0)
-                    computeOtherDistortionTermsBulkCPU(forces,L3,3);
-                if(type ==1)
-                    computeOtherDistortionTermsBoundaryCPU(forces,L3,3);
-                }
-            if(L4 != 0)
-                {
-                if(type ==0)
-                    computeOtherDistortionTermsBulkCPU(forces,L4,4);
-                if(type ==1)
-                    computeOtherDistortionTermsBoundaryCPU(forces,L4,4);
-                }
-            if(L6 != 0)
-                {
-                if(type ==0)
-                    computeOtherDistortionTermsBulkCPU(forces,L6,6);
-                if(type ==1)
-                    computeOtherDistortionTermsBoundaryCPU(forces,L6,6);
-                }
+
+            if(type ==0)
+                computeOtherDistortionTermsBulkCPU(forces,L2,L3,L4,L6);
+            if(type ==1)
+                computeOtherDistortionTermsBoundaryCPU(forces,L2,L3,L4,L6);
             break;
             };
         };

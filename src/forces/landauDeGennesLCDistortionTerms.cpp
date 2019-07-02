@@ -511,7 +511,7 @@ void landauDeGennesLC::computeL1BoundaryCPU(GPUArray<dVec> &forces,bool zeroOutF
         };
     }
 
-void landauDeGennesLC::computeOtherDistortionTermsBulkCPU(GPUArray<dVec> &forces,scalar L, int distortionTerm)
+void landauDeGennesLC::computeOtherDistortionTermsBulkCPU(GPUArray<dVec> &forces, scalar L2, scalar L3, scalar L4, scalar L6)
     {
     ArrayHandle<dVec> h_f(forces);
     ArrayHandle<dVec> Qtensors(lattice->returnPositions());
@@ -545,30 +545,43 @@ void landauDeGennesLC::computeOtherDistortionTermsBulkCPU(GPUArray<dVec> &forces
             zDownDerivative = h_derivatives.data[izd];
             zUpDerivative = h_derivatives.data[izu];
             dVec spatialTerm(0.0);
-            //use the neighbors to compute the distortion
-            if(distortionTerm == 2)
-                lcForce::bulkL2Force(L,qCurrent,xDown,xUp,yDown,yUp,zDown,zUp,
+            dVec individualTerms(0.0);
+
+            if(L2 != 0)
+                {
+                lcForce::bulkL2Force(L2,qCurrent,xDown,xUp,yDown,yUp,zDown,zUp,
                     xDownDerivative, xUpDerivative,yDownDerivative, yUpDerivative,zDownDerivative, zUpDerivative,
-                    spatialTerm);
-            if(distortionTerm == 3)
-                lcForce::bulkL3Force(L,qCurrent,xDown,xUp,yDown,yUp,zDown,zUp,
+                    individualTerms);
+                spatialTerm += individualTerms;
+                }
+            if(L3 != 0)
+                {
+                lcForce::bulkL3Force(L3,qCurrent,xDown,xUp,yDown,yUp,zDown,zUp,
                     xDownDerivative, xUpDerivative,yDownDerivative, yUpDerivative,zDownDerivative, zUpDerivative,
-                    spatialTerm);
-            if(distortionTerm == 4)
-                lcForce::bulkL4Force(L,qCurrent,xDown,xUp,yDown,yUp,zDown,zUp,
+                    individualTerms);
+                spatialTerm += individualTerms;
+                }
+            if(L4 != 0)
+                {
+                lcForce::bulkL4Force(L4,qCurrent,xDown,xUp,yDown,yUp,zDown,zUp,
                     xDownDerivative, xUpDerivative,yDownDerivative, yUpDerivative,zDownDerivative, zUpDerivative,
-                    spatialTerm);
-            if(distortionTerm == 6)
-                lcForce::bulkL6Force(L,qCurrent,xDown,xUp,yDown,yUp,zDown,zUp,
+                    individualTerms);
+                spatialTerm += individualTerms;
+                }
+            if(L6 != 0)
+                {
+                lcForce::bulkL6Force(L6,qCurrent,xDown,xUp,yDown,yUp,zDown,zUp,
                     xDownDerivative, xUpDerivative,yDownDerivative, yUpDerivative,zDownDerivative, zUpDerivative,
-                    spatialTerm);
+                    individualTerms);
+                spatialTerm += individualTerms;
+                }
             force -= spatialTerm;
             };
         h_f.data[currentIndex] += force;
         };
     }
 
-void landauDeGennesLC::computeOtherDistortionTermsBoundaryCPU(GPUArray<dVec> &forces,scalar L, int distortionTerm)
+void landauDeGennesLC::computeOtherDistortionTermsBoundaryCPU(GPUArray<dVec> &forces,scalar L2, scalar L3, scalar L4, scalar L6)
     {
     ArrayHandle<dVec> h_f(forces);
     ArrayHandle<dVec> Qtensors(lattice->returnPositions());
@@ -604,46 +617,72 @@ void landauDeGennesLC::computeOtherDistortionTermsBoundaryCPU(GPUArray<dVec> &fo
             zUpDerivative = h_derivatives.data[izu];
 
             dVec spatialTerm(0.0);
+            dVec individualTerms(0.0);
+
             if(siteType == -2)
                 {
-                if(distortionTerm == 2)
-                    lcForce::bulkL2Force(L,qCurrent,xDown,xUp,yDown,yUp,zDown,zUp,
-                            xDownDerivative, xUpDerivative,yDownDerivative, yUpDerivative,zDownDerivative, zUpDerivative,
-                            spatialTerm);
-                if(distortionTerm == 3)
-                    lcForce::bulkL3Force(L,qCurrent,xDown,xUp,yDown,yUp,zDown,zUp,
-                            xDownDerivative, xUpDerivative,yDownDerivative, yUpDerivative,zDownDerivative, zUpDerivative,
-                            spatialTerm);
-                if(distortionTerm == 4)
-                    lcForce::bulkL4Force(L,qCurrent,xDown,xUp,yDown,yUp,zDown,zUp,
-                            xDownDerivative, xUpDerivative,yDownDerivative, yUpDerivative,zDownDerivative, zUpDerivative,
-                            spatialTerm);
-                if(distortionTerm == 6)
-                    lcForce::bulkL6Force(L,qCurrent,xDown,xUp,yDown,yUp,zDown,zUp,
-                            xDownDerivative, xUpDerivative,yDownDerivative, yUpDerivative,zDownDerivative, zUpDerivative,
-                            spatialTerm);
+                if(L2 != 0)
+                    {
+                    lcForce::bulkL2Force(L2,qCurrent,xDown,xUp,yDown,yUp,zDown,zUp,
+                        xDownDerivative, xUpDerivative,yDownDerivative, yUpDerivative,zDownDerivative, zUpDerivative,
+                        individualTerms);
+                    spatialTerm += individualTerms;
+                    }
+                if(L3 != 0)
+                    {
+                    lcForce::bulkL3Force(L3,qCurrent,xDown,xUp,yDown,yUp,zDown,zUp,
+                        xDownDerivative, xUpDerivative,yDownDerivative, yUpDerivative,zDownDerivative, zUpDerivative,
+                        individualTerms);
+                    spatialTerm += individualTerms;
+                    }
+                if(L4 != 0)
+                    {
+                    lcForce::bulkL4Force(L4,qCurrent,xDown,xUp,yDown,yUp,zDown,zUp,
+                        xDownDerivative, xUpDerivative,yDownDerivative, yUpDerivative,zDownDerivative, zUpDerivative,
+                        individualTerms);
+                    spatialTerm += individualTerms;
+                    }
+                if(L6 != 0)
+                    {
+                    lcForce::bulkL6Force(L6,qCurrent,xDown,xUp,yDown,yUp,zDown,zUp,
+                        xDownDerivative, xUpDerivative,yDownDerivative, yUpDerivative,zDownDerivative, zUpDerivative,
+                        individualTerms);
+                    spatialTerm += individualTerms;
+                    }
                 }
             else
                 {
                 int boundaryCase = lcForce::getBoundaryCase(latticeTypes.data[ixd],latticeTypes.data[ixu],
                                                    latticeTypes.data[iyd],latticeTypes.data[iyu],
                                                    latticeTypes.data[izd],latticeTypes.data[izu]);
-                if(distortionTerm == 2)
-                    lcForce::boundaryL2Force(L,boundaryCase,qCurrent,xDown,xUp,yDown,yUp,zDown,zUp,
+                if(L2 != 0)
+                    {
+                    lcForce::boundaryL2Force(L2,boundaryCase,qCurrent,xDown,xUp,yDown,yUp,zDown,zUp,
                         xDownDerivative, xUpDerivative,yDownDerivative, yUpDerivative,zDownDerivative, zUpDerivative,
-                        spatialTerm);
-                if(distortionTerm == 3)
-                    lcForce::boundaryL3Force(L,boundaryCase,qCurrent,xDown,xUp,yDown,yUp,zDown,zUp,
+                        individualTerms);
+                    spatialTerm += individualTerms;
+                    }
+                if(L3 != 0)
+                    {
+                    lcForce::boundaryL3Force(L3,boundaryCase,qCurrent,xDown,xUp,yDown,yUp,zDown,zUp,
                         xDownDerivative, xUpDerivative,yDownDerivative, yUpDerivative,zDownDerivative, zUpDerivative,
-                        spatialTerm);
-                if(distortionTerm == 4)
-                    lcForce::boundaryL4Force(L,boundaryCase,qCurrent,xDown,xUp,yDown,yUp,zDown,zUp,
+                        individualTerms);
+                    spatialTerm += individualTerms;
+                    }
+                if(L4 != 0)
+                    {
+                    lcForce::boundaryL4Force(L4,boundaryCase,qCurrent,xDown,xUp,yDown,yUp,zDown,zUp,
                         xDownDerivative, xUpDerivative,yDownDerivative, yUpDerivative,zDownDerivative, zUpDerivative,
-                        spatialTerm);
-                if(distortionTerm == 6)
-                    lcForce::boundaryL6Force(L,boundaryCase,qCurrent,xDown,xUp,yDown,yUp,zDown,zUp,
+                        individualTerms);
+                    spatialTerm += individualTerms;
+                    }
+                if(L6 != 0)
+                    {
+                    lcForce::boundaryL6Force(L6,boundaryCase,qCurrent,xDown,xUp,yDown,yUp,zDown,zUp,
                         xDownDerivative, xUpDerivative,yDownDerivative, yUpDerivative,zDownDerivative, zUpDerivative,
-                        spatialTerm);
+                        individualTerms);
+                    spatialTerm += individualTerms;
+                    }
                 };
             force -= spatialTerm;
             };
