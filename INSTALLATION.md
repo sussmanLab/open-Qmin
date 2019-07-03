@@ -13,6 +13,9 @@
 The current iteration of the code was written using some features of C++11, and was compiled using CUDA-8.0.
 Default compilation is via QT, so you need that, and CMake, too. Multirank simulations tested with openMPI 4.0.0
 
+Note that there is a non-GUI version of the code (particularly intended for running on clusters), in which all 
+of the QT dependencies have been stripped out. This is the "noQT" branch of the code in the git repository
+
 # Helpful websites
 The requirements can be obtained by looking at the info on the following:
 
