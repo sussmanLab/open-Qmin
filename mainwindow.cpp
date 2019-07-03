@@ -39,15 +39,14 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setDistortionConstants1->hide();
     ui->setDistortionConstants2->hide();
     ui->setDistortionConstants3->hide();
+    ui->setDistortionConstants5->hide();
     ui->fireParametersWidget->hide();
     ui->addObjectsWidget->hide();
     ui->fileImportWidget->hide();
     ui->fileSaveWidget->hide();
-    ui->multithreadingWidget->hide();
     ui->nesterovWidget->hide();
     ui->applyFieldWidget->hide();
     ui->moveObjectWidget->hide();
-    ui->colloidalEvolutionWidget->hide();
     ui->colloidalTrajectoryWidget->hide();
     ui->LOLBFGSWidget->hide();
 
@@ -185,6 +184,7 @@ void MainWindow::on_initializeButton_released()
 
     landauLCForce->setPhaseConstants(A,B,C);
     int nC = ui->nConstantsSpinBox->value();
+    QString printable;
     switch(nC)
     {
         case 1:
@@ -196,9 +196,17 @@ void MainWindow::on_initializeButton_released()
         case 3:
             ui->setDistortionConstants3->show();
             break;
+        case 4:
+            ui->setDistortionConstants1->show();
+            printable = QStringLiteral("No four-constant distortion term defined... use the Change forces menu to select what you want ");
+            ui->testingBox->setText(printable);
+            break;
+        case 5:
+            ui->setDistortionConstants5->show();
+            break;
     }
 
-    QString printable = QStringLiteral("N %8 Lx %1 Ly %2 Lz %3 gpu %4... A %5 B %6 C %7 ")
+    printable = QStringLiteral("N %8 Lx %1 Ly %2 Lz %3 gpu %4... A %5 B %6 C %7 ")
                         .arg(BoxX).arg(BoxY).arg(BoxZ).arg(compDevice).arg(A).arg(B).arg(C).arg(Configuration->getNumberOfParticles());
     ui->testingBox->setText(printable);
     ui->progressBar->setValue(100);
@@ -295,6 +303,22 @@ void MainWindow::on_setThreeConstants_released()
     landauLCForce->setElasticConstants(L1,L2,L3,L4,L6);
     landauLCForce->setNumberOfConstants(distortionEnergyType::multiConstant);
     QString printable = QStringLiteral("three-elastic-constant approximation set: L1 %1 L2 %2 L3 %3 ").arg(L1).arg(L2).arg(L6);
+    ui->testingBox->setText(printable);
+    landauLCForce->setModel(Configuration);
+    showControls();
+}
+
+void MainWindow::on_setFiveConstants_released()
+{
+    L1=ui->fiveConstantL1Box->text().toDouble();
+    L2=ui->fiveConstantL2Box->text().toDouble();
+    L3=ui->fiveConstantL3Box->text().toDouble();
+    L4=ui->fiveConstantL4Box->text().toDouble();
+    L6=ui->fiveConstantL6Box->text().toDouble();
+    ui->setDistortionConstants5->hide();
+    landauLCForce->setElasticConstants(L1,L2,L3,L4,L6);
+    landauLCForce->setNumberOfConstants(distortionEnergyType::multiConstant);
+    QString printable = QStringLiteral("five-elastic-constant approximation set: L1 %1 L2 %2 L3 %3 L4 %4 L6 %5").arg(L1).arg(L2).arg(L3).arg(L4).arg(L6);
     ui->testingBox->setText(printable);
     landauLCForce->setModel(Configuration);
     showControls();
@@ -768,21 +792,6 @@ void MainWindow::on_boxLSize_textEdited(const QString &arg1)
     ui->boxZLine->setText(arg1);
 };
 
-void MainWindow::on_multithreadingButton_released()
-{
-    ui->multithreadingWidget->hide();
-    int nThreads = ui->multithreadingBox->text().toInt();
-    //sim->setNThreads(nThreads);
-    QString printable1;
-    if(nThreads ==1 )
-        printable1 = QStringLiteral("requesting single-threaded operation");
-    else
-        printable1 = QStringLiteral("non-functional in multiranke sim mode");
-//    else
-  //      printable1 = QStringLiteral("requesting %1 threads").arg(nThreads);
-    ui->testingBox->setText(printable1);
-}
-
 void MainWindow::on_lolbfgsParamButton_released()
 {
     ui->LOLBFGSWidget->hide();
@@ -915,15 +924,6 @@ void MainWindow::on_computeEnergyButton_released()
     ui->progressBar->setValue(100);
 }
 
-void MainWindow::colloidalMobilityShow()
-{
-    ui->colloidalMobilityBox->clear();
-    ui->colloidalEvolutionWidget->show();
-    vector<QString> objNames;
-    for(unsigned int ii = 0; ii < Configuration->boundaries.getNumElements(); ++ii)
-        ui->colloidalMobilityBox->insertItem(ii,QString::number(ii));
-}
-
 void MainWindow::colloidalTrajectoryShow()
 {
     ui->colloidalTrajectoryIdxBox->clear();
@@ -966,43 +966,6 @@ void MainWindow::on_moveObjectButton_released()
                                 .arg(dx).arg(dy).arg(dz);
 
     ui->testingBox->setText(translateString);
-}
-
-void MainWindow::on_cancelObjectFieldButton_2_released()
-{
-    ui->colloidalEvolutionWidget->hide();
-}
-
-void MainWindow::on_colloidalEvolutionButtom_released()
-{
-    iterationsPerColloidalEvolution = ui->colloidalEvolutionStepsBox->text().toInt();
-    colloidalEvolutionPrefactor = ui->colloidalEvolutionPrefactorBox->text().toDouble();
-    ui->colloidalEvolutionWidget->hide();
-    QString mobilityString = QStringLiteral("forces on colloids set to be evaluated every %1 steps with %2").arg(iterationsPerColloidalEvolution)
-                                        .arg(colloidalEvolutionPrefactor);
-    ui->testingBox->setText(mobilityString);
-}
-
-void MainWindow::on_colloidalImmobilityButtom_released()
-{
-    int obj =ui->colloidalMobilityBox->currentIndex();
-    Configuration->boundaryState[obj] = 0;
-    QString mobilityString = QStringLiteral("mobility states set to {");
-    for(int ii = 0; ii < Configuration->boundaryState.size();++ii)
-        mobilityString += QStringLiteral(" %1,  ").arg(Configuration->boundaryState[ii]);
-    mobilityString += QStringLiteral("}");
-    ui->testingBox->setText(mobilityString);
-}
-
-void MainWindow::on_colloidalMobilityButtom_released()
-{
-    int obj =ui->colloidalMobilityBox->currentIndex();
-    Configuration->boundaryState[obj] = 1;
-    QString mobilityString = QStringLiteral("mobility states set to {");
-    for(int ii = 0; ii < Configuration->boundaryState.size();++ii)
-        mobilityString += QStringLiteral(" %1,  ").arg(Configuration->boundaryState[ii]);
-    mobilityString += QStringLiteral("}");
-    ui->testingBox->setText(mobilityString);
 }
 
 void MainWindow::on_cancelTrajectoryButton_released()

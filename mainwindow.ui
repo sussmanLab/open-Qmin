@@ -127,7 +127,7 @@ background-color: qradialgradient(spread:pad, cx:0.5, cy:0.5, radius:0.5, fx:0.5
       <number>1</number>
      </property>
      <property name="maximum">
-      <number>3</number>
+      <number>5</number>
      </property>
     </widget>
     <widget class="QLabel" name="label_23">
@@ -2410,48 +2410,6 @@ border: 1px black solid</string>
      </property>
     </widget>
    </widget>
-   <widget class="QWidget" name="multithreadingWidget" native="true">
-    <property name="geometry">
-     <rect>
-      <x>320</x>
-      <y>210</y>
-      <width>211</width>
-      <height>61</height>
-     </rect>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">background: white; border: 1px solid red</string>
-    </property>
-    <widget class="QLineEdit" name="multithreadingBox">
-     <property name="geometry">
-      <rect>
-       <x>30</x>
-       <y>20</y>
-       <width>31</width>
-       <height>21</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>1</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="multithreadingButton">
-     <property name="geometry">
-      <rect>
-       <x>90</x>
-       <y>10</y>
-       <width>114</width>
-       <height>41</height>
-      </rect>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">background:grey; border: 1px solid black</string>
-     </property>
-     <property name="text">
-      <string>Request threads</string>
-     </property>
-    </widget>
-   </widget>
    <widget class="QPushButton" name="nesterovMinimizationButton">
     <property name="geometry">
      <rect>
@@ -3165,221 +3123,6 @@ border: 1px solid purple</string>
       <string>Amount to move (in lattice sites)</string>
      </property>
     </widget>
-   </widget>
-   <widget class="QWidget" name="colloidalEvolutionWidget" native="true">
-    <property name="geometry">
-     <rect>
-      <x>210</x>
-      <y>70</y>
-      <width>471</width>
-      <height>231</height>
-     </rect>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">background: white; border: 1px solid black</string>
-    </property>
-    <widget class="QLabel" name="label_69">
-     <property name="geometry">
-      <rect>
-       <x>90</x>
-       <y>10</y>
-       <width>311</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">border: white</string>
-     </property>
-     <property name="text">
-      <string>Settings for colloidal evolution 
- THIS IS BROKEN AT THE MOMENT!!!!!</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-     <property name="wordWrap">
-      <bool>true</bool>
-     </property>
-    </widget>
-    <widget class="QComboBox" name="colloidalMobilityBox">
-     <property name="geometry">
-      <rect>
-       <x>90</x>
-       <y>70</y>
-       <width>78</width>
-       <height>23</height>
-      </rect>
-     </property>
-    </widget>
-    <widget class="QLineEdit" name="colloidalEvolutionStepsBox">
-     <property name="geometry">
-      <rect>
-       <x>250</x>
-       <y>150</y>
-       <width>71</width>
-       <height>23</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>-1</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="colloidalEvolutionButtom">
-     <property name="geometry">
-      <rect>
-       <x>180</x>
-       <y>190</y>
-       <width>114</width>
-       <height>32</height>
-      </rect>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">background:rgb(148, 148, 148)</string>
-     </property>
-     <property name="text">
-      <string>confirm settings</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="cancelObjectFieldButton_2">
-     <property name="geometry">
-      <rect>
-       <x>370</x>
-       <y>200</y>
-       <width>80</width>
-       <height>22</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Cancel</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="fieldYLabel_6">
-     <property name="geometry">
-      <rect>
-       <x>40</x>
-       <y>70</y>
-       <width>51</width>
-       <height>21</height>
-      </rect>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">border: white</string>
-     </property>
-     <property name="text">
-      <string>object</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="accumulatefo">
-     <property name="geometry">
-      <rect>
-       <x>20</x>
-       <y>150</y>
-       <width>231</width>
-       <height>21</height>
-      </rect>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">border: white</string>
-     </property>
-     <property name="text">
-      <string>Accumulate forces on objects every</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="accumulatefo_2">
-     <property name="geometry">
-      <rect>
-       <x>330</x>
-       <y>150</y>
-       <width>121</width>
-       <height>21</height>
-      </rect>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">border: white</string>
-     </property>
-     <property name="text">
-      <string>minimization steps</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="colloidalMobilityButtom">
-     <property name="geometry">
-      <rect>
-       <x>180</x>
-       <y>70</y>
-       <width>114</width>
-       <height>32</height>
-      </rect>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">background:rgb(148, 148, 148)</string>
-     </property>
-     <property name="text">
-      <string>Mobile</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="colloidalImmobilityButtom">
-     <property name="geometry">
-      <rect>
-       <x>310</x>
-       <y>70</y>
-       <width>114</width>
-       <height>32</height>
-      </rect>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">background:rgb(148, 148, 148)</string>
-     </property>
-     <property name="text">
-      <string>immobile</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="accumulatefo_3">
-     <property name="geometry">
-      <rect>
-       <x>170</x>
-       <y>120</y>
-       <width>81</width>
-       <height>21</height>
-      </rect>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">border: white</string>
-     </property>
-     <property name="text">
-      <string>prefactor</string>
-     </property>
-    </widget>
-    <widget class="QLineEdit" name="colloidalEvolutionPrefactorBox">
-     <property name="geometry">
-      <rect>
-       <x>250</x>
-       <y>120</y>
-       <width>71</width>
-       <height>23</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>0.1</string>
-     </property>
-    </widget>
-    <zorder>label_69</zorder>
-    <zorder>colloidalEvolutionButtom</zorder>
-    <zorder>cancelObjectFieldButton_2</zorder>
-    <zorder>fieldYLabel_6</zorder>
-    <zorder>accumulatefo</zorder>
-    <zorder>accumulatefo_2</zorder>
-    <zorder>colloidalEvolutionStepsBox</zorder>
-    <zorder>colloidalMobilityButtom</zorder>
-    <zorder>colloidalImmobilityButtom</zorder>
-    <zorder>colloidalMobilityBox</zorder>
-    <zorder>accumulatefo_3</zorder>
-    <zorder>colloidalEvolutionPrefactorBox</zorder>
    </widget>
    <widget class="QLineEdit" name="addIterationsBox">
     <property name="geometry">
@@ -4134,7 +3877,203 @@ border: 1px solid purple</string>
      </property>
     </widget>
    </widget>
-   <zorder>fileImportWidget</zorder>
+   <widget class="QWidget" name="setDistortionConstants5" native="true">
+    <property name="geometry">
+     <rect>
+      <x>260</x>
+      <y>80</y>
+      <width>371</width>
+      <height>171</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background: white; 
+border: 1px solid black
+</string>
+    </property>
+    <widget class="QLabel" name="label_69">
+     <property name="geometry">
+      <rect>
+       <x>100</x>
+       <y>10</y>
+       <width>181</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>5-constant approximation</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="setFiveConstants">
+     <property name="geometry">
+      <rect>
+       <x>130</x>
+       <y>130</y>
+       <width>114</width>
+       <height>32</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background: grey</string>
+     </property>
+     <property name="text">
+      <string>set constants</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_73">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>40</y>
+       <width>60</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>L1</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_75">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>70</y>
+       <width>60</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>L2</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_77">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>100</y>
+       <width>60</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>L3</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="fiveConstantL1Box">
+     <property name="geometry">
+      <rect>
+       <x>60</x>
+       <y>40</y>
+       <width>113</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>2.32</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="fiveConstantL2Box">
+     <property name="geometry">
+      <rect>
+       <x>60</x>
+       <y>70</y>
+       <width>113</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>2.32</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="fiveConstantL3Box">
+     <property name="geometry">
+      <rect>
+       <x>60</x>
+       <y>100</y>
+       <width>113</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>2.32</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_78">
+     <property name="geometry">
+      <rect>
+       <x>200</x>
+       <y>70</y>
+       <width>60</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>L6</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_82">
+     <property name="geometry">
+      <rect>
+       <x>200</x>
+       <y>40</y>
+       <width>60</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>L4</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="fiveConstantL6Box">
+     <property name="geometry">
+      <rect>
+       <x>230</x>
+       <y>70</y>
+       <width>113</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>2.32</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="fiveConstantL4Box">
+     <property name="geometry">
+      <rect>
+       <x>230</x>
+       <y>40</y>
+       <width>113</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>2.32</string>
+     </property>
+    </widget>
+   </widget>
+   <zorder>addObjectsWidget</zorder>
+   <zorder>dipoleWidget</zorder>
    <zorder>setDistortionConstants3</zorder>
    <zorder>setDistortionConstants2</zorder>
    <zorder>setDistortionConstants1</zorder>
@@ -4144,10 +4083,10 @@ border: 1px solid purple</string>
    <zorder>nesterovWidget</zorder>
    <zorder>applyFieldWidget</zorder>
    <zorder>moveObjectWidget</zorder>
-   <zorder>colloidalEvolutionWidget</zorder>
    <zorder>fireParametersWidget</zorder>
-   <zorder>multithreadingWidget</zorder>
    <zorder>setPhaseConstants</zorder>
+   <zorder>initializationFrame</zorder>
+   <zorder>fileImportWidget</zorder>
    <zorder>addIterationsBox</zorder>
    <zorder>addIterationsButton</zorder>
    <zorder>testingBox</zorder>
@@ -4185,9 +4124,7 @@ border: 1px solid purple</string>
    <zorder>nesterovMinimizationButton</zorder>
    <zorder>computeEnergyButton</zorder>
    <zorder>lolbfgsMinimizationButton</zorder>
-   <zorder>initializationFrame</zorder>
-   <zorder>addObjectsWidget</zorder>
-   <zorder>dipoleWidget</zorder>
+   <zorder>setDistortionConstants5</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
@@ -4209,6 +4146,7 @@ border: 1px solid purple</string>
      <addaction name="action1_Constant"/>
      <addaction name="action2_Constant_approximation"/>
      <addaction name="action3_Constant_approximation"/>
+     <addaction name="action5_Constant_approximation"/>
     </widget>
     <addaction name="actionphase_constants"/>
     <addaction name="menudistortion_energy_constants"/>
@@ -4219,7 +4157,6 @@ border: 1px solid purple</string>
      <string>System setup</string>
     </property>
     <addaction name="actionReset_the_system"/>
-    <addaction name="actionCPU_multi_threading"/>
     <addaction name="actionDipolar_Field_Initialization"/>
    </widget>
    <widget class="QMenu" name="menuFile">
@@ -4235,7 +4172,6 @@ border: 1px solid purple</string>
     </property>
     <addaction name="actionforced_translation"/>
     <addaction name="actionobject_trajectory_with_energy_trace"/>
-    <addaction name="actioncolloidal_evolution_settings"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuRe_initialize"/>
@@ -4319,6 +4255,11 @@ border: 1px solid purple</string>
   <action name="actionDipolar_Field_Initialization">
    <property name="text">
     <string>Dipolar Field Initialization</string>
+   </property>
+  </action>
+  <action name="action5_Constant_approximation">
+   <property name="text">
+    <string>5-Constant approximation</string>
    </property>
   </action>
  </widget>
@@ -4608,22 +4549,6 @@ border: 1px solid purple</string>
    </hints>
   </connection>
   <connection>
-   <sender>actionCPU_multi_threading</sender>
-   <signal>triggered()</signal>
-   <receiver>multithreadingWidget</receiver>
-   <slot>show()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>425</x>
-     <y>275</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>nesterovMinimizationButton</sender>
    <signal>released()</signal>
    <receiver>nesterovWidget</receiver>
@@ -4667,22 +4592,6 @@ border: 1px solid purple</string>
     </hint>
     <hint type="destinationlabel">
      <x>818</x>
-     <y>283</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actioncolloidal_evolution_settings</sender>
-   <signal>triggered()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>colloidalMobilityShow()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>604</x>
      <y>283</y>
     </hint>
    </hints>
@@ -4732,6 +4641,22 @@ border: 1px solid purple</string>
     <hint type="destinationlabel">
      <x>445</x>
      <y>232</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>action5_Constant_approximation</sender>
+   <signal>triggered()</signal>
+   <receiver>setDistortionConstants5</receiver>
+   <slot>show()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>445</x>
+     <y>197</y>
     </hint>
    </hints>
   </connection>

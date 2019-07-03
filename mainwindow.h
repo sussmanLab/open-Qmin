@@ -72,8 +72,6 @@ private slots:
 
     void on_boxLSize_textEdited(const QString &arg1);
 
-    void on_multithreadingButton_released();
-
     void on_nesterovParamButton_released();
 
     void on_scheduleMomentumCheckbox_released();
@@ -88,21 +86,11 @@ private slots:
 
     void moveObjectShow();
 
-    void colloidalMobilityShow();
-
     void colloidalTrajectoryShow();
 
     void on_moveObjectButton_released();
 
     void on_cancelObjectFieldButton_released();
-
-    void on_cancelObjectFieldButton_2_released();
-
-    void on_colloidalEvolutionButtom_released();
-
-    void on_colloidalImmobilityButtom_released();
-
-    void on_colloidalMobilityButtom_released();
 
     void on_cancelTrajectoryButton_released();
 
@@ -115,6 +103,8 @@ private slots:
     void on_phaseS0Box_textEdited(const QString &arg1);
 
     void on_phaseBBox_textEdited(const QString &arg1);
+
+    void on_setFiveConstants_released();
 
 private:
     Ui::MainWindow *ui;
