@@ -1,10 +1,11 @@
-# Citations for landauDeGUI {#cite}
+# Citations for open Qmin {#cite}
 
 ## Primary code-base
 
-If you use landauDeGUI for a publication or project, please cite:
+If you use open Qmin for a publication or project, please cite:
 
-Daniel M. Sussman and Daniel A. Beller for being so helpful. No current publications describe this repository.
+Fast, scalable, and interactive software for Landau-de Gennes numerical modeling of nematic topological defects,
+Daniel M. Sussman and Daniel A. Beller
 
 ## Feature-specific citations
 
