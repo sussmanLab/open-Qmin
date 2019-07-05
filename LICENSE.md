@@ -1,8 +1,8 @@
 # Licensing information {#license}
 
-landauDeGUI is released under the MIT license
+open QMin  is released under the MIT license
 
-Copyright (c) 2018 -  Daniel M. Sussman
+Copyright (c) 2019 -  Daniel M. Sussman
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
 documentation files (the "Software"), to deal in the Software without restriction, including without limitation
@@ -18,6 +18,10 @@ TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONIN
 THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
 CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
+
+## Logo
+
+The splash screen and github logo use an image from https://en.wikipedia.org/wiki/File:Sa_cumin.jpg, photo by Sanjay Acharya, licensed under CCA-SA 3.0 Unported
 
 ## External code used
 
