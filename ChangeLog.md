@@ -2,7 +2,7 @@
 
 ### OpenQMin version 0.8
 
-* Many minor improvements in advance of paper submission
+* Extensive minor improvements in advance of paper submission
 * Creation of noQT branch to maintain a version without the QT dependency
 * Slight change to the logic of distortion energy when more than L1 is used
 

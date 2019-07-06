@@ -7,13 +7,13 @@ A pdf with details of the physics will eventually be written and linked to here.
 
 # Running in non-visual mode
 
-By default, once compiled Open Qmin  will launch a GUI that will let you initialize and interact
-with a simulation of Q-tensors living on a 3D cubic lattice. It can also be launched from the command
-line with the additional flag "-v" (no arguments)... a long sequence of other command line flags and
-arguments can then be appended to control the program behavior. In this way Open Qmin can be used
-on a cluster. If default compilation has been done, then from the build directory executing:
-./cubicLatticeNematic.out --help
-will output a list of possible command line options.
+By default, after compilation Open Qmin will have both a GUI and non-GUI mode exectuable in the build directory.
+A long sequence of command-line flags can be used to control program behavior of the non-GUI executable, although
+for the time being it is likely more efficient to create custom cpp files that specify the desired behavior.
+
+If the command line route is chosen, though, then from the build directory executing:
+./openQmin.out --hep
+will output a list of possible command line options. Here are a few simple examples:
 
 
 ## Directory structure of the project

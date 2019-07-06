@@ -16,11 +16,14 @@ see "INSTALLATION.md" for a few more details. Note that the "noQT" branch has st
 ## Project information
 Here are some convenient links to a variety of general information about the landau deGUI project; all
 of the below can also be accessed from the @ref projectInfo tab (links work on the gitlab.io
-documenation website)
+documenation website). Alternately, you can look at the markdown (.md) files in the base directory and the doc/markdown/
+directories
 
 [Basic information about the code base and operation](@ref basicinfo)
 
 [Installation guide](@ref install)
+
+[Sample code snippets](@ref code)
 
 [Contributing to landau-deGUI](@ref contrib)
 
