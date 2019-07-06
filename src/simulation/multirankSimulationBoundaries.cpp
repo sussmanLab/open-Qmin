@@ -34,9 +34,12 @@ void multirankSimulation::createBoundaryFromFile(string fname, bool verbose)
     int iVar1,iVar2,iVar3;
     int nObjects;
 
+
     getline(inFile,line);
     istringstream ss(line);
     ss >> nObjects;
+    if(verbose)
+        cout << "reading file with "<< nObjects << "objects" << endl;
 
     for (int ii = 0; ii < nObjects;++ii)
         {

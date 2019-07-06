@@ -10,9 +10,13 @@
 
 int main(int argc, char*argv[])
     {
+    MPI_Init(&argc, &argv);
     QApplication a(argc, argv);
     QSplashScreen *splash = new QSplashScreen;
-    splash->setPixmap(QPixmap("../assets/splashWithText.jpeg").scaled(876,584));
+    string dir=DIRECTORY;
+    string assetName="/assets/splashWithText.jpeg";
+    string splashPath = dir+assetName;
+    splash->setPixmap(QPixmap(splashPath.c_str()).scaled(876,584));
     splash->show();
     MainWindow w;
     QRect screenGeometry = QApplication::desktop()->screenGeometry();
@@ -22,4 +26,5 @@ int main(int argc, char*argv[])
     QTimer::singleShot(750,splash,SLOT(close()));
     QTimer::singleShot(750,&w,SLOT(show()));
     return a.exec();
+    MPI_Finalize();
     };

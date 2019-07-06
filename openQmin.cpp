@@ -42,15 +42,15 @@ int main(int argc, char*argv[])
     MPI_Comm shmcomm;
     MPI_Comm_split_type(MPI_COMM_WORLD, MPI_COMM_TYPE_SHARED, 0,MPI_INFO_NULL, &shmcomm);
     MPI_Comm_rank(shmcomm, &myLocalRank);
-    printf("processes rank %i, local rank %i\n",myRank,myLocalRank);
+    //printf("processes rank %i, local rank %i\n",myRank,myLocalRank);
 
     //First, we set up a basic command line parser with some message and version
-    CmdLine cmd("dDimSim applied to a lattice of XY-spins", ' ', "V0.5");
+    CmdLine cmd("openQmin simulation!",' ',"V0.8");
 
     //define the various command line strings that can be passed in...
     //ValueArg<T> variableName("shortflag","longFlag","description",required or not, default value,"value type",CmdLine object to add to
     ValueArg<int> programSwitchArg("z","programSwitch","an integer controlling program branch",false,0,"int",cmd);
-    ValueArg<int> minimizerSwitchArg("m","minimizerSwitch","an integer controlling program branch",false,0,"int",cmd);
+    ValueArg<int> gpuSwitchArg("g","GPU","which gpu to use",false,-1,"int",cmd);
 
     SwitchArg reproducibleSwitch("r","reproducible","reproducible random number generation", cmd, true);
 
@@ -60,7 +60,6 @@ int main(int argc, char*argv[])
 
     ValueArg<scalar> dtSwitchArg("e","deltaT","step size for minimizer",false,0.0005,"scalar",cmd);
 
-    ValueArg<int> gpuSwitchArg("g","GPU","which gpu to use",false,-1,"int",cmd);
     ValueArg<int> iterationsSwitchArg("i","iterations","number of minimization steps",false,100,"int",cmd);
     ValueArg<int> kSwitchArg("k","nConstants","approximation for distortion term",false,1,"int",cmd);
 
@@ -68,23 +67,26 @@ int main(int argc, char*argv[])
     ValueArg<scalar> l1SwitchArg("","L1","value of L1 term",false,4.64,"scalar",cmd);
     ValueArg<scalar> l2SwitchArg("","L2","value of L2 term",false,4.64,"scalar",cmd);
     ValueArg<scalar> l3SwitchArg("","L3","value of L3 term",false,4.64,"scalar",cmd);
+    ValueArg<scalar> l4SwitchArg("","L4","value of L4 term",false,4.64,"scalar",cmd);
+    ValueArg<scalar> l6SwitchArg("","L6","value of L6 term",false,4.64,"scalar",cmd);
 
     ValueArg<int> lSwitchArg("l","boxL","number of lattice sites for cubic box",false,50,"int",cmd);
     ValueArg<int> lxSwitchArg("","Lx","number of lattice sites in x direction",false,50,"int",cmd);
     ValueArg<int> lySwitchArg("","Ly","number of lattice sites in y direction",false,50,"int",cmd);
     ValueArg<int> lzSwitchArg("","Lz","number of lattice sites in z direction",false,50,"int",cmd);
 
-    ValueArg<scalar> q0SwitchArg("q","q0","value of desired q0",false,.05,"scalar",cmd);
-
-    ValueArg<int> threadsSwitchArg("t","threads","number of threads to request",false,1,"int",cmd);
+    ValueArg<string> boundaryFileSwitchArg("","boundaryFile", "carefully prepared file of boundary sites" ,false, "NONE", "string",cmd);
+    ValueArg<string> saveFileSwitchArg("","saveFile", "the base name to save the post-minimization configuration" ,false, "NONE", "string",cmd);
 
     //parse the arguments
     cmd.parse( argc, argv );
     //define variables that correspond to the command line parameters
+    string boundaryFile = boundaryFileSwitchArg.getValue();
+    string saveFile = saveFileSwitchArg.getValue();
+
     bool reproducible = reproducibleSwitch.getValue();
     int gpu = gpuSwitchArg.getValue();
     int programSwitch = programSwitchArg.getValue();
-    int minimizerSwitch = minimizerSwitchArg.getValue();
     int nDev;
     cudaGetDeviceCount(&nDev);
     if(nDev == 0)
@@ -108,12 +110,12 @@ int main(int argc, char*argv[])
     scalar L1 = l1SwitchArg.getValue();
     scalar L2 = l2SwitchArg.getValue();
     scalar L3 = l3SwitchArg.getValue();
-    scalar q0 = q0SwitchArg.getValue();
+    scalar L4 = l4SwitchArg.getValue();
+    scalar L6 = l6SwitchArg.getValue();
 
     scalar dt = dtSwitchArg.getValue();
     int maximumIterations = iterationsSwitchArg.getValue();
 
-    cout << "non-visual mode activated on rank " << myRank << endl;
     bool GPU = false;
     if(myRank >= 0 && gpu >=0 && worldSize > 1)
             GPU = chooseGPU(myLocalRank);
@@ -121,7 +123,7 @@ int main(int argc, char*argv[])
             GPU = chooseGPU(gpu);
 
     int3 rankTopology = partitionProcessors(worldSize);
-    if(myRank ==0)
+    if(myRank ==0 && worldSize > 1)
             printf("lattice divisions: {%i, %i, %i}\n",rankTopology.x,rankTopology.y,rankTopology.z);
 
     scalar a = -1;
@@ -149,8 +151,13 @@ int main(int argc, char*argv[])
     if(nConstants ==1)
         {
         printf("using 1-constant approximation: %f \n",L1);
-        landauLCForce->setElasticConstants(L1,0,0);
+        landauLCForce->setElasticConstants(L1);
         landauLCForce->setNumberOfConstants(distortionEnergyType::oneConstant);
+        }
+    else
+        {
+        landauLCForce->setElasticConstants(L1,L2,L3,L4,L6);
+        landauLCForce->setNumberOfConstants(distortionEnergyType::multiConstant);
         }
     landauLCForce->setModel(Configuration);
     sim->addForce(landauLCForce);
@@ -170,23 +177,32 @@ int main(int argc, char*argv[])
     sim->setCPUOperation(!GPU);
     printf("initialization done\n");
 
+    if(boundaryFile == "NONE")
+        {
+        if(myRank ==0)
+            cout << "not using any custom boundary conditions" << endl;
+        }
+    else
+        {
+        sim->createBoundaryFromFile(boundaryFile,true);
+        }
+    /*
+    //Here are some random examples of adding specific simple boundary conditions... see src/simulation/multirankSimulation.h for the set of commands one can pick from
+
     boundaryObject homeotropicBoundary(boundaryType::homeotropic,1.0,S0);
+    boundaryObject pdgBoundary(boundaryType::degeneratePlanar,1.0,S0);
     scalar3 left,center, right;
     left.x = 0.75*boxLx;left.y = 0.5*boxLy;left.z = 0.5*boxLz;
     center.x = 1.0*boxLx;center.y = 0.5*boxLy;center.z = 0.5*boxLz;
     right.x = 1.25*boxLx;right.y = 0.5*boxLy;right.z = 0.5*boxLz;
+    sim->createSpherocylinder(left,right,8.0,homeotropicBoundary);
+    sim->createCylindricalObject(left,right,5.0,false,homeotropicBoundary);
+    sim->createSphericalColloid(left,4,homeotropicBoundary);
+    sim->createSphericalColloid(center,5,homeotropicBoundary);
+    sim->createSphericalColloid(right,4,homeotropicBoundary);
 
-    sim->finalizeObjects();
-    /*
-    //sim->createSpherocylinder(left,right,8.0,homeotropicBoundary);
-    //sim->createCylindricalObject(left,right,5.0,false,homeotropicBoundary);
-    //sim->createSphericalColloid(left,4,homeotropicBoundary);
-    //        sim->createSphericalColloid(center,5,homeotropicBoundary);
-    //sim->createSphericalColloid(right,4,homeotropicBoundary);
-
-    //sim->createWall(0, 5, homeotropicBoundary);
-    //        sim->createWall(1, 0, homeotropicBoundary);
-    boundaryObject homeotropicBoundary(boundaryType::homeotropic,1.0,S0);
+    sim->createWall(0, 5, homeotropicBoundary);
+    sim->createWall(1, 0, homeotropicBoundary);
     scalar3 left;
     left.x = 0.3*boxLx;left.y = 0.5*boxLy;left.z = 0.5*boxLz;
     scalar3 center;
@@ -195,8 +211,11 @@ int main(int argc, char*argv[])
     right.x = 0.7*boxLx;right.y = 0.5*boxLy;right.z = 0.5*boxLz;
     Configuration->createSimpleFlatWallNormal(0,1, homeotropicBoundary);
      */
+    sim->finalizeObjects();
+
     profiler pMinimize("minimization");
     pMinimize.start();
+    //note that this single "performTimestep()" call performs some number of iterations of the FIRE algorithm, with that number set from the command line
     sim->performTimestep();
     pMinimize.end();
 
@@ -208,10 +227,11 @@ int main(int argc, char*argv[])
 
     pMinimize.print();
     sim->p1.print();
-    //   sim->saveState("../data/test");
+    if(saveFile != "NONE")
+        sim->saveState(saveFile);
     scalar totalMinTime = pMinimize.timeTaken;
     scalar communicationTime = sim->p1.timeTaken;
-    if(myRank != 0)
+    if(myRank == 0)
         printf("min  time %f\n comm time %f\n percent comm: %f\n",totalMinTime,communicationTime,communicationTime/totalMinTime);
 
     cout << "size of configuration " << Configuration->getClassSize() << endl;

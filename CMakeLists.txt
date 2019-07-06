@@ -4,6 +4,8 @@ project(openQmin)
 find_package(MPI REQUIRED)
 
 add_definitions(-DDIMENSION=5)
+add_definitions(-DDIRECTORY="${CMAKE_CURRENT_SOURCE_DIR}")
+message("dir = " "${CMAKE_CURRENT_SOURCE_DIR}")
 
 # Tell CMake to run moc when necessary:
 set(CMAKE_AUTOMOC ON)
