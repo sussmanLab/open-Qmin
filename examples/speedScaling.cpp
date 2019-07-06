@@ -19,20 +19,10 @@
 int3 partitionProcessors(int numberOfProcesses)
     {
     int3 ans;
-    int cubeTest = round(pow(numberOfProcesses,1./3.));
-    if(cubeTest*cubeTest*cubeTest == numberOfProcesses)
-        {
-        ans.x = cubeTest;
-        ans.y = cubeTest;
-        ans.z = cubeTest;
-        }
-    else
-        {
-        ans.z = floor(pow(numberOfProcesses,1./3.));
-        int nLeft = floor(numberOfProcesses/ans.z);
-        ans.y = floor(sqrt(nLeft));
-        ans.x = floor(nLeft / ans.y);
-        }
+    ans.z = floor(pow(numberOfProcesses,1./3.));
+    int nLeft = floor(numberOfProcesses/ans.z);
+    ans.y = floor(sqrt(nLeft));
+    ans.x = floor(nLeft / ans.y);
     return ans;
     }
 
@@ -102,6 +92,7 @@ int main(int argc, char*argv[])
     cudaGetDeviceCount(&nDev);
     if(nDev == 0)
         gpu = -1;
+    bool GPU = false;
     scalar phaseA = aSwitchArg.getValue();
     scalar phaseB = bSwitchArg.getValue();
     scalar phaseC = cSwitchArg.getValue();
@@ -123,20 +114,18 @@ int main(int argc, char*argv[])
     scalar L3 = l3SwitchArg.getValue();
     scalar q0 = q0SwitchArg.getValue();
 
+    //int nThreads = threadsSwitchArg.getValue();
 
     scalar dt = dtSwitchArg.getValue();
     int maximumIterations = iterationsSwitchArg.getValue();
-
-    cout << "non-visual mode activated on rank " << myRank << endl;
-    bool GPU = false;
     if(myRank >= 0 && gpu >=0 && worldSize > 1)
-            GPU = chooseGPU(myLocalRank);
+        GPU = chooseGPU(myLocalRank);
     else if (gpu >=0)
-            GPU = chooseGPU(gpu);
+        GPU = chooseGPU(gpu);
 
     int3 rankTopology = partitionProcessors(worldSize);
     if(myRank ==0)
-            printf("lattice divisions: {%i, %i, %i}\n",rankTopology.x,rankTopology.y,rankTopology.z);
+        printf("lattice divisions: {%i, %i, %i}\n",rankTopology.x,rankTopology.y,rankTopology.z);
 
     scalar a = -1;
     scalar b = -phaseB/phaseA;
@@ -145,47 +134,77 @@ int main(int argc, char*argv[])
     noise.setReproducibleSeed(13371+myRank);
     printf("setting a rectilinear lattice of size (%i,%i,%i)\n",boxLx,boxLy,boxLz);
     profiler pInit("initialization");
+
     pInit.start();
     bool xH = (rankTopology.x >1) ? true : false;
     bool yH = (rankTopology.y >1) ? true : false;
     bool zH = (rankTopology.z >1) ? true : false;
+    //xH=yH=zH=true;
     bool edges = nConstants > 1 ? true : false;
-    bool corners = nConstants > 1 ? true : false;
-    bool neverGPU = !GPU;
-    shared_ptr<multirankQTensorLatticeModel> Configuration = make_shared<multirankQTensorLatticeModel>(boxLx,boxLy,boxLz,xH,yH,zH,false,neverGPU);
+    bool corners = false;
+
+
+    vector<int> boxSizes;
+    boxSizes.push_back(10);
+    boxSizes.push_back(20);
+    boxSizes.push_back(30);
+    boxSizes.push_back(50);
+    boxSizes.push_back(70);
+    boxSizes.push_back(100);
+    boxSizes.push_back(150);
+    boxSizes.push_back(200);
+    boxSizes.push_back(250);
+    if(gpu==1 || gpu <0)
+        {
+        boxSizes.push_back(300);
+        boxSizes.push_back(325);
+        }
+    char filename[256];
+    sprintf(filename,"../data/speedScaling_g%i_z%i_m%i_rank%i.txt",gpu,programSwitch,minimizerSwitch,myRank);
+    ofstream myfile;
+    myfile.open(filename);
+    myfile.setf(ios_base::scientific);
+    myfile << setprecision(10);
+    for(int ll = 0; ll < boxSizes.size(); ++ll)
+    {
+    boxLx = boxLy=boxLz=boxL = boxSizes[ll];
+    shared_ptr<multirankQTensorLatticeModel> Configuration = make_shared<multirankQTensorLatticeModel>(boxLx,boxLy,boxLz,xH,yH,zH);
     shared_ptr<multirankSimulation> sim = make_shared<multirankSimulation>(myRank,rankTopology.x,rankTopology.y,rankTopology.z,edges,corners);
-    shared_ptr<landauDeGennesLC> landauLCForce = make_shared<landauDeGennesLC>(neverGPU);
+    shared_ptr<landauDeGennesLC> landauLCForce = make_shared<landauDeGennesLC>();
     sim->setConfiguration(Configuration);
     pInit.end();
 
     landauLCForce->setPhaseConstants(a,b,c);
     printf("relative phase constants: %f\t%f\t%f\n",a,b,c);
     if(nConstants ==1)
-    {
-            printf("using 1-constant approximation: %f \n",L1);
-            landauLCForce->setElasticConstants(L1,0,0);
-            landauLCForce->setNumberOfConstants(distortionEnergyType::oneConstant);
-    }
+        {
+        printf("using 1-constant approximation: %f \n",L1);
+        landauLCForce->setElasticConstants(L1,0,0);
+        landauLCForce->setNumberOfConstants(distortionEnergyType::oneConstant);
+        }
     landauLCForce->setModel(Configuration);
     sim->addForce(landauLCForce);
 
-    scalar forceCutoff=1e-12;
+    scalar forceCutoff=1e-17;
+    int iterationsPerStep = 100;
+
+
     shared_ptr<energyMinimizerGradientDescent> GDminimizer = make_shared<energyMinimizerGradientDescent>(Configuration);
     GDminimizer->setMaximumIterations(maximumIterations);
     shared_ptr<energyMinimizerFIRE> Fminimizer =  make_shared<energyMinimizerFIRE>(Configuration);
     Fminimizer->setMaximumIterations(maximumIterations);
     if(minimizerSwitch ==1)
-    {
-            GDminimizer->setGradientDescentParameters(dt,forceCutoff);
-            sim->addUpdater(GDminimizer,Configuration);
-    }
+        {
+        GDminimizer->setGradientDescentParameters(dt,forceCutoff);
+        sim->addUpdater(GDminimizer,Configuration);
+        }
     else
-    {
-            scalar alphaStart=.99; scalar deltaTMax=100*dt; scalar deltaTInc=1.1; scalar deltaTDec=0.95;
-            scalar alphaDec=0.9; int nMin=4;scalar alphaMin = .0;
-            Fminimizer->setFIREParameters(dt,alphaStart,deltaTMax,deltaTInc,deltaTDec,alphaDec,nMin,forceCutoff,alphaMin);
-            sim->addUpdater(Fminimizer,Configuration);
-    }
+        {
+        scalar alphaStart=.99; scalar deltaTMax=100*dt; scalar deltaTInc=1.1; scalar deltaTDec=0.5;
+        scalar alphaDec=0.9; int nMin=4;scalar alphaMin = .0;
+        Fminimizer->setFIREParameters(dt,alphaStart,deltaTMax,deltaTInc,deltaTDec,alphaDec,nMin,forceCutoff,alphaMin);
+        sim->addUpdater(Fminimizer,Configuration);
+        }
 
     sim->setCPUOperation(true);//have cpu and gpu initialized the same...for debugging
     scalar S0 = (-b+sqrt(b*b-24*a*c))/(6*c);
@@ -194,47 +213,47 @@ int main(int argc, char*argv[])
     sim->setCPUOperation(!GPU);
     printf("initialization done\n");
 
-    boundaryObject homeotropicBoundary(boundaryType::homeotropic,10.0,S0);
-    boundaryObject planarWallBoundary(boundaryType::degeneratePlanar,1.0,S0);
-    scalar3 center;
-    center.x = 0.5*boxLx;center.y = 0.5*boxLy;center.z = 0.5*boxLz;
-    //sim->createSpherocylinder(left,right,8.0,homeotropicBoundary);
-    //sim->createCylindricalObject(left,right,5.0,false,homeotropicBoundary);
-    //        sim->createSphericalColloid(center,5,homeotropicBoundary);
-    //sim->createSphericalColloid(right,4,homeotropicBoundary);
-
-    sim->createSphericalColloid(center,boxLx*0.3,homeotropicBoundary);
-    sim->createWall(2, 0, planarWallBoundary);
-    //        sim->createWall(1, 0, homeotropicBoundary);
-
     sim->finalizeObjects();
+
 
     profiler pMinimize("minimization");
     pMinimize.start();
-    sim->performTimestep();
-    pMinimize.end();
-    scalar E1 = sim->computePotentialEnergy(true);
-    scalar maxForce;
-    if(minimizerSwitch == 1)
-            maxForce = GDminimizer->getMaxForce();
-    else
-            maxForce = Fminimizer->getMaxForce();
 
-    printf("minimized to %g\t E=%f\t\n",maxForce,E1);
+    /* for linear spaced data saving
+    int totalMinimizerCalls = maximumIterations / iterationsPerStep;
+    vector<int> minimizationIntervals;
+    minimizationIntervals.push_back(2);
+    minimizationIntervals.push_back(7);
+    minimizationIntervals.push_back(20);
+    minimizationIntervals.push_back(30);
+    minimizationIntervals.push_back(40);
+    for (int tt = 0;tt < totalMinimizerCalls; ++tt)
+        minimizationIntervals.push_back(iterationsPerStep);
+    */
+
+    scalar E1;
+    scalar maxForce;
+    chrono::time_point<chrono::high_resolution_clock>  startTime;
+    chrono::time_point<chrono::high_resolution_clock>  endTime;
+
+    chrono::time_point<chrono::high_resolution_clock>  s1,e1;
+    scalar remTime = 0.0;
+
+    scalar workingTime;
+    startTime = chrono::high_resolution_clock::now();
+    sim->performTimestep();
+
+    endTime = chrono::high_resolution_clock::now();
+    chrono::duration<double> difference = endTime-startTime;
+    workingTime = difference.count() / (scalar) maximumIterations;
+    myfile << boxL*boxL*boxL <<"\t" << workingTime <<"\n";
+
+    pMinimize.end();
 
     pMinimize.print();
     sim->p1.print();
-                sim->saveState("../data/test");
-    scalar totalMinTime = pMinimize.timeTaken;
-    scalar communicationTime = sim->p1.timeTaken;
-    if(myRank != 0)
-            printf("min  time %f\n comm time %f\n percent comm: %f\n",totalMinTime,communicationTime,communicationTime/totalMinTime);
-
-    cout << "size of configuration " << Configuration->getClassSize() << endl;
-    cout << "size of force computer" << landauLCForce->getClassSize() << endl;
-    cout << "size of fire updater " << Fminimizer->getClassSize() << endl;
-    cout << "size of gd updater " << GDminimizer->getClassSize() << endl;
-    
+    }
+    myfile.close();
     MPI_Finalize();
-    return 0;
+        return 0;
 };

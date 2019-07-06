@@ -4,6 +4,8 @@
 
 @subpage install
 
+@subpage code
+
 @subpage cite
 
 @subpage contributorList

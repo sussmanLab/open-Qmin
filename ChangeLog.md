@@ -1,9 +1,10 @@
 # Change log {#changelog}
 
-### Changes in progress
+### OpenQMin version 0.8
 
-* Allow for dynamical evolution of objects
-* Switching away from pre-discretized gradients and towards EL framework
+* Extensive minor improvements in advance of paper submission
+* Creation of noQT branch to maintain a version without the QT dependency
+* Slight change to the logic of distortion energy when more than L1 is used
 
 ### landauDeGUI version 0.7
 

@@ -461,26 +461,7 @@ void multirankSimulation::computeForces()
             {
             frc->computeForces(Conf->returnForces(),zeroForces);
             }
-
-        //compute bulk sites... since they are in the bulk they can be done while MPI buffers are transfered for CPU-mpi jobs. GPU is not like this, though
-        /*
-        if(!useGPU && forceComputers.size() == 1)
-            {
-            frc->computeForces(Conf->returnForces(),zeroForces,0);
-            //wait for communication...
-            if(!transfersUpToDate)
-                synchronizeAndTransferBuffers();
-            //compute boundary sites
-            frc->computeForces(Conf->returnForces(),false,1);
-            }
-        else
-            {
-            synchronizeAndTransferBuffers();
-            frc->computeForces(Conf->returnForces(),zeroForces);
-            }
-        */
         };
-
     Conf->forcesComputed = true;
     };
 
@@ -491,7 +472,10 @@ scalar multirankSimulation::computePotentialEnergy(bool verbose)
     for (int f = 0; f < forceComputers.size(); ++f)
         {
         auto frc = forceComputers[f].lock();
-        ePerRank[0] = frc->computeEnergy(verbose) /(1.0*NActive);
+        if(NActive != 0)
+            ePerRank[0] = frc->computeEnergy(verbose) /(1.0*NActive);
+        else
+            ePerRank[0] = frc->computeEnergy(verbose);
         sumUpdaterData(ePerRank);
         PE += ePerRank[0];
         };

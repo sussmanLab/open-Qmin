@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.0)
-project(landauDeGUI)
+project(openQmin)
 
 find_package(MPI REQUIRED)
 
@@ -20,7 +20,7 @@ set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} --expt-relaxed-constexpr
                                         -gencode=arch=compute_50,code=sm_50
                                         -gencode=arch=compute_52,code=sm_52
                                         ")
-                                        #")#-gencode arch=compute_30,code=sm_30 -Wno-deprecated-gpu-targets ")#-Xptxas -O3 -Xcompiler -O3")
+                                        #if you have different cuda-capable hardware, feel free to add the correct codes for optimizing performance
 
 find_package(CUDA REQUIRED)
 
@@ -34,8 +34,6 @@ message("cxx flags = " "${CMAKE_CXX_FLAGS}")
 message("nvcc flags = " "${CUDA_NVCC_FLAGS}")
 message("lib dir = " "${CUDA_LIBRARY_DIRS}")
 message("culibs = " "${CUDA_LIBRARIES}")
-#message("nvcc flags are  " ${CUDA_NVCC_FLAGS})
-#message("cuda root is " ${CUDA_INCLUDE_DIRS})
 
 add_subdirectory(src)
 
@@ -60,7 +58,7 @@ set(HEADERS
     )
 
 # list the names of cpp files corresponding to linked executables you'd like...
-foreach(ARG minimizationTiming speedScaling hedgehogTesting cubicLatticeNematic)
+foreach(ARG openQmin)
 add_executable("${ARG}.out" "${ARG}.cpp" ${SOURCES} ${HEADERS} ${UI_HEADERS})
 target_link_libraries("${ARG}.out" ${myLibs} ${CUDA_LIBRARIES}
     ${MPI_LIBRARIES}

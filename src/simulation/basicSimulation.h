@@ -54,7 +54,7 @@ class basicSimulation
         //!total number of ranks
         int nRanks;
         //!some measure of the number of active degrees of freedom
-        int NActive;
+        int NActive = 0;
 
     protected:
         //! Determines how frequently the spatial sorter be called...once per sortPeriod Timesteps. When sortPeriod < 0 no sorting occurs

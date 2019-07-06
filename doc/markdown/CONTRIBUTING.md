@@ -20,11 +20,11 @@ Whitesmith indentation style should be used, and 4 spaces, and not tabs, should 
 lines. A soft maximum line length of 120 characters should be used, with very long lines of code
 broken at some natural point.
 
-Variable names should be descriptive; prefer lower camelCase names to using other delimiters. When
-using ArrayHandles stick to the h_variableName and d_variableName convention for accessing GPUArrays
+Variable names should be descriptive; prefer lowerCamelCase names to other options.
+When using ArrayHandles stick to the h_variableName and d_variableName convention for accessing GPUArrays
 on either the host or device.
 
-Rules are meant to be broken. But not too much.
+Rules are meant to be broken when doing so improves readability or comprehensibility. But they're not meant to be broken too much.
 
 ## Documentation
 

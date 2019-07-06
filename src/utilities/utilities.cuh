@@ -125,5 +125,48 @@ void host_dVec_times_scalar(dVec *d_vec1,
                               dVec *d_ans,
                               int N);
 
+inline unsigned int nextPow2(unsigned int x)
+{
+    --x;
+    x |= x >> 1;
+    x |= x >> 2;
+    x |= x >> 4;
+    x |= x >> 8;
+    x |= x >> 16;
+    return ++x;
+}
+////////////////////////////////////////////////////////////////////////////////
+// Compute the number of threads and blocks to use for the given reduction kernel
+////////////////////////////////////////////////////////////////////////////////
+inline void getNumBlocksAndThreads(int n, int maxBlocks, int maxThreads, int &blocks, int &threads)
+{
+    //get device capability, to avoid block/grid size excceed the upbound
+    //cudaDeviceProp prop;
+    //int device;
+    //cudaGetDevice(&device);
+    //cudaGetDeviceProperties(&prop, device);
+
+
+    threads = (n < maxThreads*2) ? nextPow2((n + 1)/ 2) : maxThreads;
+    blocks = (n + (threads * 2 - 1)) / (threads * 2);
+
+    //if ((float)threads*blocks > (float)prop.maxGridSize[0] * prop.maxThreadsPerBlock)
+    if ((float)threads*blocks > (float)2147483647 * 1024)
+    {
+        printf("n is too large, please choose a smaller number!\n");
+    }
+
+    if (blocks > 2147483647)
+    {
+        printf("Grid size <%d> excceeds the device capability <%d>, set block size as %d (original %d)\n",
+               blocks, 2147483647, threads*2, threads);
+
+        blocks /= 2;
+        threads *= 2;
+    }
+    blocks = ((maxBlocks < blocks) ? maxBlocks : blocks);;
+}
+
+
 /** @} */ //end of group declaration
 #endif

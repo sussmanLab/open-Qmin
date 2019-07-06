@@ -91,6 +91,8 @@ class landauDeGennesLC : public baseLatticeForce
             };
         //!the free energy density at each lattice site
         GPUArray<scalar> energyDensity;
+        //!A helper array for energy reductions
+        GPUArray<scalar> energyDensityReduction;
         //!the force from stresses at the surface of an object
         GPUArray<scalar3> objectForceArray;
 
@@ -122,7 +124,6 @@ class landauDeGennesLC : public baseLatticeForce
         scalar Chi;
         scalar mu0;
 
-
         //!number of elastic constants
         distortionEnergyType numberOfConstants;
         //!switches for extra parts of the energy/force calculations
@@ -148,14 +149,9 @@ class landauDeGennesLC : public baseLatticeForce
 
         virtual void computeL1BulkCPU(GPUArray<dVec> &forces,bool zeroOutForce);
         virtual void computeL1BoundaryCPU(GPUArray<dVec> &forces,bool zeroOutForce);
-        virtual void computeL2BulkCPU(GPUArray<dVec> &forces,bool zeroOutForce);
-        virtual void computeL2BoundaryCPU(GPUArray<dVec> &forces,bool zeroOutForce);
-        virtual void computeL3BulkCPU(GPUArray<dVec> &forces,bool zeroOutForce);
-        virtual void computeL3BoundaryCPU(GPUArray<dVec> &forces,bool zeroOutForce);
-        virtual void computeL4BulkCPU(GPUArray<dVec> &forces,bool zeroOutForce);
-        virtual void computeL4BoundaryCPU(GPUArray<dVec> &forces,bool zeroOutForce);
-        virtual void computeL6BulkCPU(GPUArray<dVec> &forces,bool zeroOutForce);
-        virtual void computeL6BoundaryCPU(GPUArray<dVec> &forces,bool zeroOutForce);
+
+        virtual void computeOtherDistortionTermsBulkCPU(GPUArray<dVec> &forces, scalar L2, scalar L3, scalar L4, scalar L6);
+        virtual void computeOtherDistortionTermsBoundaryCPU(GPUArray<dVec> &forces, scalar L2, scalar L3, scalar L4, scalar L6);
     };
 
 #endif

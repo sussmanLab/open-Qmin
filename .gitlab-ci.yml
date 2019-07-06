@@ -3,7 +3,7 @@ pages:
   image: alpine
   script:
     - apk add --update doxygen ttf-freefont graphviz
-    - doxygen doc/landauDeGUI_documentation
+    - doxygen doc/openQmin_documentation
     - mv doc/doxygenOutput/html/ public/
   artifacts:
     paths:

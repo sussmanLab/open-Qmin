@@ -16,9 +16,6 @@
 #include <mpi.h>
 #include "cuda_profiler_api.h"
 
-/*!
-This file has been used to make timing information about finding minima in the presence of various objects and boundary conditions
- */
 int3 partitionProcessors(int numberOfProcesses)
     {
     int3 ans;
@@ -465,4 +462,3 @@ int main(int argc, char*argv[])
     MPI_Finalize();
         return 0;
 };
-

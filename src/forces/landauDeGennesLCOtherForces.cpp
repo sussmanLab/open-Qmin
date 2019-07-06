@@ -372,5 +372,3 @@ void landauDeGennesLC::setNumberOfConstants(distortionEnergyType _type)
     {
     numberOfConstants = _type;
     };
-
-

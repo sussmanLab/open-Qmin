@@ -40,6 +40,9 @@ class multirankSimulation : public basicSimulation, public enable_shared_from_th
         //!make a spherocylinder, defined by the start and end of the cylindrical section and the radius
         void createSpherocylinder(scalar3 cylinderStart, scalar3 cylinderEnd, scalar radius, boundaryObject &bObj);
 
+        //!import a boundary object from a (carefully prepared) text file
+        void createBoundaryFromFile(string fname, bool verbose = false);
+
         //!a function of convenience... make a dipolar field a la Lubensky et al.
         void setDipolarField(scalar3 center, scalar ThetaD, scalar radius,scalar range, scalar S0);
         //!a function of convenience... make a dipolar field a la Lubensky et al. Simpler, uses the ravnik expression
