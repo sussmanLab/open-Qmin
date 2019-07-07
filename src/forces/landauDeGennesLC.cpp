@@ -59,7 +59,7 @@ void landauDeGennesLC::setModel(shared_ptr<cubicLattice> _model)
     model = _model;
     if(numberOfConstants == distortionEnergyType::multiConstant)
         {
-        lattice->fillNeighborLists(1);//fill neighbor lists to allow computing mixed partials
+        lattice->fillNeighborLists(0);//fill neighbor lists to allow computing mixed partials
         }
     else // one constant approx
         {

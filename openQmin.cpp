@@ -137,8 +137,8 @@ int main(int argc, char*argv[])
     bool xH = (rankTopology.x >1) ? true : false;
     bool yH = (rankTopology.y >1) ? true : false;
     bool zH = (rankTopology.z >1) ? true : false;
-    bool edges = nConstants > 1 ? true : false;
-    bool corners = nConstants > 1 ? true : false;
+    bool edges = ((rankTopology.y >1) && nConstants > 1) ? true : false;
+    bool corners = ((rankTopology.z >1) && nConstants > 1) ? true : false;
     bool neverGPU = !GPU;
     shared_ptr<multirankQTensorLatticeModel> Configuration = make_shared<multirankQTensorLatticeModel>(boxLx,boxLy,boxLz,xH,yH,zH,false,neverGPU);
     shared_ptr<multirankSimulation> sim = make_shared<multirankSimulation>(myRank,rankTopology.x,rankTopology.y,rankTopology.z,edges,corners);

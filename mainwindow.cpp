@@ -2,22 +2,6 @@
 #include <QMainWindow>
 #include <QGuiApplication>
 
-//#include <Qt3DCore/QEntity>
-//#include <Qt3DRender/QCamera>
-//#include <Qt3DRender/QCameraLens>
-//#include <Qt3DCore/QTransform>
-//#include <Qt3DCore/QAspectEngine>
-
-//#include <Qt3DInput/QInputAspect>
-
-//#include <Qt3DRender/QRenderAspect>
-//#include <Qt3DExtras/Qt3DWindow>
-//#include <Qt3DExtras/QForwardRenderer>
-//#include <Qt3DExtras/QPhongMaterial>
-//#include <Qt3DExtras/QCylinderMesh>
-//#include <Qt3DExtras/QSphereMesh>
-//#include <Qt3DExtras/QTorusMesh>
-
 #include <QPropertyAnimation>
 #include <chrono>
 
@@ -503,10 +487,12 @@ void MainWindow::on_addIterationsButton_released()
     QString printable3 = QStringLiteral("system evolved...mean force is %1").arg(maxForce);
     ui->testingBox->setText(printable3);
     ui->progressBar->setValue(100);
+    /*
     printf("move chain:\n");
     for(int ii = 0; ii < moveChain.size(); ++ii)
         printf("{%i,%i,%i},",moveChain[ii].x,moveChain[ii].y,moveChain[ii].z);
     printf("\nmove chain end :\n");
+    */
 }
 
 void MainWindow::on_drawStuffButton_released()
@@ -585,8 +571,8 @@ void MainWindow::on_drawStuffButton_released()
         {
         on_builtinBoundaryVisualizationBox_released();
         };
-    QString printable3 = QStringLiteral("drawing stuff ");
-    ui->testingBox->setText(printable3);
+    //QString printable3 = QStringLiteral("drawing stuff ");
+    //ui->testingBox->setText(printable3);
     ui->displayZone->update();
 }
 
