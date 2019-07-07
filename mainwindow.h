@@ -107,6 +107,9 @@ private slots:
 
     void on_setFiveConstants_released();
 
+    void startCustomFile();
+    void saveCustomFile();
+
 private:
     Ui::MainWindow *ui;
 

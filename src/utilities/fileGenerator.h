@@ -9,13 +9,14 @@ using namespace std;
 class fileGenerator
     {
     public:
-        fileGenerator();
+        fileGenerator(){initialize();};
 
+        void initialize();
         void save();
 
         void addLine(string _line)
             {
-            lines.push_back(_line);
+            lines.push_back(_line+"\n");
             };
 
         vector<string> lines;

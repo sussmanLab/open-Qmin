@@ -208,7 +208,6 @@ void MainWindow::simulationInitialize()
      sim->addForce(landauLCForce);
      on_fireParamButton_released();
      ui->reproducibleButton->setEnabled(true);
-     customFile.save();
 }
 
 void MainWindow::on_phaseS0Box_textEdited(const QString &arg1)
@@ -1041,4 +1040,13 @@ void MainWindow::on_dipoleSetFieldButton_released()
     sim->setDipolarField(center,thetaD,radius,range,S0);
     //sim->setDipolarField(center,direction,radius,range,S0);
     ui->dipoleWidget->hide();
+}
+
+void MainWindow::startCustomFile()
+{
+    customFile.initialize();
+}
+void MainWindow::saveCustomFile()
+{
+    customFile.save();
 }

@@ -5,9 +5,10 @@
 
 /*! \file fileGenerator.cpp */
 
-
-fileGenerator::fileGenerator()
+void fileGenerator::initialize()
     {
+    cout << "initializing customScriptFromGUI.cpp"<< endl;
+    lines.clear();
     string dir=DIRECTORY;
     string outName="/customScriptFromGUI.cpp";
     outputName = dir+outName;
@@ -21,8 +22,7 @@ fileGenerator::fileGenerator()
         getline(infile,line);
         if(ll != 139 && ll != 138 && ll != 150)
             {
-            line=line+"\n";
-            lines.push_back(line);
+            addLine(line);
             };
         };
     };
@@ -38,6 +38,6 @@ void fileGenerator::save()
         {
         myfile << lines[ii];
         }
-    myfile << "\tMPI_Finalize();\n\treturn 0;\n\t};\n";
+    myfile << "\n\n\n\tMPI_Finalize();\n\treturn 0;\n\t};\n";
     myfile.close();
 };

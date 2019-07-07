@@ -24,7 +24,7 @@
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">background: white; 
+     <string notr="true">background: white;
 border: 1px solid blue</string>
     </property>
     <property name="text">
@@ -41,7 +41,7 @@ border: 1px solid blue</string>
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">background: white; 
+     <string notr="true">background: white;
 border: 1px solid red</string>
     </property>
     <widget class="QLabel" name="label_8">
@@ -98,7 +98,7 @@ border: 1px solid red</string>
       </rect>
      </property>
      <property name="styleSheet">
-      <string notr="true">border: white; 
+      <string notr="true">border: white;
 background-color: qradialgradient(spread:pad, cx:0.5, cy:0.5, radius:0.5, fx:0.5, fy:0.5, stop:0 rgba(255, 255, 255, 255), stop:0.1 rgba(255, 255, 255, 255), stop:0.2 rgba(255, 176, 176, 167), stop:0.3 rgba(255, 151, 151, 92), stop:0.4 rgba(255, 125, 125, 51), stop:0.5 rgba(255, 76, 76, 205), stop:0.52 rgba(255, 76, 76, 205), stop:0.6 rgba(255, 180, 180, 84), stop:1 rgba(255, 255, 255, 0));</string>
      </property>
      <property name="text">
@@ -533,7 +533,7 @@ color: black
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">background: white; 
+     <string notr="true">background: white;
 border: 1px solid black
 </string>
     </property>
@@ -670,7 +670,7 @@ border: 1px solid black
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">background: white; 
+     <string notr="true">background: white;
 border: 1px solid black
 </string>
     </property>
@@ -807,7 +807,7 @@ border: 1px solid black
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">background: white; 
+     <string notr="true">background: white;
 border: 1px solid black
 </string>
     </property>
@@ -1048,7 +1048,7 @@ border: 1px solid black
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">background: white; 
+     <string notr="true">background: white;
 border: 1px solid black
 </string>
     </property>
@@ -1205,7 +1205,7 @@ border: 1px solid black
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">background: white; 
+     <string notr="true">background: white;
 border: 1px solid purple</string>
     </property>
     <widget class="QLabel" name="label_28">
@@ -1797,7 +1797,7 @@ border: 1px solid purple</string>
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">background: white; 
+     <string notr="true">background: white;
 border: 1px solid orange</string>
     </property>
     <widget class="QPushButton" name="addSphereButton">
@@ -2433,7 +2433,7 @@ border: 1px black solid</string>
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">background: white; 
+     <string notr="true">background: white;
 border: 1px solid purple</string>
     </property>
     <widget class="QLabel" name="label_61">
@@ -3160,7 +3160,7 @@ border: 1px solid purple</string>
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">background: white; 
+     <string notr="true">background: white;
 border: 1px solid purple</string>
     </property>
     <widget class="QLabel" name="label_70">
@@ -3202,7 +3202,7 @@ border: 1px solid purple</string>
       <string notr="true">background: light gray</string>
      </property>
      <property name="text">
-      <string>Linear translatation, 
+      <string>Linear translatation,
  minimize and save energy trace</string>
      </property>
     </widget>
@@ -3439,7 +3439,7 @@ border: 1px solid purple</string>
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">background: white; 
+     <string notr="true">background: white;
 border: 1px solid purple</string>
     </property>
     <widget class="QLabel" name="label_83">
@@ -3629,7 +3629,7 @@ border: 1px solid purple</string>
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">background: white; 
+     <string notr="true">background: white;
 border: 1px solid purple</string>
     </property>
     <widget class="QLabel" name="label_88">
@@ -3872,7 +3872,7 @@ border: 1px solid purple</string>
       <string notr="true">border: white</string>
      </property>
      <property name="text">
-      <string>(1=dipole, 
+      <string>(1=dipole,
 .5=quadrupole)</string>
      </property>
     </widget>
@@ -3887,7 +3887,7 @@ border: 1px solid purple</string>
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">background: white; 
+     <string notr="true">background: white;
 border: 1px solid black
 </string>
     </property>
@@ -4132,7 +4132,7 @@ border: 1px solid black
      <x>0</x>
      <y>0</y>
      <width>1182</width>
-     <height>20</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuSet_constants">
@@ -4173,10 +4173,18 @@ border: 1px solid black
     <addaction name="actionforced_translation"/>
     <addaction name="actionobject_trajectory_with_energy_trace"/>
    </widget>
+   <widget class="QMenu" name="menuRecord_GUI_actions">
+    <property name="title">
+     <string>Record GUI actions</string>
+    </property>
+    <addaction name="actionStart_record"/>
+    <addaction name="actionSave_record"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuRe_initialize"/>
    <addaction name="menuSet_constants"/>
    <addaction name="menuobject_motion"/>
+   <addaction name="menuRecord_GUI_actions"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -4260,6 +4268,16 @@ border: 1px solid black
   <action name="action5_Constant_approximation">
    <property name="text">
     <string>5-Constant approximation</string>
+   </property>
+  </action>
+  <action name="actionStart_record">
+   <property name="text">
+    <string>Start record</string>
+   </property>
+  </action>
+  <action name="actionSave_record">
+   <property name="text">
+    <string>Save record</string>
    </property>
   </action>
  </widget>
@@ -4660,11 +4678,45 @@ border: 1px solid black
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionStart_record</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>startCustomFile()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>590</x>
+     <y>283</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionSave_record</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>saveCustomFile()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>590</x>
+     <y>283</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>exitProgram()</slot>
   <slot>moveObjectShow()</slot>
   <slot>colloidalMobilityShow()</slot>
   <slot>colloidalTrajectoryShow()</slot>
+  <slot>startCustomFile()</slot>
+  <slot>saveCustomFile()</slot>
  </slots>
 </ui>
