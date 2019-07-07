@@ -148,31 +148,9 @@ int main(int argc, char*argv[])
     sim->setConfiguration(Configuration);
 	shared_ptr<energyMinimizerFIRE> fire;
 	shared_ptr<energyMinimizerNesterovAG> nesterov;
-	noise.Reproducible = true;
-	landauLCForce->setPhaseConstants(0.000000,0.000000,0.000000);
-	landauLCForce->setModel(Configuration);
-	sim->addForce(landauLCForce);
-	sim->clearUpdaters();
-	fire = make_shared<energyMinimizerFIRE>(Configuration);
-	sim->addUpdater(fire,Configuration);
-	sim->setCPUOperation(!sim->useGPU);
-	fire->setCurrentIterations(0);
-	fire->setFIREParameters(0.0005000000,0.990000,0.050000,1.100000,0.950000,0.900000,4,0.0000000000010000,0.000000);
-	fire->setMaximumIterations(1000);
-	sim->setCPUOperation(!GPU);
-	Configuration->setNematicQTensorRandomly(noise,0.532865);
-	landauLCForce->setPhaseConstants(-1.000000,-12.325581,10.058140);
-	landauLCForce->setElasticConstants(4.640000,0,0,0,0);
-	landauLCForce->setNumberOfConstants(distortionEnergyType::oneConstant);
-	landauLCForce->setModel(Configuration);
-	fire->setCurrentIterations(0);
-	fire->setMaximumIterations(1000);
-	sim->performTimestep();
-	Configuration->setNematicQTensorRandomly(noise,0.532865,false);
-	{auto upd = sim->updaters[0].lock();
-	upd->setCurrentIterations(0);
-	upd->setMaximumIterations(1000);}
-	sim->performTimestep();
+	scalar globalLx = boxLx*rankTopology.x;
+	scalar globalLy = boxLy*rankTopology.y;
+	scalar globalLz = boxLz*rankTopology.z;
 
 
 

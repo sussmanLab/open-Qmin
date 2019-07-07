@@ -387,9 +387,10 @@ void MainWindow::on_fireParamButton_released()
 
 void MainWindow::on_minimizeButton_released()
 {
-    sprintf(lineBit,"\tfire->setCurrentIterations(0);");
+    customFile.addLine("\t{auto upd = sim->updaters[0].lock();");
+    sprintf(lineBit,"\tupd->setCurrentIterations(0);");
     customFile.addLine(lineBit);
-    sprintf(lineBit,"\tfire->setMaximumIterations(%i);",maximumIterations);
+    sprintf(lineBit,"\tupd->setMaximumIterations(%i);}",maximumIterations);
     customFile.addLine(lineBit);
     customFile.addLine("\tsim->performTimestep();");
 
@@ -668,7 +669,6 @@ void MainWindow::on_zoomSlider_valueChanged(int value)
     on_drawStuffButton_released();
 }
 
-//WHERE WE ARE UP TO WITH CUSTOM SCRIPT GENERATION
 void MainWindow::on_addSphereButton_released()
 {
     scalar3 spherePos;
@@ -676,6 +676,16 @@ void MainWindow::on_addSphereButton_released()
     spherePos.y = ui->ySpherePosBox->text().toDouble()*BoxX;
     spherePos.z = ui->zSpherePosBox->text().toDouble()*BoxX;
     scalar rad = ui->sphereRadiusBox->text().toDouble()*BoxX;
+
+    customFile.addLine("{scalar3 spherePos;");
+    sprintf(lineBit,"\tspherePos.x =%f*globalLx;",ui->xSpherePosBox->text().toDouble());
+    customFile.addLine(lineBit);
+    sprintf(lineBit,"\tspherePos.y =%f*globalLy;",ui->ySpherePosBox->text().toDouble());
+    customFile.addLine(lineBit);
+    sprintf(lineBit,"\tspherePos.z =%f*globalLz;",ui->zSpherePosBox->text().toDouble());
+    customFile.addLine(lineBit);
+    sprintf(lineBit,"\tscalar rad = %f*globalLx;",ui->sphereRadiusBox->text().toDouble());
+    customFile.addLine(lineBit);
 
 
     scalar W0 = ui->boundaryEnergyBox->text().toDouble();
@@ -687,13 +697,19 @@ void MainWindow::on_addSphereButton_released()
         {
         boundaryObject homeotropicBoundary(boundaryType::homeotropic,W0,s0b);
         sim->createSphericalColloid(spherePos,rad,homeotropicBoundary);
-        //Configuration->createSimpleSpherialColloid(spherePos,rad, homeotropicBoundary);
+
+        sprintf(lineBit,"\tboundaryObject homeotropicBoundary(boundaryType::homeotropic,%f,%f);",W0,s0b);
+        customFile.addLine(lineBit);
+        customFile.addLine("sim->createSphericalColloid(spherePos,rad,homeotropicBoundary);}");
         }
     else if(ui->anchoringComboBox->currentText() ==planarDegenerate)
         {
         boundaryObject planarDegenerateBoundary(boundaryType::degeneratePlanar,W0,s0b);
         sim->createSphericalColloid(spherePos,rad,planarDegenerateBoundary);
-        //Configuration->createSimpleSpherialColloid(spherePos,rad, planarDegenerateBoundary);
+
+        sprintf(lineBit,"\tboundaryObject planarDegenerateBoundary(boundaryType::degeneratePlanar,%f,%f);",W0,s0b);
+        customFile.addLine(lineBit);
+        customFile.addLine("sim->createSphericalColloid(spherePos,rad,planarDegenerateBoundary);}");
         }
     spherePositions.push_back(spherePos);
     sphereRadii.push_back(rad);
@@ -725,14 +741,22 @@ void MainWindow::on_addWallButton_released()
         {
         boundaryObject homeotropicBoundary(boundaryType::homeotropic,W0,s0b);
         sim->createWall(xyz,plane,homeotropicBoundary);
-        //Configuration->createSimpleFlatWallNormal(plane,xyz,homeotropicBoundary);
+
+        sprintf(lineBit,"\t{boundaryObject homeotropicBoundary(boundaryType::homeotropic,%f,%f);",W0,s0b);
+        customFile.addLine(lineBit);
+        sprintf(lineBit,"\tsim->createWall(%i,%i,homeotropicBoundary);}",xyz,plane);
+        customFile.addLine(lineBit);
         }
     else if(ui->anchoringComboBox->currentText() ==planarDegenerate)
         {
         boundaryObject planarDegenerateBoundary(boundaryType::degeneratePlanar,W0,s0b);
         sim->createWall(xyz,plane,planarDegenerateBoundary);
-        //Configuration->createSimpleFlatWallNormal(plane,xyz,planarDegenerateBoundary);
         wallType = 1;
+
+        sprintf(lineBit,"\t{boundaryObject planarDegenerateBoundary(boundaryType::degeneratePlanar,%f,%f);",W0,s0b);
+        customFile.addLine(lineBit);
+        sprintf(lineBit,"\tsim->createWall(%i,%i,planarDegenerateBoundary);}",xyz,plane);
+        customFile.addLine(lineBit);
         }
     int3 pnt; pnt.x = plane; pnt.y = xyz; pnt.z=wallType;
     ui->displayZone->addWall(pnt);
@@ -756,7 +780,8 @@ void MainWindow::on_finishedWithObjectsButton_released()
 {
     on_drawStuffButton_released();
     sim->finalizeObjects();
-    QString printable1 = QStringLiteral("finished adding objects...for now");
+    customFile.addLine("\tsim->finalizeObjects();");
+    QString printable1 = QStringLiteral("finished adding objects...for now!");
     ui->testingBox->setText(printable1);
 }
 
@@ -776,7 +801,16 @@ void MainWindow::on_reprodicbleRNGBox_stateChanged(int arg1)
     bool repro = ui->reprodicbleRNGBox->isChecked();
     noise.Reproducible= repro;
     if(repro)
+        {
         noise.setReproducibleSeed(13377);
+        customFile.addLine("\tnoise.Reproducible= true;");
+        customFile.addLine("\tsim->setReproducible(true);");
+        }
+    else
+        {
+        customFile.addLine("\tnoise.Reproducible= false;");
+        customFile.addLine("\tsim->setReproducible(false);");
+        }
     sim->setReproducible(repro);
 }
 
@@ -817,13 +851,20 @@ void MainWindow::on_importFileNowButton_released()
     sim->finalizeObjects();
     QString printable1 = QStringLiteral("boundary imported from file");
     ui->testingBox->setText(printable1);
+
+    sprintf(lineBit,"\tsim->createBoundaryFromFile(\"%s\",true);cout.flush();",fn.c_str());
+    customFile.addLine(lineBit);
+    customFile.addLine("sim->finalizeObjects();");
 }
 
 void MainWindow::on_saveFileNowButton_released()
 {
     QString fname = ui->saveFileNameBox->text();
     string fileName = fname.toStdString();
-
+    sim->saveState(fileName);
+    sprintf(lineBit,"\tsim->saveState(\"%s\");",fileName.c_str());
+    customFile.addLine(lineBit);
+/*
     ArrayHandle<dVec> pp(Configuration->returnPositions());
     ArrayHandle<int> tt(Configuration->returnTypes());
     ofstream myfile;
@@ -837,9 +878,10 @@ void MainWindow::on_saveFileNowButton_released()
         myfile << "\t"<<tt.data[ii]<<"\n";
         };
 
-    sim->saveState("../data/saveTesting.txt");
+
 
     myfile.close();
+    */
     QString printable1 = QStringLiteral("File saved");
     ui->testingBox->setText(printable1);
     ui->fileSaveWidget->hide();
@@ -882,15 +924,34 @@ void MainWindow::on_nesterovParamButton_released()
     nesterov = make_shared<energyMinimizerNesterovAG>(Configuration);
     sim->addUpdater(nesterov,Configuration);
     sim->setCPUOperation(!GPU);
+
+    customFile.addLine("\tsim->clearUpdaters();");
+    customFile.addLine("\tnesterov = make_shared<energyMinimizerNesterovAG>(Configuration);");
+    customFile.addLine("\tsim->addUpdater(nesterov,Configuration);");
+    customFile.addLine("\tsim->setCPUOperation(!sim->useGPU);");
+
     ui->progressBar->setValue(0);
     scalar dt = ui->nesterovDtBox->text().toDouble();
     scalar mu = ui->nesterovMomentumBox->text().toDouble();
     nesterov->scheduledMomentum = ui->scheduleMomentumCheckbox->isChecked();
+
+    if(ui->scheduleMomentumCheckbox->isChecked())
+        customFile.addLine("\tnesterov->scheduledMomentum = true;");
+    else
+        customFile.addLine("\tnesterov->scheduledMomentum = false;");
+
     scalar forceCutoff=ui->nesterovForceCutoffBox->text().toDouble();
     maximumIterations = ui->nesterovMaxIterationsBox->text().toInt();
     nesterov->setCurrentIterations(0);
     nesterov->setNesterovAGParameters(dt,mu,forceCutoff);
     nesterov->setMaximumIterations(maximumIterations);
+
+    sprintf(lineBit,"\tnesterov->setCurrentIterations(0);");
+    customFile.addLine(lineBit);
+    sprintf(lineBit,"\tnesterov->setNesterovAGParameters(%.10f,%f,%.16f);",dt,mu,forceCutoff);
+    customFile.addLine(lineBit);
+    sprintf(lineBit,"\tnesterov->setMaximumIterations(%i);",maximumIterations);
+    customFile.addLine(lineBit);
 
     QString printable = QStringLiteral("nesterov minimization parameters set, force cutoff of %1 dt of %2 and momentum %3 chosen for %4 steps %5").arg(forceCutoff).arg(dt).arg(mu)
                                     .arg(maximumIterations).arg(nesterov->getMaxIterations());
@@ -921,16 +982,29 @@ void MainWindow::on_setFieldButton_released()
     scalar epsilon0 = ui->e0Box->text().toDouble();
     scalar deltaEpsilon = ui->deBox->text().toDouble();
 
+    customFile.addLine("\t{scalar3 field;");
+    sprintf(lineBit,"\tfield.x = %.10f;",field.x);
+    customFile.addLine(lineBit);
+    sprintf(lineBit,"\tfield.y = %.10f;",field.y);
+    customFile.addLine(lineBit);
+    sprintf(lineBit,"\tfield.z = %.10f;",field.z);
+    customFile.addLine(lineBit);
     QString printable;
     if(ui->fieldTypeComboBox->currentText()==Ef)
         {
         landauLCForce->setEField(field,epsilon,epsilon0,deltaEpsilon);
         printable=QStringLiteral("E field set (%1 %2 %3) %4 %5 %6").arg(field.x).arg(field.y).arg(field.z).arg(epsilon).arg(epsilon0).arg(deltaEpsilon);
+
+        sprintf(lineBit,"\tlandauLCForce->setEField(field,%.10f,%.10f,%.10f);}",epsilon,epsilon0,deltaEpsilon);
+        customFile.addLine(lineBit);
         }
     if(ui->fieldTypeComboBox->currentText()==Hf)
         {
         landauLCForce->setHField(field,epsilon,epsilon0,deltaEpsilon);
         printable=QStringLiteral("H field set (%1 %2 %3) %4 %5 %6").arg(field.x).arg(field.y).arg(field.z).arg(epsilon).arg(epsilon0).arg(deltaEpsilon);
+
+        sprintf(lineBit,"\tlandauLCForce->setHField(field,%.10f,%.10f,%.10f);}",epsilon,epsilon0,deltaEpsilon);
+        customFile.addLine(lineBit);
         }
     ui->applyFieldWidget->hide();
     ui->testingBox->setText(printable);
@@ -1116,6 +1190,23 @@ void MainWindow::on_dipoleSetFieldButton_released()
     sim->setDipolarField(center,thetaD,radius,range,S0);
     //sim->setDipolarField(center,direction,radius,range,S0);
     ui->dipoleWidget->hide();
+
+    customFile.addLine("\t{scalar3 center,direction;");
+    customFile.addLine("\tdirection.x=0;direction.y=0;direction.z=1;");
+    sprintf(lineBit,"\tcenter.x = %.10f*globalLx;",ui->dipoleXPosBox->text().toDouble());
+    customFile.addLine(lineBit);
+    sprintf(lineBit,"\tcenter.y = %.10f*globalLx;",ui->dipoleYPosBox->text().toDouble());
+    customFile.addLine(lineBit);
+    sprintf(lineBit,"\tcenter.z = %.10f*globalLx;",ui->dipoleZPosBox->text().toDouble());
+    customFile.addLine(lineBit);
+    sprintf(lineBit,"\tscalar radius = %.10f*globalLx;",ui->dipoleRadiusBox->text().toDouble());
+    customFile.addLine(lineBit);
+    sprintf(lineBit,"\tscalar range = %.10f*globalLx;",ui->dipoleRangeBox->text().toDouble());
+    customFile.addLine(lineBit);
+    sprintf(lineBit,"\tscalar thetaD = %.10f*PI;",ui->dipoleThetaDBox->text().toDouble());
+    customFile.addLine(lineBit);
+    sprintf(lineBit,"\tsim->setDipolarField(center,%f,%f,%f,%f);}",thetaD,radius,range,S0);
+    customFile.addLine(lineBit);
 }
 
 void MainWindow::startCustomFile()

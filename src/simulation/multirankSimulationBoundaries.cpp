@@ -71,7 +71,7 @@ void multirankSimulation::createBoundaryFromFile(string fname, bool verbose)
             istringstream linestream(line);
             linestream >> iVar1 >> iVar2 >> iVar3 >> Qtensor[0] >> Qtensor[1] >> Qtensor[2] >>Qtensor[3] >> Qtensor[4];
             sitePos.x = iVar1; sitePos.y=iVar2; sitePos.z=iVar3;
-            
+
             boundSites.push_back(sitePos);
             qTensors.push_back(Qtensor);
 
@@ -381,6 +381,7 @@ Functional form from Lubensky, Pettey, Currier, and Stark. PRE 57, 610, 1998
  */
 void multirankSimulation::setDipolarField(scalar3 center, scalar ThetaD, scalar radius, scalar range, scalar S0)
     {
+    cout << "setting a \"dipolar\" field of thetaD = " << ThetaD << endl;
     auto Conf = mConfiguration.lock();
     ArrayHandle<dVec> pos(Conf->returnPositions());
     ArrayHandle<int> types(Conf->returnTypes());
@@ -455,6 +456,7 @@ about an object of radius "radius"
  */
 void multirankSimulation::setDipolarField(scalar3 center, scalar3 direction, scalar radius, scalar range, scalar S0)
     {
+    cout << "setting a simple dipolar field"<< endl;
     auto Conf = mConfiguration.lock();
     ArrayHandle<dVec> pos(Conf->returnPositions());
     ArrayHandle<int> types(Conf->returnTypes());

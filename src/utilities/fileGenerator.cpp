@@ -28,6 +28,10 @@ void fileGenerator::initialize()
 
         addLine("\tshared_ptr<energyMinimizerFIRE> fire;");
         addLine("\tshared_ptr<energyMinimizerNesterovAG> nesterov;");
+
+        addLine("\tscalar globalLx = boxLx*rankTopology.x;");
+        addLine("\tscalar globalLy = boxLy*rankTopology.y;");
+        addLine("\tscalar globalLz = boxLz*rankTopology.z;");
     };
 
 void fileGenerator::save()
