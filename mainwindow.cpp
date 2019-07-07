@@ -55,7 +55,7 @@ MainWindow::MainWindow(QWidget *parent) :
         ui->boxLSize->setText("20");
     }
     hideControls();
-    QString printable = QStringLiteral("Welcome to landauDeGUI, a graphical interface to a continuum LdG liquid crystal simulation package!");
+    QString printable = QStringLiteral("Welcome to landauDeGUI, openQmin's graphical interface!");
     ui->testingBox->setText(printable);
 }
 
@@ -137,10 +137,12 @@ void MainWindow::on_initializeButton_released()
     if(noise.Reproducible)
         {
         ui->reprodicbleRNGBox->setChecked(true);
+        customFile.addLine("\tnoise.Reproducible = true;");
         }
     else
         {
         ui->reprodicbleRNGBox->setChecked(false);
+        customFile.addLine("\tnoise.Reproducible = false;");
         }
 
     int compDevice = ui->detectedGPUBox->currentIndex();
@@ -160,11 +162,18 @@ void MainWindow::on_initializeButton_released()
     C=ui->initialPhaseC->text().toDouble();
 
     sim->setCPUOperation(!GPU);
+    sprintf(lineBit,"\tsim->setCPUOperation(!GPU);");
+    customFile.addLine(lineBit);
+
     ui->progressBar->setValue(50);
     S0 = (-B+sqrt(B*B-24*A*C))/(6*C);
     Configuration->setNematicQTensorRandomly(noise,S0);
+    sprintf(lineBit,"\tConfiguration->setNematicQTensorRandomly(noise,%f);",S0);
+    customFile.addLine(lineBit);
 
     landauLCForce->setPhaseConstants(A,B,C);
+    sprintf(lineBit,"\tlandauLCForce->setPhaseConstants(%f,%f,%f);",A,B,C);
+    customFile.addLine(lineBit);
     int nC = ui->nConstantsSpinBox->value();
     QString printable;
     switch(nC)
@@ -206,6 +215,12 @@ void MainWindow::simulationInitialize()
      landauLCForce->setPhaseConstants(A,B,C);
      landauLCForce->setModel(Configuration);
      sim->addForce(landauLCForce);
+
+     sprintf(lineBit,"\tlandauLCForce->setPhaseConstants(%f,%f,%f);",A,B,C);
+     customFile.addLine(lineBit);
+     customFile.addLine("\tlandauLCForce->setModel(Configuration);");
+     customFile.addLine("\tsim->addForce(landauLCForce);");
+
      on_fireParamButton_released();
      ui->reproducibleButton->setEnabled(true);
 }
@@ -217,7 +232,6 @@ void MainWindow::on_phaseS0Box_textEdited(const QString &arg1)
     C=ui->phaseCBox->text().toDouble();
     S0=ui->phaseS0Box->text().toDouble();
     C = (2.0-B*S0)/(3.0*S0*S0);
-    printf("testing %f\n",C);
     QString valueAsString = QString::number(C);
     ui->phaseCBox->setText(valueAsString);
 }
@@ -229,7 +243,6 @@ void MainWindow::on_phaseBBox_textEdited(const QString &arg1)
     C=ui->phaseCBox->text().toDouble();
     S0=ui->phaseS0Box->text().toDouble();
     C = (2.0-B*S0)/(3.0*S0*S0);
-    printf("testing %f\n",C);
     QString valueAsString = QString::number(C);
     ui->phaseCBox->setText(valueAsString);
 }
@@ -240,6 +253,10 @@ void MainWindow::on_setPhaseConstantsButton_released()
     B=ui->phaseBBox->text().toDouble();
     C=ui->phaseCBox->text().toDouble();
     landauLCForce->setPhaseConstants(A,B,C);
+
+    sprintf(lineBit,"\tlandauLCForce->setPhaseConstants(%f,%f,%f);",A,B,C);
+    customFile.addLine(lineBit);
+
     ui->setPhaseConstants->hide();
     QString printable = QStringLiteral("Phase constant sum is %1").arg((A+B+C));
     ui->testingBox->setText(printable);
@@ -256,6 +273,11 @@ void MainWindow::on_setOneConstant_released()
     ui->testingBox->setText(printable);
     landauLCForce->setModel(Configuration);
     showControls();
+
+    sprintf(lineBit,"\tlandauLCForce->setElasticConstants(%f,0,0,0,0);",L1);
+    customFile.addLine(lineBit);
+    customFile.addLine("\tlandauLCForce->setNumberOfConstants(distortionEnergyType::oneConstant);");
+    customFile.addLine("\tlandauLCForce->setModel(Configuration);");
 }
 
 void MainWindow::on_setTwoConstants_released()
@@ -272,6 +294,11 @@ void MainWindow::on_setTwoConstants_released()
     ui->testingBox->setText(printable);
     landauLCForce->setModel(Configuration);
     showControls();
+
+    sprintf(lineBit,"\tlandauLCForce->setElasticConstants(%f,%f,%f,%f,%f);",L1,L2,L3,L4,L6);
+    customFile.addLine(lineBit);
+    customFile.addLine("\tlandauLCForce->setNumberOfConstants(distortionEnergyType::multiConstant);");
+    customFile.addLine("\tlandauLCForce->setModel(Configuration);");
 }
 
 void MainWindow::on_setThreeConstants_released()
@@ -288,6 +315,11 @@ void MainWindow::on_setThreeConstants_released()
     ui->testingBox->setText(printable);
     landauLCForce->setModel(Configuration);
     showControls();
+
+    sprintf(lineBit,"\tlandauLCForce->setElasticConstants(%f,%f,%f,%f,%f);",L1,L2,L3,L4,L6);
+    customFile.addLine(lineBit);
+    customFile.addLine("\tlandauLCForce->setNumberOfConstants(distortionEnergyType::multiConstant);");
+    customFile.addLine("\tlandauLCForce->setModel(Configuration);");
 }
 
 void MainWindow::on_setFiveConstants_released()
@@ -304,6 +336,11 @@ void MainWindow::on_setFiveConstants_released()
     ui->testingBox->setText(printable);
     landauLCForce->setModel(Configuration);
     showControls();
+
+    sprintf(lineBit,"\tlandauLCForce->setElasticConstants(%f,%f,%f,%f,%f);",L1,L2,L3,L4,L6);
+    customFile.addLine(lineBit);
+    customFile.addLine("\tlandauLCForce->setNumberOfConstants(distortionEnergyType::multiConstant);");
+    customFile.addLine("\tlandauLCForce->setModel(Configuration);");
 }
 
 void MainWindow::on_fireParamButton_released()
@@ -312,6 +349,13 @@ void MainWindow::on_fireParamButton_released()
     fire = make_shared<energyMinimizerFIRE>(Configuration);
     sim->addUpdater(fire,Configuration);
     sim->setCPUOperation(!GPU);
+
+    customFile.addLine("\tsim->clearUpdaters();");
+    customFile.addLine("\tfire = make_shared<energyMinimizerFIRE>(Configuration);");
+    customFile.addLine("\tsim->addUpdater(fire,Configuration);");
+    customFile.addLine("\tsim->setCPUOperation(!sim->useGPU);");
+
+
     ui->fireParametersWidget->hide();
     ui->progressBar->setValue(0);
     scalar dt = ui->dtBox->text().toDouble();
@@ -332,10 +376,23 @@ void MainWindow::on_fireParamButton_released()
     ui->testingBox->setText(printable);
     ui->progressBar->setValue(100);
 
+
+    sprintf(lineBit,"\tfire->setCurrentIterations(0);");
+    customFile.addLine(lineBit);
+    sprintf(lineBit,"\tfire->setFIREParameters(%.10f,%f,%f,%f,%f,%f,%i,%.16f,%f);",dt,alphaStart,deltaTMax,deltaTInc,deltaTDec,alphaDec,nMin,forceCutoff,alphaMin);
+    customFile.addLine(lineBit);
+    sprintf(lineBit,"\tfire->setMaximumIterations(%i);",maximumIterations);
+    customFile.addLine(lineBit);
 }
 
 void MainWindow::on_minimizeButton_released()
 {
+    sprintf(lineBit,"\tfire->setCurrentIterations(0);");
+    customFile.addLine(lineBit);
+    sprintf(lineBit,"\tfire->setMaximumIterations(%i);",maximumIterations);
+    customFile.addLine(lineBit);
+    customFile.addLine("\tsim->performTimestep();");
+
     bool graphicalProgress = ui->visualProgressCheckBox->isChecked();
     auto upd = sim->updaters[0].lock();
 
@@ -348,7 +405,7 @@ void MainWindow::on_minimizeButton_released()
         sim->performTimestep();
     else
     {
-        int stepsToTake = upd->getMaxIterations();
+        int stepsToTake = maximumIterations;
         for (int ii = 1; ii <= 10; ++ii)
         {
             upd->setMaximumIterations(upd->getCurrentIterations()+stepsToTake/10);
@@ -388,6 +445,18 @@ void MainWindow::on_resetQTensorsButton_released()
     bool globalAlignment = ui->globalAlignmentCheckBox->isChecked();
     Configuration->setNematicQTensorRandomly(noise,S0,globalAlignment);
 
+    if(globalAlignment)
+        {
+        sprintf(lineBit,"\tConfiguration->setNematicQTensorRandomly(noise,%f,true);",S0);
+        customFile.addLine(lineBit);
+        }
+    else
+        {
+        sprintf(lineBit,"\tConfiguration->setNematicQTensorRandomly(noise,%f,false);",S0);
+        customFile.addLine(lineBit);
+        }
+
+
     ui->progressBar->setValue(80);
     QString printable = QStringLiteral("Qtensor values reset at S0=%1...").arg(S0);
     ui->testingBox->setText(printable);
@@ -404,6 +473,12 @@ void MainWindow::on_addIterationsButton_released()
     int additionalIterations = ui->addIterationsBox->text().toInt();
     maximumIterations = additionalIterations;
     int subdivisions =  10;
+
+    customFile.addLine("\t{auto upd = sim->updaters[0].lock();");
+    customFile.addLine("\tupd->setCurrentIterations(0);");
+    sprintf(lineBit,"\tupd->setMaximumIterations(%i);}",maximumIterations);
+    customFile.addLine(lineBit);
+    customFile.addLine("\tsim->performTimestep();");
 
     if (iterationsPerColloidalEvolution >0)
         subdivisions = additionalIterations / iterationsPerColloidalEvolution;
@@ -593,6 +668,7 @@ void MainWindow::on_zoomSlider_valueChanged(int value)
     on_drawStuffButton_released();
 }
 
+//WHERE WE ARE UP TO WITH CUSTOM SCRIPT GENERATION
 void MainWindow::on_addSphereButton_released()
 {
     scalar3 spherePos;

@@ -101,6 +101,7 @@ void qTensorLatticeModel::computeDefectMeasures(int defectType)
     }
 void qTensorLatticeModel::setNematicQTensorRandomly(noiseSource &noise,scalar S0, bool globallyAligned)
     {
+    cout << "setting randomly aligned nematic Q tensors of strength " << S0 << endl;
     scalar amplitude =  3./2.*S0;
     scalar globalTheta = acos(2.0*noise.getRealUniform()-1);
     scalar globalPhi = 2.0*PI*noise.getRealUniform();

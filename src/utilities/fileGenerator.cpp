@@ -25,13 +25,16 @@ void fileGenerator::initialize()
             addLine(line);
             };
         };
+
+        addLine("\tshared_ptr<energyMinimizerFIRE> fire;");
+        addLine("\tshared_ptr<energyMinimizerNesterovAG> nesterov;");
     };
 
 void fileGenerator::save()
     {
     char fn[256];
     sprintf(fn,"%s",outputName.c_str());
-    cout << "saving to " <<outputName << endl;
+    cout << "saving a file of length " << lines.size() <<" to " <<outputName << endl;
     ofstream myfile;
     myfile.open(fn);
     for (int ii = 0; ii < lines.size(); ++ii)

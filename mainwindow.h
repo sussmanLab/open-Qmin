@@ -149,6 +149,7 @@ public:
     vector<QString> computationalNames;
 
     fileGenerator customFile;
+    char lineBit[256];
 };
 
 #endif // MAINWINDOW_H
