@@ -3,15 +3,16 @@ if(${CMAKE_BUILD_TYPE} MATCHES "Debug")
 endif(${CMAKE_BUILD_TYPE} MATCHES "Debug")
 
 include_directories(${CMAKE_SOURCE_DIR}/inc ${CUDA_INCLUDE_DIRS})
-add_library(utility 
+add_library(utility
     hyperrectangularCellList.cpp
     kernelTuner.cpp
-    noiseSource.cpp 
+    noiseSource.cpp
     neighborList.cpp
+    fileGenerator.cpp
     )
 cuda_add_library(utilityGPU
-    noiseSource.cu 
-    utilities.cu 
+    noiseSource.cu
+    utilities.cu
     hyperrectangularCellList.cu
     neighborList.cu
     )

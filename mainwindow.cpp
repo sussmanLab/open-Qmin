@@ -1,7 +1,5 @@
-
 #include <QMainWindow>
 #include <QGuiApplication>
-
 #include <QPropertyAnimation>
 #include <chrono>
 
@@ -210,6 +208,7 @@ void MainWindow::simulationInitialize()
      sim->addForce(landauLCForce);
      on_fireParamButton_released();
      ui->reproducibleButton->setEnabled(true);
+     customFile.save();
 }
 
 void MainWindow::on_phaseS0Box_textEdited(const QString &arg1)

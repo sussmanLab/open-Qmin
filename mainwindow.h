@@ -15,6 +15,7 @@
 #include "indexer.h"
 #include "qTensorFunctions.h"
 #include "latticeBoundaries.h"
+#include "fileGenerator.h"
 
 
 namespace Ui {
@@ -143,6 +144,8 @@ public:
     shared_ptr<energyMinimizerLoLBFGS> lolbfgs;
 
     vector<QString> computationalNames;
+
+    fileGenerator customFile;
 };
 
 #endif // MAINWINDOW_H

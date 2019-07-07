@@ -86,7 +86,7 @@ set(HEADERS
     )
 
 # list the names of cpp files corresponding to linked executables you'd like...
-foreach(ARG openQmin openQminGUI)
+foreach(ARG openQmin openQminGUI customScriptFromGUI)
 add_executable("${ARG}.out" "${ARG}.cpp" ${SOURCES} ${HEADERS} ${UI_HEADERS})
 target_link_libraries("${ARG}.out" ${myLibs} ${CUDA_LIBRARIES} ${OPENGL_LIBRARIES}
     ${MPI_LIBRARIES}

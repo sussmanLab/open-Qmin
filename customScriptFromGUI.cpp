@@ -136,8 +136,6 @@ int main(int argc, char*argv[])
     noiseSource noise(reproducible);
     noise.setReproducibleSeed(13371+myRank);
     printf("setting a rectilinear lattice of size (%i,%i,%i)\n",boxLx,boxLy,boxLz);
-    profiler pInit("initialization");
-    pInit.start();
     bool xH = (rankTopology.x >1) ? true : false;
     bool yH = (rankTopology.y >1) ? true : false;
     bool zH = (rankTopology.z >1) ? true : false;
@@ -148,99 +146,6 @@ int main(int argc, char*argv[])
     shared_ptr<multirankSimulation> sim = make_shared<multirankSimulation>(myRank,rankTopology.x,rankTopology.y,rankTopology.z,edges,corners);
     shared_ptr<landauDeGennesLC> landauLCForce = make_shared<landauDeGennesLC>(neverGPU);
     sim->setConfiguration(Configuration);
-    pInit.end();
-
-    landauLCForce->setPhaseConstants(a,b,c);
-    printf("relative phase constants: %f\t%f\t%f\n",a,b,c);
-    if(nConstants ==1)
-        {
-        printf("using 1-constant approximation: %f \n",L1);
-        landauLCForce->setElasticConstants(L1);
-        landauLCForce->setNumberOfConstants(distortionEnergyType::oneConstant);
-        }
-    else
-        {
-        landauLCForce->setElasticConstants(L1,L2,L3,L4,L6);
-        landauLCForce->setNumberOfConstants(distortionEnergyType::multiConstant);
-        }
-    landauLCForce->setModel(Configuration);
-    sim->addForce(landauLCForce);
-
-    scalar forceCutoff=1e-12;
-    shared_ptr<energyMinimizerFIRE> Fminimizer =  make_shared<energyMinimizerFIRE>(Configuration);
-    Fminimizer->setMaximumIterations(maximumIterations);
-    scalar alphaStart=.99; scalar deltaTMax=100*dt; scalar deltaTInc=1.1; scalar deltaTDec=0.95;
-    scalar alphaDec=0.9; int nMin=4;scalar alphaMin = .0;
-    Fminimizer->setFIREParameters(dt,alphaStart,deltaTMax,deltaTInc,deltaTDec,alphaDec,nMin,forceCutoff,alphaMin);
-    sim->addUpdater(Fminimizer,Configuration);
-
-    sim->setCPUOperation(true);//have cpu and gpu initialized the same...for debugging
-    scalar S0 = (-b+sqrt(b*b-24*a*c))/(6*c);
-    printf("setting random configuration with S0 = %f\n",S0);
-    Configuration->setNematicQTensorRandomly(noise,S0);
-    sim->setCPUOperation(!GPU);
-    printf("initialization done\n");
-
-    if(boundaryFile == "NONE")
-        {
-        if(myRank ==0)
-            cout << "not using any custom boundary conditions" << endl;
-        }
-    else
-        {
-        sim->createBoundaryFromFile(boundaryFile,true);
-        }
-    /*
-    //Here are some random examples of adding specific simple boundary conditions... see src/simulation/multirankSimulation.h for the set of commands one can pick from
-
-    boundaryObject homeotropicBoundary(boundaryType::homeotropic,1.0,S0);
-    boundaryObject pdgBoundary(boundaryType::degeneratePlanar,1.0,S0);
-    scalar3 left,center, right;
-    left.x = 0.75*boxLx;left.y = 0.5*boxLy;left.z = 0.5*boxLz;
-    center.x = 1.0*boxLx;center.y = 0.5*boxLy;center.z = 0.5*boxLz;
-    right.x = 1.25*boxLx;right.y = 0.5*boxLy;right.z = 0.5*boxLz;
-    sim->createSpherocylinder(left,right,8.0,homeotropicBoundary);
-    sim->createCylindricalObject(left,right,5.0,false,homeotropicBoundary);
-    sim->createSphericalColloid(left,4,homeotropicBoundary);
-    sim->createSphericalColloid(center,5,homeotropicBoundary);
-    sim->createSphericalColloid(right,4,homeotropicBoundary);
-
-    sim->createWall(0, 5, homeotropicBoundary);
-    sim->createWall(1, 0, homeotropicBoundary);
-    scalar3 left;
-    left.x = 0.3*boxLx;left.y = 0.5*boxLy;left.z = 0.5*boxLz;
-    scalar3 center;
-    left.x = 0.5*boxLx;left.y = 0.5*boxLy;left.z = 0.5*boxLz;
-    scalar3 right;
-    right.x = 0.7*boxLx;right.y = 0.5*boxLy;right.z = 0.5*boxLz;
-    Configuration->createSimpleFlatWallNormal(0,1, homeotropicBoundary);
-     */
-    sim->finalizeObjects();
-
-    profiler pMinimize("minimization");
-    pMinimize.start();
-    //note that this single "performTimestep()" call performs some number of iterations of the FIRE algorithm, with that number set from the command line
-    sim->performTimestep();
-    pMinimize.end();
-
-    scalar E1 = sim->computePotentialEnergy(true);
-    scalar maxForce;
-    maxForce = Fminimizer->getMaxForce();
-
-    printf("minimized to %g\t E=%f\t\n",maxForce,E1);
-
-    pMinimize.print();
-    sim->p1.print();
-    if(saveFile != "NONE")
-        sim->saveState(saveFile);
-    scalar totalMinTime = pMinimize.timeTaken;
-    scalar communicationTime = sim->p1.timeTaken;
-    if(myRank == 0)
-        printf("min  time %f\n comm time %f\n percent comm: %f\n",totalMinTime,communicationTime,communicationTime/totalMinTime);
-
-    cout << "size of configuration " << Configuration->getClassSize() << endl;
-    cout << "size of force computer" << landauLCForce->getClassSize() << endl;
-    cout << "size of fire updater " << Fminimizer->getClassSize() << endl;
-    MPI_Finalize();
-    return 0;
-    };
+	MPI_Finalize();
+	return 0;
+	};
