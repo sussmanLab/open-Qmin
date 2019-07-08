@@ -151,23 +151,10 @@ void landauDeGennesLC::computeForceCPU(GPUArray<dVec> &forces,bool zeroOutForce,
             {
             bool zeroForce = zeroOutForce;
             computeFirstDerivatives();
-            //Always compute L1 term, since it also computes the phase contribution
             if(type ==0)
-                {
-                computeL1BulkCPU(forces,zeroForce);
-                computeOtherDistortionTermsBulkCPU(forces,L2,L3,L4,L6);
-                }
+                computeAllDistortionTermsBulkCPU(forces,zeroForce);
             if(type ==1)
-                {
-                computeL1BoundaryCPU(forces,zeroForce);
-                computeOtherDistortionTermsBoundaryCPU(forces,L2,L3,L4,L6);
-                }
-            zeroForce = false;
-
-            if(type ==0)
-                computeOtherDistortionTermsBulkCPU(forces,L2,L3,L4,L6);
-            if(type ==1)
-                computeOtherDistortionTermsBoundaryCPU(forces,L2,L3,L4,L6);
+                computeAllDistortionTermsBoundaryCPU(forces,zeroForce);
             break;
             };
         };

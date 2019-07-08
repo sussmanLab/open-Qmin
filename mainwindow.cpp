@@ -818,7 +818,7 @@ void MainWindow::on_reprodicbleRNGBox_stateChanged(int arg1)
 void MainWindow::on_builtinBoundaryVisualizationBox_released()
 {
     QString printable1 = QStringLiteral("Changing style of boundary visualization");
-    ui->testingBox->setText(printable1);
+    //ui->testingBox->setText(printable1);
     if(!ui->builtinBoundaryVisualizationBox->isChecked())
     {
         int totalSize = 0;

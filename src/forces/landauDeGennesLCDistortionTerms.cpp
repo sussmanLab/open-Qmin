@@ -108,7 +108,7 @@ void landauDeGennesLC::computeL1BoundaryCPU(GPUArray<dVec> &forces,bool zeroOutF
         };
     }
 
-void landauDeGennesLC::computeOtherDistortionTermsBulkCPU(GPUArray<dVec> &forces, scalar L2, scalar L3, scalar L4, scalar L6)
+void landauDeGennesLC::computeAllDistortionTermsBulkCPU(GPUArray<dVec> &forces,bool zeroOutForce)
     {
     ArrayHandle<dVec> h_f(forces);
     ArrayHandle<dVec> Qtensors(lattice->returnPositions());
@@ -116,6 +116,9 @@ void landauDeGennesLC::computeOtherDistortionTermsBulkCPU(GPUArray<dVec> &forces
     ArrayHandle<int> latticeTypes(lattice->returnTypes());
     ArrayHandle<int> latticeNeighbors(lattice->neighboringSites,access_location::host,access_mode::read);
 
+    scalar a = 0.5*A;
+    scalar b = B/3.0;
+    scalar c = 0.25*C;
     for (int i = 0; i < lattice->getNumberOfParticles(); ++i)
         {
         dVec qCurrent, xDown, xUp, yDown,yUp,zDown,zUp;
@@ -125,6 +128,11 @@ void landauDeGennesLC::computeOtherDistortionTermsBulkCPU(GPUArray<dVec> &forces
         if(latticeTypes.data[currentIndex] == 0)
             {
             qCurrent = Qtensors.data[currentIndex];
+            //compute the phase terms depending only on the current site
+            force -= a*derivativeTrQ2(qCurrent);
+            force -= b*derivativeTrQ3(qCurrent);
+            force -= c*derivativeTrQ2Squared(qCurrent);
+
             int ixd, ixu,iyd,iyu,izd,izu;
             ixd =latticeNeighbors.data[lattice->neighborIndex(0,currentIndex)];
             ixu =latticeNeighbors.data[lattice->neighborIndex(1,currentIndex)];
@@ -144,6 +152,11 @@ void landauDeGennesLC::computeOtherDistortionTermsBulkCPU(GPUArray<dVec> &forces
             dVec spatialTerm(0.0);
             dVec individualTerms(0.0);
 
+            if(L1 != 0)
+                {
+                lcForce::bulkL1Force(L1,qCurrent,xDown,xUp,yDown,yUp,zDown,zUp,individualTerms);
+                spatialTerm += individualTerms;
+                }
             if(L2 != 0)
                 {
                 lcForce::bulkL2Force(L2,qCurrent,xDown,xUp,yDown,yUp,zDown,zUp,
@@ -174,11 +187,14 @@ void landauDeGennesLC::computeOtherDistortionTermsBulkCPU(GPUArray<dVec> &forces
                 }
             force -= spatialTerm;
             };
-        h_f.data[currentIndex] += force;
+        if(zeroOutForce)
+            h_f.data[currentIndex] = force;
+        else
+            h_f.data[currentIndex] += force;
         };
     }
 
-void landauDeGennesLC::computeOtherDistortionTermsBoundaryCPU(GPUArray<dVec> &forces,scalar L2, scalar L3, scalar L4, scalar L6)
+void landauDeGennesLC::computeAllDistortionTermsBoundaryCPU(GPUArray<dVec> &forces,bool zeroOutForce)
     {
     ArrayHandle<dVec> h_f(forces);
     ArrayHandle<dVec> Qtensors(lattice->returnPositions());
@@ -186,6 +202,9 @@ void landauDeGennesLC::computeOtherDistortionTermsBoundaryCPU(GPUArray<dVec> &fo
     ArrayHandle<int> latticeTypes(lattice->returnTypes());
     ArrayHandle<int> latticeNeighbors(lattice->neighboringSites,access_location::host,access_mode::read);
 
+    scalar a = 0.5*A;
+    scalar b = B/3.0;
+    scalar c = 0.25*C;
     for (int i = 0; i < lattice->getNumberOfParticles(); ++i)
         {
         dVec qCurrent, xDown, xUp, yDown,yUp,zDown,zUp;
@@ -196,6 +215,11 @@ void landauDeGennesLC::computeOtherDistortionTermsBoundaryCPU(GPUArray<dVec> &fo
         if(siteType < 0)
             {
             qCurrent = Qtensors.data[currentIndex];
+            //compute the phase terms depending only on the current site
+            force -= a*derivativeTrQ2(qCurrent);
+            force -= b*derivativeTrQ3(qCurrent);
+            force -= c*derivativeTrQ2Squared(qCurrent);
+            
             int ixd, ixu,iyd,iyu,izd,izu;
             ixd =latticeNeighbors.data[lattice->neighborIndex(0,currentIndex)];
             ixu =latticeNeighbors.data[lattice->neighborIndex(1,currentIndex)];
@@ -218,6 +242,11 @@ void landauDeGennesLC::computeOtherDistortionTermsBoundaryCPU(GPUArray<dVec> &fo
 
             if(siteType == -2)
                 {
+                if(L1 != 0)
+                    {
+                    lcForce::bulkL1Force(L1,qCurrent,xDown,xUp,yDown,yUp,zDown,zUp,individualTerms);
+                    spatialTerm += individualTerms;
+                    }
                 if(L2 != 0)
                     {
                     lcForce::bulkL2Force(L2,qCurrent,xDown,xUp,yDown,yUp,zDown,zUp,
@@ -252,6 +281,14 @@ void landauDeGennesLC::computeOtherDistortionTermsBoundaryCPU(GPUArray<dVec> &fo
                 int boundaryCase = lcForce::getBoundaryCase(latticeTypes.data[ixd],latticeTypes.data[ixu],
                                                    latticeTypes.data[iyd],latticeTypes.data[iyu],
                                                    latticeTypes.data[izd],latticeTypes.data[izu]);
+                if(L1 != 0)
+                    {
+                    lcForce::boundaryL1Force(L1,qCurrent,xDown,xUp,yDown,yUp,zDown,zUp,
+                                latticeTypes.data[ixd],latticeTypes.data[ixu],latticeTypes.data[iyd],
+                                latticeTypes.data[iyu],latticeTypes.data[izd],latticeTypes.data[izu],
+                                individualTerms);
+                    spatialTerm += individualTerms;
+                    }
                 if(L2 != 0)
                     {
                     lcForce::boundaryL2Force(L2,boundaryCase,qCurrent,xDown,xUp,yDown,yUp,zDown,zUp,
@@ -283,6 +320,9 @@ void landauDeGennesLC::computeOtherDistortionTermsBoundaryCPU(GPUArray<dVec> &fo
                 };
             force -= spatialTerm;
             };
-        h_f.data[currentIndex] += force;
+        if(zeroOutForce)
+            h_f.data[currentIndex] = force;
+        else
+            h_f.data[currentIndex] += force;
         };
     }
