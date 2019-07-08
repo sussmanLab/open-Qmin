@@ -27,8 +27,9 @@ multirankQTensorLatticeModel::multirankQTensorLatticeModel(int lx, int ly, int l
     if(zHalo)
         Lz +=2;
 
-    //totalSites = Lx*Ly*Lz;
-    totalSites = N+transferStartStopIndexes[25].y;
+    totalSites = N;
+    if(xHalo || yHalo || zHalo)
+        totalSites = N+transferStartStopIndexes[25].y;
     printf("total sites: %i\n",totalSites);
     positions.resize(totalSites);
     types.resize(totalSites);
