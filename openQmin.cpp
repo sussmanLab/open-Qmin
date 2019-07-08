@@ -191,7 +191,8 @@ int main(int argc, char*argv[])
         sim->createBoundaryFromFile(boundaryFile,true);
         }
     /*
-    //Here are some random examples of adding specific simple boundary conditions... see src/simulation/multirankSimulation.h for the set of commands one can pick from
+    //Here are some random examples of adding specific simple boundary conditions...
+    //see src/simulation/multirankSimulation.h for the set of commands one can pick from
 
     boundaryObject homeotropicBoundary(boundaryType::homeotropic,1.0,S0);
     boundaryObject pdgBoundary(boundaryType::degeneratePlanar,1.0,S0);

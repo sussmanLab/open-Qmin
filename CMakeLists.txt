@@ -85,8 +85,24 @@ set(HEADERS
        oglwidget.h
     )
 
-# list the names of cpp files corresponding to linked executables you'd like...
-foreach(ARG openQmin openQminGUI customScriptFromGUI)
+# list the names of cpp files corresponding to linked executables you'd like... This first set is
+# for cpp files which DO NOT need QT
+foreach(ARG openQmin customScriptFromGUI)
+add_executable("${ARG}.out" "${ARG}.cpp")
+target_link_libraries("${ARG}.out" ${myLibs} ${CUDA_LIBRARIES}
+    ${MPI_LIBRARIES}
+    )
+if(MPI_COMPILE_FLAGS)
+    set_target_properties("${ARG}.out" PROPERTIES COMPILE_FLAGS "${MPI_COMPILE_FLAGS}")
+endif()
+if(MPI_LINK_FLAGS)
+    set_target_properties("${ARG}.out" PROPERTIES LINK_FLAGS "${MPI_LINK_FLAGS}")
+endif()
+endforeach()
+
+# list the names of cpp files corresponding to linked executables you'd like... This second set is
+# for GUI-related cpp files
+foreach(ARG openQminGUI)
 add_executable("${ARG}.out" "${ARG}.cpp" ${SOURCES} ${HEADERS} ${UI_HEADERS})
 target_link_libraries("${ARG}.out" ${myLibs} ${CUDA_LIBRARIES} ${OPENGL_LIBRARIES}
     ${MPI_LIBRARIES}
