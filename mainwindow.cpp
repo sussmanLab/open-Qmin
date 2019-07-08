@@ -425,6 +425,7 @@ void MainWindow::on_minimizeButton_released()
     ui->progressBar->setValue(75);
 
     ui->progressBar->setValue(80);
+    on_drawStuffButton_released();
     scalar maxForce = sim->getMaxForce();
     QString printable = QStringLiteral("minimization iterations took %2 total time for %3 steps...<f> = %4 ")
                 .arg(diff.count()).arg(iterationsTaken).arg(maxForce);
@@ -1052,7 +1053,7 @@ void MainWindow::on_computeEnergyButton_released()
     QString energyString = QStringLiteral("Total energy per site: %1").arg(totalEnergyPer);
     if(!GPU)
         {
-        energyString += QStringLiteral(", components (phase, distortion, anchoring, E, H): "); 
+        energyString += QStringLiteral(", components (phase, distortion, anchoring, E, H): ");
         for(int ii = 0; ii < landauLCForce->energyComponents.size();++ii)
             energyString += QStringLiteral(" %1,  ").arg(landauLCForce->energyComponents[ii]/nn);
         }
