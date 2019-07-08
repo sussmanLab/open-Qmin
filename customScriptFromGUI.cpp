@@ -151,6 +151,73 @@ int main(int argc, char*argv[])
 	scalar globalLx = boxLx*rankTopology.x;
 	scalar globalLy = boxLy*rankTopology.y;
 	scalar globalLz = boxLz*rankTopology.z;
+	noise.Reproducible = true;
+	landauLCForce->setPhaseConstants(0.000000,0.000000,0.000000);
+	landauLCForce->setModel(Configuration);
+	sim->addForce(landauLCForce);
+	sim->clearUpdaters();
+	fire = make_shared<energyMinimizerFIRE>(Configuration);
+	sim->addUpdater(fire,Configuration);
+	sim->setCPUOperation(!sim->useGPU);
+	fire->setCurrentIterations(0);
+	fire->setFIREParameters(0.0005000000,0.990000,0.050000,1.100000,0.950000,0.900000,4,0.0000000000010000,0.000000);
+	fire->setMaximumIterations(1000);
+	sim->setCPUOperation(!GPU);
+	Configuration->setNematicQTensorRandomly(noise,0.580383);
+	landauLCForce->setPhaseConstants(-1.000000,-12.325581,9.058140);
+	landauLCForce->setElasticConstants(4.640000,0,0,0,0);
+	landauLCForce->setNumberOfConstants(distortionEnergyType::oneConstant);
+	landauLCForce->setModel(Configuration);
+	{auto upd = sim->updaters[0].lock();
+	upd->setCurrentIterations(0);
+	upd->setMaximumIterations(1000);}
+	sim->performTimestep();
+{scalar3 spherePos;
+	spherePos.x =0.500000*globalLx;
+	spherePos.y =0.500000*globalLy;
+	spherePos.z =0.500000*globalLz;
+	scalar rad = 0.250000*globalLx;
+	boundaryObject homeotropicBoundary(boundaryType::homeotropic,5.800000,0.530000);
+sim->createSphericalColloid(spherePos,rad,homeotropicBoundary);}
+	{boundaryObject planarDegenerateBoundary(boundaryType::degeneratePlanar,5.800000,0.530000);
+	sim->createWall(0,0,planarDegenerateBoundary);}
+	sim->finalizeObjects();
+	sim->clearUpdaters();
+	nesterov = make_shared<energyMinimizerNesterovAG>(Configuration);
+	sim->addUpdater(nesterov,Configuration);
+	sim->setCPUOperation(!sim->useGPU);
+	nesterov->scheduledMomentum = false;
+	nesterov->setCurrentIterations(0);
+	nesterov->setNesterovAGParameters(0.0050000000,0.010000,0.0000000000010000);
+	nesterov->setMaximumIterations(1000);
+	{auto upd = sim->updaters[0].lock();
+	upd->setCurrentIterations(0);
+	upd->setMaximumIterations(1000);}
+	sim->performTimestep();
+	{auto upd = sim->updaters[0].lock();
+	upd->setCurrentIterations(0);
+	upd->setMaximumIterations(1000);}
+	sim->performTimestep();
+	{scalar3 center,direction;
+	direction.x=0;direction.y=0;direction.z=1;
+	center.x = 0.5000000000*globalLx;
+	center.y = 0.5000000000*globalLx;
+	center.z = 0.5000000000*globalLx;
+	scalar radius = 0.2500000000*globalLx;
+	scalar range = 2.0000000000*globalLx;
+	scalar thetaD = 1.0000000000*PI;
+	sim->setDipolarField(center,3.141593,5.000000,40.000000,0.580383);}
+	sim->clearUpdaters();
+	fire = make_shared<energyMinimizerFIRE>(Configuration);
+	sim->addUpdater(fire,Configuration);
+	sim->setCPUOperation(!sim->useGPU);
+	fire->setCurrentIterations(0);
+	fire->setFIREParameters(0.0005000000,0.990000,0.050000,1.100000,0.950000,0.900000,4,0.0000000000010000,0.000000);
+	fire->setMaximumIterations(1000);
+	{auto upd = sim->updaters[0].lock();
+	upd->setCurrentIterations(0);
+	upd->setMaximumIterations(1000);}
+	sim->performTimestep();
 
 
 

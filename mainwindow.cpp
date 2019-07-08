@@ -589,7 +589,7 @@ void MainWindow::on_drawStuffButton_released()
     vector<scalar3> defects;
     scalar3 director;
     QString printable1 = QStringLiteral("finding directors ");
-    ui->testingBox->setText(printable1);
+    //ui->testingBox->setText(printable1);
     for (int xx = 0; xx < BoxX; xx += skip)
          for (int yy = 0; yy < BoxY; yy += skip)
               for (int zz = 0; zz < BoxZ; zz += skip)
@@ -620,7 +620,7 @@ void MainWindow::on_drawStuffButton_released()
     if(defectDraw)
     {
         QString printable2 = QStringLiteral("finding defects ");
-        ui->testingBox->setText(printable2);
+        //ui->testingBox->setText(printable2);
         Configuration->computeDefectMeasures(0);
         ArrayHandle<scalar> defectStrength(Configuration->defectMeasures,access_location::host,access_mode::read);
 
@@ -1037,23 +1037,25 @@ void MainWindow::on_fieldTypeComboBox_currentTextChanged(const QString &arg1)
 
 void MainWindow::on_computeEnergyButton_released()
 {
-     ui->progressBar->setValue(0);
+    ui->progressBar->setValue(0);
     scalar totalEnergyPer = sim->computePotentialEnergy();
     printf("%f\n",totalEnergyPer);
-     ui->progressBar->setValue(90);
-    scalar totalEnergy = 0.0;
-    if(GPU)
-        {
-        totalEnergy=totalEnergyPer;
-        }
-    else
-        for(int ii = 0; ii < landauLCForce->energyComponents.size();++ii)
-            totalEnergy+=landauLCForce->energyComponents[ii];
+    ui->progressBar->setValue(90);
 
-    QString energyString = QStringLiteral("Total energy: %1, components (phase, distortion, anchoring, E, H):  ").arg(totalEnergyPer);
+    int nn = sim->NActive;
+    if (nn == 0)
+        {
+        nn = BoxX*BoxY*BoxZ;
+        if(!GPU)
+            totalEnergyPer /= nn;
+        }
+    QString energyString = QStringLiteral("Total energy per site: %1").arg(totalEnergyPer);
     if(!GPU)
+        {
+        energyString += QStringLiteral(", components (phase, distortion, anchoring, E, H): "); 
         for(int ii = 0; ii < landauLCForce->energyComponents.size();++ii)
-            energyString += QStringLiteral(" %1,  ").arg(landauLCForce->energyComponents[ii]);
+            energyString += QStringLiteral(" %1,  ").arg(landauLCForce->energyComponents[ii]/nn);
+        }
     ui->testingBox->setText(energyString);
     ui->progressBar->setValue(100);
 }
