@@ -30,7 +30,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->applyFieldWidget->hide();
     ui->moveObjectWidget->hide();
     ui->colloidalTrajectoryWidget->hide();
-    ui->LOLBFGSWidget->hide();
 
     connect(ui->displayZone,SIGNAL(xRotationChanged(int)),ui->xRotSlider,SLOT(setValue(int)));
     connect(ui->displayZone,SIGNAL(zRotationChanged(int)),ui->zRotSlider,SLOT(setValue(int)));
@@ -86,8 +85,15 @@ void MainWindow::hideControls()
     ui->boundaryFromFileButton->hide();
     ui->nesterovMinimizationButton->hide();
     ui->computeEnergyButton->hide();
-    ui->lolbfgsMinimizationButton->hide();
     ui->dipoleWidget->hide();
+
+    ui->xNormalSlider->hide();
+    ui->yNormalSlider->hide();
+    ui->zNormalSlider->hide();
+    ui->drawPlanesCheckBox->hide();
+    ui->xNormalCheckBox->hide();
+    ui->yNormalCheckBox->hide();
+    ui->zNormalCheckBox->hide();
 }
 void MainWindow::showControls()
 {
@@ -117,7 +123,13 @@ void MainWindow::showControls()
     ui->boundaryFromFileButton->show();
     ui->nesterovMinimizationButton->show();
     ui->computeEnergyButton->show();
-    //ui->lolbfgsMinimizationButton->show();
+    ui->xNormalSlider->show();
+    ui->yNormalSlider->show();
+    ui->zNormalSlider->show();
+    ui->drawPlanesCheckBox->show();
+    ui->xNormalCheckBox->show();
+    ui->yNormalCheckBox->show();
+    ui->zNormalCheckBox->show();
 }
 
 void MainWindow::on_initializeButton_released()
@@ -125,6 +137,9 @@ void MainWindow::on_initializeButton_released()
     BoxX = ui->boxXLine->text().toInt();
     BoxY = ui->boxYLine->text().toInt();
     BoxZ = ui->boxZLine->text().toInt();
+    ui->xNormalSlider->setMaximum(BoxX-1);
+    ui->yNormalSlider->setMaximum(BoxY-1);
+    ui->zNormalSlider->setMaximum(BoxZ-1);
 
     QString dScaleAns = QString::number(round(10*0.075*BoxX)*0.1);
 
@@ -202,6 +217,9 @@ void MainWindow::on_initializeButton_released()
     ui->testingBox->setText(printable);
     ui->progressBar->setValue(100);
     on_drawStuffButton_released();
+    ui->xNormalSlider->setValue((int) (0.5*BoxX));
+    ui->yNormalSlider->setValue((int) (0.5*BoxY));
+    ui->zNormalSlider->setValue((int) (0.5*BoxZ));
 }
 
 void MainWindow::simulationInitialize()
@@ -591,33 +609,129 @@ void MainWindow::on_drawStuffButton_released()
     scalar3 director;
     QString printable1 = QStringLiteral("finding directors ");
     //ui->testingBox->setText(printable1);
-    for (int xx = 0; xx < BoxX; xx += skip)
-         for (int yy = 0; yy < BoxY; yy += skip)
+    if(ui->drawPlanesCheckBox->isChecked())
+        {
+        if(ui->xNormalCheckBox->isChecked())
+            {
+            int xPlane = ui->xNormalSlider->sliderPosition();
+            for  (int yy = 0; yy < BoxY; yy += skip)
               for (int zz = 0; zz < BoxZ; zz += skip)
-    {
-        int3 curIdx; curIdx.x=xx;curIdx.y=yy;curIdx.z=zz;
-        int ii = Configuration->latticeSiteToLinearIndex(curIdx);
-        if(types.data[ii]>0)
-            continue;
-        eigensystemOfQ(Q.data[ii],eVals,eVec1,eVec2,eVec3);
-        director.x=eVec3[0];
-        director.y=eVec3[1];
-        director.z=eVec3[2];
+                {
+                int3 curIdx; curIdx.x=xPlane;curIdx.y=yy;curIdx.z=zz;
+                int ii = Configuration->latticeSiteToLinearIndex(curIdx);
+                if(types.data[ii]>0)
+                        continue;
+                eigensystemOfQ(Q.data[ii],eVals,eVec1,eVec2,eVec3);
+                director.x=eVec3[0];
+                director.y=eVec3[1];
+                director.z=eVec3[2];
 
-        int3 pos = Configuration->latticeIndex.inverseIndex(ii);
-        scalar3 lineSegment1;
-        scalar3 lineSegment2;
+                int3 pos = Configuration->latticeIndex.inverseIndex(ii);
+                scalar3 lineSegment1;
+                scalar3 lineSegment2;
 
-        lineSegment1.x = pos.x-0.5*scale*director.x;
-        lineSegment2.x = pos.x+0.5*scale*director.x;
-        lineSegment1.y = pos.y-0.5*scale*director.y;
-        lineSegment2.y = pos.y+0.5*scale*director.y;
-        lineSegment1.z = pos.z-0.5*scale*director.z;
-        lineSegment2.z = pos.z+0.5*scale*director.z;
+                lineSegment1.x = pos.x-0.5*scale*director.x;
+                lineSegment2.x = pos.x+0.5*scale*director.x;
+                lineSegment1.y = pos.y-0.5*scale*director.y;
+                lineSegment2.y = pos.y+0.5*scale*director.y;
+                lineSegment1.z = pos.z-0.5*scale*director.z;
+                lineSegment2.z = pos.z+0.5*scale*director.z;
 
-        lineSegments.push_back(lineSegment1);
-        lineSegments.push_back(lineSegment2);
-    }
+                lineSegments.push_back(lineSegment1);
+                lineSegments.push_back(lineSegment2);
+                }
+            }
+        if(ui->yNormalCheckBox->isChecked())
+            {
+            int yPlane = ui->yNormalSlider->sliderPosition();
+            for  (int xx = 0; xx < BoxX; xx += skip)
+              for (int zz = 0; zz < BoxZ; zz += skip)
+                {
+                int3 curIdx; curIdx.x=xx; curIdx.y=yPlane;curIdx.z=zz;
+                int ii = Configuration->latticeSiteToLinearIndex(curIdx);
+                if(types.data[ii]>0)
+                        continue;
+                eigensystemOfQ(Q.data[ii],eVals,eVec1,eVec2,eVec3);
+                director.x=eVec3[0];
+                director.y=eVec3[1];
+                director.z=eVec3[2];
+
+                int3 pos = Configuration->latticeIndex.inverseIndex(ii);
+                scalar3 lineSegment1;
+                scalar3 lineSegment2;
+
+                lineSegment1.x = pos.x-0.5*scale*director.x;
+                lineSegment2.x = pos.x+0.5*scale*director.x;
+                lineSegment1.y = pos.y-0.5*scale*director.y;
+                lineSegment2.y = pos.y+0.5*scale*director.y;
+                lineSegment1.z = pos.z-0.5*scale*director.z;
+                lineSegment2.z = pos.z+0.5*scale*director.z;
+
+                lineSegments.push_back(lineSegment1);
+                lineSegments.push_back(lineSegment2);
+                }
+            }
+        if(ui->zNormalCheckBox->isChecked())
+            {
+            int zPlane = ui->zNormalSlider->sliderPosition();
+            for  (int xx = 0; xx < BoxX; xx += skip)
+              for (int yy = 0; yy < BoxY; yy += skip)
+                {
+                int3 curIdx; curIdx.x=xx; curIdx.y=yy; curIdx.z=zPlane;
+                int ii = Configuration->latticeSiteToLinearIndex(curIdx);
+                if(types.data[ii]>0)
+                        continue;
+                eigensystemOfQ(Q.data[ii],eVals,eVec1,eVec2,eVec3);
+                director.x=eVec3[0];
+                director.y=eVec3[1];
+                director.z=eVec3[2];
+
+                int3 pos = Configuration->latticeIndex.inverseIndex(ii);
+                scalar3 lineSegment1;
+                scalar3 lineSegment2;
+
+                lineSegment1.x = pos.x-0.5*scale*director.x;
+                lineSegment2.x = pos.x+0.5*scale*director.x;
+                lineSegment1.y = pos.y-0.5*scale*director.y;
+                lineSegment2.y = pos.y+0.5*scale*director.y;
+                lineSegment1.z = pos.z-0.5*scale*director.z;
+                lineSegment2.z = pos.z+0.5*scale*director.z;
+
+                lineSegments.push_back(lineSegment1);
+                lineSegments.push_back(lineSegment2);
+                }
+            }
+        }
+    else
+        {
+        for (int xx = 0; xx < BoxX; xx += skip)
+            for (int yy = 0; yy < BoxY; yy += skip)
+              for (int zz = 0; zz < BoxZ; zz += skip)
+                {
+                int3 curIdx; curIdx.x=xx;curIdx.y=yy;curIdx.z=zz;
+                int ii = Configuration->latticeSiteToLinearIndex(curIdx);
+                if(types.data[ii]>0)
+                        continue;
+                eigensystemOfQ(Q.data[ii],eVals,eVec1,eVec2,eVec3);
+                director.x=eVec3[0];
+                director.y=eVec3[1];
+                director.z=eVec3[2];
+
+                int3 pos = Configuration->latticeIndex.inverseIndex(ii);
+                scalar3 lineSegment1;
+                scalar3 lineSegment2;
+
+                lineSegment1.x = pos.x-0.5*scale*director.x;
+                lineSegment2.x = pos.x+0.5*scale*director.x;
+                lineSegment1.y = pos.y-0.5*scale*director.y;
+                lineSegment2.y = pos.y+0.5*scale*director.y;
+                lineSegment1.z = pos.z-0.5*scale*director.z;
+                lineSegment2.z = pos.z+0.5*scale*director.z;
+
+                lineSegments.push_back(lineSegment1);
+                lineSegments.push_back(lineSegment2);
+                }
+        };
     if(defectDraw)
     {
         QString printable2 = QStringLiteral("finding defects ");
@@ -668,6 +782,25 @@ void MainWindow::on_zoomSlider_valueChanged(int value)
     ui->displayZone->setLines(ui->displayZone->lines,Configuration->latticeIndex.sizes);
     on_builtinBoundaryVisualizationBox_released();
     on_drawStuffButton_released();
+}
+
+void MainWindow::on_xNormalSlider_valueChanged(int value)
+{
+    if(ui->xNormalCheckBox->isChecked())
+        on_drawStuffButton_released();
+}
+
+
+void MainWindow::on_yNormalSlider_valueChanged(int value)
+{
+    if(ui->yNormalCheckBox->isChecked())
+        on_drawStuffButton_released();
+}
+
+void MainWindow::on_zNormalSlider_valueChanged(int value)
+{
+    if(ui->zNormalCheckBox->isChecked())
+        on_drawStuffButton_released();
 }
 
 void MainWindow::on_addSphereButton_released()
@@ -894,29 +1027,6 @@ void MainWindow::on_boxLSize_textEdited(const QString &arg1)
     ui->boxYLine->setText(arg1);
     ui->boxZLine->setText(arg1);
 };
-
-void MainWindow::on_lolbfgsParamButton_released()
-{
-    ui->LOLBFGSWidget->hide();
-    sim->clearUpdaters();
-    lolbfgs = make_shared<energyMinimizerLoLBFGS>(Configuration);
-    sim->addUpdater(lolbfgs,Configuration);
-    sim->setCPUOperation(!GPU);
-    ui->progressBar->setValue(0);
-    scalar dt = ui->lolbfgsDtBox->text().toDouble();
-    int M = ui->lolbfgsMBox->text().toInt();
-    scalar forceCutoff=ui->lolbfgsForceCutoffBox->text().toDouble();
-    maximumIterations = ui->lolbfgsMaxIterationsBox->text().toInt();
-    lolbfgs->setCurrentIterations(0);
-    lolbfgs->setLoLBFGSParameters(M, dt,1.0, forceCutoff);
-
-    lolbfgs->setMaximumIterations(maximumIterations);
-
-    QString printable = QStringLiteral("simple online LBFGS minimization parameters set, force cutoff of %1 dt of %2 and M %3 chosen for %4 steps %5").arg(forceCutoff).arg(dt).arg(M)
-                                    .arg(maximumIterations).arg(lolbfgs->getMaxIterations());
-    ui->testingBox->setText(printable);
-    ui->progressBar->setValue(100);
-}
 
 void MainWindow::on_nesterovParamButton_released()
 {
@@ -1219,4 +1329,24 @@ void MainWindow::startCustomFile()
 void MainWindow::saveCustomFile()
 {
     customFile.save();
+}
+
+void MainWindow::on_zNormalCheckBox_released()
+{
+    on_drawStuffButton_released();
+}
+
+void MainWindow::on_yNormalCheckBox_released()
+{
+    on_drawStuffButton_released();
+}
+
+void MainWindow::on_xNormalCheckBox_released()
+{
+    on_drawStuffButton_released();
+}
+
+void MainWindow::on_drawPlanesCheckBox_released()
+{
+    on_drawStuffButton_released();
 }

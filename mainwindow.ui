@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1182</width>
+    <width>1349</width>
     <height>567</height>
    </rect>
   </property>
@@ -767,7 +767,7 @@ border: 1px solid black
       </rect>
      </property>
      <property name="text">
-      <string>4.64</string>
+      <string>2.32</string>
      </property>
     </widget>
     <widget class="QLineEdit" name="twoConstantL2Box">
@@ -780,7 +780,7 @@ border: 1px solid black
       </rect>
      </property>
      <property name="text">
-      <string>4.64</string>
+      <string>2.32</string>
      </property>
     </widget>
     <widget class="QLineEdit" name="twoConstantQ0Box">
@@ -1113,21 +1113,21 @@ border: 1px solid black
       </rect>
      </property>
      <property name="text">
-      <string>4.64</string>
+      <string>2.32</string>
      </property>
     </widget>
    </widget>
    <widget class="QPushButton" name="minimizationParametersButton">
     <property name="geometry">
      <rect>
-      <x>0</x>
+      <x>10</x>
       <y>20</y>
-      <width>221</width>
+      <width>191</width>
       <height>32</height>
      </rect>
     </property>
     <property name="text">
-     <string>FIRE up an energy minimization</string>
+     <string>FIRE minimization</string>
     </property>
    </widget>
    <widget class="QPushButton" name="addObjectButton">
@@ -1153,7 +1153,7 @@ border: 1px solid black
      </rect>
     </property>
     <property name="text">
-     <string>Minimize!</string>
+     <string>Minimize</string>
     </property>
    </widget>
    <widget class="QPushButton" name="resetQTensorsButton">
@@ -1557,7 +1557,7 @@ border: 1px solid purple</string>
      </rect>
     </property>
     <property name="text">
-     <string>Draw stuff!</string>
+     <string>Redraw</string>
     </property>
    </widget>
    <widget class="QLineEdit" name="directorScaleBox">
@@ -1813,7 +1813,7 @@ border: 1px solid orange</string>
       <string notr="true">background: rgb(47, 252, 255); border: 1px solid black</string>
      </property>
      <property name="text">
-      <string>Put a sphere in there!</string>
+      <string>Add a sphere</string>
      </property>
     </widget>
     <widget class="QPushButton" name="finishedWithObjectsButton">
@@ -2061,7 +2061,7 @@ border: 1px black solid</string>
       <string notr="true">background: rgb(119, 253, 255);border: 1px solid red</string>
      </property>
      <property name="text">
-      <string>Create a simple, flat boundary with normal anchoring!</string>
+      <string>Create a simple, flat boundary with normal anchoring</string>
      </property>
     </widget>
     <widget class="QLabel" name="label_53">
@@ -2420,7 +2420,7 @@ border: 1px black solid</string>
      </rect>
     </property>
     <property name="text">
-     <string>I've got a NAGging feeling...</string>
+     <string>NAG minimization</string>
     </property>
    </widget>
    <widget class="QWidget" name="nesterovWidget" native="true">
@@ -2573,9 +2573,9 @@ border: 1px solid purple</string>
     <widget class="QLabel" name="label_65">
      <property name="geometry">
       <rect>
-       <x>80</x>
+       <x>70</x>
        <y>140</y>
-       <width>68</width>
+       <width>81</width>
        <height>19</height>
       </rect>
      </property>
@@ -2916,9 +2916,9 @@ border: 1px solid purple</string>
     <property name="geometry">
      <rect>
       <x>30</x>
-      <y>360</y>
+      <y>350</y>
       <width>141</width>
-      <height>21</height>
+      <height>31</height>
      </rect>
     </property>
     <property name="text">
@@ -3429,196 +3429,6 @@ border: 1px solid purple</string>
      </property>
     </widget>
    </widget>
-   <widget class="QWidget" name="LOLBFGSWidget" native="true">
-    <property name="geometry">
-     <rect>
-      <x>210</x>
-      <y>80</y>
-      <width>471</width>
-      <height>241</height>
-     </rect>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">background: white;
-border: 1px solid purple</string>
-    </property>
-    <widget class="QLabel" name="label_83">
-     <property name="geometry">
-      <rect>
-       <x>60</x>
-       <y>150</y>
-       <width>131</width>
-       <height>20</height>
-      </rect>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">border: white</string>
-     </property>
-     <property name="text">
-      <string>maximum iterations</string>
-     </property>
-    </widget>
-    <widget class="QLineEdit" name="lolbfgsMaxIterationsBox">
-     <property name="geometry">
-      <rect>
-       <x>190</x>
-       <y>150</y>
-       <width>116</width>
-       <height>20</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>1000</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="lolbfgsParamButton">
-     <property name="geometry">
-      <rect>
-       <x>180</x>
-       <y>190</y>
-       <width>114</width>
-       <height>32</height>
-      </rect>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">background: light gray</string>
-     </property>
-     <property name="text">
-      <string>Set parameters</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="label_84">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>10</y>
-       <width>451</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">border: white</string>
-     </property>
-     <property name="text">
-      <string>(Laughable) online LBFGS minimization parameters</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-     <property name="wordWrap">
-      <bool>true</bool>
-     </property>
-    </widget>
-    <widget class="QLineEdit" name="lolbfgsDtBox">
-     <property name="geometry">
-      <rect>
-       <x>190</x>
-       <y>60</y>
-       <width>71</width>
-       <height>20</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>0.003</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="label_85">
-     <property name="geometry">
-      <rect>
-       <x>100</x>
-       <y>60</y>
-       <width>21</width>
-       <height>19</height>
-      </rect>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">border: white</string>
-     </property>
-     <property name="text">
-      <string>dt</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-    </widget>
-    <widget class="QLineEdit" name="lolbfgsMBox">
-     <property name="geometry">
-      <rect>
-       <x>190</x>
-       <y>90</y>
-       <width>71</width>
-       <height>19</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>8</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="label_86">
-     <property name="geometry">
-      <rect>
-       <x>100</x>
-       <y>90</y>
-       <width>21</width>
-       <height>19</height>
-      </rect>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">border: white</string>
-     </property>
-     <property name="text">
-      <string>m</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="label_87">
-     <property name="geometry">
-      <rect>
-       <x>80</x>
-       <y>120</y>
-       <width>68</width>
-       <height>19</height>
-      </rect>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">border: white</string>
-     </property>
-     <property name="text">
-      <string>forceCutoff</string>
-     </property>
-    </widget>
-    <widget class="QLineEdit" name="lolbfgsForceCutoffBox">
-     <property name="geometry">
-      <rect>
-       <x>190</x>
-       <y>120</y>
-       <width>122</width>
-       <height>19</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>0.000000000001</string>
-     </property>
-    </widget>
-   </widget>
-   <widget class="QPushButton" name="lolbfgsMinimizationButton">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>80</y>
-      <width>191</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>LoLBFGS</string>
-    </property>
-   </widget>
    <widget class="QWidget" name="dipoleWidget" native="true">
     <property name="geometry">
      <rect>
@@ -4072,13 +3882,138 @@ border: 1px solid black
      </property>
     </widget>
    </widget>
-   <zorder>addObjectsWidget</zorder>
+   <widget class="QCheckBox" name="drawPlanesCheckBox">
+    <property name="geometry">
+     <rect>
+      <x>1130</x>
+      <y>120</y>
+      <width>201</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Show only planes of directors</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="xNormalCheckBox">
+    <property name="geometry">
+     <rect>
+      <x>1130</x>
+      <y>150</y>
+      <width>101</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>normal to x</string>
+    </property>
+    <property name="checked">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="yNormalCheckBox">
+    <property name="geometry">
+     <rect>
+      <x>1130</x>
+      <y>180</y>
+      <width>101</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>normal to y</string>
+    </property>
+    <property name="checked">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="zNormalCheckBox">
+    <property name="geometry">
+     <rect>
+      <x>1130</x>
+      <y>210</y>
+      <width>101</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>normal to z</string>
+    </property>
+    <property name="checked">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QSlider" name="xNormalSlider">
+    <property name="geometry">
+     <rect>
+      <x>1230</x>
+      <y>150</y>
+      <width>111</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="minimum">
+     <number>0</number>
+    </property>
+    <property name="maximum">
+     <number>10</number>
+    </property>
+    <property name="value">
+     <number>3</number>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+   </widget>
+   <widget class="QSlider" name="yNormalSlider">
+    <property name="geometry">
+     <rect>
+      <x>1230</x>
+      <y>180</y>
+      <width>111</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="minimum">
+     <number>0</number>
+    </property>
+    <property name="maximum">
+     <number>10</number>
+    </property>
+    <property name="value">
+     <number>3</number>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+   </widget>
+   <widget class="QSlider" name="zNormalSlider">
+    <property name="geometry">
+     <rect>
+      <x>1230</x>
+      <y>210</y>
+      <width>111</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="minimum">
+     <number>0</number>
+    </property>
+    <property name="maximum">
+     <number>10</number>
+    </property>
+    <property name="value">
+     <number>3</number>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+   </widget>
    <zorder>dipoleWidget</zorder>
    <zorder>setDistortionConstants3</zorder>
    <zorder>setDistortionConstants2</zorder>
    <zorder>setDistortionConstants1</zorder>
    <zorder>colloidalTrajectoryWidget</zorder>
-   <zorder>LOLBFGSWidget</zorder>
    <zorder>fileSaveWidget</zorder>
    <zorder>nesterovWidget</zorder>
    <zorder>applyFieldWidget</zorder>
@@ -4087,6 +4022,8 @@ border: 1px solid black
    <zorder>setPhaseConstants</zorder>
    <zorder>initializationFrame</zorder>
    <zorder>fileImportWidget</zorder>
+   <zorder>setDistortionConstants5</zorder>
+   <zorder>addObjectsWidget</zorder>
    <zorder>addIterationsBox</zorder>
    <zorder>addIterationsButton</zorder>
    <zorder>testingBox</zorder>
@@ -4123,15 +4060,20 @@ border: 1px solid black
    <zorder>label_57</zorder>
    <zorder>nesterovMinimizationButton</zorder>
    <zorder>computeEnergyButton</zorder>
-   <zorder>lolbfgsMinimizationButton</zorder>
-   <zorder>setDistortionConstants5</zorder>
+   <zorder>drawPlanesCheckBox</zorder>
+   <zorder>xNormalCheckBox</zorder>
+   <zorder>yNormalCheckBox</zorder>
+   <zorder>zNormalCheckBox</zorder>
+   <zorder>xNormalSlider</zorder>
+   <zorder>yNormalSlider</zorder>
+   <zorder>zNormalSlider</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1182</width>
+     <width>1349</width>
      <height>22</height>
     </rect>
    </property>
@@ -4627,22 +4569,6 @@ border: 1px solid black
     <hint type="destinationlabel">
      <x>838</x>
      <y>283</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>lolbfgsMinimizationButton</sender>
-   <signal>released()</signal>
-   <receiver>LOLBFGSWidget</receiver>
-   <slot>show()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>105</x>
-     <y>130</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>445</x>
-     <y>235</y>
     </hint>
    </hints>
   </connection>

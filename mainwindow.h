@@ -97,8 +97,6 @@ private slots:
 
     void on_linearTrajectoryButton_released();
 
-    void on_lolbfgsParamButton_released();
-
     void on_dipoleSetFieldButton_released();
 
     void on_phaseS0Box_textEdited(const QString &arg1);
@@ -109,6 +107,20 @@ private slots:
 
     void startCustomFile();
     void saveCustomFile();
+
+    void on_xNormalSlider_valueChanged(int value);
+
+    void on_yNormalSlider_valueChanged(int value);
+
+    void on_zNormalSlider_valueChanged(int value);
+
+    void on_zNormalCheckBox_released();
+
+    void on_yNormalCheckBox_released();
+
+    void on_xNormalCheckBox_released();
+
+    void on_drawPlanesCheckBox_released();
 
 private:
     Ui::MainWindow *ui;
@@ -144,7 +156,6 @@ public:
     shared_ptr<landauDeGennesLC> landauLCForce;
     shared_ptr<energyMinimizerFIRE> fire;
     shared_ptr<energyMinimizerNesterovAG> nesterov;
-    shared_ptr<energyMinimizerLoLBFGS> lolbfgs;
 
     vector<QString> computationalNames;
 
