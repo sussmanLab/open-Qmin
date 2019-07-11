@@ -3,27 +3,28 @@
 
 void multirankSimulation::sumUpdaterData(vector<scalar> &data)
     {
-    int elements = data.size();
-    int rElements = elements * nRanks;
-    if (dataBuffer.size() < rElements)
-        dataBuffer.resize(rElements);
-//    printf("before %i %f %f %f\n",myRank,data[0],data[1],data[2]);
+    if(nRanks >1)
+        {
+        int elements = data.size();
+        int rElements = elements * nRanks;
+        if (dataBuffer.size() < rElements)
+            dataBuffer.resize(rElements);
+        p1.start();
+        MPI_Allgather(&data[0],elements,MPI_SCALAR,&dataBuffer[0],elements,MPI_SCALAR,MPI_COMM_WORLD);
+        p1.end();
+        for (int ii = 0; ii < elements; ++ii) data[ii] = 0.0;
 
-    p1.start();
-    MPI_Allgather(&data[0],elements,MPI_SCALAR,&dataBuffer[0],elements,MPI_SCALAR,MPI_COMM_WORLD);
-    p1.end();
-    for (int ii = 0; ii < elements; ++ii) data[ii] = 0.0;
-
-    for (int ii = 0; ii < elements; ++ii)
-        for (int rr = 0; rr < nRanks; ++rr)
-            {
-            data[ii] += dataBuffer[rr*elements+ii];
-            }
-
-//    printf("after %i %f %f %f\n",myRank,data[0],data[1],data[2]);
+        for (int ii = 0; ii < elements; ++ii)
+            for (int rr = 0; rr < nRanks; ++rr)
+                {
+                data[ii] += dataBuffer[rr*elements+ii];
+                }
+        };
     };
 
 void multirankSimulation::communicateHaloSitesRoutine()
+    {
+    if(nRanks >1)
     {
     //first, prepare the send buffers
     {
@@ -78,26 +79,30 @@ void multirankSimulation::communicateHaloSitesRoutine()
             }
         }
     }//end MPI routines
+    }
     synchronizeAndTransferBuffers();
     }
 
 void multirankSimulation::synchronizeAndTransferBuffers()
     {
-    for(int ii = 0; ii < mpiRequests.size();++ii)
-        MPI_Wait(&mpiRequests[ii],&mpiStatuses[ii]);
-    //read readReceivingBuffer
-    auto Conf = mConfiguration.lock();
-    if(!useGPU)
+    if(nRanks > 1)
         {
-        for (int ii = 0; ii < communicationDirections.size();++ii)
+        for(int ii = 0; ii < mpiRequests.size();++ii)
+            MPI_Wait(&mpiRequests[ii],&mpiStatuses[ii]);
+        //read readReceivingBuffer
+        auto Conf = mConfiguration.lock();
+        if(!useGPU)
             {
-            int directionType = communicationDirections[ii].y;
-            Conf->readReceivingBuffer(directionType);
+            for (int ii = 0; ii < communicationDirections.size();++ii)
+                {
+                int directionType = communicationDirections[ii].y;
+                Conf->readReceivingBuffer(directionType);
+                }
             }
-        }
-    else
-        Conf->readReceivingBuffer();//a single call reads and copies the entire buffer
-    transfersUpToDate = true;
+        else
+            Conf->readReceivingBuffer();//a single call reads and copies the entire buffer
+        transfersUpToDate = true;
+        };
     }
 
 /*!
@@ -131,6 +136,7 @@ void multirankSimulation::determineCommunicationPattern( bool _edges, bool _corn
     {
     edges = _edges;
     corners = _corners;
+
     bool sendReceiveParity;
     int3 nodeTarget;
     int2 sendReceive;
@@ -582,5 +588,4 @@ void multirankSimulation::saveState(string fname)
         }
 
     myfile.close();
-
     };
