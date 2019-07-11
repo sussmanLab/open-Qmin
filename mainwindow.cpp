@@ -981,15 +981,24 @@ void MainWindow::on_importFileNowButton_released()
     ui->fileImportWidget->hide();
     QString fname = ui->fileNameBox->text();
     string fn = fname.toStdString();
-    sim->createBoundaryFromFile(fn,true);cout.flush();
-    sim->finalizeObjects();
-    QString printable1 = QStringLiteral("boundary imported from file");
-    ui->testingBox->setText(printable1);
-    ui->builtinBoundaryVisualizationBox->setChecked(false);
-    sprintf(lineBit,"\tsim->createBoundaryFromFile(\"%s\",true);cout.flush();",fn.c_str());
-    customFile.addLine(lineBit);
-    customFile.addLine("sim->finalizeObjects();");
-    on_drawStuffButton_released();
+    if(fileExists(fn))
+        {
+        sim->createBoundaryFromFile(fn,true);cout.flush();
+        sim->finalizeObjects();
+        QString printable1 = QStringLiteral("boundary imported from file");
+        ui->testingBox->setText(printable1);
+        ui->builtinBoundaryVisualizationBox->setChecked(false);
+        sprintf(lineBit,"\tsim->createBoundaryFromFile(\"%s\",true);cout.flush();",fn.c_str());
+        customFile.addLine(lineBit);
+        customFile.addLine("sim->finalizeObjects();");
+        on_drawStuffButton_released();
+        }
+    else
+        {
+        QString printable1 = QStringLiteral("Requested boudnary file does not exist?");
+        ui->testingBox->setText(printable1);
+        }
+
 }
 
 void MainWindow::on_saveFileNowButton_released()
