@@ -985,10 +985,11 @@ void MainWindow::on_importFileNowButton_released()
     sim->finalizeObjects();
     QString printable1 = QStringLiteral("boundary imported from file");
     ui->testingBox->setText(printable1);
-
+    ui->builtinBoundaryVisualizationBox->setChecked(false);
     sprintf(lineBit,"\tsim->createBoundaryFromFile(\"%s\",true);cout.flush();",fn.c_str());
     customFile.addLine(lineBit);
     customFile.addLine("sim->finalizeObjects();");
+    on_drawStuffButton_released();
 }
 
 void MainWindow::on_saveFileNowButton_released()
