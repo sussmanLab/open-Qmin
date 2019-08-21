@@ -154,6 +154,7 @@ void qTensorLatticeModel::moveParticles(GPUArray<dVec> &displacements,scalar sca
                 {
                 h_pos.data[pp] += h_disp.data[pp];
                 //approximately restrict Q-tensor values
+                /*
                 scalar otherMin = -2.0/3.0;
                 scalar otherMax = 5./6.;
                 for (int dd = 0; dd < DIMENSION; ++dd)
@@ -163,6 +164,7 @@ void qTensorLatticeModel::moveParticles(GPUArray<dVec> &displacements,scalar sca
                     if(h_pos.data[pp][dd] > max) h_pos.data[pp][dd] = max;
                     if(h_pos.data[pp][dd] < min) h_pos.data[pp][dd] = min;
                     }
+                */
                 }
             }
         else
@@ -171,6 +173,7 @@ void qTensorLatticeModel::moveParticles(GPUArray<dVec> &displacements,scalar sca
                 {
                 h_pos.data[pp] += scale*h_disp.data[pp];
                 //approximately restrict Q-tensor values
+                /*
                 scalar otherMin = -2.0/3.0;
                 scalar otherMax = 5./6.;
                 for (int dd = 0; dd < DIMENSION; ++dd)
@@ -180,6 +183,7 @@ void qTensorLatticeModel::moveParticles(GPUArray<dVec> &displacements,scalar sca
                     if(h_pos.data[pp][dd] > max) h_pos.data[pp][dd] = max;
                     if(h_pos.data[pp][dd] < min) h_pos.data[pp][dd] = min;
                     }
+                */
                 }
             }
         }
