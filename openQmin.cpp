@@ -63,6 +63,7 @@ int main(int argc, char*argv[])
     ValueArg<scalar> cSwitchArg("c","phaseConstantC","value of phase constant C",false,1.73,"scalar",cmd);
 
     ValueArg<scalar> dtSwitchArg("e","deltaT","step size for minimizer",false,0.0005,"scalar",cmd);
+    ValueArg<scalar> forecToleranceSwitchArg("f","fTarget","target minimization threshold for norm of residual forces",false,0.000000000001,"scalar",cmd);
 
     ValueArg<int> iterationsSwitchArg("i","iterations","number of minimization steps",false,100,"int",cmd);
     ValueArg<int> kSwitchArg("k","nConstants","approximation for distortion term",false,1,"int",cmd);
@@ -118,6 +119,7 @@ int main(int argc, char*argv[])
     scalar L6 = l6SwitchArg.getValue();
 
     scalar dt = dtSwitchArg.getValue();
+    scalar forceCutoff = forecToleranceSwitchArg.getValue();
     int maximumIterations = iterationsSwitchArg.getValue();
 
     bool GPU = false;
@@ -166,7 +168,6 @@ int main(int argc, char*argv[])
     landauLCForce->setModel(Configuration);
     sim->addForce(landauLCForce);
 
-    scalar forceCutoff=1e-12;
     shared_ptr<energyMinimizerFIRE> Fminimizer =  make_shared<energyMinimizerFIRE>(Configuration);
     Fminimizer->setMaximumIterations(maximumIterations);
     scalar alphaStart=.99; scalar deltaTMax=100*dt; scalar deltaTInc=1.1; scalar deltaTDec=0.95;
@@ -190,32 +191,13 @@ int main(int argc, char*argv[])
         {
         sim->createBoundaryFromFile(boundaryFile,true);
         }
+
     /*
-    //Here are some random examples of adding specific simple boundary conditions...
-    //see src/simulation/multirankSimulation.h for the set of commands one can pick from
-
-    boundaryObject homeotropicBoundary(boundaryType::homeotropic,1.0,S0);
-    boundaryObject pdgBoundary(boundaryType::degeneratePlanar,1.0,S0);
-    scalar3 left,center, right;
-    left.x = 0.75*boxLx;left.y = 0.5*boxLy;left.z = 0.5*boxLz;
-    center.x = 1.0*boxLx;center.y = 0.5*boxLy;center.z = 0.5*boxLz;
-    right.x = 1.25*boxLx;right.y = 0.5*boxLy;right.z = 0.5*boxLz;
-    sim->createSpherocylinder(left,right,8.0,homeotropicBoundary);
-    sim->createCylindricalObject(left,right,5.0,false,homeotropicBoundary);
-    sim->createSphericalColloid(left,4,homeotropicBoundary);
-    sim->createSphericalColloid(center,5,homeotropicBoundary);
-    sim->createSphericalColloid(right,4,homeotropicBoundary);
-
-    sim->createWall(0, 5, homeotropicBoundary);
-    sim->createWall(1, 0, homeotropicBoundary);
-    scalar3 left;
-    left.x = 0.3*boxLx;left.y = 0.5*boxLy;left.z = 0.5*boxLz;
-    scalar3 center;
-    left.x = 0.5*boxLx;left.y = 0.5*boxLy;left.z = 0.5*boxLz;
-    scalar3 right;
-    right.x = 0.7*boxLx;right.y = 0.5*boxLy;right.z = 0.5*boxLz;
-    Configuration->createSimpleFlatWallNormal(0,1, homeotropicBoundary);
-     */
+    If you would like to add certain types of pre-defined objects to the simulation, you can insert them here
+    (before the "finalizeObjects()" call below. You can also change the indicated header file and recompile
+    the code, if you prefer. That header file contains (possibly) helpful examples to follow
+    */
+#include "addObjectsToOpenQmin.h"
     sim->finalizeObjects();
 
     profiler pMinimize("minimization");

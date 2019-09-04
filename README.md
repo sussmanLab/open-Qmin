@@ -2,9 +2,11 @@
 
 This repository contains code for performing lattice-discretized Landau deGennes liquid crystal modeling,
 using single or multiple CPU or GPU resources for efficient, large-scale simulations. Included is an optional
-graphical user interface for running and setting up the simulations.
+graphical user interface for running and setting up the simulations. Usefully, the GUI has the functionality
+to generate a compilable file, allowing the GUI to be used for prototyping and then directly running larger-
+scale simulations.
 
-Some doxygen documentation has been written, but lots of stuff is still to be written. In any
+Some doxygen documentation has been completed, but lots remains to be written. In any
 event, executing the command
 "doxygen doc/openQmin_documentation"
 from the root directory will produce a set of html documentation files.
@@ -34,7 +36,6 @@ To run 100 FIRE minimization steps on a cubic lattice of side length 500, split 
 eighth of the simulation volume:
 mpirun -n 8 build/openQmin.out -i 100 -l 250 
 
-
 To load a file, e.g. "asests/boundaryInput.txt"  with custom boundaries prepared for a cubic lattice of side length 80
 build/openQmin.out -i 100 -l 80 --boundaryFile assets/boundaryInput.txt
 
@@ -43,7 +44,13 @@ To do the above, but also save the post-minimization state:
 
 (for the above two lines, note that the file path is relative to where you currently are.)
 
-## Project information
+## adding various colloids and boundaries to the command-line executable
+
+A separate header file exists in the main directory of the repository, "addObjectsToOpenQmin.h", which exists just to
+give the user a sense of how to add some of the pre-defined objects to the simulation. See the comments in that file for
+more details.
+
+# Project information
 Here are some convenient links to a variety of general information about the landau deGUI project; all
 of the below can also be accessed from the @ref projectInfo tab (links work on the gitlab.io
 documenation website). Alternately, you can look at the markdown (.md) files in the base directory and the doc/markdown/
