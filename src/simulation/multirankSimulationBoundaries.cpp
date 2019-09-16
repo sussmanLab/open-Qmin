@@ -2,30 +2,39 @@
 /*! \file multrankSimulationBoundaries.cpp */
 
 /*!
-Reads a carefully prepared text file to create a new boundary object...
+Reads a carefully prepared text file to create a new boundary object... For convenience this information is copied into the main 
+README.md
+documentation file, so both should be updated together if needed.
+
+
 The first line must be a single integer specifying the number of objects to be read in.
 This is meant in the colloquial English sense, not in the zero-indexed counting sense. So, if you want your file to specify one object, make sure the first line is the number 1.
 
 Each subsequent block must be formatted as follows (with no additional lines between the blocks):
 The first line MUST be formatted as
 a b c d
-where a=0 means homeotropic, a=1 means degeneratePlanar
+where a=0 means oriented anchoring (such as homeotropic or oriented planar), a=1 means degenerate Planar
 b is a scalar setting the anchoring strength
 c is the preferred value of S0
-d is an integer specifying the number of sites.
+d is an integer specifying the number of sites, N_B.
 
-Every subsequent line MUST be
-x y z Qxx Qxy Qxz Qyy Qyz,
-where x y z are the integer lattice sites,
-and the Q-tensor components correspond to the desired anchoring conditions.
-For homeotropic boundaries, Q^B = 3 S_0/2*(\nu^s \nu^s - \delta_{ab}/3), where \nu^s is the
-locally preferred director.
-For degenerate planar anchoring the boundary site should be,
-Q^B[0] = \hat{nu}_x
-Q^B[1] = \hat{nu}_y
-Q^B[2] = \hat{nu}_z
+Subsequently, there MUST be N_b lines of the form 
+x y z C1 C2 C3 C4 C5,
+where x, y, and z are the integer lattice sites, and C1, C2, C3, C4, C5 are real numbers
+corresponding to the desired anchoring conditions:
+For oriented anchoring, C1, C2, C3, C4, C5 correspond directly to the surface-preferred Q-tensor:
+C1 = Qxx, C2 = Qxy, C3=Qxz, C4 = Qyy, C5=Qyz,
+where one often will set the Q-tensor by choosing a locally preferred director, \nu^s, and setting
+Q^B = 3 S_0/2*(\nu^s \nu^s - \delta_{ab}/3).
+
+For degenerate planar anchoring the five constants should be specified as,
+C1 = \hat{nu}_x
+C2 = \hat{nu}_y
+C3 = \hat{nu}_z
+C4 = 0.0
+C5 = 0.0,
 where \nu^s = {Cos[\[Phi]] Sin[\[theta]], Sin[\[Phi]] Sin[\[theta]], Cos[\[theta]]}
- is the direction to which the LC should try to be orthogonal
+is the direction to which the LC should try to be orthogonal
 */
 void multirankSimulation::createBoundaryFromFile(string fname, bool verbose)
     {
