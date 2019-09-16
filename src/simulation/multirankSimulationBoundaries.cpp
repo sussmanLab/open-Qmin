@@ -4,6 +4,7 @@
 /*!
 Reads a carefully prepared text file to create a new boundary object...
 The first line must be a single integer specifying the number of objects to be read in.
+This is meant in the colloquial English sense, not in the zero-indexed counting sense. So, if you want your file to specify one object, make sure the first line is the number 1.
 
 Each subsequent block must be formatted as follows (with no additional lines between the blocks):
 The first line MUST be formatted as
