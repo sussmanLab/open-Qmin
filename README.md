@@ -20,29 +20,47 @@ related to the GUI for easy installation in environments without QT installed or
 
 ## To use the GUI
 
-build/openQminGUI.out
+`build/openQminGUI.out`
 
 ## Running on the command line
 
 build/openQmin.out options...
 
 For example, to run 100 FIRE minimization steps on a cubic lattice of side length 250:
-build/openQmin.out -i 100 -l 250 
+`build/openQmin.out -i 100 -l 250`
 
 To do the same thing but using a GPU in slot 0:
-build/openQmin.out -i 100 -l 250 -g 0
-
-To run 100 FIRE minimization steps on a cubic lattice of side length 500, split across 8 processors, each handling an
-eighth of the simulation volume:
-mpirun -n 8 build/openQmin.out -i 100 -l 250 
+`build/openQmin.out -i 100 -l 250 -g 0`
 
 To load a file, e.g. "asests/boundaryInput.txt"  with custom boundaries prepared for a cubic lattice of side length 80
-build/openQmin.out -i 100 -l 80 --boundaryFile assets/boundaryInput.txt
+`build/openQmin.out -i 100 -l 80 --boundaryFile assets/boundaryInput.txt`
 
 To do the above, but also save the post-minimization state:
-./build/openQmin.out -i 80 --boundaryFile assets/boundaryInput.txt -l 80 --saveFile data/saveTesting
+`./build/openQmin.out -i 80 --boundaryFile assets/boundaryInput.txt -l 80 --saveFile data/saveTesting`
 
 (for the above two lines, note that the file path is relative to where you currently are.)
+
+## Using the command line to specify MPI jobs
+
+As noted above, the "-l" command line flag can be used to specify the side length of a cubic simulation
+domain (other flags exist if you want the domain to be a rectangular prism). When using MPI to run a larger
+simulation domain, the default behavior is to take the command line size to specify the domain size ON EVERY
+MPI RANK. (One could imagine an alternate default behavior in which the command line specified the TOTAL size of the
+simulation domain, which was then divided among the different processors).
+
+So, for example, the command: 
+`mpirun -n 1 build/openQmin.out -l 100`
+will run execute a simulation domain of total size (100x100x100) lattice sites, on a single rank.
+
+Moving to two processors, the command: 
+`mpirun -n 2 build/openQmin.out -l 100`
+will run execute a simulation domain of total size (200x100x100) lattice sites, on two ranks (that
+is, each rank will control a 100x100x100 domain). 
+
+Similarly the command: 
+`mpirun -n 8 build/openQmin.out -l 100`
+will run execute a simulation domain of total size (200x200x200) lattice sites, where each of the
+eight ranks continues to control a block of 100x100x100 lattice sites.
 
 ## saving states and reading the output
 
@@ -68,9 +86,13 @@ Both the command-line and gui versions of the executable have the ability to rea
 file that can specify objects composed of arbitrary collections of lattice sites and anchoring conditions
 (rather than just being limited to the predefined walls and colloids described in the addObjectsToOpenQmin.h file).
 
+
 The input txt file specifying such objects must be very precisely formatted, and in the /tools/ directory
 we have included a simple utility to assist with this (although any other method can be used to generate
-the desired txt file, e.g. via python). The formatting requirements are the following (copying from
+the desired txt file, e.g. via python).  A few examples of these custom boundary files are in the /assets/
+directory; these were all created using the included mathematica notebook.
+
+The formatting requirements are the following (copying from
 identical information provided in the comments of src/simulation/multirankSimulationBoundaries.cpp):
 
 The first line must be a single integer specifying the number of objects to be read in.
