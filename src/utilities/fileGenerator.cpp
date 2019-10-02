@@ -17,10 +17,10 @@ void fileGenerator::initialize()
     string inName=dir+"/openQmin.cpp";
     string line;
     ifstream infile(inName);
-    for (int ll = 0; ll < 150; ++ll)
+    for (int ll = 0; ll < 154; ++ll)
         {
         getline(infile,line);
-        if(ll != 139 && ll != 138 && ll != 150)
+        if(ll != 142 && ll != 143 && ll != 154)
             {
             addLine(line);
             };

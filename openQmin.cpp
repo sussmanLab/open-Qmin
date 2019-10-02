@@ -63,7 +63,7 @@ int main(int argc, char*argv[])
     ValueArg<scalar> cSwitchArg("c","phaseConstantC","value of phase constant C",false,1.73,"scalar",cmd);
 
     ValueArg<scalar> dtSwitchArg("e","deltaT","step size for minimizer",false,0.0005,"scalar",cmd);
-    ValueArg<scalar> forecToleranceSwitchArg("f","fTarget","target minimization threshold for norm of residual forces",false,0.000000000001,"scalar",cmd);
+    ValueArg<scalar> forceToleranceSwitchArg("f","fTarget","target minimization threshold for norm of residual forces",false,0.000000000001,"scalar",cmd);
 
     ValueArg<int> iterationsSwitchArg("i","iterations","number of minimization steps",false,100,"int",cmd);
     ValueArg<int> kSwitchArg("k","nConstants","approximation for distortion term",false,1,"int",cmd);
@@ -121,7 +121,7 @@ int main(int argc, char*argv[])
     scalar L6 = l6SwitchArg.getValue();
 
     scalar dt = dtSwitchArg.getValue();
-    scalar forceCutoff = forecToleranceSwitchArg.getValue();
+    scalar forceCutoff = forceToleranceSwitchArg.getValue();
     int maximumIterations = iterationsSwitchArg.getValue();
 
     bool GPU = false;
