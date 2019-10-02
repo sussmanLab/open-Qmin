@@ -116,8 +116,8 @@ class multirankSimulation : public basicSimulation, public enable_shared_from_th
         //!Enforce reproducible dynamics
         void setReproducible(bool reproducible);
 
-        //!save a file for each rank recording the expanded lattice
-        void saveState(string fname);
+        //!save a file for each rank recording the expanded lattice; lattice skip controls the sparsity of saved sites
+        void saveState(string fname, int latticeSkip = 1, int defectType = 0);
 
         //!in multi-rank simulations, this stores the lowest (x,y,z) coordinate controlled by the current rank
         int3 latticeMinPosition;

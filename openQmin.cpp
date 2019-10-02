@@ -82,12 +82,14 @@ int main(int argc, char*argv[])
 
     ValueArg<string> boundaryFileSwitchArg("","boundaryFile", "carefully prepared file of boundary sites" ,false, "NONE", "string",cmd);
     ValueArg<string> saveFileSwitchArg("","saveFile", "the base name to save the post-minimization configuration" ,false, "NONE", "string",cmd);
+    ValueArg<int> saveStrideSwitchArg("","stride","stride of the saved lattice sites",false,1,"int",cmd);
 
     //parse the arguments
     cmd.parse( argc, argv );
     //define variables that correspond to the command line parameters
     string boundaryFile = boundaryFileSwitchArg.getValue();
     string saveFile = saveFileSwitchArg.getValue();
+    int saveStride = saveStrideSwitchArg.getValue();
 
     bool reproducible = reproducibleSwitch.getValue();
     int gpu = gpuSwitchArg.getValue();
@@ -215,7 +217,7 @@ int main(int argc, char*argv[])
     pMinimize.print();
     sim->p1.print();
     if(saveFile != "NONE")
-        sim->saveState(saveFile);
+        sim->saveState(saveFile,saveStride);
     scalar totalMinTime = pMinimize.timeTaken;
     scalar communicationTime = sim->p1.timeTaken;
     if(myRank == 0)

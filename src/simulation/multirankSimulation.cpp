@@ -557,8 +557,26 @@ void multirankSimulation::performTimestep()
         };
     };
 
-void multirankSimulation::saveState(string fname)
+/*!
+Saves a file for each rank recording the current state of the system (each rank will produce an independent file,
+named StringJoin[fname,"_x(ToString[X])_y(ToString[Y])_z(ToString[Z]).txt"], where X, Y, and Z
+denote the position in the partitioning that the rank controls.
+
+The latticeSkip parameter thins out the number of lattice sites that are saved (crucial for storing the results of large simulations).
+In the default setting of latticeSkip=1, every site is saved. Otherwise, only sites
+(x_i,y_i,j_i) will be saved, where  (i mod(latticeSkip) == 0)
+
+The format of the saved state is a simple text file where every line is the following:
+i j k Qxx Qxy Qxz Qyy Qyz type defectValue
+where i, j, and k are the coordinates of the lattice site (in the global frame), followed by the
+five independent components of the Q tensor, the "type" of the site, and the value computed by
+computeDefectMeasures(defectType). By default, this is just the maximum eigenvalue of the Q-tensor at the indicated site; 
+see the documentation of computeDefectMeasures for more information.
+*/
+void multirankSimulation::saveState(string fname, int latticeSkip, int defectType)
     {
+    int stride = latticeSkip;
+    if(stride < 1) stride = 1;
     auto Conf = mConfiguration.lock();
     char fn[256];
     sprintf(fn,"%s_x%iy%iz%i.txt",fname.c_str(),rankParity.x,rankParity.y,rankParity.z);
@@ -570,21 +588,23 @@ void multirankSimulation::saveState(string fname)
     int zOffset = rankParity.z*Conf->latticeSites.z;
 
     Conf->getAverageEigenvalues();
-    Conf->computeDefectMeasures(0);
+    Conf->computeDefectMeasures(defectType);
     ArrayHandle<dVec> pp(Conf->returnPositions());
     ArrayHandle<int> tt(Conf->returnTypes());
     ArrayHandle<scalar> defects(Conf->returnDefectMeasures(),access_location::host,access_mode::read);
     ofstream myfile;
     myfile.open(fn);
     for (int ii = 0; ii < Conf->getNumberOfParticles(); ++ii)
-    //for (int ii = 0; ii < Conf->totalSites; ++ii)
         {
         int3 pos = Conf->indexToPosition(ii);
-        int idx = Conf->positionToIndex(pos);
-        myfile << pos.x+xOffset <<"\t"<<pos.y+yOffset<<"\t"<<pos.z+zOffset;
-        for (int dd = 0; dd <DIMENSION; ++dd)
-            myfile <<"\t"<<pp.data[idx][dd];
-        myfile << "\t"<<tt.data[idx]<< "\t"<< defects.data[idx] <<"\n";
+        if(pos.x % stride == 0 && pos.y % stride == 0 && pos.z % stride ==0)
+            {
+            int idx = Conf->positionToIndex(pos);
+            myfile << pos.x+xOffset <<"\t"<<pos.y+yOffset<<"\t"<<pos.z+zOffset;
+            for (int dd = 0; dd <DIMENSION; ++dd)
+                myfile <<"\t"<<pp.data[idx][dd];
+            myfile << "\t"<<tt.data[idx]<< "\t"<< defects.data[idx] <<"\n";
+            };
         }
 
     myfile.close();
