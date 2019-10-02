@@ -1006,7 +1006,7 @@ void MainWindow::on_saveFileNowButton_released()
     QString fname = ui->saveFileNameBox->text();
     string fileName = fname.toStdString();
     sim->saveState(fileName);
-    sprintf(lineBit,"\tsim->saveState(\"%s\");",fileName.c_str());
+    sprintf(lineBit,"\tsim->saveState(\"%s\",saveStride);",fileName.c_str());
     customFile.addLine(lineBit);
 /*
     ArrayHandle<dVec> pp(Configuration->returnPositions());
