@@ -26,16 +26,18 @@ related to the GUI for easy installation in environments without QT installed or
 
 build/openQmin.out options...
 
-For example, to run 100 FIRE minimization steps on a cubic lattice of side length 250:
+For example, to run 100 FIRE minimization steps on a cubic lattice of side length 250:  
 `build/openQmin.out -i 100 -l 250`
 
-To do the same thing but using a GPU in slot 0:
+To do the same thing but using a GPU in slot 0:  
 `build/openQmin.out -i 100 -l 250 -g 0`
 
-To load a file, e.g. "asests/boundaryInput.txt"  with custom boundaries prepared for a cubic lattice of side length 80
+
+To load a file, e.g. "asests/boundaryInput.txt"  with custom boundaries prepared for a cubic lattice of side length 80  
 `build/openQmin.out -i 100 -l 80 --boundaryFile assets/boundaryInput.txt`
 
-To do the above, but also save the post-minimization state:
+
+To do the above, but also save the post-minimization state:  
 `./build/openQmin.out -i 80 --boundaryFile assets/boundaryInput.txt -l 80 --saveFile data/saveTesting`
 
 (for the above two lines, note that the file path is relative to where you currently are.)
@@ -48,17 +50,19 @@ simulation domain, the default behavior is to take the command line size to spec
 MPI RANK. (One could imagine an alternate default behavior in which the command line specified the TOTAL size of the
 simulation domain, which was then divided among the different processors).
 
-So, for example, the command: 
-`mpirun -n 1 build/openQmin.out -l 100`
+So, for example, the command:  
+`mpirun -n 1 build/openQmin.out -l 100`  
 will run execute a simulation domain of total size (100x100x100) lattice sites, on a single rank.
 
-Moving to two processors, the command: 
-`mpirun -n 2 build/openQmin.out -l 100`
+
+Moving to two processors, the command:  
+`mpirun -n 2 build/openQmin.out -l 100`  
 will run execute a simulation domain of total size (200x100x100) lattice sites, on two ranks (that
 is, each rank will control a 100x100x100 domain). 
 
-Similarly the command: 
-`mpirun -n 8 build/openQmin.out -l 100`
+
+Similarly the command:  
+`mpirun -n 8 build/openQmin.out -l 100`  
 will run execute a simulation domain of total size (200x200x200) lattice sites, where each of the
 eight ranks continues to control a block of 100x100x100 lattice sites.
 
