@@ -371,4 +371,6 @@ void landauDeGennesLC::computeBoundaryForcesCPU(GPUArray<dVec> &forces,bool zero
 void landauDeGennesLC::setNumberOfConstants(distortionEnergyType _type)
     {
     numberOfConstants = _type;
+    if(numberOfConstants == distortionEnergyType::multiConstant)
+        printf("\n\n ***WARNING*** \nSome users have reported that the expressions used in multi-constant expressions for the distortion free energy forces may have an error in them. We are currently investigating\n***WARNING***\n\n");
     };
