@@ -167,6 +167,19 @@ int main(int argc, char*argv[])
         landauLCForce->setElasticConstants(L1,L2,L3,L4,L6);
         landauLCForce->setNumberOfConstants(distortionEnergyType::multiConstant);
         }
+
+    /*
+    //To add an external field, say a magnetic field, do something like the following (but with sensible values for your parameters):
+    scalar mu0 = 1.0;
+    scalar chi = 1.0;
+    scalar deltaChi = 0.5;
+    scalar3 field; //direction and magnitude
+    field.x = 1.0;
+    field.y = 0.0;
+    field.z = 0.0;
+    landauLCForce->setHField(field,chi,mu0,deltaChi);
+    */
+
     landauLCForce->setModel(Configuration);
     sim->addForce(landauLCForce);
 
