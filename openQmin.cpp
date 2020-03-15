@@ -84,6 +84,13 @@ int main(int argc, char*argv[])
     ValueArg<string> saveFileSwitchArg("","saveFile", "the base name to save the post-minimization configuration" ,false, "NONE", "string",cmd);
     ValueArg<int> saveStrideSwitchArg("","stride","stride of the saved lattice sites",false,1,"int",cmd);
 
+    ValueArg<scalar> setHFieldXSwitchArg("","hFieldX", "x component of external H field",false,0,"scalar",cmd);
+    ValueArg<scalar> setHFieldYSwitchArg("","hFieldY", "y component of external H field",false,0,"scalar",cmd);
+    ValueArg<scalar> setHFieldZSwitchArg("","hFieldZ", "z component of external H field",false,0,"scalar",cmd);
+    ValueArg<scalar> setHFieldMu0SwitchArg("","hFieldMu0", "mu0 for external magenetic field",false,1,"scalar",cmd);
+    ValueArg<scalar> setHFieldChiSwitchArg("","hFieldChi", "Chi for external magenetic field",false,1,"scalar",cmd);
+    ValueArg<scalar> setHFieldDeltaChiSwitchArg("","hFieldDeltaChi", "mu0 for external magenetic field",false,0.5,"scalar",cmd);
+
     //parse the arguments
     cmd.parse( argc, argv );
     //define variables that correspond to the command line parameters
@@ -168,17 +175,21 @@ int main(int argc, char*argv[])
         landauLCForce->setNumberOfConstants(distortionEnergyType::multiConstant);
         }
 
-    /*
-    //To add an external field, say a magnetic field, do something like the following (but with sensible values for your parameters):
-    scalar mu0 = 1.0;
-    scalar chi = 1.0;
-    scalar deltaChi = 0.5;
     scalar3 field; //direction and magnitude
-    field.x = 1.0;
-    field.y = 0.0;
-    field.z = 0.0;
-    landauLCForce->setHField(field,chi,mu0,deltaChi);
-    */
+    field.x = setHFieldXSwitchArg.getValue();
+    field.y = setHFieldYSwitchArg.getValue();
+    field.z = setHFieldZSwitchArg.getValue();
+    scalar mu0 = setHFieldMu0SwitchArg.getValue();
+    scalar chi = setHFieldChiSwitchArg.getValue();
+    scalar deltaChi = setHFieldDeltaChiSwitchArg.getValue();
+    bool applyField = false;
+    if(field.x != 0 || field.y != 0 || field.z != 0)
+        applyField = true;
+    if(applyField)
+        {
+        landauLCForce->setHField(field,chi,mu0,deltaChi);
+        printf("applying H-field (%f, %f, %f) with (mu0, chi, deltaChi) = (%f, %f, %f)\n",field.x,field.y,field.z,mu0,chi,deltaChi);
+        }
 
     landauLCForce->setModel(Configuration);
     sim->addForce(landauLCForce);
