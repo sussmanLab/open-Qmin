@@ -39,6 +39,8 @@ class qTensorLatticeModel : public cubicLattice
 
         //!get field-averaged eigenvalues
         void getAverageEigenvalues();
+        //!get field-averaged eigenvector corresponding to largest eigenvalue
+        void getAverageMaximalEigenvector(vector<scalar> &averageN);
 
         //!import a boundary object from a (carefully prepared) text file
         void createBoundaryFromFile(string fname, bool verbose = false);

@@ -250,6 +250,7 @@ int main(int argc, char*argv[])
     cout << "size of configuration " << Configuration->getClassSize() << endl;
     cout << "size of force computer" << landauLCForce->getClassSize() << endl;
     cout << "size of fire updater " << Fminimizer->getClassSize() << endl;
+
     MPI_Finalize();
     return 0;
     };
