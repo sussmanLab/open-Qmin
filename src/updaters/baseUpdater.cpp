@@ -23,6 +23,6 @@ int updater::getNTotal()
         sim->sumUpdaterData(updaterData);
         nTotal = updaterData[0];
         }
-    printf("nTotal set to %i\n",nTotal);
+    //printf("nTotal set to %i\n",nTotal);
     return nTotal;
     }

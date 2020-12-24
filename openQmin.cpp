@@ -57,6 +57,7 @@ int main(int argc, char*argv[])
     ValueArg<int> gpuSwitchArg("g","GPU","which gpu to use",false,-1,"int",cmd);
 
     SwitchArg reproducibleSwitch("r","reproducible","reproducible random number generation", cmd, true);
+    SwitchArg verboseSwitch("v","verbose","output more things to screen ", cmd, false);
 
     ValueArg<scalar> aSwitchArg("a","phaseConstantA","value of phase constant A",false,0.172,"scalar",cmd);
     ValueArg<scalar> bSwitchArg("b","phaseConstantB","value of phase constant B",false,2.12,"scalar",cmd);
@@ -99,6 +100,7 @@ int main(int argc, char*argv[])
     int saveStride = saveStrideSwitchArg.getValue();
 
     bool reproducible = reproducibleSwitch.getValue();
+    bool verbose= verboseSwitch.getValue();
     int gpu = gpuSwitchArg.getValue();
     int programSwitch = programSwitchArg.getValue();
     int nDev;
@@ -146,7 +148,7 @@ int main(int argc, char*argv[])
     scalar c = phaseC/phaseA;
     noiseSource noise(reproducible);
     noise.setReproducibleSeed(13371+myRank);
-    printf("setting a rectilinear lattice of size (%i,%i,%i)\n",boxLx,boxLy,boxLz);
+    if(verbose) printf("setting a rectilinear lattice of size (%i,%i,%i)\n",boxLx,boxLy,boxLz);
     profiler pInit("initialization");
     pInit.start();
     bool xH = (rankTopology.x >1) ? true : false;
@@ -155,6 +157,7 @@ int main(int argc, char*argv[])
     bool edges = ((rankTopology.y >1) && nConstants > 1) ? true : false;
     bool corners = ((rankTopology.z >1) && nConstants > 1) ? true : false;
     bool neverGPU = !GPU;
+
     shared_ptr<multirankQTensorLatticeModel> Configuration = make_shared<multirankQTensorLatticeModel>(boxLx,boxLy,boxLz,xH,yH,zH,false,neverGPU);
     shared_ptr<multirankSimulation> sim = make_shared<multirankSimulation>(myRank,rankTopology.x,rankTopology.y,rankTopology.z,edges,corners);
     shared_ptr<landauDeGennesLC> landauLCForce = make_shared<landauDeGennesLC>(neverGPU);
@@ -162,10 +165,10 @@ int main(int argc, char*argv[])
     pInit.end();
 
     landauLCForce->setPhaseConstants(a,b,c);
-    printf("relative phase constants: %f\t%f\t%f\n",a,b,c);
+    if(verbose) printf("relative phase constants: %f\t%f\t%f\n",a,b,c);
     if(nConstants ==1)
         {
-        printf("using 1-constant approximation: %f \n",L1);
+        if(verbose) printf("using 1-constant approximation: %f \n",L1);
         landauLCForce->setElasticConstants(L1);
         landauLCForce->setNumberOfConstants(distortionEnergyType::oneConstant);
         }
@@ -188,7 +191,7 @@ int main(int argc, char*argv[])
     if(applyField)
         {
         landauLCForce->setHField(field,chi,mu0,deltaChi);
-        printf("applying H-field (%f, %f, %f) with (mu0, chi, deltaChi) = (%f, %f, %f)\n",field.x,field.y,field.z,mu0,chi,deltaChi);
+        if(verbose) printf("applying H-field (%f, %f, %f) with (mu0, chi, deltaChi) = (%f, %f, %f)\n",field.x,field.y,field.z,mu0,chi,deltaChi);
         }
 
     landauLCForce->setModel(Configuration);
@@ -203,14 +206,14 @@ int main(int argc, char*argv[])
 
     sim->setCPUOperation(true);//have cpu and gpu initialized the same...for debugging
     scalar S0 = (-b+sqrt(b*b-24*a*c))/(6*c);
-    printf("setting random configuration with S0 = %f\n",S0);
+    if(verbose) printf("setting random configuration with S0 = %f\n",S0);
     Configuration->setNematicQTensorRandomly(noise,S0);
     sim->setCPUOperation(!GPU);
-    printf("initialization done\n");
+    if(verbose) printf("initialization done\n");
 
     if(boundaryFile == "NONE")
         {
-        if(myRank ==0)
+        if(myRank ==0 && verbose )
             cout << "not using any custom boundary conditions" << endl;
         }
     else
@@ -238,18 +241,24 @@ int main(int argc, char*argv[])
 
     printf("minimized to %g\t E=%f\t\n",maxForce,E1);
 
-    pMinimize.print();
-    sim->p1.print();
+    if(verbose) pMinimize.print();
+    if(verbose) sim->p1.print();
     if(saveFile != "NONE")
         sim->saveState(saveFile,saveStride);
     scalar totalMinTime = pMinimize.timeTaken;
     scalar communicationTime = sim->p1.timeTaken;
-    if(myRank == 0)
+    if(myRank == 0 && verbose)
         printf("min  time %f\n comm time %f\n percent comm: %f\n",totalMinTime,communicationTime,communicationTime/totalMinTime);
 
-    cout << "size of configuration " << Configuration->getClassSize() << endl;
-    cout << "size of force computer" << landauLCForce->getClassSize() << endl;
-    cout << "size of fire updater " << Fminimizer->getClassSize() << endl;
+    if(verbose) cout << "size of configuration " << Configuration->getClassSize() << endl;
+    if(verbose) cout << "size of force computer" << landauLCForce->getClassSize() << endl;
+    if(verbose) cout << "size of fire updater " << Fminimizer->getClassSize() << endl;
+    vector<scalar> averageN(3);
+    Configuration->getAverageMaximalEigenvector(averageN);
+
+    ofstream tempF("averageN.txt", ios::app);
+    tempF <<averageN[0]<<", "<<averageN[1]<<", "<<averageN[2]<<"\n";
+    tempF.close();
 
     MPI_Finalize();
     return 0;
