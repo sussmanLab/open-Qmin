@@ -1,5 +1,11 @@
 # open Qmin
 
+open Qmin is an open-source code base for performing lattice-discretized Landau-deGennes modeling of
+liquid crystal systems. It has been developed as a collaboration between the research groups of 
+[Daniel Sussman](https://www.dmsussman.org/) and [Daniel Beller](https://sites.ucmerced.edu/bellergroup).
+If you have any comments, want to contribute to this project, or simply want to share how you're using
+our code to do cool stuff feel free to send an email to either of us!
+
 This repository contains code for performing lattice-discretized Landau deGennes liquid crystal modeling,
 using single or multiple CPU or GPU resources for efficient, large-scale simulations. Included is an optional
 graphical user interface for running and setting up the simulations. Usefully, the GUI has the functionality
