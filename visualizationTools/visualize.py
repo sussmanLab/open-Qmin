@@ -185,7 +185,7 @@ if objpts.shape[0] > 0:
 shiftvec = [int((xmax-xmin)/4),int((ymax-ymin)/4),0]
 
 ## to rescale one or more of the axes
-zstretch = 4
+zstretch = 1
 ystretch = 1
 xstretch = 1
 
