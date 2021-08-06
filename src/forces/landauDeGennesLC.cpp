@@ -92,6 +92,31 @@ void landauDeGennesLC::computeForces(GPUArray<dVec> &forces,bool zeroOutForce, i
         computeForceGPU(forces,zeroOutForce);
     else
         computeForceCPU(forces,zeroOutForce,type);
+
+    correctForceFromMetric(forces);
+    }
+
+void landauDeGennesLC::correctForceFromMetric(GPUArray<dVec> &forces)
+    {
+    int N = lattice->getNumberOfParticles();
+    if(useGPU)
+        {
+        ArrayHandle<dVec> d_force(forces,access_location::device,access_mode::readwrite);
+        gpuCorrectForceFromMetric(d_force.data,N,forceTuner->getParameter());
+        }
+    else
+        {
+        ArrayHandle<dVec> h_force(forces,access_location::host,access_mode::readwrite);
+        scalar QxxOld, QyyOld;
+        scalar twoThirds = 2./3.;
+        for (int i = 0; i < N ; ++i)
+            {
+            QxxOld = h_force.data[i][0];
+            QyyOld = h_force.data[i][3];
+            h_force.data[i][0] = twoThirds*(2.*QxxOld - QyyOld);
+            h_force.data[i][3] = twoThirds*(2.*QyyOld - QxxOld);
+            };
+        }
     }
 
 void landauDeGennesLC::computeForceGPU(GPUArray<dVec> &forces,bool zeroOutForce)

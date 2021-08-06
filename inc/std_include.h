@@ -38,6 +38,8 @@ using namespace std;
 #include "nvToolsExt.h"
 
 #define PI 3.14159265358979323846
+#define sqrt2 1.4142135623730950488
+#define sqrt3 1.7320508075688772935
 
 //decide whether to compute everything in floating point or double precision
 #ifndef SCALARFLOAT

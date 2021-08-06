@@ -1,5 +1,9 @@
 # Change log {#changelog}
 
+### OpenQMin version 0.9
+
+* Switch to five-component basis of Gartland Jr et al (Mol. Cryst. Liq. Cryst. 1991).
+
 ### OpenQMin version 0.8
 
 * Extensive minor improvements in advance of paper submission

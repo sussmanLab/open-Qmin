@@ -571,6 +571,28 @@ __global__ void gpu_qTensor_uniformFieldForcekernel(dVec *d_force,
         d_force[idx] -= fieldForce;
     }
 
+__global__ void gpuCorrectForceFromMetric_kernel(dVec *d_force, int N)
+    {
+    unsigned int idx = blockDim.x * blockIdx.x + threadIdx.x;
+    if (idx >= N)
+        return;
+    scalar QxxOld, QyyOld;
+    QxxOld = d_force[idx][0];
+    QyyOld = d_force[idx][3];
+    d_force[idx][0] = 2.*(2.*QxxOld-QyyOld)/3.;
+    d_force[idx][3] = 2.*(2.*QyyOld-QxxOld)/3.;
+    }
+
+bool gpuCorrectForceFromMetric(dVec *d_force,
+                                int N,
+                                int maxBlockSize)
+    {
+    unsigned int block_size = maxBlockSize;
+    unsigned int nblocks = N/block_size+1;
+    gpuCorrectForceFromMetric_kernel<<<nblocks,block_size>>>(d_force,N);
+    HANDLE_ERROR(cudaGetLastError());
+    return cudaSuccess;
+    }
 bool gpu_qTensor_computeObjectForceFromStresses(int *sites,
                                         int *latticeTypes,
                                         int *latticeNeighbors,
