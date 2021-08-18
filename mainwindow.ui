@@ -754,7 +754,7 @@ border: 1px solid black
       <string notr="true">border: white</string>
      </property>
      <property name="text">
-      <string>q0</string>
+      <string>L4</string>
      </property>
     </widget>
     <widget class="QLineEdit" name="twoConstantL1Box">
@@ -793,7 +793,7 @@ border: 1px solid black
       </rect>
      </property>
      <property name="text">
-      <string>0.05</string>
+      <string>0.5</string>
      </property>
     </widget>
    </widget>

@@ -417,6 +417,21 @@ __global__ void gpu_vec_dot_product_kernel(dVec *input1, dVec *input2, scalar *o
     output[idx] = dot(input1[idx],input2[idx]);
     return;
     };
+
+
+/*!
+Store the dot product of two 5-component force vectors in a scalar vector
+*/
+__global__ void gpu_vec_forceDotProduct_kernel(dVec *input, scalar *output,int N)
+    {
+    unsigned int idx = blockDim.x * blockIdx.x + threadIdx.x;
+    if (idx >= N)
+        return;
+    output[idx] = input[idx][0]*input[idx][0] + input[idx][1]*input[idx][1] + input[idx][2]*input[idx][2]
+                  + input[idx][3]*input[idx][3] + input[idx][4]*input[idx][4] + input[idx][0]*input[idx][3];
+    return;
+    }
+
 /*!
 Store the dot product of two dVecs in a scalar vec, unrolled by dimension
 */
@@ -652,6 +667,40 @@ bool gpu_dot_dVec_vectors(dVec *d_vec1, dVec *d_vec2, scalar *d_ans, int N)
     HANDLE_ERROR(cudaGetLastError());
     return cudaSuccess;
     };
+
+scalar gpu_gpuarray_QT_force_dot_product(
+                        GPUArray<dVec> &input1,
+                        GPUArray<scalar> &intermediate,
+                        GPUArray<scalar> &intermediate2,
+                        int N,
+                        int block_size)
+    {
+    if (N == 0)
+        N = input1.getNumElements();
+    unsigned int nblocks  = N/block_size + 1;
+    GPUArray<scalar> ans(1,false,false);
+    if(intermediate.getNumElements() <N)
+        intermediate.resize(N);
+    if(intermediate2.getNumElements() <N)
+        intermediate2.resize(N);
+    scalar result = 0;
+        //scope for array handles
+        {
+        ArrayHandle<dVec> i1(input1,access_location::device,access_mode::read);
+        ArrayHandle<scalar> inter1(intermediate,access_location::device,access_mode::overwrite);
+        gpu_vec_forceDotProduct_kernel<<<nblocks,block_size>>>(i1.data,inter1.data,N);
+        HANDLE_ERROR(cudaGetLastError());
+
+        int numBlocks = 0;
+        int numThreads = 0;
+        int maxBlocks = 64;
+        int maxThreads = 256;
+        ArrayHandle<scalar> inter2(intermediate2,access_location::device,access_mode::overwrite);
+        getNumBlocksAndThreads(N, maxBlocks, maxThreads, numBlocks, numThreads);
+        result = gpuReduction(N,numThreads,numBlocks,maxThreads,maxBlocks,inter1.data,inter2.data);
+        return result;
+        }
+    }
 
 scalar gpu_gpuarray_dVec_dot_products(
                         GPUArray<dVec> &input1,

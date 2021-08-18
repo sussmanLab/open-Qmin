@@ -83,6 +83,11 @@ void energyMinimizerFIRE::fireStepGPU()
     {
     Power = 0.0;
     forceMax = 0.0;
+        //
+        //SPECIALIZED TO THE FIVE-COMPONENT VERSION, IN WHICH THE NORM OF THE FORCE NEEDS TO INCLUDE THE CROSS TERM
+        //
+        //scalar forceNorm = gpu_gpuarray_QT_force_dot_product(model->returnForces(),
+        //                                        sumReductionIntermediate,sumReductionIntermediate2,Ndof);
     scalar forceNorm = gpu_gpuarray_dVec_dot_products(model->returnForces(),model->returnForces(),
                                                 sumReductionIntermediate,sumReductionIntermediate2,Ndof);
     Power = gpu_gpuarray_dVec_dot_products(model->returnForces(),model->returnVelocities(),
@@ -149,7 +154,10 @@ void energyMinimizerFIRE::fireStepCPU()
         {
         Power += dot(h_f.data[i],h_v.data[i]);
         scalar fdot = dot(h_f.data[i],h_f.data[i]);
-        forceNorm += fdot;
+                            //
+                            //SPECIALIZED TO THE FIVE-COMPONENT VERSION, IN WHICH THE NORM OF THE FORCE NEEDS TO INCLUDE THE CROSS TERM
+                            //
+        forceNorm += fdot ; //+ h_f.data[i][0]*h_f.data[i][3];
         velocityNorm += dot(h_v.data[i],h_v.data[i]);
         };
 
