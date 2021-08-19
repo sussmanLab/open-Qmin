@@ -175,8 +175,6 @@ void MainWindow::on_initializeButton_released()
     C=ui->initialPhaseC->text().toDouble();
 
     sim->setCPUOperation(!GPU);
-    sprintf(lineBit,"\tsim->setCPUOperation(!GPU);");
-    customFile.addLine(lineBit);
 
     ui->progressBar->setValue(50);
     S0 = (-B+sqrt(B*B-24*A*C))/(6*C);
@@ -227,6 +225,7 @@ void MainWindow::simulationInitialize()
      landauLCForce = make_shared<landauDeGennesLC>();
 
      sim->setConfiguration(Configuration);
+     customFile.addLine("\tsim->setConfiguration(Configuration);");
 
      landauLCForce->setPhaseConstants(A,B,C);
      landauLCForce->setModel(Configuration);
@@ -391,9 +390,6 @@ void MainWindow::on_fireParamButton_released()
 
     customFile.addLine("\tsim->clearUpdaters();");
     customFile.addLine("\tfire = make_shared<energyMinimizerFIRE>(Configuration);");
-    customFile.addLine("\tsim->addUpdater(fire,Configuration);");
-    customFile.addLine("\tsim->setCPUOperation(!GPU);");
-
 
     ui->fireParametersWidget->hide();
     ui->progressBar->setValue(0);
@@ -422,6 +418,7 @@ void MainWindow::on_fireParamButton_released()
     customFile.addLine(lineBit);
     sprintf(lineBit,"\tfire->setMaximumIterations(%i);",maximumIterations);
     customFile.addLine(lineBit);
+    customFile.addLine("\tsim->addUpdater(fire,Configuration);");
 }
 
 void MainWindow::on_minimizeButton_released()
@@ -430,6 +427,8 @@ void MainWindow::on_minimizeButton_released()
     sprintf(lineBit,"\tupd->setCurrentIterations(0);");
     customFile.addLine(lineBit);
     sprintf(lineBit,"\tupd->setMaximumIterations(%i);}",maximumIterations);
+    customFile.addLine(lineBit);
+    sprintf(lineBit,"\tsim->setCPUOperation(!sim->useGPU);");
     customFile.addLine(lineBit);
     customFile.addLine("\tsim->performTimestep();");
 
@@ -1069,8 +1068,6 @@ void MainWindow::on_nesterovParamButton_released()
 
     customFile.addLine("\tsim->clearUpdaters();");
     customFile.addLine("\tnesterov = make_shared<energyMinimizerNesterovAG>(Configuration);");
-    customFile.addLine("\tsim->addUpdater(nesterov,Configuration);");
-    customFile.addLine("\tsim->setCPUOperation(!sim->useGPU);");
 
     ui->progressBar->setValue(0);
     scalar dt = ui->nesterovDtBox->text().toDouble();
@@ -1094,6 +1091,7 @@ void MainWindow::on_nesterovParamButton_released()
     customFile.addLine(lineBit);
     sprintf(lineBit,"\tnesterov->setMaximumIterations(%i);",maximumIterations);
     customFile.addLine(lineBit);
+    customFile.addLine("\tsim->addUpdater(nesterov,Configuration);");
 
     QString printable = QStringLiteral("nesterov minimization parameters set, force cutoff of %1 dt of %2 and momentum %3 chosen for %4 steps %5").arg(forceCutoff).arg(dt).arg(mu)
                                     .arg(maximumIterations).arg(nesterov->getMaxIterations());

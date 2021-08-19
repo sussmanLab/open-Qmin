@@ -1,8 +1,8 @@
 # Change log {#changelog}
 
-### OpenQMin version 0.9
+### OpenQMin version 0.9 -- in progress
 
-* Switch to five-component basis of Gartland Jr et al (Mol. Cryst. Liq. Cryst. 1991).
+* Switch to GUI initialization according to Frank constants rather than landau-deGennes ones
 
 ### OpenQMin version 0.8
 
