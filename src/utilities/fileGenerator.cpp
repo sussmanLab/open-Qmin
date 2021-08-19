@@ -17,10 +17,10 @@ void fileGenerator::initialize()
     string inName=dir+"/openQmin.cpp";
     string line;
     ifstream infile(inName);
-    for (int ll = 0; ll < 154; ++ll)
+    for (int ll = 0; ll < 163; ++ll)
         {
         getline(infile,line);
-        if(ll != 142 && ll != 143 && ll != 154)
+        if(ll != 142 && ll != 143 && ll != 152)
             {
             addLine(line);
             };
@@ -29,9 +29,6 @@ void fileGenerator::initialize()
         addLine("\tshared_ptr<energyMinimizerFIRE> fire;");
         addLine("\tshared_ptr<energyMinimizerNesterovAG> nesterov;");
 
-        addLine("\tscalar globalLx = boxLx*rankTopology.x;");
-        addLine("\tscalar globalLy = boxLy*rankTopology.y;");
-        addLine("\tscalar globalLz = boxLz*rankTopology.z;");
     };
 
 void fileGenerator::save()

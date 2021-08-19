@@ -127,7 +127,7 @@ background-color: qradialgradient(spread:pad, cx:0.5, cy:0.5, radius:0.5, fx:0.5
       <number>1</number>
      </property>
      <property name="maximum">
-      <number>5</number>
+      <number>3</number>
      </property>
     </widget>
     <widget class="QLabel" name="label_23">
@@ -523,280 +523,6 @@ color: black
      </property>
     </widget>
    </widget>
-   <widget class="QWidget" name="setDistortionConstants3" native="true">
-    <property name="geometry">
-     <rect>
-      <x>300</x>
-      <y>80</y>
-      <width>251</width>
-      <height>171</height>
-     </rect>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">background: white;
-border: 1px solid black
-</string>
-    </property>
-    <widget class="QLabel" name="label_18">
-     <property name="geometry">
-      <rect>
-       <x>39</x>
-       <y>10</y>
-       <width>181</width>
-       <height>20</height>
-      </rect>
-     </property>
-     <property name="autoFillBackground">
-      <bool>false</bool>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">border: white</string>
-     </property>
-     <property name="text">
-      <string>3-constant approximation</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="setThreeConstants">
-     <property name="geometry">
-      <rect>
-       <x>70</x>
-       <y>130</y>
-       <width>114</width>
-       <height>32</height>
-      </rect>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">background: grey</string>
-     </property>
-     <property name="text">
-      <string>set constants</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="label_19">
-     <property name="geometry">
-      <rect>
-       <x>30</x>
-       <y>40</y>
-       <width>60</width>
-       <height>16</height>
-      </rect>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">border: white</string>
-     </property>
-     <property name="text">
-      <string>L1</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="label_20">
-     <property name="geometry">
-      <rect>
-       <x>30</x>
-       <y>70</y>
-       <width>60</width>
-       <height>16</height>
-      </rect>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">border: white</string>
-     </property>
-     <property name="text">
-      <string>L2</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="label_21">
-     <property name="geometry">
-      <rect>
-       <x>30</x>
-       <y>100</y>
-       <width>60</width>
-       <height>16</height>
-      </rect>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">border: white</string>
-     </property>
-     <property name="text">
-      <string>L3</string>
-     </property>
-    </widget>
-    <widget class="QLineEdit" name="threeConstantL1Box">
-     <property name="geometry">
-      <rect>
-       <x>110</x>
-       <y>40</y>
-       <width>113</width>
-       <height>21</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>2.32</string>
-     </property>
-    </widget>
-    <widget class="QLineEdit" name="threeConstantL2Box">
-     <property name="geometry">
-      <rect>
-       <x>110</x>
-       <y>70</y>
-       <width>113</width>
-       <height>21</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>2.32</string>
-     </property>
-    </widget>
-    <widget class="QLineEdit" name="threeConstantL3Box">
-     <property name="geometry">
-      <rect>
-       <x>110</x>
-       <y>100</y>
-       <width>113</width>
-       <height>21</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>2.32</string>
-     </property>
-    </widget>
-   </widget>
-   <widget class="QWidget" name="setDistortionConstants2" native="true">
-    <property name="geometry">
-     <rect>
-      <x>300</x>
-      <y>80</y>
-      <width>251</width>
-      <height>171</height>
-     </rect>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">background: white;
-border: 1px solid black
-</string>
-    </property>
-    <widget class="QLabel" name="label_14">
-     <property name="geometry">
-      <rect>
-       <x>39</x>
-       <y>10</y>
-       <width>181</width>
-       <height>20</height>
-      </rect>
-     </property>
-     <property name="autoFillBackground">
-      <bool>false</bool>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">border: white</string>
-     </property>
-     <property name="text">
-      <string>2-constant approximation</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="setTwoConstants">
-     <property name="geometry">
-      <rect>
-       <x>70</x>
-       <y>130</y>
-       <width>114</width>
-       <height>32</height>
-      </rect>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">background: grey</string>
-     </property>
-     <property name="text">
-      <string>set constants</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="label_15">
-     <property name="geometry">
-      <rect>
-       <x>30</x>
-       <y>40</y>
-       <width>60</width>
-       <height>16</height>
-      </rect>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">border: white</string>
-     </property>
-     <property name="text">
-      <string>L1</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="label_16">
-     <property name="geometry">
-      <rect>
-       <x>30</x>
-       <y>70</y>
-       <width>60</width>
-       <height>16</height>
-      </rect>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">border: white</string>
-     </property>
-     <property name="text">
-      <string>L2</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="label_17">
-     <property name="geometry">
-      <rect>
-       <x>30</x>
-       <y>100</y>
-       <width>60</width>
-       <height>16</height>
-      </rect>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">border: white</string>
-     </property>
-     <property name="text">
-      <string>L4</string>
-     </property>
-    </widget>
-    <widget class="QLineEdit" name="twoConstantL1Box">
-     <property name="geometry">
-      <rect>
-       <x>110</x>
-       <y>40</y>
-       <width>113</width>
-       <height>21</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>2.32</string>
-     </property>
-    </widget>
-    <widget class="QLineEdit" name="twoConstantL2Box">
-     <property name="geometry">
-      <rect>
-       <x>110</x>
-       <y>70</y>
-       <width>113</width>
-       <height>21</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>2.32</string>
-     </property>
-    </widget>
-    <widget class="QLineEdit" name="twoConstantQ0Box">
-     <property name="geometry">
-      <rect>
-       <x>110</x>
-       <y>100</y>
-       <width>113</width>
-       <height>21</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>0.5</string>
-     </property>
-    </widget>
-   </widget>
    <widget class="QWidget" name="setPhaseConstants" native="true">
     <property name="geometry">
      <rect>
@@ -1035,85 +761,6 @@ border: 1px solid black
      </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </widget>
-   <widget class="QWidget" name="setDistortionConstants1" native="true">
-    <property name="geometry">
-     <rect>
-      <x>300</x>
-      <y>130</y>
-      <width>251</width>
-      <height>141</height>
-     </rect>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">background: white;
-border: 1px solid black
-</string>
-    </property>
-    <widget class="QLabel" name="label_5">
-     <property name="geometry">
-      <rect>
-       <x>39</x>
-       <y>10</y>
-       <width>191</width>
-       <height>20</height>
-      </rect>
-     </property>
-     <property name="autoFillBackground">
-      <bool>false</bool>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">border: white</string>
-     </property>
-     <property name="text">
-      <string>1-Constant Approximation</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="setOneConstant">
-     <property name="geometry">
-      <rect>
-       <x>70</x>
-       <y>80</y>
-       <width>114</width>
-       <height>32</height>
-      </rect>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">background: grey</string>
-     </property>
-     <property name="text">
-      <string>set constants</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="label_6">
-     <property name="geometry">
-      <rect>
-       <x>30</x>
-       <y>40</y>
-       <width>60</width>
-       <height>16</height>
-      </rect>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">border: white</string>
-     </property>
-     <property name="text">
-      <string>L1</string>
-     </property>
-    </widget>
-    <widget class="QLineEdit" name="oneConstantL1Box">
-     <property name="geometry">
-      <rect>
-       <x>110</x>
-       <y>40</y>
-       <width>113</width>
-       <height>21</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>2.32</string>
      </property>
     </widget>
    </widget>
@@ -3704,9 +3351,9 @@ border: 1px solid black
     <widget class="QLabel" name="label_69">
      <property name="geometry">
       <rect>
-       <x>100</x>
+       <x>50</x>
        <y>10</y>
-       <width>181</width>
+       <width>311</width>
        <height>20</height>
       </rect>
      </property>
@@ -3717,15 +3364,15 @@ border: 1px solid black
       <string notr="true">border: white</string>
      </property>
      <property name="text">
-      <string>5-constant approximation</string>
+      <string>Directly set Landau-deGennes elastic constants</string>
      </property>
     </widget>
     <widget class="QPushButton" name="setFiveConstants">
      <property name="geometry">
       <rect>
-       <x>130</x>
+       <x>100</x>
        <y>130</y>
-       <width>114</width>
+       <width>191</width>
        <height>32</height>
       </rect>
      </property>
@@ -3733,7 +3380,7 @@ border: 1px solid black
       <string notr="true">background: grey</string>
      </property>
      <property name="text">
-      <string>set constants</string>
+      <string>Set distortion constants!</string>
      </property>
     </widget>
     <widget class="QLabel" name="label_73">
@@ -4009,10 +3656,403 @@ border: 1px solid black
      <enum>Qt::Horizontal</enum>
     </property>
    </widget>
+   <widget class="QWidget" name="setDistortionConstants" native="true">
+    <property name="geometry">
+     <rect>
+      <x>200</x>
+      <y>10</y>
+      <width>481</width>
+      <height>361</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background: white;
+border: 1px solid black
+</string>
+    </property>
+    <widget class="QLabel" name="label_83">
+     <property name="geometry">
+      <rect>
+       <x>160</x>
+       <y>10</y>
+       <width>171</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; text-decoration: underline;&quot;&gt;Select distortion terms&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="setDistortionConstantsButton">
+     <property name="geometry">
+      <rect>
+       <x>160</x>
+       <y>320</y>
+       <width>191</width>
+       <height>32</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background: grey</string>
+     </property>
+     <property name="text">
+      <string>Set distortion constants!</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_84">
+     <property name="geometry">
+      <rect>
+       <x>90</x>
+       <y>50</y>
+       <width>311</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>Select one of the following three primary options:</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_85">
+     <property name="geometry">
+      <rect>
+       <x>110</x>
+       <y>210</y>
+       <width>241</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>Select any of the following that apply:</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_86">
+     <property name="geometry">
+      <rect>
+       <x>250</x>
+       <y>240</y>
+       <width>41</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>q0 =</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="K1Box1">
+     <property name="geometry">
+      <rect>
+       <x>310</x>
+       <y>80</y>
+       <width>51</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>2.32</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_87">
+     <property name="geometry">
+      <rect>
+       <x>240</x>
+       <y>270</y>
+       <width>60</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>K24 =</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_96">
+     <property name="geometry">
+      <rect>
+       <x>270</x>
+       <y>80</y>
+       <width>31</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>K1 = </string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="K24Box">
+     <property name="geometry">
+      <rect>
+       <x>300</x>
+       <y>270</y>
+       <width>113</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>2.32</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="q0Box">
+     <property name="geometry">
+      <rect>
+       <x>300</x>
+       <y>240</y>
+       <width>113</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>2.32</string>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="K1checkBox">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>80</y>
+       <width>101</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border-color: rgb(255, 255, 255);</string>
+     </property>
+     <property name="text">
+      <string>K1=K2=K3:</string>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="K12checkBox">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>120</y>
+       <width>121</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border-color: rgb(255, 255, 255);</string>
+     </property>
+     <property name="text">
+      <string>K1 = K3 != K2:</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="K1K2Box1">
+     <property name="geometry">
+      <rect>
+       <x>260</x>
+       <y>120</y>
+       <width>51</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>2.32</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_97">
+     <property name="geometry">
+      <rect>
+       <x>220</x>
+       <y>120</y>
+       <width>31</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>K1 = </string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="K1K2Box2">
+     <property name="geometry">
+      <rect>
+       <x>360</x>
+       <y>120</y>
+       <width>51</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>2.32</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_98">
+     <property name="geometry">
+      <rect>
+       <x>320</x>
+       <y>120</y>
+       <width>31</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>K2 = </string>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="K123checkBox">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>160</y>
+       <width>131</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border-color: rgb(255, 255, 255);</string>
+     </property>
+     <property name="text">
+      <string>K1 != K2 != K3:</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_99">
+     <property name="geometry">
+      <rect>
+       <x>170</x>
+       <y>160</y>
+       <width>31</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>K1 = </string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_100">
+     <property name="geometry">
+      <rect>
+       <x>270</x>
+       <y>160</y>
+       <width>31</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>K2 = </string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="K1K2K3Box1">
+     <property name="geometry">
+      <rect>
+       <x>210</x>
+       <y>160</y>
+       <width>51</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>2.32</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="K1K2K3Box2">
+     <property name="geometry">
+      <rect>
+       <x>310</x>
+       <y>160</y>
+       <width>51</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>2.32</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="K1K2K3Box3">
+     <property name="geometry">
+      <rect>
+       <x>420</x>
+       <y>160</y>
+       <width>51</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>2.32</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_101">
+     <property name="geometry">
+      <rect>
+       <x>380</x>
+       <y>160</y>
+       <width>31</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>K3 = </string>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="q0checkBox">
+     <property name="geometry">
+      <rect>
+       <x>110</x>
+       <y>240</y>
+       <width>131</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border-color: rgb(255, 255, 255);</string>
+     </property>
+     <property name="text">
+      <string>q0 != 0 (chiral):</string>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="K24checkBox">
+     <property name="geometry">
+      <rect>
+       <x>110</x>
+       <y>270</y>
+       <width>131</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border-color: rgb(255, 255, 255);</string>
+     </property>
+     <property name="text">
+      <string>K24 != 0:</string>
+     </property>
+    </widget>
+   </widget>
+   <zorder>fileImportWidget</zorder>
+   <zorder>addObjectsWidget</zorder>
    <zorder>dipoleWidget</zorder>
-   <zorder>setDistortionConstants3</zorder>
-   <zorder>setDistortionConstants2</zorder>
-   <zorder>setDistortionConstants1</zorder>
    <zorder>colloidalTrajectoryWidget</zorder>
    <zorder>fileSaveWidget</zorder>
    <zorder>nesterovWidget</zorder>
@@ -4020,10 +4060,6 @@ border: 1px solid black
    <zorder>moveObjectWidget</zorder>
    <zorder>fireParametersWidget</zorder>
    <zorder>setPhaseConstants</zorder>
-   <zorder>initializationFrame</zorder>
-   <zorder>fileImportWidget</zorder>
-   <zorder>setDistortionConstants5</zorder>
-   <zorder>addObjectsWidget</zorder>
    <zorder>addIterationsBox</zorder>
    <zorder>addIterationsButton</zorder>
    <zorder>testingBox</zorder>
@@ -4067,6 +4103,9 @@ border: 1px solid black
    <zorder>xNormalSlider</zorder>
    <zorder>yNormalSlider</zorder>
    <zorder>zNormalSlider</zorder>
+   <zorder>initializationFrame</zorder>
+   <zorder>setDistortionConstants</zorder>
+   <zorder>setDistortionConstants5</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
@@ -4074,24 +4113,16 @@ border: 1px solid black
      <x>0</x>
      <y>0</y>
      <width>1349</width>
-     <height>19</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuSet_constants">
     <property name="title">
      <string>Change forces</string>
     </property>
-    <widget class="QMenu" name="menudistortion_energy_constants">
-     <property name="title">
-      <string>distortion energy constants</string>
-     </property>
-     <addaction name="action1_Constant"/>
-     <addaction name="action2_Constant_approximation"/>
-     <addaction name="action3_Constant_approximation"/>
-     <addaction name="action5_Constant_approximation"/>
-    </widget>
     <addaction name="actionphase_constants"/>
-    <addaction name="menudistortion_energy_constants"/>
+    <addaction name="actionChange_distortion_constants"/>
+    <addaction name="actionChange_distortion_constants_landau_deGennes"/>
     <addaction name="actionAdd_a_E_H_field"/>
    </widget>
    <widget class="QMenu" name="menuRe_initialize">
@@ -4140,21 +4171,6 @@ border: 1px solid black
   <action name="actionphase_constants">
    <property name="text">
     <string>phase constants</string>
-   </property>
-  </action>
-  <action name="action1_Constant_approximation">
-   <property name="text">
-    <string>1-Constant approximation</string>
-   </property>
-  </action>
-  <action name="action2_Constant_approximation">
-   <property name="text">
-    <string>2-Constant approximation</string>
-   </property>
-  </action>
-  <action name="action3_Constant_approximation">
-   <property name="text">
-    <string>3-Constant approximation</string>
    </property>
   </action>
   <action name="action1_Constant">
@@ -4222,6 +4238,16 @@ border: 1px solid black
     <string>Save record</string>
    </property>
   </action>
+  <action name="actionChange_distortion_constants">
+   <property name="text">
+    <string>Change distortion constants (Frank constants)</string>
+   </property>
+  </action>
+  <action name="actionChange_distortion_constants_landau_deGennes">
+   <property name="text">
+    <string>Change distortion constants (landau-deGennes)</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
@@ -4251,20 +4277,10 @@ border: 1px solid black
   <tabstop>nConstantsSpinBox</tabstop>
   <tabstop>initializeButton</tabstop>
   <tabstop>detectedGPUBox</tabstop>
-  <tabstop>setThreeConstants</tabstop>
-  <tabstop>threeConstantL1Box</tabstop>
-  <tabstop>threeConstantL2Box</tabstop>
-  <tabstop>threeConstantL3Box</tabstop>
-  <tabstop>setTwoConstants</tabstop>
-  <tabstop>twoConstantL1Box</tabstop>
-  <tabstop>twoConstantL2Box</tabstop>
-  <tabstop>twoConstantQ0Box</tabstop>
   <tabstop>setPhaseConstantsButton</tabstop>
   <tabstop>phaseABox</tabstop>
   <tabstop>phaseBBox</tabstop>
   <tabstop>phaseCBox</tabstop>
-  <tabstop>setOneConstant</tabstop>
-  <tabstop>oneConstantL1Box</tabstop>
   <tabstop>minimizationParametersButton</tabstop>
   <tabstop>addObjectButton</tabstop>
   <tabstop>minimizeButton</tabstop>
@@ -4316,54 +4332,6 @@ border: 1px solid black
  </tabstops>
  <resources/>
  <connections>
-  <connection>
-   <sender>action2_Constant_approximation</sender>
-   <signal>triggered()</signal>
-   <receiver>setDistortionConstants2</receiver>
-   <slot>show()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>290</x>
-     <y>192</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>action3_Constant_approximation</sender>
-   <signal>triggered()</signal>
-   <receiver>setDistortionConstants3</receiver>
-   <slot>show()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>525</x>
-     <y>170</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>action1_Constant</sender>
-   <signal>triggered()</signal>
-   <receiver>setDistortionConstants1</receiver>
-   <slot>show()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>290</x>
-     <y>187</y>
-    </hint>
-   </hints>
-  </connection>
   <connection>
    <sender>actionphase_constants</sender>
    <signal>triggered()</signal>
@@ -4589,22 +4557,6 @@ border: 1px solid black
    </hints>
   </connection>
   <connection>
-   <sender>action5_Constant_approximation</sender>
-   <signal>triggered()</signal>
-   <receiver>setDistortionConstants5</receiver>
-   <slot>show()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>445</x>
-     <y>197</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>actionStart_record</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
@@ -4633,6 +4585,38 @@ border: 1px solid black
     <hint type="destinationlabel">
      <x>590</x>
      <y>283</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionChange_distortion_constants</sender>
+   <signal>triggered()</signal>
+   <receiver>setDistortionConstants</receiver>
+   <slot>show()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>440</x>
+     <y>227</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionChange_distortion_constants_landau_deGennes</sender>
+   <signal>triggered()</signal>
+   <receiver>setDistortionConstants5</receiver>
+   <slot>show()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>445</x>
+     <y>202</y>
     </hint>
    </hints>
   </connection>
