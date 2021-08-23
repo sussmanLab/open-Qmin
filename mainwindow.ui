@@ -3454,7 +3454,7 @@ border: 1px solid black
       </rect>
      </property>
      <property name="text">
-      <string>2.32</string>
+      <string>0.0</string>
      </property>
     </widget>
     <widget class="QLineEdit" name="fiveConstantL3Box">
@@ -3467,7 +3467,7 @@ border: 1px solid black
       </rect>
      </property>
      <property name="text">
-      <string>2.32</string>
+      <string>0.0</string>
      </property>
     </widget>
     <widget class="QLabel" name="label_78">
@@ -3512,7 +3512,7 @@ border: 1px solid black
       </rect>
      </property>
      <property name="text">
-      <string>2.32</string>
+      <string>0.0</string>
      </property>
     </widget>
     <widget class="QLineEdit" name="fiveConstantL4Box">
@@ -3525,7 +3525,7 @@ border: 1px solid black
       </rect>
      </property>
      <property name="text">
-      <string>2.32</string>
+      <string>0.0</string>
      </property>
     </widget>
    </widget>
@@ -3821,7 +3821,7 @@ border: 1px solid black
       </rect>
      </property>
      <property name="text">
-      <string>2.32</string>
+      <string>0.0</string>
      </property>
     </widget>
     <widget class="QCheckBox" name="K1checkBox">
@@ -3837,7 +3837,7 @@ border: 1px solid black
       <string notr="true">border-color: rgb(255, 255, 255);</string>
      </property>
      <property name="text">
-      <string>K1=K2=K3:</string>
+      <string>K1 = K2 = K3:</string>
      </property>
     </widget>
     <widget class="QCheckBox" name="K12checkBox">
@@ -4050,6 +4050,7 @@ border: 1px solid black
      </property>
     </widget>
    </widget>
+   <zorder>setDistortionConstants5</zorder>
    <zorder>fileImportWidget</zorder>
    <zorder>addObjectsWidget</zorder>
    <zorder>dipoleWidget</zorder>
@@ -4105,7 +4106,6 @@ border: 1px solid black
    <zorder>zNormalSlider</zorder>
    <zorder>initializationFrame</zorder>
    <zorder>setDistortionConstants</zorder>
-   <zorder>setDistortionConstants5</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">

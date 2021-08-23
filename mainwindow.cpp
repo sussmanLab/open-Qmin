@@ -178,6 +178,18 @@ void MainWindow::on_initializeButton_released()
 
     ui->progressBar->setValue(50);
     S0 = (-B+sqrt(B*B-24*A*C))/(6*C);
+    double sampleL1=2.32;
+    double constK = 9.0*S0*S0*sampleL1*0.5;
+    QString oneConstantKs = QString::number(constK, 'f', 3);
+    ui->K1Box1->setText(oneConstantKs);
+    ui->K1K2Box1->setText(oneConstantKs);
+    ui->K1K2Box2->setText(oneConstantKs);
+    ui->K1K2K3Box1->setText(oneConstantKs);
+    ui->K1K2K3Box2->setText(oneConstantKs);
+    ui->K1K2K3Box3->setText(oneConstantKs);
+    ui->K24Box->setText(oneConstantKs);
+
+
     Configuration->setNematicQTensorRandomly(noise,S0);
     sprintf(lineBit,"\tConfiguration->setNematicQTensorRandomly(noise,%f);",S0);
     customFile.addLine(lineBit);
