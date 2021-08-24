@@ -208,7 +208,7 @@ if dpts.shape[0] > 0:
 
 """ Plot styling options """
 
-fontname='Arial'
+fontname='DejaVu Sans'
 
 # make the plot aspect ratio at most 4
 max_dim = max(lims[1]-lims[0])
@@ -237,7 +237,7 @@ ax.set_xlim3d(xmin,xmax_plot_range)
 ax.set_ylim3d(ymin,ymax_plot_range)
 ax.set_zlim3d(zmin,zmax_plot_range)
 
-ax.set_aspect('equal')
+# ax.set_aspect('equal')
 
 ax.grid(False)
 
