@@ -237,8 +237,6 @@ ax.set_xlim3d(xmin,xmax_plot_range)
 ax.set_ylim3d(ymin,ymax_plot_range)
 ax.set_zlim3d(zmin,zmax_plot_range)
 
-# ax.set_aspect('equal')
-
 ax.grid(False)
 
 ax.xaxis.pane.set_edgecolor('black')
