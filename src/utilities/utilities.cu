@@ -1,6 +1,9 @@
 #include "utilities.cuh"
 #include "functions.h"
 
+
+#define FULL_MASK 0xffffffff
+
 /*! \file utilities.cu
   defines kernel callers and kernels for some simple GPU array calculations
 
@@ -116,7 +119,7 @@ reduce6(T *g_idata, T *g_odata, unsigned int n)
         // Reduce final warp using shuffle
         for (int offset = warpSize/2; offset > 0; offset /= 2)
         {
-            mySum += __shfl_down(mySum, offset);
+            mySum += __shfl_down_sync(FULL_MASK,mySum, offset);
         }
     }
 #else
