@@ -17,7 +17,7 @@ This file implements handy manipulations and functions of the Q-tensor as laid o
 #pragma hd_warning_disable
 #pragma diag_suppress 2739
 
-#ifdef NVCC
+#ifdef __NVCC__
 #define HOSTDEVICE __host__ __device__ inline
 #else
 #define HOSTDEVICE inline __attribute__((always_inline))

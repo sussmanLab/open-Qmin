@@ -1,6 +1,0 @@
-include_directories(utilities model simulation forces updaters ../inc)
-add_subdirectory(utilities)
-add_subdirectory(model)
-add_subdirectory(forces)
-add_subdirectory(updaters)
-add_subdirectory(simulation)

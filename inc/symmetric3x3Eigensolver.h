@@ -1,7 +1,7 @@
 #ifndef SymmetricEigensolver3x3_H
 #define SymmetricEigensolver3x3_H
 
-#ifdef NVCC
+#ifdef __NVCC__
 #define HOSTDEVICE __host__ __device__ inline
 #else
 #define HOSTDEVICE inline __attribute__((always_inline))
