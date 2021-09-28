@@ -20,6 +20,12 @@ By default, the above steps will create two executables, "openQmin.out" and "ope
 The GUI executable will... launch the graphical user interface. The non-GUI executable is meant to be run with various 
 command line parameters.
 
+Are you wondering about the mysterious third executable, "customScriptFromGUI.out", that also gets made? We currently have
+an experimental (but functional) feature by which you can record sequences of actions in the GUI and save them to a new,
+compilable "customScriptFromGUI.cpp" file. This can be used, for instance, to specify specific initial conditions more easily
+than by fussing with the command line or writing your own cpp codes. Note that the "customScriptFromGUI.out" executable 
+itself has command line options (such as changing the lattice size), and is suitable to be run as an MPI executable.
+
 To make additional executables on compilation, copy a cpp file into the base directory, and then add the name of the 
 cpp file to the base CMakeList.txt file in the "foreach()" line immediately following the comment that says
 "list the names of cpp files cooresponding to linked executables you'd like..."

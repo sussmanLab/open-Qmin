@@ -59,7 +59,7 @@ void landauDeGennesLC::setModel(shared_ptr<cubicLattice> _model)
     model = _model;
     if(numberOfConstants == distortionEnergyType::multiConstant)
         {
-        lattice->fillNeighborLists(1);//fill neighbor lists to allow computing mixed partials
+        lattice->fillNeighborLists(0);//fill neighbor lists to allow computing mixed partials
         }
     else // one constant approx
         {
@@ -92,6 +92,31 @@ void landauDeGennesLC::computeForces(GPUArray<dVec> &forces,bool zeroOutForce, i
         computeForceGPU(forces,zeroOutForce);
     else
         computeForceCPU(forces,zeroOutForce,type);
+
+    correctForceFromMetric(forces);
+    }
+
+void landauDeGennesLC::correctForceFromMetric(GPUArray<dVec> &forces)
+    {
+    int N = lattice->getNumberOfParticles();
+    if(useGPU)
+        {
+        ArrayHandle<dVec> d_force(forces,access_location::device,access_mode::readwrite);
+        gpuCorrectForceFromMetric(d_force.data,N,forceTuner->getParameter());
+        }
+    else
+        {
+        ArrayHandle<dVec> h_force(forces,access_location::host,access_mode::readwrite);
+        scalar QxxOld, QyyOld;
+        scalar twoThirds = 2./3.;
+        for (int i = 0; i < N ; ++i)
+            {
+            QxxOld = h_force.data[i][0];
+            QyyOld = h_force.data[i][3];
+            h_force.data[i][0] = twoThirds*(2.*QxxOld - QyyOld);
+            h_force.data[i][3] = twoThirds*(2.*QyyOld - QxxOld);
+            };
+        }
     }
 
 void landauDeGennesLC::computeForceGPU(GPUArray<dVec> &forces,bool zeroOutForce)
@@ -151,23 +176,10 @@ void landauDeGennesLC::computeForceCPU(GPUArray<dVec> &forces,bool zeroOutForce,
             {
             bool zeroForce = zeroOutForce;
             computeFirstDerivatives();
-            //Always compute L1 term, since it also computes the phase contribution
             if(type ==0)
-                {
-                computeL1BulkCPU(forces,zeroForce);
-                computeOtherDistortionTermsBulkCPU(forces,L2,L3,L4,L6);
-                }
+                computeAllDistortionTermsBulkCPU(forces,zeroForce);
             if(type ==1)
-                {
-                computeL1BoundaryCPU(forces,zeroForce);
-                computeOtherDistortionTermsBoundaryCPU(forces,L2,L3,L4,L6);
-                }
-            zeroForce = false;
-
-            if(type ==0)
-                computeOtherDistortionTermsBulkCPU(forces,L2,L3,L4,L6);
-            if(type ==1)
-                computeOtherDistortionTermsBoundaryCPU(forces,L2,L3,L4,L6);
+                computeAllDistortionTermsBoundaryCPU(forces,zeroForce);
             break;
             };
         };

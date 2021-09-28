@@ -28,6 +28,9 @@ class landauDeGennesLC : public baseLatticeForce
         //select the force routing based on the number of elastic constants
         virtual void computeForceGPU(GPUArray<dVec> &forces,bool zeroOutForce = true);
 
+        //when using the Qxx,Qxy,Qxz,Qyy,Qyz basis, correct forces according to the non-orthogonal metric
+        virtual void correctForceFromMetric(GPUArray<dVec> &forces);
+
         void setPhaseConstants(scalar _a=-1, scalar _b =-12.325581395, scalar _c =  10.058139535){A=_a;B=_b;C=_c;};
         void setElasticConstants(scalar _l1=2.32,scalar _l2=0, scalar _l3=0, scalar _l4 = 0, scalar _l6=0){L1=_l1;L2=_l2;L3=_l3; L4=_l4; L6 = _l6;};
         void setNumberOfConstants(distortionEnergyType _type);
@@ -147,11 +150,15 @@ class landauDeGennesLC : public baseLatticeForce
         //!performance for the E/H field force kernel
         shared_ptr<kernelTuner> fieldForceTuner;
 
+        //!Compute L1 distortion terms in the bulk *and* the phase force
         virtual void computeL1BulkCPU(GPUArray<dVec> &forces,bool zeroOutForce);
+        //!Compute L1 distortion terms at boundaries *and* the phase force
         virtual void computeL1BoundaryCPU(GPUArray<dVec> &forces,bool zeroOutForce);
 
-        virtual void computeOtherDistortionTermsBulkCPU(GPUArray<dVec> &forces, scalar L2, scalar L3, scalar L4, scalar L6);
-        virtual void computeOtherDistortionTermsBoundaryCPU(GPUArray<dVec> &forces, scalar L2, scalar L3, scalar L4, scalar L6);
+        //!Compute all distortion terms in the bulk *and* the phase force
+        virtual void computeAllDistortionTermsBulkCPU(GPUArray<dVec> &forces,bool zeroOutForce);
+        //!Compute all distortion terms at boundaries *and* the phase force
+        virtual void computeAllDistortionTermsBoundaryCPU(GPUArray<dVec> &forces,bool zeroOutForce);
     };
 
 #endif

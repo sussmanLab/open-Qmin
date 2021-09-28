@@ -17,7 +17,7 @@ This file implements handy manipulations and functions of the Q-tensor as laid o
 #pragma hd_warning_disable
 #pragma diag_suppress 2739
 
-#ifdef NVCC
+#ifdef __NVCC__
 #define HOSTDEVICE __host__ __device__ inline
 #else
 #define HOSTDEVICE inline __attribute__((always_inline))
@@ -43,11 +43,11 @@ HOSTDEVICE void qTensorFromDirector(scalar3 n, scalar S0, dVec &q)
         {
         n.x /=scale;n.y /=scale;n.z /=scale;
         }
-    q[0] = 1.5*(n.x*n.x-1.0/3.0)*S0;
-    q[1] = 1.5*n.x*n.y;
-    q[2] = 1.5*n.x*n.z;
-    q[3] = 1.5*(n.y*n.y-1.0/3.0)*S0;
-    q[4] = 1.5*n.y*n.z;
+    q[0] = 1.5*S0*(n.x*n.x-1.0/3.0);
+    q[1] = 1.5*S0*n.x*n.y;
+    q[2] = 1.5*S0*n.x*n.z;
+    q[3] = 1.5*S0*(n.y*n.y-1.0/3.0);
+    q[4] = 1.5*S0*n.y*n.z;
     };
 
 //!Tr(Q^2) = Q_{kl}Q_{lk}

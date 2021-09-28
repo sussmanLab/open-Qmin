@@ -3,7 +3,7 @@
 
 #include "latticeBoundaries.h"
 #include "qTensorFunctions.h"
-#ifdef NVCC
+#ifdef __NVCC__
 #define HOSTDEVICE __host__ __device__ inline
 #else
 #define HOSTDEVICE inline __attribute__((always_inline))
@@ -65,7 +65,7 @@ HOSTDEVICE void computeBoundaryForce(const dVec &latticeSite, const dVec &bounda
             force[4]=4*W2*(3*(S0*S0) - 4*(q[0]*q[0] + q[1]*q[1] + q[2]*q[2] + q[3]*q[3] + q[4]*q[4] + q[0]*q[3]))*q[4] - 2*W1*(pow(nuX,6)*nuYZ*(S0 + 2*q[0]) + 4*pow(nuX,5)*nuYZ*(nuY*q[1] + nuZ*q[2]) + 2*(nuX3)*(nuZ*(1 + 4*pow(nuY,4) - 8*(nuY2))*q[1] + 4*(nuY2)*(nuZ3)*q[1] + nuY*q[2] + 4*nuY*pow(nuZ,4)*q[2] + 4*nuY*(-2 + nuY2)*(nuZ2)*q[2]) + 2*nuX*(2*pow(nuY,6)*nuZ*q[1] + nuZ*(nuY2)*(5 + 2*pow(nuZ,4) - 8*(nuZ2))*q[1] + 4*pow(nuY,4)*nuZ*(-2 + nuZ2)*q[1] + nuZ3*q[1] + nuY3*(1 + 4*pow(nuZ,4) - 8*(nuZ2))*q[2] + 2*pow(nuY,5)*(nuZ2)*q[2] + nuY*(5 + 2*pow(nuZ,4) - 8*(nuZ2))*(nuZ2)*q[2]) + pow(nuY,5)*nuZ*(S0*(-4 + 3*(nuZ2)) - 2*(nuZ2)*(q[0] - q[3]) - 8*q[3]) + pow(nuY,7)*nuZ*(S0 + 2*q[3]) + nuZ*(nuY3)*(S0*(4 + 3*pow(nuZ,4) - 8*(nuZ2)) - 2*((1 + 2*pow(nuZ,4) - 4*(nuZ2))*q[0] + (-2 + pow(nuZ,4))*q[3])) + nuY*(nuZ3)*(S0*((-2 + nuZ2)*(-2 + nuZ2)) - 2*((3 + pow(nuZ,4) - 4*(nuZ2))*q[0] + (2 + pow(nuZ,4) - 4*(nuZ2))*q[3])) + 2*pow(nuZ,4)*q[4] + 2*pow(nuY,4)*(1 + 4*pow(nuZ,4) - 8*(nuZ2))*q[4] + 4*pow(nuY,6)*(nuZ2)*q[4] + 4*(nuY2)*(3 + pow(nuZ,4) - 4*(nuZ2))*(nuZ2)*q[4] + nuX2*(pow(nuY,5)*nuZ*(3*S0 + 2*q[0] + 4*q[3]) + nuYZ*(S0*(4 + 3*pow(nuZ,4) - 8*(nuZ2)) - 2*(-1 + pow(nuZ,4))*q[0] - 4*(-2 + nuZ2)*(nuZ2)*q[3]) + 2*nuZ*(nuY3)*(S0*(-4 + 3*(nuZ2)) - 4*(q[0] + q[3])) + 2*(nuY2)*(1 + 4*pow(nuZ,4) - 8*(nuZ2))*q[4] + 2*(nuZ2)*q[4] + 8*pow(nuY,4)*(nuZ2)*q[4]) + pow(nuX,4)*nuYZ*(S0*(-4 + 3*(nuY2) + 3*(nuZ2)) + 2*((-4 + 2*(nuY2) + nuZ2)*q[0] + nuY2*q[3] - nuZ2*q[3] + 2*nuYZ*q[4])));
             break;
             }
-            #ifndef NVCC
+            #ifndef __NVCC__
         default:
             UNWRITTENCODE("non-defined boundary type is attempting a force computation");
             #endif
@@ -115,7 +115,7 @@ HOSTDEVICE scalar computeBoundaryEnergy(const dVec &latticeSite, const dVec &bou
             energy = energy1+energy2;
             break;
             }
-            #ifndef NVCC
+            #ifndef __NVCC__
         default:
             UNWRITTENCODE("non-defined boundary type is attempting a force computation");
             #endif

@@ -5,7 +5,7 @@ defines dVec class (d-dimensional array of scalars)
 defines iVec class (d-dimensional array of ints)
 */
 
-#ifdef NVCC
+#ifdef __NVCC__
 #define HOSTDEVICE __host__ __device__ inline
 #define MY_ALIGN(n) __align__(n)
 #else

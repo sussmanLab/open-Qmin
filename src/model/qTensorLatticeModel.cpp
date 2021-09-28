@@ -35,6 +35,34 @@ qTensorLatticeModel::qTensorLatticeModel(int lx,int ly,int lz, bool _useGPU, boo
         }
     };
 
+void qTensorLatticeModel::getAverageMaximalEigenvector(vector<scalar> &averageN)
+    {
+    ArrayHandle<dVec> Q(positions,access_location::host,access_mode::read);
+    ArrayHandle<int> t(types,access_location::host,access_mode::read);
+    vector<scalar> eigenValues(3);
+    //eigensystemOfQ orders the eignevectors from smallest to largest...
+    vector<scalar> eigenVector1(3);
+    vector<scalar> eigenVector2(3);
+    vector<scalar> eigenVector3(3);//Hence, this is the one we care about.
+
+    averageN.resize(3); averageN[0]=0.0;averageN[1]=0.0;averageN[2]=0.0;
+    int n = 0;
+    for (int pp = 0; pp < N; ++pp)
+        {
+        if(t.data[pp] <=0)
+            {
+            n += 1;
+            eigensystemOfQ(Q.data[pp],eigenValues,eigenVector1,eigenVector2,eigenVector3);
+            averageN[0] += eigenVector3[0];
+            averageN[1] += eigenVector3[1];
+            averageN[2] += eigenVector3[2];
+            }
+        }
+    averageN[0] = averageN[0]/n;
+    averageN[1] = averageN[1]/n;
+    averageN[2] = averageN[2]/n;
+    }
+
 void qTensorLatticeModel::getAverageEigenvalues()
     {
     ArrayHandle<dVec> Q(positions,access_location::host,access_mode::read);
@@ -101,6 +129,7 @@ void qTensorLatticeModel::computeDefectMeasures(int defectType)
     }
 void qTensorLatticeModel::setNematicQTensorRandomly(noiseSource &noise,scalar S0, bool globallyAligned)
     {
+    //cout << "setting randomly aligned nematic Q tensors of strength " << S0 << endl;
     scalar amplitude =  3./2.*S0;
     scalar globalTheta = acos(2.0*noise.getRealUniform()-1);
     scalar globalPhi = 2.0*PI*noise.getRealUniform();
@@ -153,6 +182,7 @@ void qTensorLatticeModel::moveParticles(GPUArray<dVec> &displacements,scalar sca
                 {
                 h_pos.data[pp] += h_disp.data[pp];
                 //approximately restrict Q-tensor values
+                /*
                 scalar otherMin = -2.0/3.0;
                 scalar otherMax = 5./6.;
                 for (int dd = 0; dd < DIMENSION; ++dd)
@@ -162,6 +192,7 @@ void qTensorLatticeModel::moveParticles(GPUArray<dVec> &displacements,scalar sca
                     if(h_pos.data[pp][dd] > max) h_pos.data[pp][dd] = max;
                     if(h_pos.data[pp][dd] < min) h_pos.data[pp][dd] = min;
                     }
+                */
                 }
             }
         else
@@ -170,6 +201,7 @@ void qTensorLatticeModel::moveParticles(GPUArray<dVec> &displacements,scalar sca
                 {
                 h_pos.data[pp] += scale*h_disp.data[pp];
                 //approximately restrict Q-tensor values
+                /*
                 scalar otherMin = -2.0/3.0;
                 scalar otherMax = 5./6.;
                 for (int dd = 0; dd < DIMENSION; ++dd)
@@ -179,6 +211,7 @@ void qTensorLatticeModel::moveParticles(GPUArray<dVec> &displacements,scalar sca
                     if(h_pos.data[pp][dd] > max) h_pos.data[pp][dd] = max;
                     if(h_pos.data[pp][dd] < min) h_pos.data[pp][dd] = min;
                     }
+                */
                 }
             }
         }

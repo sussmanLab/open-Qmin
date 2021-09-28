@@ -404,37 +404,15 @@ __global__ void gpu_qTensor_oneConstantForce_kernel(dVec *d_force,
         yDown = d_spins[iyd]; yUp = d_spins[iyu];
         zDown = d_spins[izd]; zUp = d_spins[izu];
         dVec spatialTerm(0.0);
-        if(d_types[idx] == 0) // bulk is easy
+        if(d_types[idx] == 0 || d_types[idx] == -2) // bulk is easy
             {
-            spatialTerm = L1*(6.0*qCurrent-xDown-xUp-yDown-yUp-zDown-zUp);
-            scalar AxxAyy = spatialTerm[0]+spatialTerm[3];
-            spatialTerm[0] += AxxAyy;
-            spatialTerm[1] *= 2.0;
-            spatialTerm[2] *= 2.0;
-            spatialTerm[3] += AxxAyy;
-            spatialTerm[4] *= 2.0;
+            lcForce::bulkL1Force(L1,qCurrent,xDown,xUp,yDown,yUp,zDown,zUp,spatialTerm);
             }
         else //near a boundary is less easy... ternary operators are slightly better than many ifs (particularly if boundaries are typically jagged)
             {
-            if(d_types[ixd] >0)//xDown is a boundary
-                spatialTerm -= (xUp-qCurrent);
-            if(d_types[ixu] >0)//xUp is a boundary
-                spatialTerm -= (xDown-qCurrent);//negative derivative and negative nu_x cancel
-            if(d_types[iyd] >0)//ydown
-                spatialTerm -= (yUp-qCurrent);
-            if(d_types[iyu] >0)
-                spatialTerm -= (yDown-qCurrent);//negative derivative and negative nu_y cancel
-            if(d_types[izd] >0)//zDown is boundary
-                spatialTerm -= (zUp-qCurrent);
-            if(d_types[izu] >0)
-                spatialTerm -= (zDown-qCurrent);//negative derivative and negative nu_z cancel
-            spatialTerm = spatialTerm*L1;
-            scalar crossTerm = spatialTerm[0]+spatialTerm[3];
-            spatialTerm[0] += crossTerm;
-            spatialTerm[1] *= 2.0;
-            spatialTerm[2] *= 2.0;
-            spatialTerm[3] += crossTerm;
-            spatialTerm[4] *= 2.0;
+            lcForce::boundaryL1Force(L1,qCurrent,xDown,xUp,yDown,yUp,zDown,zUp,
+                        d_types[ixd],d_types[ixu],d_types[iyd],
+                        d_types[iyu],d_types[izd],d_types[izu],spatialTerm);
             };
         force -= spatialTerm;
         };
@@ -593,6 +571,28 @@ __global__ void gpu_qTensor_uniformFieldForcekernel(dVec *d_force,
         d_force[idx] -= fieldForce;
     }
 
+__global__ void gpuCorrectForceFromMetric_kernel(dVec *d_force, int N)
+    {
+    unsigned int idx = blockDim.x * blockIdx.x + threadIdx.x;
+    if (idx >= N)
+        return;
+    scalar QxxOld, QyyOld;
+    QxxOld = d_force[idx][0];
+    QyyOld = d_force[idx][3];
+    d_force[idx][0] = 2.*(2.*QxxOld-QyyOld)/3.;
+    d_force[idx][3] = 2.*(2.*QyyOld-QxxOld)/3.;
+    }
+
+bool gpuCorrectForceFromMetric(dVec *d_force,
+                                int N,
+                                int maxBlockSize)
+    {
+    unsigned int block_size = maxBlockSize;
+    unsigned int nblocks = N/block_size+1;
+    gpuCorrectForceFromMetric_kernel<<<nblocks,block_size>>>(d_force,N);
+    HANDLE_ERROR(cudaGetLastError());
+    return cudaSuccess;
+    }
 bool gpu_qTensor_computeObjectForceFromStresses(int *sites,
                                         int *latticeTypes,
                                         int *latticeNeighbors,

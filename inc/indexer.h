@@ -18,7 +18,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDER AND CONTRIBUTORS ``AS IS'' AND
 //Credit to Joshua A. Anderson
 
 #include "functions.h"
-#ifdef NVCC
+#ifdef __NVCC__
 #define HOSTDEVICE __host__ __device__ inline
 #else
 #define HOSTDEVICE inline __attribute__((always_inline))
