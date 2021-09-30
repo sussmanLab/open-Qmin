@@ -101,9 +101,6 @@ include_directories(
     ${MPI_INCLUDE_PATH})
 link_directories(${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}/../lib)
 
-#include_directories(inc ${CUDA_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIRS}/GL /home/user/CGAL/CGAL-4.9/include/CGAL/ src src/utilities src/simulation src/model src/forces src/updaters ${MPI_INCLUDE_PATH} /usr/include/GL)
-#link_directories(${CUDA_LIBRARY_DIRS})
-
 message("libraries = " "${myLibs}")
 
 qt5_wrap_ui(UI_HEADERS mainwindow.ui)

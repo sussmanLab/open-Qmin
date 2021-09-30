@@ -22,6 +22,8 @@ from the root directory will produce a set of html documentation files.
 See "INSTALLATION.md" for a few more details. Note that the "noQT" branch has stripped away all code
 related to the GUI for easy installation in environments without QT installed or where it is not necessary (e.g., on clusters)
 
+As noted in the INSTALLATION file, for maximum performance set CUDA_ARCH in line 6 of the CMakeLists.txt file to correspond to the card you want to use
+
 # Basic use
 
 ## To use the GUI
