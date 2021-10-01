@@ -492,6 +492,7 @@ void MainWindow::on_resetQTensorsButton_released()
     ui->progressBar->setValue(40);
     scalar S0 = (-B+sqrt(B*B-24*A*C))/(6*C);
     ui->progressBar->setValue(60);
+    fire->setCurrentIterations(0);
     if(noise.Reproducible)
         noise.setReproducibleSeed(13377);
     bool globalAlignment = ui->globalAlignmentCheckBox->isChecked();
