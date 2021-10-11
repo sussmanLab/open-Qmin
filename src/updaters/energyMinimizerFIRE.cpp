@@ -83,19 +83,14 @@ void energyMinimizerFIRE::fireStepGPU()
     {
     Power = 0.0;
     forceMax = 0.0;
-        //
-        //SPECIALIZED TO THE FIVE-COMPONENT VERSION, IN WHICH THE NORM OF THE FORCE NEEDS TO INCLUDE THE CROSS TERM
-        //
+    //
+    //The forces are really ``co-forces'' as defined in the non-orthonormal basis of Qxx,Qxy,Qyy,Qxz,Qyz
+    //As a result, we take the vector norm of all three quantities
+    //
     scalar forceNorm = gpu_gpuarray_QT_vector_dot_product(model->returnForces(),
                                             sumReductionIntermediate,sumReductionIntermediate2,Ndof);
     scalar velocityNorm = gpu_gpuarray_QT_vector_dot_product(model->returnVelocities(),
                                                 sumReductionIntermediate,sumReductionIntermediate2,Ndof);
-    /*
-    scalar forceNorm = gpu_gpuarray_dVec_dot_products(model->returnForces(),model->returnForces(),
-                                                sumReductionIntermediate,sumReductionIntermediate2,Ndof);
-    scalar velocityNorm = gpu_gpuarray_dVec_dot_products(model->returnVelocities(),model->returnVelocities(),
-                                                sumReductionIntermediate,sumReductionIntermediate2,Ndof);
-    */
     Power = gpu_gpuarray_QT_vector_dot_product(model->returnForces(),model->returnVelocities(),
                                                 sumReductionIntermediate,sumReductionIntermediate2,Ndof);
 
@@ -157,14 +152,15 @@ void energyMinimizerFIRE::fireStepCPU()
     for (int i = 0; i < Ndof; ++i)
         {
         //
-        //SPECIALIZED TO THE FIVE-COMPONENT VERSION, IN WHICH THE NORM OF THE FORCE NEEDS TO INCLUDE THE CROSS TERM
+        //The forces are really ``co-forces'' as defined in the non-orthonormal basis of Qxx,Qxy,Qyy,Qxz,Qyz
+        //As a result, we take the vector norm of all three quantities
         //
-        scalar fdot = dotVec(h_f.data[i],h_f.data[i]);
-        scalar vdot = dotVec(h_v.data[i],h_v.data[i]);
-        forceNorm += fdot ;
+        scalar fdot  = dotVec(h_f.data[i],h_f.data[i]);
+        scalar vdot  = dotVec(h_v.data[i],h_v.data[i]);
+        scalar pdot  = dotVec(h_f.data[i],h_v.data[i]);
+        forceNorm    += fdot ;
         velocityNorm += vdot;
-        Power += dotVec(h_f.data[i],h_v.data[i]);
-//        Power += dot(h_f.data[i],h_v.data[i]);
+        Power        += pdot;
         };
 
     updaterData[0] = forceNorm;

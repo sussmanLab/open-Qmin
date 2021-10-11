@@ -1708,7 +1708,7 @@ border: 1px black solid</string>
       <string notr="true">background: rgb(119, 253, 255);border: 1px solid red</string>
      </property>
      <property name="text">
-      <string>Create a simple, flat boundary with normal anchoring</string>
+      <string>Create a simple flat wall</string>
      </property>
     </widget>
     <widget class="QLabel" name="label_53">
