@@ -34,7 +34,7 @@ border: 1px solid blue</string>
    <widget class="QWidget" name="initializationFrame" native="true">
     <property name="geometry">
      <rect>
-      <x>240</x>
+      <x>250</x>
       <y>10</y>
       <width>401</width>
       <height>281</height>
@@ -2043,17 +2043,17 @@ border: 1px black solid</string>
     <widget class="QLabel" name="label_58">
      <property name="geometry">
       <rect>
-       <x>210</x>
+       <x>180</x>
        <y>10</y>
-       <width>71</width>
-       <height>16</height>
+       <width>121</width>
+       <height>20</height>
       </rect>
      </property>
      <property name="styleSheet">
       <string notr="true">border: white</string>
      </property>
      <property name="text">
-      <string>file name</string>
+      <string>file name to save</string>
      </property>
     </widget>
    </widget>
@@ -4050,12 +4050,80 @@ border: 1px solid black
      </property>
     </widget>
    </widget>
+   <widget class="QWidget" name="fileLoadWidget" native="true">
+    <property name="geometry">
+     <rect>
+      <x>210</x>
+      <y>250</y>
+      <width>471</width>
+      <height>121</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background: white; border: 1px solid black</string>
+    </property>
+    <widget class="QPushButton" name="loadFileNowButton">
+     <property name="geometry">
+      <rect>
+       <x>180</x>
+       <y>70</y>
+       <width>114</width>
+       <height>32</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background:rgb(148, 148, 148)</string>
+     </property>
+     <property name="text">
+      <string>Load</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="loadFileNameBox">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>30</y>
+       <width>441</width>
+       <height>21</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="cancelFileLoad">
+     <property name="geometry">
+      <rect>
+       <x>370</x>
+       <y>80</y>
+       <width>80</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Cancel</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_102">
+     <property name="geometry">
+      <rect>
+       <x>180</x>
+       <y>10</y>
+       <width>121</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: white</string>
+     </property>
+     <property name="text">
+      <string>file name to load</string>
+     </property>
+    </widget>
+   </widget>
+   <zorder>setDistortionConstants</zorder>
    <zorder>setDistortionConstants5</zorder>
    <zorder>fileImportWidget</zorder>
    <zorder>addObjectsWidget</zorder>
    <zorder>dipoleWidget</zorder>
    <zorder>colloidalTrajectoryWidget</zorder>
-   <zorder>fileSaveWidget</zorder>
    <zorder>nesterovWidget</zorder>
    <zorder>applyFieldWidget</zorder>
    <zorder>moveObjectWidget</zorder>
@@ -4105,7 +4173,8 @@ border: 1px solid black
    <zorder>yNormalSlider</zorder>
    <zorder>zNormalSlider</zorder>
    <zorder>initializationFrame</zorder>
-   <zorder>setDistortionConstants</zorder>
+   <zorder>fileLoadWidget</zorder>
+   <zorder>fileSaveWidget</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
@@ -4137,6 +4206,7 @@ border: 1px solid black
      <string>File</string>
     </property>
     <addaction name="actionsave_configuration"/>
+    <addaction name="actionload_configuration"/>
     <addaction name="actionexit"/>
    </widget>
    <widget class="QMenu" name="menuobject_motion">
@@ -4246,6 +4316,11 @@ border: 1px solid black
   <action name="actionChange_distortion_constants_landau_deGennes">
    <property name="text">
     <string>Change distortion constants (landau-deGennes)</string>
+   </property>
+  </action>
+  <action name="actionload_configuration">
+   <property name="text">
+    <string>load configuration</string>
    </property>
   </action>
  </widget>
@@ -4617,6 +4692,38 @@ border: 1px solid black
     <hint type="destinationlabel">
      <x>445</x>
      <y>202</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionload_configuration</sender>
+   <signal>triggered()</signal>
+   <receiver>fileLoadWidget</receiver>
+   <slot>show()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>445</x>
+     <y>347</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cancelFileLoad</sender>
+   <signal>released()</signal>
+   <receiver>fileLoadWidget</receiver>
+   <slot>hide()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>619</x>
+     <y>377</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>445</x>
+     <y>347</y>
     </hint>
    </hints>
   </connection>

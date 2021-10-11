@@ -24,6 +24,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->addObjectsWidget->hide();
     ui->fileImportWidget->hide();
     ui->fileSaveWidget->hide();
+    ui->fileLoadWidget->hide();
     ui->nesterovWidget->hide();
     ui->applyFieldWidget->hide();
     ui->moveObjectWidget->hide();
@@ -1041,27 +1042,22 @@ void MainWindow::on_saveFileNowButton_released()
     sim->saveState(fileName);
     sprintf(lineBit,"\tsim->saveState(\"%s\",saveStride);",fileName.c_str());
     customFile.addLine(lineBit);
-/*
-    ArrayHandle<dVec> pp(Configuration->returnPositions());
-    ArrayHandle<int> tt(Configuration->returnTypes());
-    ofstream myfile;
-    myfile.open (fileName.c_str());
-    for (int ii = 0; ii < Configuration->getNumberOfParticles();++ii)
-        {
-        int3 pos = Configuration->latticeIndex.inverseIndex(ii);
-        myfile << pos.x <<"\t"<<pos.y<<"\t"<<pos.z;
-        for (int dd = 0; dd <DIMENSION; ++dd)
-            myfile <<"\t"<<pp.data[ii][dd];
-        myfile << "\t"<<tt.data[ii]<<"\n";
-        };
-
-
-
-    myfile.close();
-    */
     QString printable1 = QStringLiteral("File saved");
     ui->testingBox->setText(printable1);
     ui->fileSaveWidget->hide();
+}
+
+void MainWindow::on_loadFileNowButton_released()
+{
+    QString fname = ui->loadFileNameBox->text();
+    string fileName = fname.toStdString();
+    sim->loadState(fileName);
+    sprintf(lineBit,"\tsim->loadState(\"%s\");",fileName.c_str());
+    customFile.addLine(lineBit);
+    QString printable1 = QStringLiteral("File loaded");
+    ui->testingBox->setText(printable1);
+    ui->fileLoadWidget->hide();
+    on_drawStuffButton_released();
 }
 
 void MainWindow::on_boxLSize_textEdited(const QString &arg1)
