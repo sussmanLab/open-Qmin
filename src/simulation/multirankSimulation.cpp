@@ -599,7 +599,7 @@ void multirankSimulation::loadState(string fname)
         pp.data[idx][2] = qxz;
         pp.data[idx][3] = qyy;
         pp.data[idx][4] = qyz;
-        tt.data[idx] = type;
+    //    tt.data[idx] = type;
         }
     myfile.close();
     };
