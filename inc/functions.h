@@ -136,6 +136,27 @@ HOSTDEVICE scalar dot(const dVec &p1, const dVec &p2)
 
     return ans;
     };
+//!The dot product between d-Dimensional QTvectors.
+HOSTDEVICE scalar dotVec(const dVec &p1, const dVec &p2)
+    {
+    scalar ans = 0.0;
+    for (int dd = 0; dd < DIMENSION; ++dd)
+        ans+=p1.x[dd]*p2.x[dd];
+    ans += p1.x[0]*p2.x[3];
+    return ans;
+    };
+//!The dot product between d-Dimensional QTcovectors.
+HOSTDEVICE scalar dotCovec(const dVec &p1, const dVec &p2)
+    {
+    scalar ans =  (4./3.)*p1.x[0]*p2.x[0]
+                + p1.x[1]*p2.x[1]
+                + p1.x[2]*p2.x[2]
+                + (4./3.)*p1.x[3]*p2.x[3]
+                + p1.x[4]*p2.x[4]
+                - (4./3.)*p1.x[0]*p2.x[3];
+
+    return ans;
+    };
 
 //! an integer to the dth power... the slow way
 HOSTDEVICE int idPow(int i)

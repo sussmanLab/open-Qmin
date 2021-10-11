@@ -14,6 +14,9 @@ of the QT dependencies have been stripped out. This is the "noQT" branch of the 
 * $ cmake ..
 * $ make
 
+Note: by default the code will compile gpu code targeted at the (old, but still used in some XSEDE facilities) Tesla K40 cards... if you have newer GPUs, it is highly recommended to go to 
+line 6 of the CMakeLists.txt file and set the CUDA_ARCH variable appropriately
+
 ## executables created
 
 By default, the above steps will create two executables, "openQmin.out" and "openQminGUI.out", in the build directory.

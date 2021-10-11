@@ -86,8 +86,23 @@ bool gpu_dVec_dot_products(
                     int N,
                     int block_size);
 
-//!when dotting two "force" vectors of 5-component representations of the qtensor, need to include the cross term
-scalar gpu_gpuarray_QT_force_dot_product(
+//!when dotting two "velocity" vectors of 5-component representations of the qtensor, need to include the cross term
+scalar gpu_gpuarray_QT_vector_dot_product(
+                        GPUArray<dVec> &input1,
+                        GPUArray<dVec> &input2,
+                        GPUArray<scalar> &intermediate,
+                        GPUArray<scalar> &intermediate2,
+                        int N=0,
+                        int block_size=512);
+//!when dotting two "velocity" vectors of 5-component representations of the qtensor, need to include the cross term
+scalar gpu_gpuarray_QT_vector_dot_product(
+                        GPUArray<dVec> &input1,
+                        GPUArray<scalar> &intermediate,
+                        GPUArray<scalar> &intermediate2,
+                        int N=0,
+                        int block_size=512);
+//!when dotting two "force" covectors of 5-component representations of the qtensor, need to include the cross term
+scalar gpu_gpuarray_QT_covector_dot_product(
                         GPUArray<dVec> &input1,
                         GPUArray<scalar> &intermediate,
                         GPUArray<scalar> &intermediate2,

@@ -83,16 +83,15 @@ void energyMinimizerFIRE::fireStepGPU()
     {
     Power = 0.0;
     forceMax = 0.0;
-        //
-        //SPECIALIZED TO THE FIVE-COMPONENT VERSION, IN WHICH THE NORM OF THE FORCE NEEDS TO INCLUDE THE CROSS TERM
-        //
-        //scalar forceNorm = gpu_gpuarray_QT_force_dot_product(model->returnForces(),
-        //                                        sumReductionIntermediate,sumReductionIntermediate2,Ndof);
-    scalar forceNorm = gpu_gpuarray_dVec_dot_products(model->returnForces(),model->returnForces(),
+    //
+    //The forces are really ``co-forces'' as defined in the non-orthonormal basis of Qxx,Qxy,Qyy,Qxz,Qyz
+    //As a result, we take the vector norm of all three quantities
+    //
+    scalar forceNorm = gpu_gpuarray_QT_vector_dot_product(model->returnForces(),
+                                            sumReductionIntermediate,sumReductionIntermediate2,Ndof);
+    scalar velocityNorm = gpu_gpuarray_QT_vector_dot_product(model->returnVelocities(),
                                                 sumReductionIntermediate,sumReductionIntermediate2,Ndof);
-    Power = gpu_gpuarray_dVec_dot_products(model->returnForces(),model->returnVelocities(),
-                                                sumReductionIntermediate,sumReductionIntermediate2,Ndof);
-    scalar velocityNorm = gpu_gpuarray_dVec_dot_products(model->returnVelocities(),model->returnVelocities(),
+    Power = gpu_gpuarray_QT_vector_dot_product(model->returnForces(),model->returnVelocities(),
                                                 sumReductionIntermediate,sumReductionIntermediate2,Ndof);
 
     updaterData[0] = forceNorm;
@@ -152,13 +151,16 @@ void energyMinimizerFIRE::fireStepCPU()
     scalar velocityNorm = 0.0;
     for (int i = 0; i < Ndof; ++i)
         {
-        Power += dot(h_f.data[i],h_v.data[i]);
-        scalar fdot = dot(h_f.data[i],h_f.data[i]);
-                            //
-                            //SPECIALIZED TO THE FIVE-COMPONENT VERSION, IN WHICH THE NORM OF THE FORCE NEEDS TO INCLUDE THE CROSS TERM
-                            //
-        forceNorm += fdot ; //+ h_f.data[i][0]*h_f.data[i][3];
-        velocityNorm += dot(h_v.data[i],h_v.data[i]);
+        //
+        //The forces are really ``co-forces'' as defined in the non-orthonormal basis of Qxx,Qxy,Qyy,Qxz,Qyz
+        //As a result, we take the vector norm of all three quantities
+        //
+        scalar fdot  = dotVec(h_f.data[i],h_f.data[i]);
+        scalar vdot  = dotVec(h_v.data[i],h_v.data[i]);
+        scalar pdot  = dotVec(h_f.data[i],h_v.data[i]);
+        forceNorm    += fdot ;
+        velocityNorm += vdot;
+        Power        += pdot;
         };
 
     updaterData[0] = forceNorm;
