@@ -59,6 +59,7 @@ int main(int argc, char*argv[])
     SwitchArg reproducibleSwitch("r","reproducible","reproducible random number generation", cmd, true);
     SwitchArg verboseSwitch("v","verbose","output more things to screen ", cmd, false);
 
+
     ValueArg<scalar> aSwitchArg("a","phaseConstantA","value of phase constant A",false,0.172,"scalar",cmd);
     ValueArg<scalar> bSwitchArg("b","phaseConstantB","value of phase constant B",false,2.12,"scalar",cmd);
     ValueArg<scalar> cSwitchArg("c","phaseConstantC","value of phase constant C",false,1.73,"scalar",cmd);
@@ -68,6 +69,7 @@ int main(int argc, char*argv[])
 
     ValueArg<int> iterationsSwitchArg("i","iterations","number of minimization steps",false,100,"int",cmd);
     ValueArg<int> kSwitchArg("k","nConstants","approximation for distortion term",false,1,"int",cmd);
+    ValueArg<int> randomSeedSwitch("","randomSeed","seed for reproducible random number generation", false, -1, "int",cmd);
 
 
     ValueArg<scalar> l1SwitchArg("","L1","value of L1 term",false,4.64,"scalar",cmd);
@@ -99,7 +101,11 @@ int main(int argc, char*argv[])
     string saveFile = saveFileSwitchArg.getValue();
     int saveStride = saveStrideSwitchArg.getValue();
 
+    int randomSeed = randomSeedSwitch.getValue();
     bool reproducible = reproducibleSwitch.getValue();
+    if(randomSeed != -1)
+        reproducible = true;
+
     bool verbose= verboseSwitch.getValue();
     int gpu = gpuSwitchArg.getValue();
     int programSwitch = programSwitchArg.getValue();
@@ -147,7 +153,11 @@ int main(int argc, char*argv[])
     scalar b = -phaseB/phaseA;
     scalar c = phaseC/phaseA;
     noiseSource noise(reproducible);
-    noise.setReproducibleSeed(13371+myRank);
+    if(randomSeed == -1)
+        noise.setReproducibleSeed(13371+myRank);
+    else
+        noise.setReproducibleSeed(randomSeed+myRank);
+
     if(verbose) printf("setting a rectilinear lattice of size (%i,%i,%i)\n",boxLx,boxLy,boxLz);
     profiler pInit("initialization");
     pInit.start();

@@ -70,6 +70,15 @@ To do the above, but also save the post-minimization state:
 
 (for the above two lines, note that the file path is relative to where you currently are.)
 
+## using the command line to specify how the RNG will be used
+
+First, by default the executable compiled from openQmin.cpp will use a reproducible random number generator with a fixed initial seed. To use a random number as the seed to the random number generator, use the -r flag, eg:
+`build/openQmin.out -i 100 -l 250 -r`
+
+To specify a specific seed to use (so that, eg., you can reproducibly study an ensemble of different random conditions), use the --randomSeed command line option, eg:
+`build/openQmin.out -i 100 -l 250 --randomSeed 123456234`
+
+
 ## Using the command line to specify MPI jobs
 
 As noted above, the "-l" command line flag can be used to specify the side length of a cubic simulation
