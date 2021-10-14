@@ -53,7 +53,7 @@ int main(int argc, char*argv[])
 
     //define the various command line strings that can be passed in...
     //ValueArg<T> variableName("shortflag","longFlag","description",required or not, default value,"value type",CmdLine object to add to
-    ValueArg<int> programSwitchArg("z","programSwitch","an integer controlling program branch",false,0,"int",cmd);
+    ValueArg<int> initializationSwitchArg("z","initializationSwitch","an integer controlling program branch",false,0,"int",cmd);
     ValueArg<int> gpuSwitchArg("g","GPU","which gpu to use",false,-1,"int",cmd);
 
     SwitchArg reproducibleSwitch("r","reproducible","reproducible random number generation", cmd, true);
@@ -108,7 +108,7 @@ int main(int argc, char*argv[])
 
     bool verbose= verboseSwitch.getValue();
     int gpu = gpuSwitchArg.getValue();
-    int programSwitch = programSwitchArg.getValue();
+    int initializationSwitch = initializationSwitchArg.getValue();
     int nDev;
     cudaGetDeviceCount(&nDev);
     if(nDev == 0)
@@ -215,9 +215,12 @@ int main(int argc, char*argv[])
     sim->addUpdater(Fminimizer,Configuration);
 
     sim->setCPUOperation(true);//have cpu and gpu initialized the same...for debugging
+    /*
+    The following header file includes various common ways you might want to set the inital state of the lattice of Qtensors. 
+    It is controlled by the "initializationSwitch" command line option (-z integer); by default (-z 0) the lattice will be set to a different random Q-tensor at every lattice site (with uniform s0)
+    */
     scalar S0 = (-b+sqrt(b*b-24*a*c))/(6*c);
-    if(verbose) printf("setting random configuration with S0 = %f\n",S0);
-    Configuration->setNematicQTensorRandomly(noise,S0);
+#include "setInitialConditions.h"
     sim->setCPUOperation(!GPU);
     if(verbose) printf("initialization done\n");
 

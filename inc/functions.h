@@ -189,6 +189,22 @@ HOSTDEVICE scalar norm(const scalar3 &p)
     return sqrt(dot(p,p));
     };
 
+//*normalize a scalar3. pick something arbitrary if the vector has norm 0
+HOSTDEVICE void normalizeDirector(scalar3 &p)
+    {
+    scalar a = norm(p);
+    if(a == 0)
+        {
+        p.x=1; p.y=0; p.z = 0;
+        }
+    else
+        {
+        p.x = p.x / a;
+        p.y = p.y / a;
+        p.z = p.z / a;
+        };
+    };
+
 //!The dot product between scalar3's
 HOSTDEVICE scalar r3Distance(const scalar3 &p1, const scalar3 &p2)
     {
