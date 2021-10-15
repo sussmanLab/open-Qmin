@@ -27,14 +27,17 @@ class multirankQTensorLatticeModel : public qTensorLatticeModel
         int myRank;
         int3 latticeSites;
 
+        //When a simulation sets the configuration, the position of the local origin relative to the global coordinate system is shared with the model
+        int3 latticeMinPosition;
+
         //! list of start/stop elements in the transfer arrays for the halo sites
         vector<int2> transferStartStopIndexes;
 
 
         //! randomly set Q tensors to correspond to a field of directors of some S0. If globallyAligned = false, each lattice site is set separately, if globallyAligned = true all will point in the same (random) direction.
-        void setRandomDirectors(noiseSource &noise, scalar s0, bool globallyAligned = false){};
+        void setRandomDirectors(noiseSource &noise, scalar s0, bool globallyAligned = false);
         //!Set every lattice site to a Q tensor corresponding to the same target director and s0 value
-        void setUniformDirectors(scalar3 targetDirector, scalar s0){};
+        void setUniformDirectors(scalar3 targetDirector, scalar s0);
 
         //!pass a function which sets the director (first three components) and the local s0 value (fourth component) as a function of x, y, z....
         /*!
@@ -45,7 +48,7 @@ class multirankQTensorLatticeModel : public qTensorLatticeModel
                     return ans;};
         setDirectorFromFunction(&func);
         */
-        void setDirectorFromFunction(std::function<scalar4(scalar,scalar,scalar)> func){};
+        void setDirectorFromFunction(std::function<scalar4(scalar,scalar,scalar)> func);
         
 
         GPUArray<int> intTransferBufferSend;

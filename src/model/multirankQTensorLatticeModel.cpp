@@ -52,6 +52,68 @@ multirankQTensorLatticeModel::multirankQTensorLatticeModel(int lx, int ly, int l
         }
     }
 
+void multirankQTensorLatticeModel::setRandomDirectors(noiseSource &noise, scalar s0, bool globallyAligned)
+    {
+    scalar globalTheta = acos(2.0*noise.getRealUniform()-1);
+    scalar globalPhi = 2.0*PI*noise.getRealUniform();
+    ArrayHandle<dVec> pos(positions);
+    ArrayHandle<int> t(types,access_location::host,access_mode::read);
+    for (int ii = 0; ii < N; ++ii)
+        {
+        scalar theta = acos(2.0*noise.getRealUniform()-1);
+        scalar phi = 2.0*PI*noise.getRealUniform();
+        if(globallyAligned)
+            {
+            theta = globalTheta;
+            phi = globalPhi;
+            }
+        if(t.data[ii] <=0)
+            {
+            scalar3 n;
+            n.x = cos(phi)*sin(theta);
+            n.y = sin(phi)*sin(theta);
+            n.z = cos(theta);
+            qTensorFromDirector(n, s0, pos.data[ii]);
+            };
+        }
+
+    };
+
+void multirankQTensorLatticeModel::setUniformDirectors(scalar3 targetDirector, scalar s0)
+    {
+    ArrayHandle<dVec> pos(positions);
+    ArrayHandle<int> t(types,access_location::host,access_mode::read);
+    for (int ii = 0; ii < N; ++ii)
+        {
+        if(t.data[ii] <=0)
+            qTensorFromDirector(targetDirector,s0,pos.data[ii]);
+        };
+    };
+    
+void multirankQTensorLatticeModel::setDirectorFromFunction(std::function<scalar4(scalar,scalar,scalar)> func)
+    {
+    ArrayHandle<dVec> p(positions);
+    ArrayHandle<int> t(types,access_location::host,access_mode::read);
+    for (int ii = 0; ii < N; ++ii)
+        {
+        if(t.data[ii] <=0)
+            {
+            //get global, not local. position if lattice site
+            int3 pos = indexToPosition(ii);
+            pos.x += latticeMinPosition.x;
+            pos.y += latticeMinPosition.y;
+            pos.z += latticeMinPosition.z;
+            scalar4 functionResult = func(pos.x,pos.y,pos.z);
+            scalar3 n;
+            n.x = functionResult.x;
+            n.y = functionResult.y;
+            n.z = functionResult.z;
+            scalar s0 = functionResult.w;
+            qTensorFromDirector(n,s0,p.data[ii]);
+            }
+        }
+    };
+
 int3 multirankQTensorLatticeModel::indexToPosition(int idx)
     {
 
@@ -75,7 +137,7 @@ Meant to be used with idx in (transferStartStopIndexes[directionType].x to ".y)
 \param idx the linear index in between 0 and the maximum number of extended sites
 \param pos gets filled with the right lattice position, with correct send/receive dependence
 \param directionType an int specifying the type of face/edge/corner. See comments in determingBufferLayout() for the mapping between 0 and 25 to the possibilities
-\param sending flag the either restricts pos to be withing 0 and latticeSites, or the halo sites if fase
+\param sending flag the either restricts pos to be withing 0 and latticeSites, or the halo sites if false
 */
 void multirankQTensorLatticeModel::getBufferInt3FromIndex(int idx, int3 &pos,int directionType, bool sending)
     {

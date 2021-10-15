@@ -443,6 +443,7 @@ void multirankSimulation::setConfiguration(MConfigPtr _config)
     latticeMinPosition.x = rankParity.x*Conf->latticeSites.x;
     latticeMinPosition.y = rankParity.y*Conf->latticeSites.y;
     latticeMinPosition.z = rankParity.z*Conf->latticeSites.z;
+    Conf->latticeMinPosition = latticeMinPosition;
     };
 
 /*!
@@ -630,9 +631,9 @@ void multirankSimulation::saveState(string fname, int latticeSkip, int defectTyp
 
     printf("saving state...\n");
 
-    int xOffset = rankParity.x*Conf->latticeSites.x;
-    int yOffset = rankParity.y*Conf->latticeSites.y;
-    int zOffset = rankParity.z*Conf->latticeSites.z;
+    int xOffset = latticeMinPosition.x;
+    int yOffset = latticeMinPosition.y;
+    int zOffset = latticeMinPosition.z;
 
     Conf->getAverageEigenvalues();
     Conf->computeDefectMeasures(defectType);
