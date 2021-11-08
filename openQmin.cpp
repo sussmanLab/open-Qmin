@@ -94,6 +94,13 @@ int main(int argc, char*argv[])
     ValueArg<scalar> setHFieldChiSwitchArg("","hFieldChi", "Chi for external magenetic field",false,1,"scalar",cmd);
     ValueArg<scalar> setHFieldDeltaChiSwitchArg("","hFieldDeltaChi", "mu0 for external magenetic field",false,0.5,"scalar",cmd);
 
+    ValueArg<scalar> setEFieldXSwitchArg("","eFieldX", "x component of external E field",false,0,"scalar",cmd);
+    ValueArg<scalar> setEFieldYSwitchArg("","eFieldY", "y component of external E field",false,0,"scalar",cmd);
+    ValueArg<scalar> setEFieldZSwitchArg("","eFieldZ", "z component of external E field",false,0,"scalar",cmd);
+    ValueArg<scalar> setEFieldEps0SwitchArg("","eFieldEpsilon0", "epsilon0 for external electric field",false,1,"scalar",cmd);
+    ValueArg<scalar> setEFieldEpsSwitchArg("","eFieldEpsilon", "Epsilon for external electric field",false,1,"scalar",cmd);
+    ValueArg<scalar> setEFieldDeltaEpsSwitchArg("","eFieldDeltaEpsilon", "DeltaEpsilon for external electric field",false,0.5,"scalar",cmd);
+
     //parse the arguments
     cmd.parse( argc, argv );
     //define variables that correspond to the command line parameters
@@ -188,20 +195,34 @@ int main(int argc, char*argv[])
         landauLCForce->setNumberOfConstants(distortionEnergyType::multiConstant);
         }
 
-    scalar3 field; //direction and magnitude
-    field.x = setHFieldXSwitchArg.getValue();
-    field.y = setHFieldYSwitchArg.getValue();
-    field.z = setHFieldZSwitchArg.getValue();
+    scalar3 fieldH,fieldE; //direction and magnitude
+    fieldH.x = setHFieldXSwitchArg.getValue();
+    fieldH.y = setHFieldYSwitchArg.getValue();
+    fieldH.z = setHFieldZSwitchArg.getValue();
     scalar mu0 = setHFieldMu0SwitchArg.getValue();
     scalar chi = setHFieldChiSwitchArg.getValue();
     scalar deltaChi = setHFieldDeltaChiSwitchArg.getValue();
-    bool applyField = false;
-    if(field.x != 0 || field.y != 0 || field.z != 0)
-        applyField = true;
-    if(applyField)
+    fieldE.x = setEFieldXSwitchArg.getValue();
+    fieldE.y = setEFieldYSwitchArg.getValue();
+    fieldE.z = setEFieldZSwitchArg.getValue();
+    scalar eps0 = setEFieldEps0SwitchArg.getValue();
+    scalar eps = setEFieldEpsSwitchArg.getValue();
+    scalar deltaEps = setEFieldDeltaEpsSwitchArg.getValue();
+    bool applyFieldH = false;
+    bool applyFieldE = false;
+    if(fieldH.x != 0 || fieldH.y != 0 || fieldH.z != 0)
+        applyFieldH = true;
+    if(fieldE.x != 0 || fieldE.y != 0 || fieldE.z != 0)
+        applyFieldE = true;
+    if(applyFieldH)
         {
-        landauLCForce->setHField(field,chi,mu0,deltaChi);
-        if(verbose) printf("applying H-field (%f, %f, %f) with (mu0, chi, deltaChi) = (%f, %f, %f)\n",field.x,field.y,field.z,mu0,chi,deltaChi);
+        landauLCForce->setHField(fieldH,chi,mu0,deltaChi);
+        if(verbose) printf("applying H-field (%f, %f, %f) with (mu0, chi, deltaChi) = (%f, %f, %f)\n",fieldH.x,fieldH.y,fieldH.z,mu0,chi,deltaChi);
+        }
+    if(applyFieldE)
+        {
+        landauLCForce->setEField(fieldE,eps,eps0,deltaEps);
+        if(verbose) printf("applying E-field (%f, %f, %f) with (eps0, eps, deltaEps) = (%f, %f, %f)\n",fieldE.x,fieldE.y,fieldE.z,eps0,eps,deltaEps);
         }
 
     landauLCForce->setModel(Configuration);
