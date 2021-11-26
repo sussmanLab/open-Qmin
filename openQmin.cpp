@@ -83,6 +83,7 @@ int main(int argc, char*argv[])
     ValueArg<int> lySwitchArg("","Ly","number of lattice sites in y direction",false,50,"int",cmd);
     ValueArg<int> lzSwitchArg("","Lz","number of lattice sites in z direction",false,50,"int",cmd);
 
+    ValueArg<string> initialConfigurationFileSwitchArg("","initialConfigurationFile", "carefully prepared file of the initial state of all lattice sites" ,false, "NONE", "string",cmd);
     ValueArg<string> boundaryFileSwitchArg("","boundaryFile", "carefully prepared file of boundary sites" ,false, "NONE", "string",cmd);
     ValueArg<string> saveFileSwitchArg("","saveFile", "the base name to save the post-minimization configuration" ,false, "NONE", "string",cmd);
     ValueArg<int> saveStrideSwitchArg("","stride","stride of the saved lattice sites",false,1,"int",cmd);
@@ -104,6 +105,7 @@ int main(int argc, char*argv[])
     //parse the arguments
     cmd.parse( argc, argv );
     //define variables that correspond to the command line parameters
+    string initialConfigurationFile = initialConfigurationFileSwitchArg.getValue();
     string boundaryFile = boundaryFileSwitchArg.getValue();
     string saveFile = saveFileSwitchArg.getValue();
     int saveStride = saveStrideSwitchArg.getValue();
