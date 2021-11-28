@@ -588,7 +588,8 @@ void multirankSimulation::loadState(string fname)
     myfile.open(fn);
     if(myfile.fail())
         {
-        printf("\nERROR: you have tried to load a file that either does not exist or that you do not have permission to access! \n Error in file %s at line %d\n",__FILE__,__LINE__);
+        printf("\nERROR trying to load file named %s\n",fn);
+        printf("\nYou have tried to load a file that either does not exist or that you do not have permission to access! \n Error in file %s at line %d\n",__FILE__,__LINE__);
         throw std::exception();
         }
     int px,py,pz, type;
