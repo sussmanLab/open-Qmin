@@ -38,7 +38,7 @@ class qTensorLatticeModel : public cubicLattice
         void setNematicQTensorRandomly(noiseSource &noise, scalar s0,bool globallyAligned = false);
 
         //!get field-averaged eigenvalues
-        void getAverageEigenvalues();
+        void getAverageEigenvalues(bool verbose = true);
         //!get field-averaged eigenvector corresponding to largest eigenvalue
         void getAverageMaximalEigenvector(vector<scalar> &averageN);
 

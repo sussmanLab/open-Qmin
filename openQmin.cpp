@@ -14,6 +14,7 @@
 #include "profiler.h"
 #include <tclap/CmdLine.h>
 #include <mpi.h>
+#include "logSpacedIntegers.h"
 
 #include "cuda_profiler_api.h"
 
@@ -67,7 +68,7 @@ int main(int argc, char*argv[])
     ValueArg<scalar> dtSwitchArg("e","deltaT","step size for minimizer",false,0.0005,"scalar",cmd);
     ValueArg<scalar> forceToleranceSwitchArg("f","fTarget","target minimization threshold for norm of residual forces",false,0.000000000001,"scalar",cmd);
 
-    ValueArg<int> iterationsSwitchArg("i","iterations","number of minimization steps",false,100,"int",cmd);
+    ValueArg<int> iterationsSwitchArg("i","iterations","maximum number of minimization steps",false,100,"int",cmd);
     ValueArg<int> kSwitchArg("k","nConstants","approximation for distortion term",false,1,"int",cmd);
     ValueArg<int> randomSeedSwitch("","randomSeed","seed for reproducible random number generation", false, -1, "int",cmd);
 
@@ -86,6 +87,8 @@ int main(int argc, char*argv[])
     ValueArg<string> initialConfigurationFileSwitchArg("","initialConfigurationFile", "carefully prepared file of the initial state of all lattice sites" ,false, "NONE", "string",cmd);
     ValueArg<string> boundaryFileSwitchArg("","boundaryFile", "carefully prepared file of boundary sites" ,false, "NONE", "string",cmd);
     ValueArg<string> saveFileSwitchArg("","saveFile", "the base name to save the post-minimization configuration" ,false, "NONE", "string",cmd);
+    ValueArg<int> linearSaveSwitchArg("","linearSpacedSaving","save a file every x minimization steps",false,-1,"int",cmd);
+    ValueArg<scalar> logSaveSwitchArg("","logSpacedSaving","save a file every x^j for integer j",false,-1,"scalar",cmd);
     ValueArg<int> saveStrideSwitchArg("","stride","stride of the saved lattice sites",false,1,"int",cmd);
 
     ValueArg<scalar> setHFieldXSwitchArg("","hFieldX", "x component of external H field",false,0,"scalar",cmd);
@@ -109,6 +112,8 @@ int main(int argc, char*argv[])
     string boundaryFile = boundaryFileSwitchArg.getValue();
     string saveFile = saveFileSwitchArg.getValue();
     int saveStride = saveStrideSwitchArg.getValue();
+    int linearSave = linearSaveSwitchArg.getValue();
+    scalar logSave = logSaveSwitchArg.getValue();
 
     int randomSeed = randomSeedSwitch.getValue();
     bool reproducible = reproducibleSwitch.getValue();
@@ -267,9 +272,50 @@ int main(int argc, char*argv[])
 
     profiler pMinimize("minimization");
     pMinimize.start();
-    //note that this single "performTimestep()" call performs some number of iterations of the FIRE algorithm, with that number set from the command line
-    sim->performTimestep();
+
+    if(linearSave < 0 && logSave < 0)   //minimize and save end result
+        {
+        //note that this single "performTimestep()" call performs some number of iterations of the FIRE algorithm, with that number set from the command line
+        sim->performTimestep();
+        }
+    else if (logSave<0)                 //save every linearSave steps
+        {
+        int currentIteration = 0;
+        string saveFileAppend="_t";
+        while(currentIteration +linearSave < maximumIterations && Fminimizer->getMaxForce() > forceCutoff)
+            {
+            //save the current state, then minimize more
+            string newSaveFile = saveFile+saveFileAppend+std::to_string(currentIteration);
+            if(saveFile != "NONE")
+                sim->saveState(newSaveFile,saveStride);
+            currentIteration += linearSave;
+            Fminimizer->setMaximumIterations(currentIteration);
+            sim->performTimestep();
+            if(verbose) printf("saving to %s (plus _xX_yY_zZ.txt)\n",newSaveFile.c_str());
+            };
+        }
+    else                                //save logarithmically
+        {
+        int currentIteration = 0;
+        string saveFileAppend="_t";
+        logSpacedIntegers lsi(0,logSave);
+
+        while(currentIteration < maximumIterations && Fminimizer->getMaxForce() > forceCutoff)
+            {
+            //save the current state, then minimize more
+            string newSaveFile = saveFile+saveFileAppend+std::to_string(currentIteration);
+            if(saveFile != "NONE")
+                sim->saveState(newSaveFile,saveStride);
+            lsi.update();
+            currentIteration =lsi.nextSave;
+            Fminimizer->setMaximumIterations(currentIteration);
+            sim->performTimestep();
+            if(verbose) printf("saving to %s (plus _xX_yY_zZ.txt)\n",newSaveFile.c_str());
+            };
+        }
+
     pMinimize.end();
+
 
     scalar E1 = sim->computePotentialEnergy(true);
     scalar maxForce;
@@ -289,13 +335,16 @@ int main(int argc, char*argv[])
     if(verbose) cout << "size of configuration " << Configuration->getClassSize() << endl;
     if(verbose) cout << "size of force computer" << landauLCForce->getClassSize() << endl;
     if(verbose) cout << "size of fire updater " << Fminimizer->getClassSize() << endl;
+
+
+    /*
+    //save average maximal eigenvector information -- occasionally used for debugging
     vector<scalar> averageN(3);
     Configuration->getAverageMaximalEigenvector(averageN);
-
     ofstream tempF("averageN.txt", ios::app);
     tempF <<averageN[0]<<", "<<averageN[1]<<", "<<averageN[2]<<"\n";
     tempF.close();
-
+    */
     MPI_Finalize();
     return 0;
     };

@@ -63,7 +63,7 @@ void qTensorLatticeModel::getAverageMaximalEigenvector(vector<scalar> &averageN)
     averageN[2] = averageN[2]/n;
     }
 
-void qTensorLatticeModel::getAverageEigenvalues()
+void qTensorLatticeModel::getAverageEigenvalues(bool verbose)
     {
     ArrayHandle<dVec> Q(positions,access_location::host,access_mode::read);
     ArrayHandle<int> t(types,access_location::host,access_mode::read);
@@ -82,7 +82,7 @@ void qTensorLatticeModel::getAverageEigenvalues()
             n += 1;
             }
         }
-    printf("average eigenvalues: %f\t%f\t%f\n",a/n,b/n,c/n);
+    if(verbose)    printf("average eigenvalues: %f\t%f\t%f\n",a/n,b/n,c/n);
     }
 
 /*!

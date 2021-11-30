@@ -5,6 +5,7 @@
 * Switch to GUI initialization according to Frank constants rather than landau-deGennes ones
 * Corrections to the metric used to compute forces in the non-orthogonal basis of Qxx, Qxy, Qxz, Qyy, Qyz
 * Update to CMAKE files in response to community feedback
+* Substantial command-line improvements and user-friendliness
 
 ### OpenQMin version 0.8
 

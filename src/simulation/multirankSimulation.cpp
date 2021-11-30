@@ -635,13 +635,13 @@ void multirankSimulation::saveState(string fname, int latticeSkip, int defectTyp
     char fn[256];
     sprintf(fn,"%s_x%iy%iz%i.txt",fname.c_str(),rankParity.x,rankParity.y,rankParity.z);
 
-    printf("saving state...\n");
+//    printf("saving state...\n");
 
     int xOffset = latticeMinPosition.x;
     int yOffset = latticeMinPosition.y;
     int zOffset = latticeMinPosition.z;
 
-    Conf->getAverageEigenvalues();
+    Conf->getAverageEigenvalues(false);
     Conf->computeDefectMeasures(defectType);
     ArrayHandle<dVec> pp(Conf->returnPositions());
     ArrayHandle<int> tt(Conf->returnTypes());
