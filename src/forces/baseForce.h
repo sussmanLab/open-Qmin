@@ -17,6 +17,8 @@ class force
     public:
         force();
 
+        virtual string reportSelfName(){string ans = "unnamed"; return ans;};
+
         //!the call to compute forces, and store them in the referenced variable
         virtual void computeForces(GPUArray<dVec> &forces,bool zeroOutForce = true, int type = 0);
 
@@ -24,7 +26,7 @@ class force
         virtual void setForceParameters(vector<scalar> &params);
 
         //! A pointer to the governing simulation
-        shared_ptr<basicSimulation> sim;
+        SimPtr sim;
         //!set the simulation
         void setSimulation(shared_ptr<basicSimulation> _sim){sim=_sim;};
 

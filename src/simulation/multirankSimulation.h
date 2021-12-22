@@ -125,6 +125,11 @@ class multirankSimulation : public basicSimulation, public enable_shared_from_th
         //!in multi-rank simulations, this stores the lowest (x,y,z) coordinate controlled by the current rank
         int3 latticeMinPosition;
 
+        virtual void reportSelf(){cout << "in the multirank simulation class" << endl;};
+
+        //! the local {x,y,z} rank coordinate...currently shuffled to basicSimulation.h
+        int3 rankParity;//even is even, odd is odd...makes sense
+
     protected:
         void setRankTopology(int x, int y, int z);
 
@@ -137,8 +142,6 @@ class multirankSimulation : public basicSimulation, public enable_shared_from_th
 
         //!the number of ranks per {x,y,z} axis
         int3 rankTopology;
-        //! the local {x,y,z} rank coordinate
-        int3 rankParity;//even is even, odd is odd...makes sense
         Index3D parityTest;
         //!do edges need to be communicated?
         bool edges;

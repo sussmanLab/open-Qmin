@@ -25,7 +25,6 @@ class multirankQTensorLatticeModel : public qTensorLatticeModel
         bool zHalo;
 
         int myRank;
-        int3 latticeSites;
 
         //When a simulation sets the configuration, the position of the local origin relative to the global coordinate system is shared with the model
         int3 latticeMinPosition;
@@ -68,8 +67,8 @@ class multirankQTensorLatticeModel : public qTensorLatticeModel
         //! given an  0 <= index < totalSites, return the local lattice position
         int3 indexToPosition(int idx);
         //!given a local lattice position, return the index in the expanded data arrays
-        int positionToIndex(int3 &pos);
-        int positionToIndex(int px, int py, int pz)
+        virtual int positionToIndex(int3 &pos);
+        virtual int positionToIndex(int px, int py, int pz)
             {
             int3 temp; temp.x = px; temp.y = py; temp.z=pz;
             return positionToIndex(temp);

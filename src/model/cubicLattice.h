@@ -36,6 +36,7 @@ class cubicLattice : public simpleModel
         int latticeSiteToLinearIndex(const int3 &target);
         //!indexer for lattice sites
         Index3D latticeIndex;
+        int3 latticeSites;
 
         //!indexer for neighbors
         Index2D neighborIndex;
@@ -60,6 +61,12 @@ class cubicLattice : public simpleModel
             ans = (1.0/nSites)*ans;
             return ans;
         };
+        virtual int positionToIndex(int px, int py, int pz)
+            {
+            int3 temp; temp.x = px; temp.y = py; temp.z=pz;
+            return positionToIndex(temp);
+            };
+        virtual int positionToIndex(int3 &pos){UNWRITTENCODE("position to index in cubicLattice... currently this function exists only for multirankQTensor models");};
 
         //!Displace a boundary object (and surface sites) by one of the six primitive cubic lattice directions
         virtual void displaceBoundaryObject(int objectIndex, int motionDirection, int magnitude);

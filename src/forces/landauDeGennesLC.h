@@ -3,6 +3,7 @@
 
 #include "baseLatticeForce.h"
 #include "landauDeGennesLCBoundary.h"
+#include "multirankSimulation.h"
 /*! \file landauDeGennesLC.h */
 
 enum class distortionEnergyType {oneConstant,multiConstant};
@@ -16,6 +17,8 @@ class landauDeGennesLC : public baseLatticeForce
         landauDeGennesLC(scalar _A, scalar _B, scalar _C, scalar _L1);
         landauDeGennesLC(scalar _A, scalar _B, scalar _C, scalar _L1,scalar _L2, scalar _L3, scalar _L4, scalar _L6);
         landauDeGennesLC(scalar _A, scalar _B, scalar _C, scalar _L1, scalar _L2,scalar _L3orWavenumber, distortionEnergyType _type);
+
+        virtual string reportSelfName(){string ans = "landauDeGennesLC"; return ans;};
 
         //!set up a few basic things (common force tuners, number of energy components, etc.)
         void baseInitialization();
@@ -92,6 +95,9 @@ class landauDeGennesLC : public baseLatticeForce
             mu0=_mu0;
             deltaChi=_deltaChi;
             };
+
+        void setSpatiallyVaryingField(string fname, scalar chi, scalar _mu0, scalar _deltaChi,int3 rankParity);
+
         //!the free energy density at each lattice site
         GPUArray<scalar> energyDensity;
         //!A helper array for energy reductions
@@ -127,11 +133,14 @@ class landauDeGennesLC : public baseLatticeForce
         scalar Chi;
         scalar mu0;
 
+        GPUArray<scalar3> spatiallyVaryingField;
+
         //!number of elastic constants
         distortionEnergyType numberOfConstants;
         //!switches for extra parts of the energy/force calculations
         bool computeEfieldContribution;
         bool computeHfieldContribution;
+        bool spatiallyVaryingFieldContribution;
 
         //!for 2- and 3- constant approximations, the force calculation is helped by first pre-computing first derivatives
         GPUArray<cubicLatticeDerivativeVector> forceCalculationAssist;

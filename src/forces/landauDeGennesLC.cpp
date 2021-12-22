@@ -86,6 +86,61 @@ void landauDeGennesLC::setModel(shared_ptr<cubicLattice> _model)
     */
     };
 
+/*!
+a function that loads the strength of a spatially varying field from specified files. THIS FUNCTION ASSUMES
+that the files to be loaded are formatted so that each line looks like
+x y z Hz Hy Hz
+The expected format for every line is, thus:
+%i %i %i %f %f %f
+Additionally, so that the function works correctly on multi-rank simulations, the file names MUST HAVE
+the _x%i_y%i_z%i.txt ending expected to specifiy what rank the file corresponds to.
+(so, even if you are doing non-MPI simulations, your file must be named yourFileName_x0y0z0.txt and you would call the function with something like
+string loadingFileName = "yourFileName";
+sim->loadSpatiallyVaryingField(loadingFileName);
+*/
+void landauDeGennesLC::setSpatiallyVaryingField(string fname, scalar chi, scalar _mu0,scalar _deltaChi, int3 rankParity)
+    {
+    Chi =chi;
+    mu0=_mu0;
+    deltaChi=_deltaChi;
+    spatiallyVaryingFieldContribution = true;
+    int N = lattice->getNumberOfParticles();
+    spatiallyVaryingField.resize(N);
+    char fn[256];
+    sprintf(fn,"%s_x%iy%iz%i.txt",fname.c_str(),rankParity.x,rankParity.y,rankParity.z);
+
+    printf("loading spatially varying field from file name %s...\n",fn);
+DEBUGCODEHELPER;
+    int xOffset = rankParity.x*lattice->latticeSites.x;
+    int yOffset = rankParity.y*lattice->latticeSites.y;
+    int zOffset = rankParity.z*lattice->latticeSites.z;
+DEBUGCODEHELPER;
+    ArrayHandle<scalar3> hh(spatiallyVaryingField);
+    ifstream myfile;
+    myfile.open(fn);
+    if(myfile.fail())
+        {
+        printf("\nERROR trying to load file named %s\n",fn);
+        printf("\nYou have tried to load a file that either does not exist or that you do not have permission to access! \n Error in file %s at line %d\n",__FILE__,__LINE__);
+        throw std::exception();
+        }
+    int px,py,pz;
+    double Hx,Hy,Hz;
+    while(myfile >> px >> py >>pz >> Hx >> Hy >> Hz)
+        {
+        int3 pos;
+        pos.x = px - xOffset;
+        pos.y = py - yOffset;
+        pos.z = pz - zOffset;
+        int idx = lattice->positionToIndex(pos);
+        hh.data[idx].x = Hx;
+        hh.data[idx].y = Hy;
+        hh.data[idx].z = Hz;
+        printf("%i %f %f %f \n",idx,Hx, Hy , Hz);
+        }
+    myfile.close();
+    }
+
 void landauDeGennesLC::computeForces(GPUArray<dVec> &forces,bool zeroOutForce, int type)
     {
     if(useGPU)

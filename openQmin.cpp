@@ -85,6 +85,7 @@ int main(int argc, char*argv[])
     ValueArg<int> lzSwitchArg("","Lz","number of lattice sites in z direction",false,50,"int",cmd);
 
     ValueArg<string> initialConfigurationFileSwitchArg("","initialConfigurationFile", "carefully prepared file of the initial state of all lattice sites" ,false, "NONE", "string",cmd);
+    ValueArg<string> fieldFileSwitchArg("","spatiallyVaryingFieldFile", "carefully prepared file containing information on a spatially varying external H field" ,false, "NONE", "string",cmd);
     ValueArg<string> boundaryFileSwitchArg("","boundaryFile", "carefully prepared file of boundary sites" ,false, "NONE", "string",cmd);
     ValueArg<string> saveFileSwitchArg("","saveFile", "the base name to save the post-minimization configuration" ,false, "NONE", "string",cmd);
     ValueArg<int> linearSaveSwitchArg("","linearSpacedSaving","save a file every x minimization steps",false,-1,"int",cmd);
@@ -109,6 +110,7 @@ int main(int argc, char*argv[])
     cmd.parse( argc, argv );
     //define variables that correspond to the command line parameters
     string initialConfigurationFile = initialConfigurationFileSwitchArg.getValue();
+    string fieldFile = fieldFileSwitchArg.getValue();
     string boundaryFile = boundaryFileSwitchArg.getValue();
     string saveFile = saveFileSwitchArg.getValue();
     int saveStride = saveStrideSwitchArg.getValue();
@@ -217,6 +219,7 @@ int main(int argc, char*argv[])
     scalar deltaEps = setEFieldDeltaEpsSwitchArg.getValue();
     bool applyFieldH = false;
     bool applyFieldE = false;
+    bool applyVaryingField = fieldFile == "NONE" ? false : true;
     if(fieldH.x != 0 || fieldH.y != 0 || fieldH.z != 0)
         applyFieldH = true;
     if(fieldE.x != 0 || fieldE.y != 0 || fieldE.z != 0)
@@ -234,6 +237,11 @@ int main(int argc, char*argv[])
 
     landauLCForce->setModel(Configuration);
     sim->addForce(landauLCForce);
+    if(applyVaryingField)
+        {
+        landauLCForce->setSpatiallyVaryingField(fieldFile,chi, mu0,deltaChi,sim->rankParity);
+        }
+
 
     shared_ptr<energyMinimizerFIRE> Fminimizer =  make_shared<energyMinimizerFIRE>(Configuration);
     Fminimizer->setMaximumIterations(maximumIterations);

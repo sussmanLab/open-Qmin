@@ -56,6 +56,7 @@ class basicSimulation
         //!some measure of the number of active degrees of freedom
         int NActive = 0;
 
+        virtual void reportSelf(){cout << "in the base simulation class" << endl;cout.flush();};
     protected:
         //! Determines how frequently the spatial sorter be called...once per sortPeriod Timesteps. When sortPeriod < 0 no sorting occurs
         int sortPeriod;
@@ -63,5 +64,7 @@ class basicSimulation
         bool spatialSortThisStep;
 
     };
+typedef shared_ptr<basicSimulation> SimPtr;
+typedef weak_ptr<basicSimulation> WeakSimPtr;
 
 #endif
