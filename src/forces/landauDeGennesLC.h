@@ -56,8 +56,12 @@ class landauDeGennesLC : public baseLatticeForce
                                     scalar3 field, scalar anisotropicSusceptibility,scalar vacuumPermeability);
 
         virtual void computeEorHFieldForcesGPU(GPUArray<dVec> &forces,bool zeroOutForce,
-                            scalar3 field, scalar anisotropicSusceptibility,scalar vacuumPermeability);
+                                    scalar3 field, scalar anisotropicSusceptibility,scalar vacuumPermeability);
 
+        virtual void computeSpatiallyVaryingFieldCPU(GPUArray<dVec> &forces,bool zeroOutForce,
+                                    GPUArray<scalar3> field, scalar anisotropicSusceptibility,scalar vacuumPermeability);
+        virtual void computeSpatiallyVaryingFieldGPU(GPUArray<dVec> &forces,bool zeroOutForce,
+                                    GPUArray<scalar3> field, scalar anisotropicSusceptibility,scalar vacuumPermeability);
         virtual void computeEnergyCPU(bool verbose = false);
         virtual void computeEnergyGPU(bool verbose = false);
 

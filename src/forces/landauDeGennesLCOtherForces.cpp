@@ -258,6 +258,52 @@ void landauDeGennesLC::computeEorHFieldForcesGPU(GPUArray<dVec> &forces,bool zer
     fieldForceTuner->end();
     };
 
+void landauDeGennesLC::computeSpatiallyVaryingFieldGPU(GPUArray<dVec> &forces,bool zeroOutForce,
+                        GPUArray<scalar3> field, scalar anisotropicSusceptibility,scalar vacuumPermeability)
+    {
+    int N = lattice->getNumberOfParticles();
+    ArrayHandle<dVec> d_force(forces,access_location::device,access_mode::readwrite);
+    ArrayHandle<int>  d_latticeTypes(lattice->returnTypes(),access_location::device,access_mode::read);
+    ArrayHandle<scalar3> d_field(field,access_location::device,access_mode::read);
+    fieldForceTuner->begin();
+    gpu_qTensor_computeSpatiallyVaryingFieldForcesGPU(d_force.data,
+                              d_latticeTypes.data,
+                              N,d_field.data,anisotropicSusceptibility,vacuumPermeability,zeroOutForce,
+                              boundaryForceTuner->getParameter());
+    fieldForceTuner->end();
+    };
+
+void landauDeGennesLC::computeSpatiallyVaryingFieldCPU(GPUArray<dVec> &forces,bool zeroOutForce,GPUArray<scalar3> externalField, scalar anisotropicSusceptibility, scalar vacuumPermeability)
+    {
+    ArrayHandle<dVec> h_f(forces);
+    ArrayHandle<scalar3> h_field(externalField,access_location::host,access_mode::read);
+    if(zeroOutForce)
+        for(int pp = 0; pp < lattice->getNumberOfParticles(); ++pp)
+            h_f.data[pp] = make_dVec(0.0);
+    ArrayHandle<dVec> Qtensors(lattice->returnPositions());
+    ArrayHandle<int> latticeTypes(lattice->returnTypes());
+    //the current scheme for getting the six nearest neighbors
+    int neighNum;
+    vector<int> neighbors(6);
+    int currentIndex;
+    scalar fieldProduct = anisotropicSusceptibility*vacuumPermeability;
+    dVec fieldForce(0.);
+    scalar3 field;
+    for (int i = 0; i < lattice->getNumberOfParticles(); ++i)
+        {
+        currentIndex = lattice->getNeighbors(i,neighbors,neighNum);
+        if(latticeTypes.data[currentIndex] > 0)//skip boundary sites
+            continue;
+        field = h_field.data[currentIndex];
+        fieldForce[0] = -0.5*fieldProduct*(field.x*field.x-field.z*field.z);
+        fieldForce[1] = -fieldProduct*field.x*field.y;
+        fieldForce[2] = -fieldProduct*field.x*field.z;
+        fieldForce[3] = -0.5*fieldProduct*(field.y*field.y-field.z*field.z);
+        fieldForce[4] = -fieldProduct*field.y*field.z;
+        h_f.data[currentIndex] -= fieldForce;
+        };
+    };
+
 void landauDeGennesLC::computeEorHFieldForcesCPU(GPUArray<dVec> &forces,bool zeroOutForce,
                     scalar3 field, scalar anisotropicSusceptibility,scalar vacuumPermeability)
     {

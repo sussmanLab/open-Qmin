@@ -61,6 +61,15 @@ bool gpu_qTensor_computeUniformFieldForcesGPU(dVec * d_force,
                                        bool zeroOutForce,
                                        int maxBlockSize);
 
+bool gpu_qTensor_computeSpatiallyVaryingFieldForcesGPU(dVec * d_force,
+                                       int *d_types,
+                                       int N,
+                                       scalar3 *field,
+                                       scalar anisotropicSusceptibility,
+                                       scalar vacuumPermeability,
+                                       bool zeroOutForce,
+                                       int maxBlockSize);
+
 bool gpu_qTensor_firstDerivatives(cubicLatticeDerivativeVector *d_derivatives,
                                 dVec *d_spins,
                                 int *d_types,

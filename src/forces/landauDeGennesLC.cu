@@ -545,6 +545,33 @@ __global__ void gpu_qTensor_multiConstantForce_kernel(dVec *d_force,
         d_force[idx] += force;
     }
 
+__global__ void gpu_qTensor_spatiallyVaryingFieldForcekernel(dVec *d_force,
+                                                    int *d_types,
+                                                    int N,
+                                                    scalar3 *d_field,
+                                                    scalar anisotropicSusceptibility,
+                                                    scalar vacuumPermeability,
+                                                    bool zeroForce)
+    {
+    unsigned int idx = blockDim.x * blockIdx.x + threadIdx.x;
+    if (idx >= N)
+        return;
+    if(d_types[idx]>0)
+        return;
+    scalar fieldProduct = anisotropicSusceptibility*vacuumPermeability;
+    dVec fieldForce(0.);
+    scalar3 field = d_field[idx];
+    fieldForce[0] = -0.5*fieldProduct*(field.x*field.x-field.z*field.z);
+    fieldForce[1] = -fieldProduct*field.x*field.y;
+    fieldForce[2] = -fieldProduct*field.x*field.z;
+    fieldForce[3] = -0.5*fieldProduct*(field.y*field.y-field.z*field.z);
+    fieldForce[4] = -fieldProduct*field.y*field.z;
+    if(zeroForce)
+        d_force[idx] = fieldForce;
+    else
+        d_force[idx] -= fieldForce;
+    }
+
 __global__ void gpu_qTensor_uniformFieldForcekernel(dVec *d_force,
                                                     int *d_types,
                                                     int N,
@@ -692,6 +719,23 @@ bool gpu_qTensor_multiConstantForce(dVec *d_force,
     return cudaSuccess;
     };
 
+bool gpu_qTensor_computeSpatiallyVaryingFieldForcesGPU(dVec * d_force,
+                                       int *d_types,
+                                       int N,
+                                       scalar3 *d_field,
+                                       scalar anisotropicSusceptibility,
+                                       scalar vacuumPermeability,
+                                       bool zeroOutForce,
+                                       int maxBlockSize)
+    {
+    unsigned int block_size = maxBlockSize;
+    unsigned int nblocks = N/block_size+1;
+    gpu_qTensor_spatiallyVaryingFieldForcekernel<<<nblocks,block_size>>>(d_force,d_types,N,d_field,anisotropicSusceptibility,
+                                                                vacuumPermeability, zeroOutForce);
+    HANDLE_ERROR(cudaGetLastError());
+    return cudaSuccess;
+    };
+
 bool gpu_qTensor_computeUniformFieldForcesGPU(dVec * d_force,
                                        int *d_types,
                                        int N,
@@ -733,6 +777,7 @@ bool gpu_computeAllEnergyTerms(scalar *energyPerSite,
                                                              epsilon,epsilon0,deltaEpsilon,Efield,
                                                              Chi,mu0,deltaChi,Hfield,
                                                              N);
+    cout << "NOTE: gpu_computeAllEnergyTerms DOES NOT correctly account for spatially varying external fields... if you have applied such a field, recompute the energy on the CPU" << endl;
     HANDLE_ERROR(cudaGetLastError());
     return cudaSuccess;
     };
