@@ -17,7 +17,7 @@
     or in the GUI by clicking File -> load Configuration. 
 """
 
-from ConversionUtilityInitState import create_init_state
+from initHelper import create_init_state
 
 Lx = 50 # system size
 Ly = 50
