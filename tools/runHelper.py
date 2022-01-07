@@ -6,6 +6,7 @@ Variables with empty-string values are ignored, as are commented-out lines.
 """
 
 import os
+from initHelper import partition_processors
 
 mpi_num_processes = 1
 
@@ -48,20 +49,33 @@ params = dict(
 	eFieldEpsilon0 = 1, # <float> epsilon0 for external electric field
 	eFieldEpsilon = 1, # <float> Epsilon for external electric field
 	eFieldDeltaEpsilon = 0.5, # <float> DeltaEpsilon for external electric field
+
+	### The following override Lx, Ly, Lz if and only if do_partition==True in get_runcmd
+	whole_Lx = 50, # <int> number of lattice sites in x direction *before* MPI subdivision
+	whole_Ly = 50, # <int> number of lattice sites in y direction *before* MPI subdivision
+	whole_Lz = 50, # <int> number of lattice sites in z direction *before* MPI subdivision
 )
 
-def get_runcmd():
-    runcmd = '../build/openQmin.out ' + ' '.join([
+  
+def get_runcmd(do_partition=True):
+    if do_partition: 
+        # calculate partitioned simulation box size automatically 
+        # from entire simulation box size and number of MPI processes
+        Rx, Ry, Rz = partition_processors(mpi_num_processes)
+        params['Lx'] = int(params['whole_Lx'] // Rx)
+        params['Ly'] = int(params['whole_Ly'] // Ry)
+        params['Lz'] = int(params['whole_Lz'] // Rz)         
+    if mpi_num_processes > 1:
+        runcmd = f'mpirun -n {mpi_num_processes} '       
+    else:
+        runcmd = ''
+    runcmd += '../build/openQmin.out ' + ' '.join([
         f'--{key} {val}' for key, val in zip(
             params.keys(), params.values()
         )
         if len(str(val)) > 0
+        and not key in [
+            'whole_Lx', 'whole_Ly', 'whole_Lz'
+        ]
     ])
-    if mpi_num_processes > 1:
-        runcmd = f'mpirun -n {mpi_num_processes} ' + runcmd
     return runcmd
-    
-if __name__ == '__main__':
-    runcmd = get_runcmd()
-    print(runcmd)
-    os.system(runcmd)

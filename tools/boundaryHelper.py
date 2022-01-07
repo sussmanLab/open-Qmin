@@ -66,12 +66,12 @@ class BoundaryObject():
         """ calculate values for boundaryFile from AnchoringCondition, member_func, normal_func, and Scene's dims """
         Lx, Ly, Lz = dims
         # grid of coordinates
-        X, Y, Z = np.meshgrid(np.arange(Lx), np.arange(Ly), np.arange(Lz))
+        Z, Y, X = np.meshgrid(np.arange(Lz), np.arange(Ly), np.arange(Lx))
         # flattened list of xyz coordinates
         all_positions = np.array([X.flatten(), Y.flatten(), Z.flatten()]).T
         # indices of boundary sites in list of coordinates
         bdy_idxs = np.argwhere(
-            np.fromfunction(self.member_func, (Lx, Ly, Lz)).flatten()                
+            self.member_func(X,Y,Z).flatten()                
         ).flatten()
         # coordinates of boundary sites
         self.positions = np.asarray(all_positions[bdy_idxs], dtype=float)
