@@ -105,7 +105,7 @@ eight ranks continues to control a block of 100x100x100 lattice sites.
 
 ## saving states and reading the output
 
-Both the command-line and gui exeecuutables can save the current configuration of the simulation, and simple visualization
+Both the command-line and gui executables can save the current configuration of the simulation, and simple visualization
 tools are available in the /visualizationTools directory to see the output of these systems. The output format is a simple
 txt file, where each line is:
 x y z Qxx Qxy Qxz Qyy Qyz t d,
