@@ -127,13 +127,14 @@ void landauDeGennesLC::setSpatiallyVaryingField(string fname, scalar chi, scalar
         throw std::exception();
         }
     int px,py,pz;
+    double fx, fy,fz;
     double Hx,Hy,Hz;
-    while(myfile >> px >> py >>pz >> Hx >> Hy >> Hz)
+    while(myfile >> fx >> fy >>fz >> Hx >> Hy >> Hz)
         {
         int3 pos;
-        pos.x = px - xOffset;
-        pos.y = py - yOffset;
-        pos.z = pz - zOffset;
+        pos.x = (int)fx - xOffset;
+        pos.y = (int)fy - yOffset;
+        pos.z = (int)fz - zOffset;
         int idx = lattice->positionToIndex(pos);
         hh.data[idx].x = Hx;
         hh.data[idx].y = Hy;
