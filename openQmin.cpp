@@ -61,23 +61,22 @@ int main(int argc, char*argv[])
     SwitchArg verboseSwitch("v","verbose","output more things to screen ", cmd, false);
 
 
-    ValueArg<scalar> aSwitchArg("a","phaseConstantA","value of phase constant A",false,0.172,"scalar",cmd);
-    ValueArg<scalar> bSwitchArg("b","phaseConstantB","value of phase constant B",false,2.12,"scalar",cmd);
+    ValueArg<scalar> aSwitchArg("a","phaseConstantA","value of phase constant A",false,-0.172,"scalar",cmd);
+    ValueArg<scalar> bSwitchArg("b","phaseConstantB","value of phase constant B",false,-2.12,"scalar",cmd);
     ValueArg<scalar> cSwitchArg("c","phaseConstantC","value of phase constant C",false,1.73,"scalar",cmd);
 
     ValueArg<scalar> dtSwitchArg("e","deltaT","step size for minimizer",false,0.0005,"scalar",cmd);
     ValueArg<scalar> forceToleranceSwitchArg("f","fTarget","target minimization threshold for norm of residual forces",false,0.000000000001,"scalar",cmd);
 
     ValueArg<int> iterationsSwitchArg("i","iterations","maximum number of minimization steps",false,100,"int",cmd);
-    ValueArg<int> kSwitchArg("k","nConstants","approximation for distortion term",false,1,"int",cmd);
     ValueArg<int> randomSeedSwitch("","randomSeed","seed for reproducible random number generation", false, -1, "int",cmd);
 
-
-    ValueArg<scalar> l1SwitchArg("","L1","value of L1 term",false,4.64,"scalar",cmd);
-    ValueArg<scalar> l2SwitchArg("","L2","value of L2 term",false,4.64,"scalar",cmd);
-    ValueArg<scalar> l3SwitchArg("","L3","value of L3 term",false,4.64,"scalar",cmd);
-    ValueArg<scalar> l4SwitchArg("","L4","value of L4 term",false,4.64,"scalar",cmd);
-    ValueArg<scalar> l6SwitchArg("","L6","value of L6 term",false,4.64,"scalar",cmd);
+    scalar defaultL=4.64;
+    ValueArg<scalar> l1SwitchArg("","L1","value of L1 term",false,defaultL,"scalar",cmd);
+    ValueArg<scalar> l2SwitchArg("","L2","value of L2 term",false,defaultL,"scalar",cmd);
+    ValueArg<scalar> l3SwitchArg("","L3","value of L3 term",false,defaultL,"scalar",cmd);
+    ValueArg<scalar> l4SwitchArg("","L4","value of L4 term",false,defaultL,"scalar",cmd);
+    ValueArg<scalar> l6SwitchArg("","L6","value of L6 term",false,defaultL,"scalar",cmd);
 
     ValueArg<int> lSwitchArg("l","boxL","number of lattice sites for cubic box",false,50,"int",cmd);
     ValueArg<int> lxSwitchArg("","Lx","number of lattice sites in x direction",false,50,"int",cmd);
@@ -132,7 +131,6 @@ int main(int argc, char*argv[])
     scalar phaseA = aSwitchArg.getValue();
     scalar phaseB = bSwitchArg.getValue();
     scalar phaseC = cSwitchArg.getValue();
-
     int boxL = lSwitchArg.getValue();
     int boxLx = lxSwitchArg.getValue();
     int boxLy = lySwitchArg.getValue();
@@ -144,7 +142,6 @@ int main(int argc, char*argv[])
         boxLz = boxL;
         }
 
-    int nConstants = kSwitchArg.getValue();
     scalar L1 = l1SwitchArg.getValue();
     scalar L2 = l2SwitchArg.getValue();
     scalar L3 = l3SwitchArg.getValue();
@@ -167,7 +164,7 @@ int main(int argc, char*argv[])
 
     scalar a = -1;
     scalar b = -phaseB/phaseA;
-    scalar c = phaseC/phaseA;
+    scalar c = -phaseC/phaseA;
     noiseSource noise(reproducible);
     if(randomSeed == -1)
         noise.setReproducibleSeed(13371+myRank);
@@ -176,12 +173,15 @@ int main(int argc, char*argv[])
 
     if(verbose) printf("setting a rectilinear lattice of size (%i,%i,%i)\n",boxLx,boxLy,boxLz);
     profiler pInit("initialization");
+    bool useOneConstantApprox = true;
+    if(L2 != defaultL || L3 != defaultL || L4 != defaultL || L6 != defaultL)
+        useOneConstantApprox = false;
     pInit.start();
     bool xH = (rankTopology.x >1) ? true : false;
     bool yH = (rankTopology.y >1) ? true : false;
     bool zH = (rankTopology.z >1) ? true : false;
-    bool edges = ((rankTopology.y >1) && nConstants > 1) ? true : false;
-    bool corners = ((rankTopology.z >1) && nConstants > 1) ? true : false;
+    bool edges = ((rankTopology.y >1) && !useOneConstantApprox) ? true : false;
+    bool corners = ((rankTopology.z >1) && !useOneConstantApprox) ? true : false;
     bool neverGPU = !GPU;
 
     shared_ptr<multirankQTensorLatticeModel> Configuration = make_shared<multirankQTensorLatticeModel>(boxLx,boxLy,boxLz,xH,yH,zH,false,neverGPU);
@@ -192,7 +192,7 @@ int main(int argc, char*argv[])
 
     landauLCForce->setPhaseConstants(a,b,c);
     if(verbose) printf("relative phase constants: %f\t%f\t%f\n",a,b,c);
-    if(nConstants ==1)
+    if(useOneConstantApprox)
         {
         if(verbose) printf("using 1-constant approximation: %f \n",L1);
         landauLCForce->setElasticConstants(L1);
@@ -200,6 +200,7 @@ int main(int argc, char*argv[])
         }
     else
         {
+        if(verbose) printf("using a multi-constant approximation with (L1,L2,L3,L4,L6) = : (%f, %f, %f, %f, %f) \n",L1,L2,L3,L4,L6);
         landauLCForce->setElasticConstants(L1,L2,L3,L4,L6);
         landauLCForce->setNumberOfConstants(distortionEnergyType::multiConstant);
         }
