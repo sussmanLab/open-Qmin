@@ -6,10 +6,11 @@ root: Overview
 chapters:
 - file: Installation
 - file: Command-Line_Usage
-- file: Command-Line_Options
-- file: Boundary-conditions
-- file: External-fields
-- file: Initialization
+  sections:
+  - file: Command-Line_Options
+  - file: Boundary-conditions
+  - file: External-fields
+  - file: Initialization
 - file: Saved-output
 - file: Change-log
 - file: License
