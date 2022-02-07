@@ -1,0 +1,376 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Command-Line Options &#8212; User Guide to openQmin</title>
+    
+  <link href="_static/css/theme.css" rel="stylesheet" />
+  <link href="_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+
+    
+  <link rel="stylesheet"
+    href="_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    
+      
+
+    
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-book-theme.css?digest=c3fdc42140077d1ad13ad2f1588a4309" />
+    <link rel="stylesheet" type="text/css" href="_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-thebe.css" />
+    <link rel="stylesheet" type="text/css" href="_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
+    
+  <link rel="preload" as="script" href="_static/js/index.1c5a1a01449ed65a7b51.js">
+
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/togglebutton.js"></script>
+    <script src="_static/clipboard.min.js"></script>
+    <script src="_static/copybutton.js"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="_static/sphinx-book-theme.12a9622fbb08dcb3a2a40b2c02b83a57.js"></script>
+    <script async="async" src="https://unpkg.com/thebe@0.5.1/lib/index.js"></script>
+    <script>
+        const thebe_selector = ".thebe"
+        const thebe_selector_input = "pre"
+        const thebe_selector_output = ".output"
+    </script>
+    <script async="async" src="_static/sphinx-thebe.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Boundary conditions" href="Boundary-conditions.html" />
+    <link rel="prev" title="Command-Line Usage" href="Command-Line_Usage.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en" />
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<div class="col-12 col-md-3 bd-sidebar site-navigation show" id="site-navigation">
+    
+        <div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="index.html">
+      
+        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+        
+      
+      
+      <img src="_static/Sa_cumin.jpg" class="logo" alt="logo">
+      
+      
+      <h1 class="site-logo" id="site-title">User Guide to openQmin</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search this book..." aria-label="Search this book..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item active">
+        <ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="Overview.html">
+   openQmin
+  </a>
+ </li>
+</ul>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="Installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Command-Line_Usage.html">
+   Command-Line Usage
+  </a>
+ </li>
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
+   Command-Line Options
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Boundary-conditions.html">
+   Boundary conditions
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="External-fields.html">
+   External fields
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Initialization.html">
+   Initialization
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Saved-output.html">
+   Saved output
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Change-log.html">
+   Change log
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="License.html">
+   Licensing information
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="References.html">
+   References
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav> <!-- To handle the deprecated key -->
+
+<div class="navbar_extra_footer">
+  Powered by <a href="https://jupyterbook.org">Jupyter Book</a>
+</div>
+
+</div>
+
+
+          
+
+
+          
+<main class="col py-md-3 pl-md-4 bd-content overflow-auto" role="main">
+    
+    <div class="topbar container-xl fixed-top">
+    <div class="topbar-contents row">
+        <div class="col-12 col-md-3 bd-topbar-whitespace site-navigation show"></div>
+        <div class="col pl-md-4 topbar-main">
+            
+            <button id="navbar-toggler" class="navbar-toggler ml-0" type="button" data-toggle="collapse"
+                data-toggle="tooltip" data-placement="bottom" data-target=".site-navigation" aria-controls="navbar-menu"
+                aria-expanded="true" aria-label="Toggle navigation" aria-controls="site-navigation"
+                title="Toggle navigation" data-toggle="tooltip" data-placement="left">
+                <i class="fas fa-bars"></i>
+                <i class="fas fa-arrow-left"></i>
+                <i class="fas fa-arrow-up"></i>
+            </button>
+            
+            
+<div class="dropdown-buttons-trigger">
+    <button id="dropdown-buttons-trigger" class="btn btn-secondary topbarbtn" aria-label="Download this page"><i
+            class="fas fa-download"></i></button>
+
+    <div class="dropdown-buttons">
+        <!-- ipynb file if we had a myst markdown file -->
+        
+        <!-- Download raw file -->
+        <a class="dropdown-buttons" href="_sources/Command-Line_Options.ipynb"><button type="button"
+                class="btn btn-secondary topbarbtn" title="Download source file" data-toggle="tooltip"
+                data-placement="left">.ipynb</button></a>
+        <!-- Download PDF via print -->
+        <button type="button" id="download-print" class="btn btn-secondary topbarbtn" title="Print to PDF"
+            onClick="window.print()" data-toggle="tooltip" data-placement="left">.pdf</button>
+    </div>
+</div>
+
+            <!-- Source interaction buttons -->
+
+<div class="dropdown-buttons-trigger">
+    <button id="dropdown-buttons-trigger" class="btn btn-secondary topbarbtn"
+        aria-label="Connect with source repository"><i class="fab fa-github"></i></button>
+    <div class="dropdown-buttons sourcebuttons">
+        <a class="repository-button"
+            href="https://github.com/sussmanLab/open-Qmin"><button type="button" class="btn btn-secondary topbarbtn"
+                data-toggle="tooltip" data-placement="left" title="Source repository"><i
+                    class="fab fa-github"></i>repository</button></a>
+        <a class="issues-button"
+            href="https://github.com/sussmanLab/open-Qmin/issues/new?title=Issue%20on%20page%20%2FCommand-Line_Options.html&body=Your%20issue%20content%20here."><button
+                type="button" class="btn btn-secondary topbarbtn" data-toggle="tooltip" data-placement="left"
+                title="Open an issue"><i class="fas fa-lightbulb"></i>open issue</button></a>
+        
+    </div>
+</div>
+
+            <!-- Full screen (wrap in <a> to have style consistency -->
+
+<a class="full-screen-button"><button type="button" class="btn btn-secondary topbarbtn" data-toggle="tooltip"
+        data-placement="bottom" onclick="toggleFullScreen()" aria-label="Fullscreen mode"
+        title="Fullscreen mode"><i
+            class="fas fa-expand"></i></button></a>
+
+            <!-- Launch buttons -->
+
+<div class="dropdown-buttons-trigger">
+    <button id="dropdown-buttons-trigger" class="btn btn-secondary topbarbtn"
+        aria-label="Launch interactive content"><i class="fas fa-rocket"></i></button>
+    <div class="dropdown-buttons">
+        
+        <a class="binder-button" href="https://mybinder.org/v2/gh/sussmanLab/open-Qmin/documentation?urlpath=tree/documentation/Command-Line_Options.ipynb"><button type="button"
+                class="btn btn-secondary topbarbtn" title="Launch Binder" data-toggle="tooltip"
+                data-placement="left"><img class="binder-button-logo"
+                    src="_static/images/logo_binder.svg"
+                    alt="Interact on binder">Binder</button></a>
+        
+        
+        
+        
+    </div>
+</div>
+
+        </div>
+
+        <!-- Table of contents -->
+        <div class="d-none d-md-block col-md-2 bd-toc show">
+            
+        </div>
+    </div>
+</div>
+    <div id="main-content" class="row">
+        <div class="col-12 col-md-9 pl-md-3 pr-md-0">
+        
+              <div>
+                
+  <div class="tex2jax_ignore mathjax_ignore section" id="command-line-options">
+<h1>Command-Line Options<a class="headerlink" href="#command-line-options" title="Permalink to this headline">¶</a></h1>
+<div class="cell tag_remove-output docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">##    VARIABLE_NAME = DEFAULT_VALUE, # &lt;VARIABLE_TYPE&gt; DESCRIPTION</span>
+
+<span class="n">initializationSwitch</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="c1"># &lt;int&gt; an integer controlling program branch</span>
+<span class="n">GPU</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="c1"># &lt;int&gt; which gpu to use</span>
+<span class="n">phaseConstantA</span> <span class="o">=</span> <span class="mf">0.172</span><span class="p">,</span> <span class="c1"># &lt;float&gt; value of phase constant A</span>
+<span class="n">phaseConstantB</span> <span class="o">=</span> <span class="mf">2.12</span><span class="p">,</span> <span class="c1"># &lt;float&gt; value of phase constant B</span>
+<span class="n">phaseConstantC</span> <span class="o">=</span> <span class="mf">1.73</span><span class="p">,</span> <span class="c1"># &lt;float&gt; value of phase constant C</span>
+<span class="n">deltaT</span> <span class="o">=</span> <span class="mf">0.0005</span><span class="p">,</span> <span class="c1"># &lt;float&gt; step size for minimizer</span>
+<span class="n">fTarget</span> <span class="o">=</span> <span class="mf">1e-12</span><span class="p">,</span> <span class="c1"># &lt;float&gt; target minimization threshold for norm of residual forces</span>
+<span class="n">iterations</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span> <span class="c1"># &lt;int&gt; maximum number of minimization steps</span>
+<span class="n">nConstants</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="c1"># &lt;int&gt; approximation for distortion term</span>
+<span class="n">randomSeed</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="c1"># &lt;int&gt; seed for reproducible random number generation</span>
+<span class="n">L1</span> <span class="o">=</span> <span class="mf">4.64</span><span class="p">,</span> <span class="c1"># &lt;float&gt; value of L1 term</span>
+<span class="n">L2</span> <span class="o">=</span> <span class="mf">4.64</span><span class="p">,</span> <span class="c1"># &lt;float&gt; value of L2 term</span>
+<span class="n">L3</span> <span class="o">=</span> <span class="mf">4.64</span><span class="p">,</span> <span class="c1"># &lt;float&gt; value of L3 term</span>
+<span class="n">L4</span> <span class="o">=</span> <span class="mf">4.64</span><span class="p">,</span> <span class="c1"># &lt;float&gt; value of L4 term</span>
+<span class="n">L6</span> <span class="o">=</span> <span class="mf">4.64</span><span class="p">,</span> <span class="c1"># &lt;float&gt; value of L6 term</span>
+<span class="n">boxL</span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span> <span class="c1"># &lt;int&gt; number of lattice sites for cubic box</span>
+<span class="n">Lx</span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span> <span class="c1"># &lt;int&gt; number of lattice sites in x direction</span>
+<span class="n">Ly</span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span> <span class="c1"># &lt;int&gt; number of lattice sites in y direction</span>
+<span class="n">Lz</span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span> <span class="c1"># &lt;int&gt; number of lattice sites in z direction</span>
+<span class="n">initialConfigurationFile</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="c1"># &lt;string&gt; carefully prepared file of the initial state of all lattice sites</span>
+<span class="n">spatiallyVaryingFieldFile</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="c1"># &lt;string&gt; carefully prepared file containing information on a spatially varying external H field</span>
+<span class="n">boundaryFile</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="c1"># &lt;string&gt; carefully prepared file of boundary sites</span>
+<span class="n">saveFile</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="c1"># &lt;string&gt; the base name to save the post-minimization configuration</span>
+<span class="n">linearSpacedSaving</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="c1"># &lt;int&gt; save a file every x minimization steps</span>
+<span class="n">logSpacedSaving</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="c1"># &lt;float&gt; save a file every x^j for integer j</span>
+<span class="n">stride</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="c1"># &lt;int&gt; stride of the saved lattice sites</span>
+<span class="n">hFieldX</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="c1"># &lt;float&gt; x component of external H field</span>
+<span class="n">hFieldY</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="c1"># &lt;float&gt; y component of external H field</span>
+<span class="n">hFieldZ</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="c1"># &lt;float&gt; z component of external H field</span>
+<span class="n">hFieldMu0</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="c1"># &lt;float&gt; mu0 for external magenetic field</span>
+<span class="n">hFieldChi</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="c1"># &lt;float&gt; Chi for external magenetic field</span>
+<span class="n">hFieldDeltaChi</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span> <span class="c1"># &lt;float&gt; mu0 for external magenetic field</span>
+<span class="n">eFieldX</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="c1"># &lt;float&gt; x component of external E field</span>
+<span class="n">eFieldY</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="c1"># &lt;float&gt; y component of external E field</span>
+<span class="n">eFieldZ</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="c1"># &lt;float&gt; z component of external E field</span>
+<span class="n">eFieldEpsilon0</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="c1"># &lt;float&gt; epsilon0 for external electric field</span>
+<span class="n">eFieldEpsilon</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="c1"># &lt;float&gt; Epsilon for external electric field</span>
+<span class="n">eFieldDeltaEpsilon</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span> <span class="c1"># &lt;float&gt; DeltaEpsilon for external electric field</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            kernelName: "conda-python39",
+            path: "./."
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'conda-python39'</script>
+
+              </div>
+              
+        
+            
+
+
+
+<div class='prev-next-bottom'>
+    
+    <div id="prev">
+        <a class="left-prev" href="Command-Line_Usage.html" title="previous page">
+            <i class="prevnext-label fas fa-angle-left"></i>
+            <div class="prevnext-info">
+                <p class="prevnext-label">previous</p>
+                <p class="prevnext-title">Command-Line Usage</p>
+            </div>
+        </a>
+    </div>
+     <div id="next">
+        <a class="right-next" href="Boundary-conditions.html" title="next page">
+            <div class="prevnext-info">
+                <p class="prevnext-label">next</p>
+                <p class="prevnext-title">Boundary conditions</p>
+            </div>
+            <i class="prevnext-label fas fa-angle-right"></i>
+        </a>
+     </div>
+
+</div>
+        
+        </div>
+    </div>
+    <footer class="footer">
+    <div class="container">
+      <p>
+        
+          By Daniel Sussman and Daniel Beller<br/>
+        
+            &copy; Copyright 2021.<br/>
+      </p>
+    </div>
+  </footer>
+</main>
+
+
+      </div>
+    </div>
+  
+  <script src="_static/js/index.1c5a1a01449ed65a7b51.js"></script>
+
+  
+  </body>
+</html>
