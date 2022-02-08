@@ -11,6 +11,11 @@ chapters:
   - file: Boundary-conditions
   - file: External-fields
   - file: Initialization
+- file: Python-usage
+  sections:
+  - file: py-boundaries
+  - file: py-initialization
+  - file: py-run
 - file: Saved-output
 - file: Change-log
 - file: License
