@@ -21,5 +21,5 @@ mpi2/*
 debug/*
 data/*
 doc/doxygenOutput
-documentation/user-guide/.ipynb_checkpoints/*
+*/.ipynb_checkpoints/*
 documentation/user-guide/_build/*
