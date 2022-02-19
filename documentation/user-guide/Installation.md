@@ -22,12 +22,12 @@ In the terminal, cd into the `build/` directory and type
 :::{note}
 By default the code will compile GPU code targeted at the (old, but still used in some XSEDE facilities) Tesla K40 cards. If you have newer GPUs, it is *highly* recommended to go to line 6 of the CMakeLists.txt file and set the `CUDA_ARCH` variable appropriately. 
 
-You should set `CUDA_ARCH` to 10 times your GPU model's "compute capability" (or "compute ability" or "CUDA compute ability"). One place you can look this up for NVIDIA graphics cards is [Wikipedia's article on that topic](https://en.wikipedia.org/wiki/List_of_Nvidia_graphics_processing_units). For example, the A100 GPU is listed there as having CUDA compute ability 8.0, so users with this model should set `CUDA_ARCH` to "80".
+You should set `CUDA_ARCH` to 10 times your GPU model's "compute capability". One place you can look this up is [this Wikipedia page](https://en.wikipedia.org/wiki/CUDA#GPUs_supported), in the leftmost column of the row where your GPU's model is listed. For example, the A100 GPU is listed there as having CUDA compute ability 8.0, so users with this model should set `CUDA_ARCH` to "80".
 :::
 
 ### Compilation troubleshooting
 
-If all required dependencies have been installed, the modern CMake build system should keep compilation difficulties to a minimum. If you installed any dependencies by hand you may have to give CMake hints about the location of various directories (see, e.g., lines 35-40 of the CMakeLists.txt file).
+If all required dependencies have been installed, the modern CMake build system should keep compilation difficulties to a minimum. If you installed any dependencies by hand you may have to give CMake hints about the location of various directories (see, e.g., lines 35-40 of the CMakeLists.txt file, as well as the "include_directories" list farther down in that file).
 
 If using a GPU, be sure to check what generation your card is and set the `CUDA_ARCH` variable (line 6 of the CMakeLists.txt file) appropriately for maximum performance; see the Note just above.
 
@@ -43,7 +43,7 @@ before the "basic compilation" steps above. You may also need to request an inte
 ## Executables created
 
 By default, the above steps will create two executables, "openQmin.out" and "openQminGUI.out", in the build directory.
-The GUI executable will launch the graphical user interface. Users can run "openQmin.out" from the command-line with various command-line flags; this is also the executable accessed by Python wrappers under development. 
+The GUI executable will launch the graphical user interface. Users can run "openQmin.out" from the command-line with various [command-line flags](Command-Line-Options); this is also the executable accessed by Python wrappers under development. 
 
 Are you wondering about the mysterious third executable, "customScriptFromGUI.out", that also gets made? We currently have
 an experimental (but functional) feature by which you can record sequences of actions in the GUI and save them to a new,
@@ -62,5 +62,5 @@ cpp file to the base CMakeList.txt file in the "foreach()" line immediately foll
 
 Depending on your terminal and X11 set-up, there may be a variety of GL errors you might encounter
 (mismatched client/server versions of openGL, libGL errors related to fbConfigs and swrast, etc.).
-The developers have had luck using the ``terminal'' interface within the [x2go](https://wiki.x2go.org/doku.php)
+The developers have had luck using the "terminal" interface within the [x2go](https://wiki.x2go.org/doku.php)
 client, or alternatively using [VcXserv](https://sourceforge.net/projects/vcxsrv/) with the no-WGL option.

@@ -2,7 +2,7 @@
 
 ## Adding colloids and walls to the command-line executable
 
-A separate header file exists in the main directory of the repository, "addObjectsToOpenQmin.h", which contains some example boundary objects such as spherical colloidal inclusions and planar walls, along with anchoring conditions. Users can un-comment and edit lines as needed, then **recompile** openQmin.cc as described in [Installation](Installation) to incorporate these boundaries automatically into the simulation. Note that recompilation is required with each edit to the .h file. 
+A separate header file exists in the main directory of the repository, "addObjectsToOpenQmin.h", which contains some example boundary objects such as spherical colloidal inclusions and planar walls, along with anchoring conditions. Users can un-comment and edit lines as needed, then **recompile** openQmin as described in [Installation](Installation) to incorporate these boundaries automatically into the simulation. Note that recompilation is required with each edit to the .h file. 
 
 ## Preparing a custom boundary file
 
@@ -29,9 +29,9 @@ identical information provided in the comments of src/simulation/multirankSimula
         * `x`, `y`, and `z` are the integer lattice sites, 
         * `C1`, `C2`, `C3`, `C4`, `C5` are real numbers corresponding to the desired anchoring conditions:
             * For oriented anchoring, they correspond directly to the surface-preferred Q-tensor: <br>
-                `C1`$=Q_{xx},\;$ `C2`$= Q_{xy},\;$ `C3`$=Q_{xz},\;$ `C4`$ = Q_{yy},\;$ `C5`$=Q_{yz}$ 
+                `C1`$=Q_{xx}^B,\;$ `C2`$= Q_{xy}^B,\;$ `C3`$=Q_{xz}^B,\;$ `C4`$ = Q_{yy}^B,\;$ `C5`$=Q_{yz}^B$ 
                 \
-                where one often will set the Q-tensor by choosing a locally preferred director, $\hat \nu$, and setting $Q^B = \tfrac{3}{2} S_0 \cdot (\hat \nu_\alpha \hat \nu_\beta - \delta_{ab}/3)$.
+                where one often will set the Q-tensor by choosing a locally preferred director, $\hat \nu$, and setting $Q^B = \tfrac{3}{2} S_0 \cdot (\hat \nu_\alpha \hat \nu_\beta - \tfrac{1}{3}\delta_{ab})$.
             * For degenerate planar anchoring the five constants should be specified as: <br> 
                 `C1`$=\hat{\nu}_x,\;$ `C2`$=\hat{\nu}_y.\;$ `C3`$=\hat{\nu}_z,\;$ `C4`$=0.0,\;$ `C5`$=0.0$ 
                 \

@@ -6,12 +6,12 @@ root: Overview
 chapters:
 - file: Installation
 - file: Landau-de-Gennes
-- file: Command-Line_Usage
+- file: Non-dimensionalization
+- file: Command-Line-Usage
   sections:
-  - file: Command-Line_Options
+  - file: Command-Line-Options
   - file: Boundary-conditions
   - file: External-fields
-  - file: Initialization
 # - file: Python-usage
 #   sections:
 #   - file: py-boundaries
