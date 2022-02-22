@@ -96,7 +96,7 @@ int main(int argc, char*argv[])
     ValueArg<scalar> setHFieldZSwitchArg("","hFieldZ", "z component of external H field",false,0,"scalar",cmd);
     ValueArg<scalar> setHFieldMu0SwitchArg("","hFieldMu0", "mu0 for external magenetic field",false,1,"scalar",cmd);
     ValueArg<scalar> setHFieldChiSwitchArg("","hFieldChi", "Chi for external magenetic field",false,1,"scalar",cmd);
-    ValueArg<scalar> setHFieldDeltaChiSwitchArg("","hFieldDeltaChi", "mu0 for external magenetic field",false,0.5,"scalar",cmd);
+    ValueArg<scalar> setHFieldDeltaChiSwitchArg("","hFieldDeltaChi", "Delta Chi for external magenetic field",false,0.5,"scalar",cmd);
 
     ValueArg<scalar> setEFieldXSwitchArg("","eFieldX", "x component of external E field",false,0,"scalar",cmd);
     ValueArg<scalar> setEFieldYSwitchArg("","eFieldY", "y component of external E field",false,0,"scalar",cmd);
