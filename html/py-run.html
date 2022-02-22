@@ -1,0 +1,419 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Running openQmin (Python interface) &#8212; User Guide to open-Qmin</title>
+    
+  <link href="_static/css/theme.css" rel="stylesheet" />
+  <link href="_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+
+    
+  <link rel="stylesheet"
+    href="_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    
+      
+
+    
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-book-theme.css?digest=c3fdc42140077d1ad13ad2f1588a4309" />
+    <link rel="stylesheet" type="text/css" href="_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-thebe.css" />
+    <link rel="stylesheet" type="text/css" href="_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
+    
+  <link rel="preload" as="script" href="_static/js/index.1c5a1a01449ed65a7b51.js">
+
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/togglebutton.js"></script>
+    <script src="_static/clipboard.min.js"></script>
+    <script src="_static/copybutton.js"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="_static/sphinx-book-theme.12a9622fbb08dcb3a2a40b2c02b83a57.js"></script>
+    <script async="async" src="https://unpkg.com/thebe@0.5.1/lib/index.js"></script>
+    <script>
+        const thebe_selector = ".thebe"
+        const thebe_selector_input = "pre"
+        const thebe_selector_output = ".output"
+    </script>
+    <script async="async" src="_static/sphinx-thebe.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en" />
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<div class="col-12 col-md-3 bd-sidebar site-navigation show" id="site-navigation">
+    
+        <div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="index.html">
+      
+        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+        
+      
+      
+      <img src="_static/Sa_cumin.jpg" class="logo" alt="logo">
+      
+      
+      <h1 class="site-logo" id="site-title">User Guide to open-Qmin</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search this book..." aria-label="Search this book..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item active">
+        <ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="Overview.html">
+   open-Qmin
+  </a>
+ </li>
+</ul>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="Installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Landau-de-Gennes.html">
+   Landau-de Gennes Theory
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Non-dimensionalization.html">
+   Non-dimensionalization
+  </a>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="Command-Line-Usage.html">
+   Command-line usage
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2">
+    <a class="reference internal" href="Command-Line-Options.html">
+     Command-Line Options
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="Boundary-conditions.html">
+     Boundary conditions
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="External-fields.html">
+     External fields
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Saved-output.html">
+   Saved output
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Change-log.html">
+   Change log
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="License.html">
+   Licensing information
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="References.html">
+   References
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav> <!-- To handle the deprecated key -->
+
+<div class="navbar_extra_footer">
+  Powered by <a href="https://jupyterbook.org">Jupyter Book</a>
+</div>
+
+</div>
+
+
+          
+
+
+          
+<main class="col py-md-3 pl-md-4 bd-content overflow-auto" role="main">
+    
+    <div class="topbar container-xl fixed-top">
+    <div class="topbar-contents row">
+        <div class="col-12 col-md-3 bd-topbar-whitespace site-navigation show"></div>
+        <div class="col pl-md-4 topbar-main">
+            
+            <button id="navbar-toggler" class="navbar-toggler ml-0" type="button" data-toggle="collapse"
+                data-toggle="tooltip" data-placement="bottom" data-target=".site-navigation" aria-controls="navbar-menu"
+                aria-expanded="true" aria-label="Toggle navigation" aria-controls="site-navigation"
+                title="Toggle navigation" data-toggle="tooltip" data-placement="left">
+                <i class="fas fa-bars"></i>
+                <i class="fas fa-arrow-left"></i>
+                <i class="fas fa-arrow-up"></i>
+            </button>
+            
+            
+<div class="dropdown-buttons-trigger">
+    <button id="dropdown-buttons-trigger" class="btn btn-secondary topbarbtn" aria-label="Download this page"><i
+            class="fas fa-download"></i></button>
+
+    <div class="dropdown-buttons">
+        <!-- ipynb file if we had a myst markdown file -->
+        
+        <!-- Download raw file -->
+        <a class="dropdown-buttons" href="_sources/py-run.ipynb"><button type="button"
+                class="btn btn-secondary topbarbtn" title="Download source file" data-toggle="tooltip"
+                data-placement="left">.ipynb</button></a>
+        <!-- Download PDF via print -->
+        <button type="button" id="download-print" class="btn btn-secondary topbarbtn" title="Print to PDF"
+            onClick="window.print()" data-toggle="tooltip" data-placement="left">.pdf</button>
+    </div>
+</div>
+
+            <!-- Source interaction buttons -->
+
+<div class="dropdown-buttons-trigger">
+    <button id="dropdown-buttons-trigger" class="btn btn-secondary topbarbtn"
+        aria-label="Connect with source repository"><i class="fab fa-github"></i></button>
+    <div class="dropdown-buttons sourcebuttons">
+        <a class="repository-button"
+            href="https://github.com/sussmanLab/open-Qmin"><button type="button" class="btn btn-secondary topbarbtn"
+                data-toggle="tooltip" data-placement="left" title="Source repository"><i
+                    class="fab fa-github"></i>repository</button></a>
+        <a class="issues-button"
+            href="https://github.com/sussmanLab/open-Qmin/issues/new?title=Issue%20on%20page%20%2Fpy-run.html&body=Your%20issue%20content%20here."><button
+                type="button" class="btn btn-secondary topbarbtn" data-toggle="tooltip" data-placement="left"
+                title="Open an issue"><i class="fas fa-lightbulb"></i>open issue</button></a>
+        
+    </div>
+</div>
+
+            <!-- Full screen (wrap in <a> to have style consistency -->
+
+<a class="full-screen-button"><button type="button" class="btn btn-secondary topbarbtn" data-toggle="tooltip"
+        data-placement="bottom" onclick="toggleFullScreen()" aria-label="Fullscreen mode"
+        title="Fullscreen mode"><i
+            class="fas fa-expand"></i></button></a>
+
+            <!-- Launch buttons -->
+
+<div class="dropdown-buttons-trigger">
+    <button id="dropdown-buttons-trigger" class="btn btn-secondary topbarbtn"
+        aria-label="Launch interactive content"><i class="fas fa-rocket"></i></button>
+    <div class="dropdown-buttons">
+        
+        <a class="binder-button" href="https://mybinder.org/v2/gh/sussmanLab/open-Qmin/documentation?urlpath=tree/documentation/py-run.ipynb"><button type="button"
+                class="btn btn-secondary topbarbtn" title="Launch Binder" data-toggle="tooltip"
+                data-placement="left"><img class="binder-button-logo"
+                    src="_static/images/logo_binder.svg"
+                    alt="Interact on binder">Binder</button></a>
+        
+        
+        
+        
+    </div>
+</div>
+
+        </div>
+
+        <!-- Table of contents -->
+        <div class="d-none d-md-block col-md-2 bd-toc show">
+            
+        </div>
+    </div>
+</div>
+    <div id="main-content" class="row">
+        <div class="col-12 col-md-9 pl-md-3 pr-md-0">
+        
+              <div>
+                
+  <div class="tex2jax_ignore mathjax_ignore section" id="running-openqmin-python-interface">
+<h1>Running openQmin (Python interface)<a class="headerlink" href="#running-openqmin-python-interface" title="Permalink to this headline">¶</a></h1>
+<p>Using <em>tools/runHelper.py</em>, you can define command-line parameters through a Python dictionary <code class="docutils literal notranslate"><span class="pre">runHelper.params</span></code>. These, along with any default parameters you didn’t change, are converted by <code class="docutils literal notranslate"><span class="pre">runHelper.get_runcmd()</span></code> into a command-line string that calls <em>build/openQmin.out</em>.</p>
+<p>The dictionary keys of <code class="docutils literal notranslate"><span class="pre">runHelper.params</span></code> are the same as the long forms (appearing after the <code class="docutils literal notranslate"><span class="pre">--</span></code>s) of the command-line flags seen when you run <code class="docutils literal notranslate"><span class="pre">build/openQmin.out</span> <span class="pre">--help</span></code>, with the following exceptions:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">help</span></code> itself is not a key in <code class="docutils literal notranslate"><span class="pre">runHelper.params</span></code></p></li>
+<li><p>Parameters <code class="docutils literal notranslate"><span class="pre">'whole_Lx'</span></code>, <code class="docutils literal notranslate"><span class="pre">'whole_Ly'</span></code>, and <code class="docutils literal notranslate"><span class="pre">'whole_Lz'</span></code>, which define the system size <strong>before</strong> subdivision over MPI ranks, override <code class="docutils literal notranslate"><span class="pre">'Lx'</span></code>, <code class="docutils literal notranslate"><span class="pre">'Ly'</span></code>, and <code class="docutils literal notranslate"><span class="pre">'Lz'</span></code> by default. If you want to use <code class="docutils literal notranslate"><span class="pre">'Lx'</span></code>, <code class="docutils literal notranslate"><span class="pre">'Ly'</span></code>, <code class="docutils literal notranslate"><span class="pre">'Lz'</span></code> instead (which give the system size on each rank), you can pass <code class="docutils literal notranslate"><span class="pre">do_partition=False</span></code> to <code class="docutils literal notranslate"><span class="pre">runHelper.get_runcmd()</span></code>.</p></li>
+</ul>
+<p>In the example below, we’ll make use of an example boundaryFile that we created in the page on <a class="reference internal" href="py-boundaries.html"><span class="doc std std-doc">Boundary conditions (Python interface)</span></a> and the example initialConfigurationFiles that we created in the page on <a class="reference internal" href="py-initialization.html"><span class="doc std std-doc">Initialization (Python interface)</span></a>.</p>
+<p>Notice that the main openQmin directory path, assigned to <code class="docutils literal notranslate"><span class="pre">runHelper.directory</span></code>, is automatically prepended to the filepaths for imported and exported data. This directory path should be either an absolute path or relative to where you’ll be running the command.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;../../tools/&quot;</span><span class="p">)</span>  <span class="c1"># path to runHelper.py</span>
+
+<span class="kn">import</span> <span class="nn">runHelper</span>
+
+<span class="n">runHelper</span><span class="o">.</span><span class="n">directory</span> <span class="o">=</span> <span class="s2">&quot;~/open-Qmin/&quot;</span> <span class="c1"># path to openQmin main directory</span>
+<span class="n">runHelper</span><span class="o">.</span><span class="n">mpi_num_processes</span> <span class="o">=</span> <span class="mi">3</span>  <span class="c1"># set to 1 for non-MPI run</span>
+
+<span class="n">runHelper</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;boundaryFile&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;ceiling_and_wavy_floor.txt&quot;</span>
+<span class="n">runHelper</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;initialConfigurationFile&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;my_init_file&quot;</span>
+
+<span class="c1"># choose a location and filename-prefix for this run&#39;s results</span>
+<span class="n">runHelper</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;saveFile&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;data/my_example_run&quot;</span>
+<span class="n">runHelper</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;iterations&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">500</span>  <span class="c1"># max number of minimization timesteps</span>
+
+<span class="c1"># system size BEFORE subdivision across MPI ranks:</span>
+<span class="n">runHelper</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;whole_Lx&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">50</span>
+<span class="n">runHelper</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;whole_Ly&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">50</span>
+<span class="n">runHelper</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;whole_Lz&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">50</span>
+
+<span class="n">runcmd</span> <span class="o">=</span> <span class="n">runHelper</span><span class="o">.</span><span class="n">get_runcmd</span><span class="p">()</span>  <span class="c1"># generate command-line string</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">runcmd</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>mpirun -n 3 ../build/openQmin.out --initializationSwitch 0 --GPU -1 --phaseConstantA 0.172 --phaseConstantB 2.12 --phaseConstantC 1.73 --deltaT 0.0005 --fTarget 1e-12 --iterations 500 --nConstants 1 --randomSeed -1 --L1 4.64 --L2 4.64 --L3 4.64 --L4 4.64 --L6 4.64 --boxL 50 --Lx 16 --Ly 50 --Lz 50 --initialConfigurationFile my_init_file --boundaryFile ceiling_and_wavy_floor.txt --saveFile data/my_example_run --linearSpacedSaving -1 --logSpacedSaving -1 --stride 1 --hFieldX 0 --hFieldY 0 --hFieldZ 0 --hFieldMu0 1 --hFieldChi 1 --hFieldDeltaChi 0.5 --eFieldX 0 --eFieldY 0 --eFieldZ 0 --eFieldEpsilon0 1 --eFieldEpsilon 1 --eFieldDeltaEpsilon 0.5
+</pre></div>
+</div>
+</div>
+</div>
+<p>We can run openQmin with these options by any of the following routes:</p>
+<ul class="simple">
+<li><p>Call <code class="docutils literal notranslate"><span class="pre">runHelper.run()</span></code>, which executes the result of <code class="docutils literal notranslate"><span class="pre">runHelper.get_runcmd()</span></code></p></li>
+<li><p>Copy and paste the string into a terminal</p></li>
+<li><p>Use the <code class="docutils literal notranslate"><span class="pre">runcmd</span></code> string in a Python script via <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">os;</span> <span class="pre">os.system(runcmd)</span></code></p></li>
+<li><p>Run as shell command in a Jupyter notebook with <code class="docutils literal notranslate"><span class="pre">!{runcmd}</span></code></p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">runHelper</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
+<span class="ne">AttributeError</span><span class="g g-Whitespace">                            </span>Traceback (most recent call last)
+<span class="n">Input</span> <span class="n">In</span> <span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="ow">in</span> <span class="o">&lt;</span><span class="n">module</span><span class="o">&gt;</span>
+<span class="ne">----&gt; </span><span class="mi">1</span> <span class="n">runHelper</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+
+<span class="ne">AttributeError</span>: module &#39;runHelper&#39; has no attribute &#39;run&#39;
+</pre></div>
+</div>
+</div>
+</div>
+<p>Let’s take a look at the result using openViewMin.</p>
+<div class="cell tag_hide-cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install openViewMin dependencies as needed</span>
+<span class="o">!{</span>sys.executable<span class="o">}</span> -m pip install pandas <span class="s2">&quot;PyQt5&lt;5.14&quot;</span> pyvistaqt tqdm imageio-ffmpeg &gt;&gt; /dev/null
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># replace with your path to openViewMin:</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;../../../openviewmin/&quot;</span><span class="p">)</span>
+
+<span class="kn">import</span> <span class="nn">openViewMin</span>
+<span class="kn">import</span> <span class="nn">glob</span>
+
+<span class="c1"># collect all files from this run</span>
+<span class="n">savedFiles</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;../../data/my_example_run*&quot;</span><span class="p">)</span> 
+<span class="c1"># generate plot off-screen</span>
+<span class="n">nplot</span> <span class="o">=</span> <span class="n">openViewMin</span><span class="o">.</span><span class="n">NematicPlot</span><span class="p">(</span><span class="n">savedFiles</span><span class="p">,</span> <span class="n">off_screen</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">window_size</span><span class="o">=</span><span class="p">(</span><span class="mi">800</span><span class="p">,</span> <span class="mi">800</span><span class="p">))</span>
+<span class="c1"># rotate plane of director glyphs to y-normal</span>
+<span class="n">nplot</span><span class="o">.</span><span class="n">update_filter</span><span class="p">(</span><span class="s2">&quot;director_plane&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;normal&quot;</span><span class="p">:[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]},</span> <span class="n">update_self_actor</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="c1"># reduce lighting intensity a bit</span>
+<span class="n">nplot</span><span class="o">.</span><span class="n">set_lights_intensity</span><span class="p">(</span><span class="mf">0.6</span><span class="p">)</span>
+<span class="c1"># display in notebook</span>
+<span class="n">display</span><span class="p">(</span><span class="n">nplot</span><span class="o">.</span><span class="n">to_pythreejs</span><span class="p">())</span>
+<span class="n">nplot</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            kernelName: "python3",
+            path: "./."
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+              </div>
+              
+        
+            
+
+
+
+<div class='prev-next-bottom'>
+    
+
+</div>
+        
+        </div>
+    </div>
+    <footer class="footer">
+    <div class="container">
+      <p>
+        
+          By Daniel Sussman and Daniel Beller<br/>
+        
+            &copy; Copyright 2021.<br/>
+      </p>
+    </div>
+  </footer>
+</main>
+
+
+      </div>
+    </div>
+  
+  <script src="_static/js/index.1c5a1a01449ed65a7b51.js"></script>
+
+  
+  </body>
+</html>

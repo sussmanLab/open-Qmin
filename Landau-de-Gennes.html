@@ -1,0 +1,581 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Landau-de Gennes Theory &#8212; User Guide to open-Qmin</title>
+    
+  <link href="_static/css/theme.css" rel="stylesheet" />
+  <link href="_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+
+    
+  <link rel="stylesheet"
+    href="_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    
+      
+
+    
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-book-theme.css?digest=c3fdc42140077d1ad13ad2f1588a4309" />
+    <link rel="stylesheet" type="text/css" href="_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-thebe.css" />
+    <link rel="stylesheet" type="text/css" href="_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
+    
+  <link rel="preload" as="script" href="_static/js/index.1c5a1a01449ed65a7b51.js">
+
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/togglebutton.js"></script>
+    <script src="_static/clipboard.min.js"></script>
+    <script src="_static/copybutton.js"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="_static/sphinx-book-theme.12a9622fbb08dcb3a2a40b2c02b83a57.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script async="async" src="https://unpkg.com/thebe@0.5.1/lib/index.js"></script>
+    <script>
+        const thebe_selector = ".thebe"
+        const thebe_selector_input = "pre"
+        const thebe_selector_output = ".output"
+    </script>
+    <script async="async" src="_static/sphinx-thebe.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Non-dimensionalization" href="Non-dimensionalization.html" />
+    <link rel="prev" title="Installation" href="Installation.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en" />
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<div class="col-12 col-md-3 bd-sidebar site-navigation show" id="site-navigation">
+    
+        <div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="index.html">
+      
+        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+        
+      
+      
+      <img src="_static/Sa_cumin.jpg" class="logo" alt="logo">
+      
+      
+      <h1 class="site-logo" id="site-title">User Guide to open-Qmin</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search this book..." aria-label="Search this book..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item active">
+        <ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="Overview.html">
+   open-Qmin
+  </a>
+ </li>
+</ul>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="Installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
+   Landau-de Gennes Theory
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Non-dimensionalization.html">
+   Non-dimensionalization
+  </a>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="Command-Line-Usage.html">
+   Command-line usage
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2">
+    <a class="reference internal" href="Command-Line-Options.html">
+     Command-Line Options
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="Boundary-conditions.html">
+     Boundary conditions
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="External-fields.html">
+     External fields
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Saved-output.html">
+   Saved output
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Change-log.html">
+   Change log
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="License.html">
+   Licensing information
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="References.html">
+   References
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav> <!-- To handle the deprecated key -->
+
+<div class="navbar_extra_footer">
+  Powered by <a href="https://jupyterbook.org">Jupyter Book</a>
+</div>
+
+</div>
+
+
+          
+
+
+          
+<main class="col py-md-3 pl-md-4 bd-content overflow-auto" role="main">
+    
+    <div class="topbar container-xl fixed-top">
+    <div class="topbar-contents row">
+        <div class="col-12 col-md-3 bd-topbar-whitespace site-navigation show"></div>
+        <div class="col pl-md-4 topbar-main">
+            
+            <button id="navbar-toggler" class="navbar-toggler ml-0" type="button" data-toggle="collapse"
+                data-toggle="tooltip" data-placement="bottom" data-target=".site-navigation" aria-controls="navbar-menu"
+                aria-expanded="true" aria-label="Toggle navigation" aria-controls="site-navigation"
+                title="Toggle navigation" data-toggle="tooltip" data-placement="left">
+                <i class="fas fa-bars"></i>
+                <i class="fas fa-arrow-left"></i>
+                <i class="fas fa-arrow-up"></i>
+            </button>
+            
+            
+<div class="dropdown-buttons-trigger">
+    <button id="dropdown-buttons-trigger" class="btn btn-secondary topbarbtn" aria-label="Download this page"><i
+            class="fas fa-download"></i></button>
+
+    <div class="dropdown-buttons">
+        <!-- ipynb file if we had a myst markdown file -->
+        
+        <!-- Download raw file -->
+        <a class="dropdown-buttons" href="_sources/Landau-de-Gennes.md"><button type="button"
+                class="btn btn-secondary topbarbtn" title="Download source file" data-toggle="tooltip"
+                data-placement="left">.md</button></a>
+        <!-- Download PDF via print -->
+        <button type="button" id="download-print" class="btn btn-secondary topbarbtn" title="Print to PDF"
+            onClick="window.print()" data-toggle="tooltip" data-placement="left">.pdf</button>
+    </div>
+</div>
+
+            <!-- Source interaction buttons -->
+
+<div class="dropdown-buttons-trigger">
+    <button id="dropdown-buttons-trigger" class="btn btn-secondary topbarbtn"
+        aria-label="Connect with source repository"><i class="fab fa-github"></i></button>
+    <div class="dropdown-buttons sourcebuttons">
+        <a class="repository-button"
+            href="https://github.com/sussmanLab/open-Qmin"><button type="button" class="btn btn-secondary topbarbtn"
+                data-toggle="tooltip" data-placement="left" title="Source repository"><i
+                    class="fab fa-github"></i>repository</button></a>
+        <a class="issues-button"
+            href="https://github.com/sussmanLab/open-Qmin/issues/new?title=Issue%20on%20page%20%2FLandau-de-Gennes.html&body=Your%20issue%20content%20here."><button
+                type="button" class="btn btn-secondary topbarbtn" data-toggle="tooltip" data-placement="left"
+                title="Open an issue"><i class="fas fa-lightbulb"></i>open issue</button></a>
+        
+    </div>
+</div>
+
+            <!-- Full screen (wrap in <a> to have style consistency -->
+
+<a class="full-screen-button"><button type="button" class="btn btn-secondary topbarbtn" data-toggle="tooltip"
+        data-placement="bottom" onclick="toggleFullScreen()" aria-label="Fullscreen mode"
+        title="Fullscreen mode"><i
+            class="fas fa-expand"></i></button></a>
+
+            <!-- Launch buttons -->
+
+        </div>
+
+        <!-- Table of contents -->
+        <div class="d-none d-md-block col-md-2 bd-toc show">
+            
+            <div class="tocsection onthispage pt-5 pb-3">
+                <i class="fas fa-list"></i> Contents
+            </div>
+            <nav id="bd-toc-nav" aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#the-q-tensor">
+   The Q-tensor
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#from-director-to-q-tensor">
+     From director to Q-tensor
+    </a>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#uniaxial-nematics">
+       Uniaxial nematics
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#biaxial-nematics">
+       Biaxial nematics
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#from-q-tensor-to-director">
+     From Q-tensor to director
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#landau-de-gennes-free-energy">
+   Landau-de Gennes free energy
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#bulk-free-energy">
+     Bulk free energy
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#distortion-free-energy">
+     Distortion free energy
+    </a>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#relation-to-frank-elastic-constants">
+       Relation to Frank elastic constants
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#one-constant-approximation">
+       One-constant approximation
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#external-fields-free-energy">
+     External fields free energy
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#boundary-free-energy">
+     Boundary free energy
+    </a>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#oriented-including-homeotropic-anchoring">
+       Oriented (including homeotropic) anchoring
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#degenerate-planar-anchoring">
+       Degenerate planar anchoring
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#anchoring-strength-relation-to-rapini-papoular-form">
+       Anchoring strength relation to Rapini-Papoular form
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+            </nav>
+        </div>
+    </div>
+</div>
+    <div id="main-content" class="row">
+        <div class="col-12 col-md-9 pl-md-3 pr-md-0">
+        
+              <div>
+                
+  <div class="tex2jax_ignore mathjax_ignore section" id="landau-de-gennes-theory">
+<h1>Landau-de Gennes Theory<a class="headerlink" href="#landau-de-gennes-theory" title="Permalink to this headline">¶</a></h1>
+<p>Here we briefly overview the Landau-de Gennes theoretical framework for nematic liquid crystals implemented in open-Qmin. For a fuller explanation with references, please see Section 2 of our <a class="reference external" href="https://www.frontiersin.org/articles/10.3389/fphy.2019.00204/full#h3">article in <em>Frontiers in Physics</em></a>.</p>
+<div class="section" id="the-q-tensor">
+<h2>The Q-tensor<a class="headerlink" href="#the-q-tensor" title="Permalink to this headline">¶</a></h2>
+<p>Nematic liquid crystals are fluids with anisotropy, that is, properties that vary depending on direction. Nearby particles are oriented preferentially along a common direction, <span class="math notranslate nohighlight">\(\hat n\)</span>, called the nematic director. Mathematically, a director is like a unit vector but with an added “head-tail” symmetry by which <span class="math notranslate nohighlight">\(- \hat n\)</span> represents the same physical state as <span class="math notranslate nohighlight">\(\hat n \)</span>. Because the director may vary from place to place in the liquid crystal, we speak of a director <em>field</em> <span class="math notranslate nohighlight">\(\hat n(\mathbf{r})\)</span>.</p>
+<p>Partly to account for this <span class="math notranslate nohighlight">\(\hat n = - \hat n \)</span> symmetry, the nematic liquid crystal’s orientational state is better described by a symmetric, second-rank tensor (which in <span class="math notranslate nohighlight">\(d\)</span> dimensions is represented by a symmetric <span class="math notranslate nohighlight">\(d\times d\)</span> matrix). This is the nematic orientation tensor, or Q-tensor, <span class="math notranslate nohighlight">\({\bf Q}\)</span>. In open-Qmin, the state of the nematic liquid crystal is represented by a value of the Q-tensor at each lattice site.</p>
+<div class="section" id="from-director-to-q-tensor">
+<h3>From director to Q-tensor<a class="headerlink" href="#from-director-to-q-tensor" title="Permalink to this headline">¶</a></h3>
+<p>Because we are only interested in <em>anisotropic</em> properties of the liquid crystal, we subtract out the isotropic properties by making the Q-tensor traceless, <span class="math notranslate nohighlight">\(Q_{xx} + Q_{yy} + Q_{zz} = 0\)</span>.</p>
+<div class="section" id="uniaxial-nematics">
+<h4>Uniaxial nematics<a class="headerlink" href="#uniaxial-nematics" title="Permalink to this headline">¶</a></h4>
+<p>The simplest relation between <span class="math notranslate nohighlight">\(\bf Q\)</span> and <span class="math notranslate nohighlight">\(\hat n\)</span> is given by</p>
+<div class="math notranslate nohighlight">
+\[ Q_{\alpha \beta} = \tfrac{3}{2} S \left(n_\alpha n_\beta - \tfrac{1}{3} \delta_{\alpha \beta}\right)  \quad \text{(uniaxial limit)}  \]</div>
+<p>where <span class="math notranslate nohighlight">\(\delta\)</span> is the Kronecker delta and the scalar prefactor <span class="math notranslate nohighlight">\(S\)</span> is the <em>nematic degree of order</em>.</p>
+<p>The above relation is only true in the uniaxial limit, in which the particles of the nematic have no orientational preference among the directions in the plane perpendicular to <span class="math notranslate nohighlight">\(\hat n\)</span>.</p>
+</div>
+<div class="section" id="biaxial-nematics">
+<h4>Biaxial nematics<a class="headerlink" href="#biaxial-nematics" title="Permalink to this headline">¶</a></h4>
+<p>A more general expression for <span class="math notranslate nohighlight">\(\bf Q\)</span> allows for <em>biaxial order</em> <span class="math notranslate nohighlight">\(S_B\)</span> which favors one direction, <span class="math notranslate nohighlight">\(\hat m\)</span>, in the plane perpendicular to <span class="math notranslate nohighlight">\(\hat n \)</span>:</p>
+<div class="math notranslate nohighlight">
+\[ Q_{\alpha \beta} = \tfrac{3}{2} S \left( n_\alpha n_\beta - \tfrac{1}{3} \delta_{\alpha \beta} \right) + \tfrac{1}{2} S_B \left( m_\alpha m_\beta - l_\alpha l_\beta \right) .\]</div>
+<p>Here <span class="math notranslate nohighlight">\(\hat l \equiv n \times \hat m\)</span>.</p>
+</div>
+</div>
+<div class="section" id="from-q-tensor-to-director">
+<h3>From Q-tensor to director<a class="headerlink" href="#from-q-tensor-to-director" title="Permalink to this headline">¶</a></h3>
+<p>For a given <span class="math notranslate nohighlight">\(Q_{\alpha \beta}\)</span>, the degree of nematic order <span class="math notranslate nohighlight">\(S\)</span> is recovered as the greatest eigenvalue, and the director <span class="math notranslate nohighlight">\(\hat n \)</span> is the corresponding eigenvector:</p>
+<div class="math notranslate nohighlight">
+\[ Q_{\alpha \beta} n_\beta = S n_\alpha \]</div>
+<p>Because <span class="math notranslate nohighlight">\({\bf Q}\)</span> is traceless, the remaining two eigenvalues must sum to <span class="math notranslate nohighlight">\(-S\)</span>. The difference between these two eigenvalues becomes the degree of biaxial order <span class="math notranslate nohighlight">\(S_B\)</span>. <span class="math notranslate nohighlight">\({\bf Q}\)</span> is diagonal in the basis <span class="math notranslate nohighlight">\(\{ \hat n, \hat m, \hat l \}\)</span>, with diagonal elements</p>
+<div class="math notranslate nohighlight">
+\[ {\bf Q}^{\text{(diag)}}  = \mathrm{diag}\left(S, \tfrac{1}{2} (-S + S_B), \tfrac{1}{2} (-S-S_B) \right) \]</div>
+</div>
+</div>
+<div class="section" id="landau-de-gennes-free-energy">
+<h2>Landau-de Gennes free energy<a class="headerlink" href="#landau-de-gennes-free-energy" title="Permalink to this headline">¶</a></h2>
+<p>open-Qmin conducts numerical minimization of the Landau-de Gennes free energy, which is a functional of the Q-tensor. Schematically:</p>
+<div class="math notranslate nohighlight">
+\[ {\mathcal F}[{\bf Q}] = \int_V \left( f_{\text{bulk}} + f_{\text{distortion}} + f_{\text{external}}\right) dv + \sum_{\alpha} \int_{S_\alpha} \left( f^\alpha_{\text{boundary}}\right)  ds. \]</div>
+<p>The first integral is over the volume of the nematic; the second term is a sum of surface integrals over each boundary surface <span class="math notranslate nohighlight">\(S_\alpha\)</span>. The energy density terms are described below.</p>
+<div class="section" id="bulk-free-energy">
+<h3>Bulk free energy<a class="headerlink" href="#bulk-free-energy" title="Permalink to this headline">¶</a></h3>
+<p>The bulk free energy density describes the isotropic-nematic phase transition in the Landau paradigm, using rotational invariants of <span class="math notranslate nohighlight">\({\bf Q}\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[ f_{\text{bulk}} = \tfrac{1}{2} A {\, \rm tr} ({\bf Q}^2) + \tfrac{1}{3} B {\,\rm tr} ({\bf Q}^3) + \tfrac{1}{4} C \left( {\rm tr}({\bf Q}^2) \right)^2 .\]</div>
+<p>Here, <span class="math notranslate nohighlight">\(A\)</span>, <span class="math notranslate nohighlight">\(B\)</span>, and <span class="math notranslate nohighlight">\(C\)</span> are material constants with <span class="math notranslate nohighlight">\(A\)</span> depending on temperature <span class="math notranslate nohighlight">\(T\)</span> as <span class="math notranslate nohighlight">\(A\propto (T-T^*_{NI})\)</span>, with <span class="math notranslate nohighlight">\(T^*_{NI}\)</span> the temperature below which the isotropic phase is unstable.</p>
+<p>In the uniaxial limit, <span class="math notranslate nohighlight">\(f_{\text{bulk}}\)</span> becomes a polynomial in the nematic degree of order,</p>
+<div class="math notranslate nohighlight">
+\[ f_{\text{bulk}} = \tfrac{3}{4} A S^2 + \tfrac{1}{4} B S^3 + \tfrac{9}{16} C S^4 , \]</div>
+<p>which is minimized either by <span class="math notranslate nohighlight">\(S=0\)</span> (isotropic phase) or by</p>
+<div class="math notranslate nohighlight">
+\[ S = S_0 \equiv \frac{ - B + \sqrt{ B^2 - 24 A C}}{6 C} \qquad \text{(preferred degree of order)} . \]</div>
+</div>
+<div class="section" id="distortion-free-energy">
+<h3>Distortion free energy<a class="headerlink" href="#distortion-free-energy" title="Permalink to this headline">¶</a></h3>
+<p>The distortion (or “elastic”) free energy density penalizes spatial gradients of <span class="math notranslate nohighlight">\({\bf Q}\)</span> as follows:</p>
+<div class="amsmath math notranslate nohighlight">
+\[\begin{align*}
+f_{\text{distortion}} &amp;= \tfrac{1}{2} L_1 \frac{\partial Q_{ij}}{\partial x_k} \frac{\partial Q_{ij}}{\partial x_k}  + \tfrac{1}{2} L_2 \frac{\partial Q_{ij}}{\partial x_j} \frac{\partial Q_{ik}}{\partial x_k} + \tfrac{1}{2} L_3 \frac{\partial Q_{ik}}{\partial x_j} \frac{\partial Q_{ij}}{\partial x_k}  \\
+&amp; \quad + \tfrac{1}{2} L_4 \epsilon_{lik} Q_{lj} \frac{\partial Q_{ij}}{\partial x_k} + \tfrac{1}{2} L_6 Q_{lk} \frac{\partial Q_{ij}}{\partial x_l} \frac{\partial Q_{ij}}{\partial x_k} .
+\end{align*}\]</div>
+<p>Here, Einstein summation over repeated indices is implied, and <span class="math notranslate nohighlight">\(\epsilon\)</span> is the Levi-Civita tensor. <em><strong>Please pay close attention to how we define the <span class="math notranslate nohighlight">\(L_i\)</span> coefficients here, since other definitions are also commonly used in the literature.</strong></em></p>
+<div class="section" id="relation-to-frank-elastic-constants">
+<h4>Relation to Frank elastic constants<a class="headerlink" href="#relation-to-frank-elastic-constants" title="Permalink to this headline">¶</a></h4>
+<p>In the uniaxial limit, <span class="math notranslate nohighlight">\(f_{\text{distortion}}\)</span> maps onto the Frank-Oseen elastic free energy density,</p>
+<div class="amsmath math notranslate nohighlight">
+\[\begin{align*} 
+f_{\text{FO}} &amp;= \tfrac{1}{2} \left\{ K_1 (\nabla \cdot \hat n )^2 + K_2 \left( \hat n \cdot (\nabla \times \hat n ) + q_0 \right)^2 \right. \\
+&amp; \qquad\;  \left. + K_3 \left| (\hat n \cdot \nabla) \hat n \right|^2 + K_{24} \nabla \cdot \left[ (\hat n \cdot \nabla ) \hat n - \hat n (\nabla \cdot \hat n ) \right] \right\},
+\end{align*}\]</div>
+<p>where <span class="math notranslate nohighlight">\(K_1\)</span>, <span class="math notranslate nohighlight">\(K_2\)</span>, <span class="math notranslate nohighlight">\(K_3\)</span>, and <span class="math notranslate nohighlight">\(K_{24}\)</span> are respectively the splay, twist, bend, and saddle-splay elastic constants, and <span class="math notranslate nohighlight">\(q_0\)</span> is the spontaneous chiral wavenumber in chiral nematics. The relations between these constants and the Landau-de Gennes distortion free energy density parameters in the uniaxial limit are:</p>
+<div class="amsmath math notranslate nohighlight">
+\[\begin{align*}
+L_1 &amp;= \frac{2}{27 S^2} (K_3 - K_1 + 3 K_2) \\
+L_2 &amp;= \frac{4}{9 S^2} (K_1 - K_{24}) \\
+L_3 &amp;= \frac{4}{9 S^2} (K_{24} - K_2)  \\
+L_4 &amp;= -\frac{8}{9S^2} q_0 K_2 \\
+L_6 &amp;= \frac{4}{27 S^3} (K_3 - K_1) 
+\end{align*}\]</div>
+<p>Inverting these relations gives the following forms for the Frank-Oseen constants:</p>
+<div class="amsmath math notranslate nohighlight">
+\[\begin{align*}
+K_1 &amp;= \tfrac{9}{4} S^2 (2 L_1 + L_2 + L_3 - L_6 S) \\
+K_2 &amp;= \tfrac{9}{4} S^2 (2 L_1 - S L_6)  \\
+K_3 &amp;= \tfrac{9}{4} S^2 (2 L_1 + L_2 + L_3 + 2 S L_6)  \\ 
+K_{24} &amp;= -\tfrac{9}{4} S^2 (-2 L_1 - L_3 + S L_6)  \\
+q_0 &amp;= -\frac{L_4}{2(2L_1 - S L_6)}  
+\end{align*}\]</div>
+</div>
+<div class="section" id="one-constant-approximation">
+<h4>One-constant approximation<a class="headerlink" href="#one-constant-approximation" title="Permalink to this headline">¶</a></h4>
+<p>A common simplifying assumption for the Frank-Oseen free energy density is the “one-constant approximation”, sometimes called “isotropic elasticity”:</p>
+<div class="math notranslate nohighlight">
+\[ K_1 = K_2 = K_3 = K_{24} \equiv K\]</div>
+<p>along with <span class="math notranslate nohighlight">\(q_0=0\)</span>. This assumption is a reasonable approach for many common molecular liquid crystals, where the elastic constants often have, at least, the same order of magnitude. Along with dramatically simplifying analytical approaches, the one-constant approximation also permits much faster computation with the corresponding choice of <span class="math notranslate nohighlight">\(L_i\)</span> coefficients:</p>
+<div class="math notranslate nohighlight">
+\[ L_2 = L_3 = L_4 = L_6 = 0, \]</div>
+<div class="math notranslate nohighlight">
+\[ L_1 = \frac{2}{9 S^2} K. \]</div>
+<p>This leaves only one term in the distortion free energy density:</p>
+<div class="math notranslate nohighlight">
+\[ f_{\text{distortion}} ^{(1)} = \tfrac{1}{2} L_1 \frac{\partial Q_{ij}}{\partial x_k} \frac{\partial Q_{ij}}{\partial x_k} . \]</div>
+</div>
+</div>
+<div class="section" id="external-fields-free-energy">
+<h3>External fields free energy<a class="headerlink" href="#external-fields-free-energy" title="Permalink to this headline">¶</a></h3>
+<p>External electric fields <span class="math notranslate nohighlight">\(\mathbf{E}\)</span> and magnetic fields <span class="math notranslate nohighlight">\(\mathbf{H}\)</span> contribute the following free energy densities, respectively, calculated at each site in the nematic:</p>
+<div class="math notranslate nohighlight">
+\[ f_E = -\tfrac{1}{2} \varepsilon_0 E_i \varepsilon_{ij} E_j, \qquad \varepsilon_{ij} = \varepsilon \delta_{ij} + \Delta \varepsilon Q_{ij} \]</div>
+<div class="math notranslate nohighlight">
+\[ f_H = - \tfrac{1}{2} \mu_0 H_i \chi_{ij} H_j, \qquad \chi_{ij} = \chi \delta_{ij} + \Delta \chi Q_{ij} \]</div>
+<p>where</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\varepsilon_0\)</span> is the vacuum permittivity</p></li>
+<li><p><span class="math notranslate nohighlight">\(\varepsilon_{ij}\)</span> is the material’s dielectric tensor</p></li>
+<li><p><span class="math notranslate nohighlight">\(\varepsilon\)</span> is the material’s dielectric constant (relative permittivity)</p></li>
+<li><p><span class="math notranslate nohighlight">\(\Delta \varepsilon\)</span> is the material’s dielectric anisotropy</p></li>
+<li><p><span class="math notranslate nohighlight">\(\mu_0\)</span> is the magnetic permeability of free space</p></li>
+<li><p><span class="math notranslate nohighlight">\(\chi_{ij}\)</span> is the material’s magnetic susceptibility tensor</p></li>
+<li><p><span class="math notranslate nohighlight">\(\chi\)</span> is the isotropic part of the material’s magnetic susceptibility</p></li>
+<li><p><span class="math notranslate nohighlight">\(\Delta \chi\)</span> is the anisotropic part of the material’s magnetic susceptibility</p></li>
+</ul>
+<p>and <span class="math notranslate nohighlight">\(\delta_{ij}\)</span> is the Kronecker delta.</p>
+</div>
+<div class="section" id="boundary-free-energy">
+<h3>Boundary free energy<a class="headerlink" href="#boundary-free-energy" title="Permalink to this headline">¶</a></h3>
+<p>At boundary surfaces, liquid crystals typically experience an anisotropic surface tension, called “anchoring”, that depends on the relative orientations of the director <span class="math notranslate nohighlight">\(\hat n \)</span> and a certain special direction <span class="math notranslate nohighlight">\(\hat \nu^\alpha\)</span> picked out by a given point on the surface. (The superscript <span class="math notranslate nohighlight">\(\alpha\)</span> indexes the different boundary surfaces.)</p>
+<p>open-Qmin has two categories of anchoring conditions: oriented and degenerate planar.</p>
+<div class="section" id="oriented-including-homeotropic-anchoring">
+<h4>Oriented (including homeotropic) anchoring<a class="headerlink" href="#oriented-including-homeotropic-anchoring" title="Permalink to this headline">¶</a></h4>
+<p>Oriented anchoring conditions penalize the director’s deviations from a unique direction <span class="math notranslate nohighlight">\(\hat\nu^\alpha\)</span> preferred by the surface. One common example is “homeotropic” anchoring, in which <span class="math notranslate nohighlight">\(\hat \nu^\alpha\)</span> is the surface normal. Another is “oriented planar” ancohring, in which a particular direction in the surface’s tangent plane serves as <span class="math notranslate nohighlight">\(\hat \nu^\alpha\)</span>.</p>
+<p>For oriented anchoring, the surface free energy density at boundary surface <span class="math notranslate nohighlight">\(\alpha\)</span> takes the Nobili-Durand form:</p>
+<div class="math notranslate nohighlight">
+\[ f_{\text{boundary}}^\alpha  = W^\alpha_{\text{ND}}  (Q_{ij} - Q_{ij}^\alpha) (Q_{ij} - Q_{ij}^\alpha),  \]</div>
+<p>where <span class="math notranslate nohighlight">\(W^\alpha_{\text{ND}} &gt; 0\)</span> is the anchoring strength of surface <span class="math notranslate nohighlight">\(\alpha\)</span> and the surface-preferred Q-tensor is</p>
+<div class="math notranslate nohighlight">
+\[ Q^\alpha_{ij} = \tfrac{3}{2} S_0 (\nu^\alpha_i \nu^\alpha_j - \tfrac{1}{3} \delta_{ij} ) .\]</div>
+</div>
+<div class="section" id="degenerate-planar-anchoring">
+<h4>Degenerate planar anchoring<a class="headerlink" href="#degenerate-planar-anchoring" title="Permalink to this headline">¶</a></h4>
+<p>Surfaces with degenerate planar anchoring disfavor director orientation along the surface normal <span class="math notranslate nohighlight">\(\hat \nu^\alpha\)</span>, but exhibit no preference (i.e. a degeneracy) among the directions in the surface’s  tangent plane. When modeling 3D nematics, it is <em>not</em> sufficient to use the above Nobili-Durand form with a negative anchoring strength. Instead, we use the Fournier-Galatola form:</p>
+<div class="math notranslate nohighlight">
+\[ f_{\text{boundary}}^\alpha = W^\alpha_{\text{FG}} ( \tilde Q_{ij} - \tilde Q_{ij}^\perp ) ( \tilde Q_{ij} - \tilde Q_{ij}^\perp ) , \]</div>
+<p>where <span class="math notranslate nohighlight">\( \tilde Q_{ij} = Q_{ij} + \tfrac{1}{2} S_0 \delta_{ij}\)</span>, and <span class="math notranslate nohighlight">\(\tilde Q_{ij}^\perp\)</span> is the projection of <span class="math notranslate nohighlight">\(\tilde Q_{ij}\)</span> onto the plane perpendicular to <span class="math notranslate nohighlight">\(\hat \nu^\alpha\)</span>,</p>
+<div class="math notranslate nohighlight">
+\[ \tilde Q^\perp_{ij} = P_{ik} \tilde Q_{kl}P_{lj}, \]</div>
+<p>using the projection operator <span class="math notranslate nohighlight">\(P_{ij} = \delta_{ij} - \nu^\alpha _i \nu^\alpha_j \)</span> .</p>
+</div>
+<div class="section" id="anchoring-strength-relation-to-rapini-papoular-form">
+<h4>Anchoring strength relation to Rapini-Papoular form<a class="headerlink" href="#anchoring-strength-relation-to-rapini-papoular-form" title="Permalink to this headline">¶</a></h4>
+<p>In terms of the director, both oriented and degenerate planar anchoring are often modeled with the Rapini-Papoular free energy density,</p>
+<div class="math notranslate nohighlight">
+\[ - \tfrac{1}{2} W^\alpha_{\text{RP}} (\hat \nu^\alpha \cdot \hat n )^2, \]</div>
+<p>with <span class="math notranslate nohighlight">\(W_{\text{RP}}&gt;0\)</span> for oriented anchoring, and <span class="math notranslate nohighlight">\(&lt;0\)</span> for degenerate planar anchoring.</p>
+<p>Comparing to the Nobili-Durand and Fournier-Galatola forms, the anchoring strengths are related in both cases by</p>
+<div class="math notranslate nohighlight">
+\[ |W_{\text{RP}}^\alpha|  = 9 S_0^2 W^\alpha_{\text{ND,FG}}, \]</div>
+<p>assuming <span class="math notranslate nohighlight">\({\bf Q}\)</span> is uniaxial with leading eigenvalue <span class="math notranslate nohighlight">\(S=S_0\)</span>.</p>
+</div>
+</div>
+</div>
+</div>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            kernelName: "python3",
+            path: "./."
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+              </div>
+              
+        
+            
+
+
+
+<div class='prev-next-bottom'>
+    
+    <div id="prev">
+        <a class="left-prev" href="Installation.html" title="previous page">
+            <i class="prevnext-label fas fa-angle-left"></i>
+            <div class="prevnext-info">
+                <p class="prevnext-label">previous</p>
+                <p class="prevnext-title">Installation</p>
+            </div>
+        </a>
+    </div>
+     <div id="next">
+        <a class="right-next" href="Non-dimensionalization.html" title="next page">
+            <div class="prevnext-info">
+                <p class="prevnext-label">next</p>
+                <p class="prevnext-title">Non-dimensionalization</p>
+            </div>
+            <i class="prevnext-label fas fa-angle-right"></i>
+        </a>
+     </div>
+
+</div>
+        
+        </div>
+    </div>
+    <footer class="footer">
+    <div class="container">
+      <p>
+        
+          By Daniel Sussman and Daniel Beller<br/>
+        
+            &copy; Copyright 2021.<br/>
+      </p>
+    </div>
+  </footer>
+</main>
+
+
+      </div>
+    </div>
+  
+  <script src="_static/js/index.1c5a1a01449ed65a7b51.js"></script>
+
+  
+  </body>
+</html>

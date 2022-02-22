@@ -1,0 +1,392 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Command-line usage &#8212; User Guide to open-Qmin</title>
+    
+  <link href="_static/css/theme.css" rel="stylesheet" />
+  <link href="_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+
+    
+  <link rel="stylesheet"
+    href="_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    
+      
+
+    
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-book-theme.css?digest=c3fdc42140077d1ad13ad2f1588a4309" />
+    <link rel="stylesheet" type="text/css" href="_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-thebe.css" />
+    <link rel="stylesheet" type="text/css" href="_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
+    
+  <link rel="preload" as="script" href="_static/js/index.1c5a1a01449ed65a7b51.js">
+
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/togglebutton.js"></script>
+    <script src="_static/clipboard.min.js"></script>
+    <script src="_static/copybutton.js"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="_static/sphinx-book-theme.12a9622fbb08dcb3a2a40b2c02b83a57.js"></script>
+    <script async="async" src="https://unpkg.com/thebe@0.5.1/lib/index.js"></script>
+    <script>
+        const thebe_selector = ".thebe"
+        const thebe_selector_input = "pre"
+        const thebe_selector_output = ".output"
+    </script>
+    <script async="async" src="_static/sphinx-thebe.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Command-Line Options" href="Command-Line-Options.html" />
+    <link rel="prev" title="Non-dimensionalization" href="Non-dimensionalization.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en" />
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<div class="col-12 col-md-3 bd-sidebar site-navigation show" id="site-navigation">
+    
+        <div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="index.html">
+      
+        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+        
+      
+      
+      <img src="_static/Sa_cumin.jpg" class="logo" alt="logo">
+      
+      
+      <h1 class="site-logo" id="site-title">User Guide to open-Qmin</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search this book..." aria-label="Search this book..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item active">
+        <ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="Overview.html">
+   open-Qmin
+  </a>
+ </li>
+</ul>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="Installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Landau-de-Gennes.html">
+   Landau-de Gennes Theory
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Non-dimensionalization.html">
+   Non-dimensionalization
+  </a>
+ </li>
+ <li class="toctree-l1 current active has-children">
+  <a class="current reference internal" href="#">
+   Command-line usage
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2">
+    <a class="reference internal" href="Command-Line-Options.html">
+     Command-Line Options
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="Boundary-conditions.html">
+     Boundary conditions
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="External-fields.html">
+     External fields
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Saved-output.html">
+   Saved output
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Change-log.html">
+   Change log
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="License.html">
+   Licensing information
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="References.html">
+   References
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav> <!-- To handle the deprecated key -->
+
+<div class="navbar_extra_footer">
+  Powered by <a href="https://jupyterbook.org">Jupyter Book</a>
+</div>
+
+</div>
+
+
+          
+
+
+          
+<main class="col py-md-3 pl-md-4 bd-content overflow-auto" role="main">
+    
+    <div class="topbar container-xl fixed-top">
+    <div class="topbar-contents row">
+        <div class="col-12 col-md-3 bd-topbar-whitespace site-navigation show"></div>
+        <div class="col pl-md-4 topbar-main">
+            
+            <button id="navbar-toggler" class="navbar-toggler ml-0" type="button" data-toggle="collapse"
+                data-toggle="tooltip" data-placement="bottom" data-target=".site-navigation" aria-controls="navbar-menu"
+                aria-expanded="true" aria-label="Toggle navigation" aria-controls="site-navigation"
+                title="Toggle navigation" data-toggle="tooltip" data-placement="left">
+                <i class="fas fa-bars"></i>
+                <i class="fas fa-arrow-left"></i>
+                <i class="fas fa-arrow-up"></i>
+            </button>
+            
+            
+<div class="dropdown-buttons-trigger">
+    <button id="dropdown-buttons-trigger" class="btn btn-secondary topbarbtn" aria-label="Download this page"><i
+            class="fas fa-download"></i></button>
+
+    <div class="dropdown-buttons">
+        <!-- ipynb file if we had a myst markdown file -->
+        
+        <!-- Download raw file -->
+        <a class="dropdown-buttons" href="_sources/Command-Line-Usage.md"><button type="button"
+                class="btn btn-secondary topbarbtn" title="Download source file" data-toggle="tooltip"
+                data-placement="left">.md</button></a>
+        <!-- Download PDF via print -->
+        <button type="button" id="download-print" class="btn btn-secondary topbarbtn" title="Print to PDF"
+            onClick="window.print()" data-toggle="tooltip" data-placement="left">.pdf</button>
+    </div>
+</div>
+
+            <!-- Source interaction buttons -->
+
+<div class="dropdown-buttons-trigger">
+    <button id="dropdown-buttons-trigger" class="btn btn-secondary topbarbtn"
+        aria-label="Connect with source repository"><i class="fab fa-github"></i></button>
+    <div class="dropdown-buttons sourcebuttons">
+        <a class="repository-button"
+            href="https://github.com/sussmanLab/open-Qmin"><button type="button" class="btn btn-secondary topbarbtn"
+                data-toggle="tooltip" data-placement="left" title="Source repository"><i
+                    class="fab fa-github"></i>repository</button></a>
+        <a class="issues-button"
+            href="https://github.com/sussmanLab/open-Qmin/issues/new?title=Issue%20on%20page%20%2FCommand-Line-Usage.html&body=Your%20issue%20content%20here."><button
+                type="button" class="btn btn-secondary topbarbtn" data-toggle="tooltip" data-placement="left"
+                title="Open an issue"><i class="fas fa-lightbulb"></i>open issue</button></a>
+        
+    </div>
+</div>
+
+            <!-- Full screen (wrap in <a> to have style consistency -->
+
+<a class="full-screen-button"><button type="button" class="btn btn-secondary topbarbtn" data-toggle="tooltip"
+        data-placement="bottom" onclick="toggleFullScreen()" aria-label="Fullscreen mode"
+        title="Fullscreen mode"><i
+            class="fas fa-expand"></i></button></a>
+
+            <!-- Launch buttons -->
+
+        </div>
+
+        <!-- Table of contents -->
+        <div class="d-none d-md-block col-md-2 bd-toc show">
+            
+            <div class="tocsection onthispage pt-5 pb-3">
+                <i class="fas fa-list"></i> Contents
+            </div>
+            <nav id="bd-toc-nav" aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#to-use-the-gui">
+   To use the GUI
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#running-on-the-command-line">
+   Running on the command line
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#specifying-mpi-jobs">
+     Specifying MPI jobs
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+            </nav>
+        </div>
+    </div>
+</div>
+    <div id="main-content" class="row">
+        <div class="col-12 col-md-9 pl-md-3 pr-md-0">
+        
+              <div>
+                
+  <div class="tex2jax_ignore mathjax_ignore section" id="command-line-usage">
+<h1>Command-line usage<a class="headerlink" href="#command-line-usage" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="to-use-the-gui">
+<h2>To use the GUI<a class="headerlink" href="#to-use-the-gui" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">build/openQminGUI.out</span></code></p>
+</div>
+<div class="section" id="running-on-the-command-line">
+<h2>Running on the command line<a class="headerlink" href="#running-on-the-command-line" title="Permalink to this headline">¶</a></h2>
+<p>Run <code class="docutils literal notranslate"><span class="pre">build/openQmin.out</span></code> with any of the available command-line options, which are described <a class="reference internal" href="Command-Line-Options.html"><span class="doc std std-doc">here</span></a> in detail; for a brief summary you can type <code class="docutils literal notranslate"><span class="pre">build/openQmin.out</span> <span class="pre">--help</span></code>.</p>
+<p>Some examples:</p>
+<ul class="simple">
+<li><p>To run 100 FIRE minimization steps on a cubic lattice of side length 250:<br />
+<code class="docutils literal notranslate"><span class="pre">build/openQmin.out</span> <span class="pre">-i</span> <span class="pre">100</span> <span class="pre">-l</span> <span class="pre">250</span></code></p></li>
+<li><p>To do the same thing but using a GPU in slot 0:<br />
+<code class="docutils literal notranslate"><span class="pre">build/openQmin.out</span> <span class="pre">-i</span> <span class="pre">100</span> <span class="pre">-l</span> <span class="pre">250</span> <span class="pre">-g</span> <span class="pre">0</span></code></p></li>
+<li><p>To load a file, e.g. “assets/boundaryInput.txt”  with custom boundaries prepared for a cubic lattice of side length 80<br />
+<code class="docutils literal notranslate"><span class="pre">build/openQmin.out</span> <span class="pre">-i</span> <span class="pre">100</span> <span class="pre">-l</span> <span class="pre">80</span> <span class="pre">--boundaryFile</span> <span class="pre">assets/boundaryInput.txt</span></code></p></li>
+<li><p>To do the above, but also save the post-minimization state:<br />
+<code class="docutils literal notranslate"><span class="pre">./build/openQmin.out</span> <span class="pre">-i</span> <span class="pre">80</span> <span class="pre">--boundaryFile</span> <span class="pre">assets/boundaryInput.txt</span> <span class="pre">-l</span> <span class="pre">80</span> <span class="pre">--saveFile</span> <span class="pre">data/saveTesting</span></code></p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For <code class="docutils literal notranslate"><span class="pre">--boundaryFile</span></code> and <code class="docutils literal notranslate"><span class="pre">--saveFile</span></code>, the file path is relative to your present working directory.</p>
+</div>
+<div class="section" id="specifying-mpi-jobs">
+<h3>Specifying MPI jobs<a class="headerlink" href="#specifying-mpi-jobs" title="Permalink to this headline">¶</a></h3>
+<p>As noted above, the <code class="docutils literal notranslate"><span class="pre">-l</span></code> command line flag can be used to specify the side length of a cubic simulation
+domain (other flags exist if you want the domain to be a rectangular prism). <strong>When using MPI, the default behavior is to take the command line size to specify the domain size ON EVERY MPI RANK.</strong> (One could imagine an alternate default behavior in which the command line specified the TOTAL size of the
+simulation domain, which was then divided among the different processors.)</p>
+<p>So, for example, the command:<br />
+<code class="docutils literal notranslate"><span class="pre">mpirun</span> <span class="pre">-n</span> <span class="pre">1</span> <span class="pre">build/openQmin.out</span> <span class="pre">-l</span> <span class="pre">100</span></code><br />
+will run a simulation domain of total size (100x100x100) lattice sites, on a single rank.</p>
+<p>Moving to two processors, the command:<br />
+<code class="docutils literal notranslate"><span class="pre">mpirun</span> <span class="pre">-n</span> <span class="pre">2</span> <span class="pre">build/openQmin.out</span> <span class="pre">-l</span> <span class="pre">100</span></code><br />
+will run a simulation domain of total size (200x100x100) lattice sites, on two ranks (that
+is, each rank will control a 100x100x100 domain).</p>
+<p>Similarly the command:<br />
+<code class="docutils literal notranslate"><span class="pre">mpirun</span> <span class="pre">-n</span> <span class="pre">8</span> <span class="pre">build/openQmin.out</span> <span class="pre">-l</span> <span class="pre">100</span></code><br />
+will run a simulation domain of total size (200x200x200) lattice sites, where each of the
+eight ranks continues to control a block of 100x100x100 lattice sites.</p>
+</div>
+</div>
+<div class="toctree-wrapper compound">
+</div>
+</div>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            kernelName: "python3",
+            path: "./."
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+              </div>
+              
+        
+            
+
+
+
+<div class='prev-next-bottom'>
+    
+    <div id="prev">
+        <a class="left-prev" href="Non-dimensionalization.html" title="previous page">
+            <i class="prevnext-label fas fa-angle-left"></i>
+            <div class="prevnext-info">
+                <p class="prevnext-label">previous</p>
+                <p class="prevnext-title">Non-dimensionalization</p>
+            </div>
+        </a>
+    </div>
+     <div id="next">
+        <a class="right-next" href="Command-Line-Options.html" title="next page">
+            <div class="prevnext-info">
+                <p class="prevnext-label">next</p>
+                <p class="prevnext-title">Command-Line Options</p>
+            </div>
+            <i class="prevnext-label fas fa-angle-right"></i>
+        </a>
+     </div>
+
+</div>
+        
+        </div>
+    </div>
+    <footer class="footer">
+    <div class="container">
+      <p>
+        
+          By Daniel Sussman and Daniel Beller<br/>
+        
+            &copy; Copyright 2021.<br/>
+      </p>
+    </div>
+  </footer>
+</main>
+
+
+      </div>
+    </div>
+  
+  <script src="_static/js/index.1c5a1a01449ed65a7b51.js"></script>
+
+  
+  </body>
+</html>
