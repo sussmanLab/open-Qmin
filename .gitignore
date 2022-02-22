@@ -22,4 +22,3 @@ debug/*
 data/*
 doc/doxygenOutput
 */.ipynb_checkpoints/*
-documentation/user-guide/_build/*

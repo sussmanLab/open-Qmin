@@ -1,0 +1,541 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Command-Line Options &#8212; User Guide to open-Qmin</title>
+    
+  <link href="_static/css/theme.css" rel="stylesheet" />
+  <link href="_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+
+    
+  <link rel="stylesheet"
+    href="_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    
+      
+
+    
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-book-theme.css?digest=c3fdc42140077d1ad13ad2f1588a4309" />
+    <link rel="stylesheet" type="text/css" href="_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-thebe.css" />
+    <link rel="stylesheet" type="text/css" href="_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
+    
+  <link rel="preload" as="script" href="_static/js/index.1c5a1a01449ed65a7b51.js">
+
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/togglebutton.js"></script>
+    <script src="_static/clipboard.min.js"></script>
+    <script src="_static/copybutton.js"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="_static/sphinx-book-theme.12a9622fbb08dcb3a2a40b2c02b83a57.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script async="async" src="https://unpkg.com/thebe@0.5.1/lib/index.js"></script>
+    <script>
+        const thebe_selector = ".thebe"
+        const thebe_selector_input = "pre"
+        const thebe_selector_output = ".output"
+    </script>
+    <script async="async" src="_static/sphinx-thebe.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Boundary conditions" href="Boundary-conditions.html" />
+    <link rel="prev" title="Command-line usage" href="Command-Line-Usage.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en" />
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<div class="col-12 col-md-3 bd-sidebar site-navigation show" id="site-navigation">
+    
+        <div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="index.html">
+      
+        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+        
+      
+      
+      <img src="_static/Sa_cumin.jpg" class="logo" alt="logo">
+      
+      
+      <h1 class="site-logo" id="site-title">User Guide to open-Qmin</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search this book..." aria-label="Search this book..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item active">
+        <ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="Overview.html">
+   open-Qmin
+  </a>
+ </li>
+</ul>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="Installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Landau-de-Gennes.html">
+   Landau-de Gennes Theory
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Non-dimensionalization.html">
+   Non-dimensionalization
+  </a>
+ </li>
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="Command-Line-Usage.html">
+   Command-line usage
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2 current active">
+    <a class="current reference internal" href="#">
+     Command-Line Options
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="Boundary-conditions.html">
+     Boundary conditions
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="External-fields.html">
+     External fields
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Saved-output.html">
+   Saved output
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Change-log.html">
+   Change log
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="License.html">
+   Licensing information
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="References.html">
+   References
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav> <!-- To handle the deprecated key -->
+
+<div class="navbar_extra_footer">
+  Powered by <a href="https://jupyterbook.org">Jupyter Book</a>
+</div>
+
+</div>
+
+
+          
+
+
+          
+<main class="col py-md-3 pl-md-4 bd-content overflow-auto" role="main">
+    
+    <div class="topbar container-xl fixed-top">
+    <div class="topbar-contents row">
+        <div class="col-12 col-md-3 bd-topbar-whitespace site-navigation show"></div>
+        <div class="col pl-md-4 topbar-main">
+            
+            <button id="navbar-toggler" class="navbar-toggler ml-0" type="button" data-toggle="collapse"
+                data-toggle="tooltip" data-placement="bottom" data-target=".site-navigation" aria-controls="navbar-menu"
+                aria-expanded="true" aria-label="Toggle navigation" aria-controls="site-navigation"
+                title="Toggle navigation" data-toggle="tooltip" data-placement="left">
+                <i class="fas fa-bars"></i>
+                <i class="fas fa-arrow-left"></i>
+                <i class="fas fa-arrow-up"></i>
+            </button>
+            
+            
+<div class="dropdown-buttons-trigger">
+    <button id="dropdown-buttons-trigger" class="btn btn-secondary topbarbtn" aria-label="Download this page"><i
+            class="fas fa-download"></i></button>
+
+    <div class="dropdown-buttons">
+        <!-- ipynb file if we had a myst markdown file -->
+        
+        <!-- Download raw file -->
+        <a class="dropdown-buttons" href="_sources/Command-Line-Options.md"><button type="button"
+                class="btn btn-secondary topbarbtn" title="Download source file" data-toggle="tooltip"
+                data-placement="left">.md</button></a>
+        <!-- Download PDF via print -->
+        <button type="button" id="download-print" class="btn btn-secondary topbarbtn" title="Print to PDF"
+            onClick="window.print()" data-toggle="tooltip" data-placement="left">.pdf</button>
+    </div>
+</div>
+
+            <!-- Source interaction buttons -->
+
+<div class="dropdown-buttons-trigger">
+    <button id="dropdown-buttons-trigger" class="btn btn-secondary topbarbtn"
+        aria-label="Connect with source repository"><i class="fab fa-github"></i></button>
+    <div class="dropdown-buttons sourcebuttons">
+        <a class="repository-button"
+            href="https://github.com/sussmanLab/open-Qmin"><button type="button" class="btn btn-secondary topbarbtn"
+                data-toggle="tooltip" data-placement="left" title="Source repository"><i
+                    class="fab fa-github"></i>repository</button></a>
+        <a class="issues-button"
+            href="https://github.com/sussmanLab/open-Qmin/issues/new?title=Issue%20on%20page%20%2FCommand-Line-Options.html&body=Your%20issue%20content%20here."><button
+                type="button" class="btn btn-secondary topbarbtn" data-toggle="tooltip" data-placement="left"
+                title="Open an issue"><i class="fas fa-lightbulb"></i>open issue</button></a>
+        
+    </div>
+</div>
+
+            <!-- Full screen (wrap in <a> to have style consistency -->
+
+<a class="full-screen-button"><button type="button" class="btn btn-secondary topbarbtn" data-toggle="tooltip"
+        data-placement="bottom" onclick="toggleFullScreen()" aria-label="Fullscreen mode"
+        title="Fullscreen mode"><i
+            class="fas fa-expand"></i></button></a>
+
+            <!-- Launch buttons -->
+
+        </div>
+
+        <!-- Table of contents -->
+        <div class="d-none d-md-block col-md-2 bd-toc show">
+            
+            <div class="tocsection onthispage pt-5 pb-3">
+                <i class="fas fa-list"></i> Contents
+            </div>
+            <nav id="bd-toc-nav" aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#system-setup">
+   System setup
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#boundaries">
+     Boundaries
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#initialization">
+   Initialization
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#minimization">
+   Minimization
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#choosing-cpu-or-gpu">
+     Choosing CPU or GPU
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#minimizer-step-size">
+     Minimizer step size
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#stopping-conditions">
+     Stopping conditions
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#material-constants">
+   Material constants
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#output">
+   Output
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#saving-time-sequences">
+     Saving time sequences
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#data-stride">
+     Data stride
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#random-number-generation">
+   Random number generation
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#glossary-of-command-line-options-and-their-default-values">
+   Glossary of command-line options and their default values
+  </a>
+ </li>
+</ul>
+
+            </nav>
+        </div>
+    </div>
+</div>
+    <div id="main-content" class="row">
+        <div class="col-12 col-md-9 pl-md-3 pr-md-0">
+        
+              <div>
+                
+  <div class="tex2jax_ignore mathjax_ignore section" id="command-line-options">
+<h1>Command-Line Options<a class="headerlink" href="#command-line-options" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="system-setup">
+<h2>System setup<a class="headerlink" href="#system-setup" title="Permalink to this headline">¶</a></h2>
+<p>For a cubic simulation box, you can use <code class="docutils literal notranslate"><span class="pre">--boxL</span> <span class="pre">&lt;int&gt;</span></code> or <code class="docutils literal notranslate"><span class="pre">-l</span> <span class="pre">&lt;int&gt;</span></code>.</p>
+<p>For simulation boxes with unequal dimensions, you will have to separately specify <code class="docutils literal notranslate"><span class="pre">--Lx</span> <span class="pre">&lt;int&gt;</span> <span class="pre">--Ly</span> <span class="pre">&lt;int&gt;</span> <span class="pre">--Lz</span> <span class="pre">&lt;int&gt;</span></code>.</p>
+<div class="section" id="boundaries">
+<h3>Boundaries<a class="headerlink" href="#boundaries" title="Permalink to this headline">¶</a></h3>
+<p>By default, the simulation box includes no boundaries, and periodic boundary conditions are applied at the box walls. To add boundaries such as walls and colloidal particles, one option is to uncomment lines from “addObjectsToOpenQmin.h”, edit as necessary, and recompile open-Qmin.</p>
+<p>Another option, which does not require recompilation, is to define the boundaries’ geometries and anchoring conditions in a separate file and import this using <code class="docutils literal notranslate"><span class="pre">--boundaryFile</span> <span class="pre">&lt;filename&gt;</span></code>. See <a class="reference external" href="Boundary-conditions.html#preparing-a-custom-boundary-file">here</a> for tips on how to prepare this file.</p>
+</div>
+</div>
+<div class="section" id="initialization">
+<h2>Initialization<a class="headerlink" href="#initialization" title="Permalink to this headline">¶</a></h2>
+<p>Two command-line flags control initialization: <code class="docutils literal notranslate"><span class="pre">-z</span></code> and <code class="docutils literal notranslate"><span class="pre">--initialConfigurationFile</span></code>. The <code class="docutils literal notranslate"><span class="pre">-z</span></code> flag allows you to set the variable <code class="docutils literal notranslate"><span class="pre">initializationSwitch</span></code> in “setInitialConditions.h”; users can make changes in that file and recompile open-Qmin as needed. The <code class="docutils literal notranslate"><span class="pre">-z</span></code> flag has the following options:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-z</span> <span class="pre">0</span></code>: The default behavior: for each lattice site pick a random director uniformly over the unit sphere and make a Q-tensor corresponding to it (using nematic degree of order <code class="docutils literal notranslate"><span class="pre">S0</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-z</span> <span class="pre">-1</span></code>: Use the loadState function to load an initial configuration from a saved file.
+<a class="anchor" id="MPI-file-naming"></a></p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In order to correctly load MPI-based jobs, the file names must be in the specific format of “fileName_x<span class="math notranslate nohighlight">\(X\)</span>y<span class="math notranslate nohighlight">\(Y\)</span>z<span class="math notranslate nohighlight">\(Z\)</span>.txt”, where <span class="math notranslate nohighlight">\(X\)</span>, <span class="math notranslate nohighlight">\(Y\)</span>, and <span class="math notranslate nohighlight">\(Z\)</span> are integers corresponding to how open-Qmin splits up multirank jobs. (Even if you are not using MPI, your file must be named “myFileName_x0y0z0.txt”, and you would load the file with the code <code class="docutils literal notranslate"><span class="pre">sim-&gt;loadState(“myFileName”);</span></code>.) Furthermore, the format of the file must be precisely the <a class="reference internal" href="Saved-output.html"><span class="doc std std-doc">text format used by open-Qmin to save the system’s state</span></a>.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Using EITHER <code class="docutils literal notranslate"><span class="pre">-z</span> <span class="pre">-1</span></code> or <code class="docutils literal notranslate"><span class="pre">--initialConfigurationFile</span> <span class="pre">myfilename</span></code> will trigger this initialization path. With <code class="docutils literal notranslate"><span class="pre">-z</span> <span class="pre">-1</span></code> the program looks to “setIninitialConditions.h” for the initial state.</p>
+</div>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-z</span> <span class="pre">1</span></code>: Initialize with a uniform nematic director along a randomly chosen direction.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-z</span> <span class="pre">2</span></code>: Initialize with a uniform nematic director along a specified direction. (Modify the components of the variable <code class="docutils literal notranslate"><span class="pre">targetDirector</span></code> in “setInitialConditions.h”, then recompile.)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-z</span> <span class="pre">3</span></code>: Define a function, <span class="math notranslate nohighlight">\(f(x,y,z)\)</span>, that controls both the initial director and the initial <span class="math notranslate nohighlight">\(S_0\)</span> parameter at each site. (Modify the function <code class="docutils literal notranslate"><span class="pre">localDirectors</span></code> in “setInitialConditions.h” to the desired functions of position, then recompile.)</p></li>
+</ul>
+</div>
+<div class="section" id="minimization">
+<h2>Minimization<a class="headerlink" href="#minimization" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="choosing-cpu-or-gpu">
+<h3>Choosing CPU or GPU<a class="headerlink" href="#choosing-cpu-or-gpu" title="Permalink to this headline">¶</a></h3>
+<p>If you have one GPU and want to use it, add the flag <code class="docutils literal notranslate"><span class="pre">--GPU</span> <span class="pre">0</span></code> or <code class="docutils literal notranslate"><span class="pre">-g</span> <span class="pre">0</span></code>.</p>
+<p>If you have multiple GPUs, specify which GPU to use via <code class="docutils literal notranslate"><span class="pre">--GPU</span> <span class="pre">&lt;int&gt;</span></code> or <code class="docutils literal notranslate"><span class="pre">-g</span> <span class="pre">&lt;int&gt;</span></code>.</p>
+<p>If you want to use CPU resources, leave the default value <code class="docutils literal notranslate"><span class="pre">--GPU</span> <span class="pre">-1</span></code> or <code class="docutils literal notranslate"><span class="pre">-g</span> <span class="pre">-1</span></code>.</p>
+</div>
+<div class="section" id="minimizer-step-size">
+<h3>Minimizer step size<a class="headerlink" href="#minimizer-step-size" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">--deltaT</span> <span class="pre">&lt;float&gt;</span></code> or <code class="docutils literal notranslate"><span class="pre">-e</span> <span class="pre">&lt;float&gt;</span></code> sets the minimizer’s step size. The default value is 0.005.</p>
+</div>
+<div class="section" id="stopping-conditions">
+<h3>Stopping conditions<a class="headerlink" href="#stopping-conditions" title="Permalink to this headline">¶</a></h3>
+<p>The minimizer seeks the equilibrium configuration where the net force at each site is zero. We set a small value for the summed norm of residual forces, at which we are near enough to equilibrium to quit successfully, using <code class="docutils literal notranslate"><span class="pre">--fTarget</span> <span class="pre">&lt;float&gt;</span></code>, with default value  1e-12.</p>
+<p>However, the minimizer will stop before reaching this force threshold if the number of minimization steps reaches the value set by <code class="docutils literal notranslate"><span class="pre">--iterations</span> <span class="pre">&lt;int&gt;</span></code> or <code class="docutils literal notranslate"><span class="pre">-i</span> <span class="pre">&lt;int&gt;</span></code>, with defalt value 100.</p>
+</div>
+</div>
+<div class="section" id="material-constants">
+<h2>Material constants<a class="headerlink" href="#material-constants" title="Permalink to this headline">¶</a></h2>
+<p>The non-dimensionalized coefficients <span class="math notranslate nohighlight">\(A\)</span>, <span class="math notranslate nohighlight">\(B\)</span>, <span class="math notranslate nohighlight">\(C\)</span> of the Landau-de Gennes <a class="reference external" href="Landau-de-Gennes.html#bulk-free-energy">bulk free energy density</a> are respectively set via</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--phaseConstantA</span> <span class="pre">&lt;float&gt;</span></code> or <code class="docutils literal notranslate"><span class="pre">-a</span> <span class="pre">&lt;float&gt;</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--phaseConstantB</span> <span class="pre">&lt;float&gt;</span></code> or <code class="docutils literal notranslate"><span class="pre">-b</span> <span class="pre">&lt;float&gt;</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--phaseConstantC</span> <span class="pre">&lt;float&gt;</span></code> or <code class="docutils literal notranslate"><span class="pre">-c</span> <span class="pre">&lt;float&gt;</span></code></p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Generally, <span class="math notranslate nohighlight">\(A\)</span> and (typically) <span class="math notranslate nohighlight">\(B\)</span> will be negative. open-Qmin expects you to provide the <strong>signed</strong> value. For example, the default value <span class="math notranslate nohighlight">\(A=-0.172\)</span> is equivalent to <code class="docutils literal notranslate"><span class="pre">-a</span> <span class="pre">-0.172</span></code>.</p>
+</div>
+<p>The non-dimensionalized distortion coefficients <span class="math notranslate nohighlight">\(L_i\)</span>, <span class="math notranslate nohighlight">\(i=1,2,3,4,6\)</span> of the Landau-de Gennes <a class="reference external" href="Landau-de-Gennes.html#distortion-free-energy">distortion free energy density</a> are respectively set via</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--L1</span> <span class="pre">&lt;float&gt;</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--L2</span> <span class="pre">&lt;float&gt;</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--L3</span> <span class="pre">&lt;float&gt;</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--L4</span> <span class="pre">&lt;float&gt;</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--L6</span> <span class="pre">&lt;float&gt;</span></code></p></li>
+</ul>
+</div>
+<div class="section" id="output">
+<h2>Output<a class="headerlink" href="#output" title="Permalink to this headline">¶</a></h2>
+<p>Choose a unique name (including relative filepath but <em>excluding</em> the filetype suffix such as “.txt”) to save the results of a given run, using
+<code class="docutils literal notranslate"><span class="pre">--saveFile</span> <span class="pre">&lt;string&gt;</span></code>. For example, <code class="docutils literal notranslate"><span class="pre">--saveFile</span> <span class="pre">data/my_example_run</span></code> will cause results to be saved in “data/my_example_run_x0y0z0.txt”, <a class="reference external" href="#MPI-file-naming">etc. for MPI</a>. See the <a class="reference internal" href="Saved-output.html"><span class="doc std std-doc">Saved Output</span></a> page for the format of the saved files.</p>
+<div class="section" id="saving-time-sequences">
+<h3>Saving time sequences<a class="headerlink" href="#saving-time-sequences" title="Permalink to this headline">¶</a></h3>
+<p>By default, open-Qmin saves the system state only from the last step of the minimization. To keep a record of the minimization process, you can use <code class="docutils literal notranslate"><span class="pre">--linearSpacedSaving</span> <span class="pre">&lt;N</span> <span class="pre">(int)&gt;</span></code> to save to unique files every <span class="math notranslate nohighlight">\(N\)</span> steps. For example, <code class="docutils literal notranslate"><span class="pre">--saveFile</span> <span class="pre">data/my_example_run</span> <span class="pre">--linearSpacedSaving</span> <span class="pre">10</span></code> will create files “data/my_example_run_t0_x0y0z0.txt”, “data/my_example_run_t10_x0y0z0.txt”, “data/my_example_run_t20_x0y0z0.txt”, etc.</p>
+<p>Alternatively, you may wish to save the state at smaller time intervals early in the minimization but at longer time intervals later on (where the “dynamics” generally slows down). For this purpose, you can use <code class="docutils literal notranslate"><span class="pre">--logSpacedSaving</span> <span class="pre">&lt;F</span> <span class="pre">(float)&gt;</span></code> which will save a unique file whenever the timestep <span class="math notranslate nohighlight">\(t\)</span> reaches or exceeds <span class="math notranslate nohighlight">\(F^j\)</span> for <span class="math notranslate nohighlight">\(j=0,1,2,3,\dots\)</span></p>
+</div>
+<div class="section" id="data-stride">
+<h3>Data stride<a class="headerlink" href="#data-stride" title="Permalink to this headline">¶</a></h3>
+<p>For larger systems, saving the state of every site can be expensive in terms of computing time, storage space, and analysis later on. To save the state of only every <span class="math notranslate nohighlight">\(n\)</span> sites along <em>each</em> direction, use <code class="docutils literal notranslate"><span class="pre">--stride</span> <span class="pre">&lt;n</span> <span class="pre">(int)&gt;</span></code>.</p>
+</div>
+</div>
+<div class="section" id="random-number-generation">
+<h2>Random number generation<a class="headerlink" href="#random-number-generation" title="Permalink to this headline">¶</a></h2>
+<p>By default, the executable compiled from openQmin.cpp will use a reproducible random number generator with a fixed initial seed. To use a random number as the seed to the random number generator, use the -r flag, e.g.:
+<code class="docutils literal notranslate"><span class="pre">build/openQmin.out</span> <span class="pre">-i</span> <span class="pre">100</span> <span class="pre">-r</span></code>.</p>
+<p>To specify a specific seed to use (so that you can reproducibly study an ensemble of different random conditions, for example), use the <code class="docutils literal notranslate"><span class="pre">--randomSeed</span></code> command line option, e.g.:
+<code class="docutils literal notranslate"><span class="pre">build/openQmin.out</span> <span class="pre">-i</span> <span class="pre">100</span> <span class="pre">--randomSeed</span> <span class="pre">123456234</span></code>.</p>
+</div>
+<div class="section" id="glossary-of-command-line-options-and-their-default-values">
+<h2>Glossary of command-line options and their default values<a class="headerlink" href="#glossary-of-command-line-options-and-their-default-values" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">##    VARIABLE_NAME = DEFAULT_VALUE, # &lt;VARIABLE_TYPE&gt; DESCRIPTION</span>
+<span class="n">initializationSwitch</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="c1"># &lt;int&gt; an integer controlling program branch</span>
+<span class="n">GPU</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="c1"># &lt;int&gt; which gpu to use</span>
+<span class="n">phaseConstantA</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.172</span><span class="p">,</span> <span class="c1"># &lt;float&gt; value of phase constant A</span>
+<span class="n">phaseConstantB</span> <span class="o">=</span> <span class="o">-</span><span class="mf">2.12</span><span class="p">,</span> <span class="c1"># &lt;float&gt; value of phase constant B</span>
+<span class="n">phaseConstantC</span> <span class="o">=</span> <span class="mf">1.73</span><span class="p">,</span> <span class="c1"># &lt;float&gt; value of phase constant C</span>
+<span class="n">deltaT</span> <span class="o">=</span> <span class="mf">0.0005</span><span class="p">,</span> <span class="c1"># &lt;float&gt; step size for minimizer</span>
+<span class="n">fTarget</span> <span class="o">=</span> <span class="mf">1e-12</span><span class="p">,</span> <span class="c1"># &lt;float&gt; target minimization threshold for norm of residual forces</span>
+<span class="n">iterations</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span> <span class="c1"># &lt;int&gt; maximum number of minimization steps</span>
+<span class="n">randomSeed</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="c1"># &lt;int&gt; seed for reproducible random number generation</span>
+<span class="n">L1</span> <span class="o">=</span> <span class="mf">4.64</span><span class="p">,</span> <span class="c1"># &lt;float&gt; value of L1 term</span>
+<span class="n">L2</span> <span class="o">=</span> <span class="mf">4.64</span><span class="p">,</span> <span class="c1"># &lt;float&gt; value of L2 term</span>
+<span class="n">L3</span> <span class="o">=</span> <span class="mf">4.64</span><span class="p">,</span> <span class="c1"># &lt;float&gt; value of L3 term</span>
+<span class="n">L4</span> <span class="o">=</span> <span class="mf">4.64</span><span class="p">,</span> <span class="c1"># &lt;float&gt; value of L4 term</span>
+<span class="n">L6</span> <span class="o">=</span> <span class="mf">4.64</span><span class="p">,</span> <span class="c1"># &lt;float&gt; value of L6 term</span>
+<span class="n">boxL</span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span> <span class="c1"># &lt;int&gt; number of lattice sites for cubic box</span>
+<span class="n">Lx</span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span> <span class="c1"># &lt;int&gt; number of lattice sites in x direction</span>
+<span class="n">Ly</span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span> <span class="c1"># &lt;int&gt; number of lattice sites in y direction</span>
+<span class="n">Lz</span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span> <span class="c1"># &lt;int&gt; number of lattice sites in z direction</span>
+<span class="n">initialConfigurationFile</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="c1"># &lt;string&gt; carefully prepared file of the initial state of all lattice sites</span>
+<span class="n">spatiallyVaryingFieldFile</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="c1"># &lt;string&gt; carefully prepared file containing information on a spatially varying external H field</span>
+<span class="n">boundaryFile</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="c1"># &lt;string&gt; carefully prepared file of boundary sites</span>
+<span class="n">saveFile</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="c1"># &lt;string&gt; the base name to save the post-minimization configuration</span>
+<span class="n">linearSpacedSaving</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="c1"># &lt;int&gt; save a file every x minimization steps</span>
+<span class="n">logSpacedSaving</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="c1"># &lt;float&gt; save a file every x^j for integer j</span>
+<span class="n">stride</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="c1"># &lt;int&gt; stride of the saved lattice sites</span>
+<span class="n">hFieldX</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="c1"># &lt;float&gt; x component of external H field</span>
+<span class="n">hFieldY</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="c1"># &lt;float&gt; y component of external H field</span>
+<span class="n">hFieldZ</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="c1"># &lt;float&gt; z component of external H field</span>
+<span class="n">hFieldMu0</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="c1"># &lt;float&gt; mu0 for external magenetic field</span>
+<span class="n">hFieldChi</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="c1"># &lt;float&gt; Chi for external magenetic field</span>
+<span class="n">hFieldDeltaChi</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span> <span class="c1"># &lt;float&gt; mu0 for external magenetic field</span>
+<span class="n">eFieldX</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="c1"># &lt;float&gt; x component of external E field</span>
+<span class="n">eFieldY</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="c1"># &lt;float&gt; y component of external E field</span>
+<span class="n">eFieldZ</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="c1"># &lt;float&gt; z component of external E field</span>
+<span class="n">eFieldEpsilon0</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="c1"># &lt;float&gt; epsilon0 for external electric field</span>
+<span class="n">eFieldEpsilon</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="c1"># &lt;float&gt; Epsilon for external electric field</span>
+<span class="n">eFieldDeltaEpsilon</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span> <span class="c1"># &lt;float&gt; DeltaEpsilon for external electric field</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            kernelName: "python3",
+            path: "./."
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+              </div>
+              
+        
+            
+
+
+
+<div class='prev-next-bottom'>
+    
+    <div id="prev">
+        <a class="left-prev" href="Command-Line-Usage.html" title="previous page">
+            <i class="prevnext-label fas fa-angle-left"></i>
+            <div class="prevnext-info">
+                <p class="prevnext-label">previous</p>
+                <p class="prevnext-title">Command-line usage</p>
+            </div>
+        </a>
+    </div>
+     <div id="next">
+        <a class="right-next" href="Boundary-conditions.html" title="next page">
+            <div class="prevnext-info">
+                <p class="prevnext-label">next</p>
+                <p class="prevnext-title">Boundary conditions</p>
+            </div>
+            <i class="prevnext-label fas fa-angle-right"></i>
+        </a>
+     </div>
+
+</div>
+        
+        </div>
+    </div>
+    <footer class="footer">
+    <div class="container">
+      <p>
+        
+          By Daniel Sussman and Daniel Beller<br/>
+        
+            &copy; Copyright 2021.<br/>
+      </p>
+    </div>
+  </footer>
+</main>
+
+
+      </div>
+    </div>
+  
+  <script src="_static/js/index.1c5a1a01449ed65a7b51.js"></script>
+
+  
+  </body>
+</html>

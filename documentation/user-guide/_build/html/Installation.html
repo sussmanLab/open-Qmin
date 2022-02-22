@@ -1,0 +1,432 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Installation &#8212; User Guide to open-Qmin</title>
+    
+  <link href="_static/css/theme.css" rel="stylesheet" />
+  <link href="_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+
+    
+  <link rel="stylesheet"
+    href="_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    
+      
+
+    
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-book-theme.css?digest=c3fdc42140077d1ad13ad2f1588a4309" />
+    <link rel="stylesheet" type="text/css" href="_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-thebe.css" />
+    <link rel="stylesheet" type="text/css" href="_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
+    
+  <link rel="preload" as="script" href="_static/js/index.1c5a1a01449ed65a7b51.js">
+
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/togglebutton.js"></script>
+    <script src="_static/clipboard.min.js"></script>
+    <script src="_static/copybutton.js"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="_static/sphinx-book-theme.12a9622fbb08dcb3a2a40b2c02b83a57.js"></script>
+    <script async="async" src="https://unpkg.com/thebe@0.5.1/lib/index.js"></script>
+    <script>
+        const thebe_selector = ".thebe"
+        const thebe_selector_input = "pre"
+        const thebe_selector_output = ".output"
+    </script>
+    <script async="async" src="_static/sphinx-thebe.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Landau-de Gennes Theory" href="Landau-de-Gennes.html" />
+    <link rel="prev" title="open-Qmin" href="Overview.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en" />
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<div class="col-12 col-md-3 bd-sidebar site-navigation show" id="site-navigation">
+    
+        <div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="index.html">
+      
+        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+        
+      
+      
+      <img src="_static/Sa_cumin.jpg" class="logo" alt="logo">
+      
+      
+      <h1 class="site-logo" id="site-title">User Guide to open-Qmin</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search this book..." aria-label="Search this book..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item active">
+        <ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="Overview.html">
+   open-Qmin
+  </a>
+ </li>
+</ul>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Landau-de-Gennes.html">
+   Landau-de Gennes Theory
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Non-dimensionalization.html">
+   Non-dimensionalization
+  </a>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="Command-Line-Usage.html">
+   Command-line usage
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2">
+    <a class="reference internal" href="Command-Line-Options.html">
+     Command-Line Options
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="Boundary-conditions.html">
+     Boundary conditions
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="External-fields.html">
+     External fields
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Saved-output.html">
+   Saved output
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Change-log.html">
+   Change log
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="License.html">
+   Licensing information
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="References.html">
+   References
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav> <!-- To handle the deprecated key -->
+
+<div class="navbar_extra_footer">
+  Powered by <a href="https://jupyterbook.org">Jupyter Book</a>
+</div>
+
+</div>
+
+
+          
+
+
+          
+<main class="col py-md-3 pl-md-4 bd-content overflow-auto" role="main">
+    
+    <div class="topbar container-xl fixed-top">
+    <div class="topbar-contents row">
+        <div class="col-12 col-md-3 bd-topbar-whitespace site-navigation show"></div>
+        <div class="col pl-md-4 topbar-main">
+            
+            <button id="navbar-toggler" class="navbar-toggler ml-0" type="button" data-toggle="collapse"
+                data-toggle="tooltip" data-placement="bottom" data-target=".site-navigation" aria-controls="navbar-menu"
+                aria-expanded="true" aria-label="Toggle navigation" aria-controls="site-navigation"
+                title="Toggle navigation" data-toggle="tooltip" data-placement="left">
+                <i class="fas fa-bars"></i>
+                <i class="fas fa-arrow-left"></i>
+                <i class="fas fa-arrow-up"></i>
+            </button>
+            
+            
+<div class="dropdown-buttons-trigger">
+    <button id="dropdown-buttons-trigger" class="btn btn-secondary topbarbtn" aria-label="Download this page"><i
+            class="fas fa-download"></i></button>
+
+    <div class="dropdown-buttons">
+        <!-- ipynb file if we had a myst markdown file -->
+        
+        <!-- Download raw file -->
+        <a class="dropdown-buttons" href="_sources/Installation.md"><button type="button"
+                class="btn btn-secondary topbarbtn" title="Download source file" data-toggle="tooltip"
+                data-placement="left">.md</button></a>
+        <!-- Download PDF via print -->
+        <button type="button" id="download-print" class="btn btn-secondary topbarbtn" title="Print to PDF"
+            onClick="window.print()" data-toggle="tooltip" data-placement="left">.pdf</button>
+    </div>
+</div>
+
+            <!-- Source interaction buttons -->
+
+<div class="dropdown-buttons-trigger">
+    <button id="dropdown-buttons-trigger" class="btn btn-secondary topbarbtn"
+        aria-label="Connect with source repository"><i class="fab fa-github"></i></button>
+    <div class="dropdown-buttons sourcebuttons">
+        <a class="repository-button"
+            href="https://github.com/sussmanLab/open-Qmin"><button type="button" class="btn btn-secondary topbarbtn"
+                data-toggle="tooltip" data-placement="left" title="Source repository"><i
+                    class="fab fa-github"></i>repository</button></a>
+        <a class="issues-button"
+            href="https://github.com/sussmanLab/open-Qmin/issues/new?title=Issue%20on%20page%20%2FInstallation.html&body=Your%20issue%20content%20here."><button
+                type="button" class="btn btn-secondary topbarbtn" data-toggle="tooltip" data-placement="left"
+                title="Open an issue"><i class="fas fa-lightbulb"></i>open issue</button></a>
+        
+    </div>
+</div>
+
+            <!-- Full screen (wrap in <a> to have style consistency -->
+
+<a class="full-screen-button"><button type="button" class="btn btn-secondary topbarbtn" data-toggle="tooltip"
+        data-placement="bottom" onclick="toggleFullScreen()" aria-label="Fullscreen mode"
+        title="Fullscreen mode"><i
+            class="fas fa-expand"></i></button></a>
+
+            <!-- Launch buttons -->
+
+        </div>
+
+        <!-- Table of contents -->
+        <div class="d-none d-md-block col-md-2 bd-toc show">
+            
+            <div class="tocsection onthispage pt-5 pb-3">
+                <i class="fas fa-list"></i> Contents
+            </div>
+            <nav id="bd-toc-nav" aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#requirements">
+   Requirements
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#download-source-files">
+   Download source files
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#basic-compilation">
+   Basic compilation
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#compilation-troubleshooting">
+     Compilation troubleshooting
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#executables-created">
+   Executables created
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#gui-troubleshooting">
+   GUI troubleshooting
+  </a>
+ </li>
+</ul>
+
+            </nav>
+        </div>
+    </div>
+</div>
+    <div id="main-content" class="row">
+        <div class="col-12 col-md-9 pl-md-3 pr-md-0">
+        
+              <div>
+                
+  <div class="tex2jax_ignore mathjax_ignore section" id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h2>
+<p>You will need</p>
+<ul class="simple">
+<li><p>a C++ compiler compatible with the C++11 standard</p></li>
+<li><p>openMPI (development is using version 4.0.0)</p></li>
+<li><p><a class="reference external" href="https://developer.nvidia.com/cuda-downloads">CUDA</a> (development is using version 8.0)</p></li>
+<li><p><a class="reference external" href="https://cmake.org">CMake</a></p></li>
+<li><p><a class="reference external" href="https://www.qt.io/">Qt</a> (this dependency may be removed in future versions)</p></li>
+</ul>
+<p>Note that there is a non-GUI version of the code (particularly intended for running on clusters), in which all
+of the QT dependencies have been stripped out. This is the “noQT” branch of the code in the git repository.</p>
+</div>
+<div class="section" id="download-source-files">
+<h2>Download source files<a class="headerlink" href="#download-source-files" title="Permalink to this headline">¶</a></h2>
+<p>From a terminal, <code class="docutils literal notranslate"><span class="pre">cd</span></code> into a directory where you want to install open-Qmin, and run</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/sussmanLab/open-Qmin.git
+</pre></div>
+</div>
+</div>
+<div class="section" id="basic-compilation">
+<h2>Basic compilation<a class="headerlink" href="#basic-compilation" title="Permalink to this headline">¶</a></h2>
+<p>In the terminal, <code class="docutils literal notranslate"><span class="pre">cd</span></code> into the <em>build/</em> directory and type</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>cmake ..
+make
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By default the code will compile GPU code targeted at the (old, but still used in some XSEDE facilities) Tesla K40 cards. If you have newer GPUs, it is <em>highly</em> recommended to go to line 6 of the CMakeLists.txt file and set the <code class="docutils literal notranslate"><span class="pre">CUDA_ARCH</span></code> variable appropriately.</p>
+<p>You should set <code class="docutils literal notranslate"><span class="pre">CUDA_ARCH</span></code> to 10 times your GPU model’s “compute capability”. One place you can look this up is <a class="reference external" href="https://en.wikipedia.org/wiki/CUDA#GPUs_supported">this Wikipedia page</a>, in the leftmost column of the row where your GPU’s model is listed. For example, the A100 GPU is listed there as having CUDA compute ability 8.0, so users with this model should set <code class="docutils literal notranslate"><span class="pre">CUDA_ARCH</span></code> to “80”.</p>
+</div>
+<div class="section" id="compilation-troubleshooting">
+<h3>Compilation troubleshooting<a class="headerlink" href="#compilation-troubleshooting" title="Permalink to this headline">¶</a></h3>
+<p>If all required dependencies have been installed, the modern CMake build system should keep compilation difficulties to a minimum. If you installed any dependencies by hand you may have to give CMake hints about the location of various directories (see, e.g., lines 35-40 of the CMakeLists.txt file, as well as the “include_directories” list farther down in that file).</p>
+<p>If using a GPU, be sure to check what generation your card is and set the <code class="docutils literal notranslate"><span class="pre">CUDA_ARCH</span></code> variable (line 6 of the CMakeLists.txt file) appropriately for maximum performance; see the Note just above.</p>
+<p>If you used conda to install some packages, you may need to <code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">deactivate</span></code> in order for the compilation to succeed.</p>
+<p>If installing on a Linux cluster with software “modules”, you may need to do something like</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>module load cuda qt cmake
+</pre></div>
+</div>
+<p>before the “basic compilation” steps above. You may also need to request an interactive session with a GPU resource; how to do so will vary from system to system.</p>
+</div>
+</div>
+<div class="section" id="executables-created">
+<h2>Executables created<a class="headerlink" href="#executables-created" title="Permalink to this headline">¶</a></h2>
+<p>By default, the above steps will create two executables, “openQmin.out” and “openQminGUI.out”, in the build directory.
+The GUI executable will launch the graphical user interface. Users can run “openQmin.out” from the command-line with various <a class="reference internal" href="Command-Line-Options.html"><span class="doc std std-doc">command-line flags</span></a>; this is also the executable accessed by Python wrappers under development.</p>
+<p>Are you wondering about the mysterious third executable, “customScriptFromGUI.out”, that also gets made? We currently have
+an experimental (but functional) feature by which you can record sequences of actions in the GUI and save them to a new,
+compilable “customScriptFromGUI.cpp” file. This can be used, for instance, to specify specific initial conditions more easily
+than by fussing with the command line or writing your own cpp codes. Note that the “customScriptFromGUI.out” executable
+itself has command line options (such as changing the lattice size), and is suitable to be run as an MPI executable.</p>
+<div class="tip admonition">
+<p class="admonition-title">For the pros</p>
+<p>To make additional executables on compilation, copy a cpp file into the base directory, and then add the name of the
+cpp file to the base CMakeList.txt file in the “foreach()” line immediately following the comment that says
+“list the names of cpp files cooresponding to linked executables you’d like.”</p>
+</div>
+</div>
+<div class="section" id="gui-troubleshooting">
+<h2>GUI troubleshooting<a class="headerlink" href="#gui-troubleshooting" title="Permalink to this headline">¶</a></h2>
+<p>Depending on your terminal and X11 set-up, there may be a variety of GL errors you might encounter
+(mismatched client/server versions of openGL, libGL errors related to fbConfigs and swrast, etc.).
+The developers have had luck using the “terminal” interface within the <a class="reference external" href="https://wiki.x2go.org/doku.php">x2go</a>
+client, or alternatively using <a class="reference external" href="https://sourceforge.net/projects/vcxsrv/">VcXserv</a> with the no-WGL option.</p>
+</div>
+</div>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            kernelName: "python3",
+            path: "./."
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+              </div>
+              
+        
+            
+
+
+
+<div class='prev-next-bottom'>
+    
+    <div id="prev">
+        <a class="left-prev" href="Overview.html" title="previous page">
+            <i class="prevnext-label fas fa-angle-left"></i>
+            <div class="prevnext-info">
+                <p class="prevnext-label">previous</p>
+                <p class="prevnext-title">open-Qmin</p>
+            </div>
+        </a>
+    </div>
+     <div id="next">
+        <a class="right-next" href="Landau-de-Gennes.html" title="next page">
+            <div class="prevnext-info">
+                <p class="prevnext-label">next</p>
+                <p class="prevnext-title">Landau-de Gennes Theory</p>
+            </div>
+            <i class="prevnext-label fas fa-angle-right"></i>
+        </a>
+     </div>
+
+</div>
+        
+        </div>
+    </div>
+    <footer class="footer">
+    <div class="container">
+      <p>
+        
+          By Daniel Sussman and Daniel Beller<br/>
+        
+            &copy; Copyright 2021.<br/>
+      </p>
+    </div>
+  </footer>
+</main>
+
+
+      </div>
+    </div>
+  
+  <script src="_static/js/index.1c5a1a01449ed65a7b51.js"></script>
+
+  
+  </body>
+</html>
