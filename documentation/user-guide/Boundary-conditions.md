@@ -2,7 +2,7 @@
 
 ## Adding colloids and walls to the command-line executable
 
-A separate header file exists in the main directory of the repository, "addObjectsToOpenQmin.h", which contains some example boundary objects such as spherical colloidal inclusions and planar walls, along with anchoring conditions. Users can un-comment and edit lines as needed, then **recompile** openQmin as described in [Installation](Installation) to incorporate these boundaries automatically into the simulation. Note that recompilation is required with each edit to the .h file. 
+A separate header file exists in the main directory of the repository, "addObjectsToOpenQmin.h", which contains some example boundary objects such as spherical colloidal inclusions and planar walls, along with anchoring conditions. Users can un-comment and edit lines as needed, then **recompile** open-Qmin as described in [Installation](Installation) to incorporate these boundaries automatically into the simulation. Note that recompilation is required with each edit to the .h file. 
 
 ## Preparing a custom boundary file
 

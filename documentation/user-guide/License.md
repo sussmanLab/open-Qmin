@@ -1,6 +1,6 @@
 # Licensing information
 
-openQmin is released under the MIT license
+open-Qmin is released under the MIT license
 
 Copyright (c) 2019 -  Daniel M. Sussman
 

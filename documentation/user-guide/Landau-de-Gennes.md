@@ -1,12 +1,12 @@
 # Landau-de Gennes Theory
 
-Here we briefly overview the Landau-de Gennes theoretical framework for nematic liquid crystals implemented in openQmin. For a fuller explanation with references, please see Section 2 of our [article in *Frontiers in Physics*](https://www.frontiersin.org/articles/10.3389/fphy.2019.00204/full#h3).
+Here we briefly overview the Landau-de Gennes theoretical framework for nematic liquid crystals implemented in open-Qmin. For a fuller explanation with references, please see Section 2 of our [article in *Frontiers in Physics*](https://www.frontiersin.org/articles/10.3389/fphy.2019.00204/full#h3).
 
 ## The Q-tensor
 
 Nematic liquid crystals are fluids with anisotropy, that is, properties that vary depending on direction. Nearby particles are oriented preferentially along a common direction, $\hat n$, called the nematic director. Mathematically, a director is like a unit vector but with an added "head-tail" symmetry by which $- \hat n$ represents the same physical state as $\hat n $. Because the director may vary from place to place in the liquid crystal, we speak of a director *field* $\hat n(\mathbf{r})$. 
 
-Partly to account for this $\hat n = - \hat n $ symmetry, the nematic liquid crystal's orientational state is better described by a symmetric, second-rank tensor (which in $d$ dimensions is represented by a symmetric $d\times d$ matrix). This is the nematic orientation tensor, or Q-tensor, ${\bf Q}$. In openQmin, the state of the nematic liquid crystal is represented by a value of the Q-tensor at each lattice site. 
+Partly to account for this $\hat n = - \hat n $ symmetry, the nematic liquid crystal's orientational state is better described by a symmetric, second-rank tensor (which in $d$ dimensions is represented by a symmetric $d\times d$ matrix). This is the nematic orientation tensor, or Q-tensor, ${\bf Q}$. In open-Qmin, the state of the nematic liquid crystal is represented by a value of the Q-tensor at each lattice site. 
  
 ### From director to Q-tensor 
 
@@ -42,7 +42,7 @@ $$ {\bf Q}^{\text{(diag)}}  = \mathrm{diag}\left(S, \tfrac{1}{2} (-S + S_B), \tf
 
 ## Landau-de Gennes free energy
 
-openQmin conducts numerical minimization of the Landau-de Gennes free energy, which is a functional of the Q-tensor. Schematically:
+open-Qmin conducts numerical minimization of the Landau-de Gennes free energy, which is a functional of the Q-tensor. Schematically:
 
 $$ {\mathcal F}[{\bf Q}] = \int_V \left( f_{\text{bulk}} + f_{\text{distortion}} + f_{\text{external}}\right) dv + \sum_{\alpha} \int_{S_\alpha} \left( f^\alpha_{\text{boundary}}\right)  ds. $$
 
@@ -146,7 +146,7 @@ and $\delta_{ij}$ is the Kronecker delta.
 
 At boundary surfaces, liquid crystals typically experience an anisotropic surface tension, called "anchoring", that depends on the relative orientations of the director $\hat n $ and a certain special direction $\hat \nu^\alpha$ picked out by a given point on the surface. (The superscript $\alpha$ indexes the different boundary surfaces.) 
 
-openQmin has two categories of anchoring conditions: oriented and degenerate planar. 
+open-Qmin has two categories of anchoring conditions: oriented and degenerate planar. 
 
 #### Oriented (including homeotropic) anchoring
 
@@ -154,7 +154,7 @@ Oriented anchoring conditions penalize the director's deviations from a unique d
 
 For oriented anchoring, the surface free energy density at boundary surface $\alpha$ takes the Nobili-Durand form: 
 
-$$ f_{\text{boundary}}^\alpha  = W^\alpha_{\text{ND}} \mathrm{tr} \left( (Q_{ij} - Q_{ij}^\alpha) (Q_{ij} - Q_{ij}^\alpha) \right),  $$
+$$ f_{\text{boundary}}^\alpha  = W^\alpha_{\text{ND}}  (Q_{ij} - Q_{ij}^\alpha) (Q_{ij} - Q_{ij}^\alpha),  $$
 
 where $W^\alpha_{\text{ND}} > 0$ is the anchoring strength of surface $\alpha$ and the surface-preferred Q-tensor is 
 

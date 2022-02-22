@@ -12,7 +12,7 @@ chapters:
   - file: Command-Line-Options
   - file: Boundary-conditions
   - file: External-fields
-# - file: Python-usage
+# - file: Python-interface
 #   sections:
 #   - file: py-boundaries
 #   - file: py-initialization

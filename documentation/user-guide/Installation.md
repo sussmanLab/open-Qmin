@@ -12,9 +12,15 @@ You will need
 Note that there is a non-GUI version of the code (particularly intended for running on clusters), in which all 
 of the QT dependencies have been stripped out. This is the "noQT" branch of the code in the git repository.
 
+## Download source files
+
+From a terminal, `cd` into a directory where you want to install open-Qmin, and run
+
+    git clone https://github.com/sussmanLab/open-Qmin.git
+
 ## Basic compilation
 
-In the terminal, cd into the `build/` directory and type
+In the terminal, `cd` into the *build/* directory and type
         
     cmake ..
     make
@@ -35,7 +41,7 @@ If you used conda to install some packages, you may need to `conda deactivate` i
 
 If installing on a Linux cluster with software "modules", you may need to do something like
 
-    module load cuda qt 
+    module load cuda qt cmake
     
 before the "basic compilation" steps above. You may also need to request an interactive session with a GPU resource; how to do so will vary from system to system.
 

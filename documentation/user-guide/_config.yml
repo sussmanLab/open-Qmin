@@ -1,7 +1,7 @@
 # Book settings
 # Learn more at https://jupyterbook.org/customize/config.html
 
-title: User Guide to openQmin
+title: User Guide to open-Qmin
 author: Daniel Sussman and Daniel Beller
 logo: Sa_cumin.jpg
 
@@ -37,6 +37,7 @@ parse:
     # including those that are enabled by default!
     - amsmath
     - dollarmath
-    - linkify
     - colon_fence
     - substitution
+  myst_substitutions:
+    project-name: "open-Qmin"

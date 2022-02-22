@@ -1,6 +1,6 @@
 # External fields
 
-The couplings to external electric and magnetic fields modeled by openQmin are described in [here](Landau-de-Gennes.html#external-fields-free-energy).
+The couplings to external electric and magnetic fields modeled by open-Qmin are described in [here](Landau-de-Gennes.html#external-fields-free-energy).
 
 ## Uniform fields
 
