@@ -143,25 +143,25 @@ The first line MUST be formatted as
 `a b c d`
 where `a=0` means oriented anchoring (such as homeotropic or oriented planar), `a=1` means degenerate Planar
 `b` is a scalar setting the anchoring strength
-`c` is the preferred value of <img src="https://rawgit.com/sussmanLab/open-Qmin/None/svgs/7ea1d381135a7e0a3cd0eefafea7c973.svg?invert_in_darkmode" align=middle width=16.632495000000002pt height=22.46574pt/>
-`d` is an integer specifying the number of sites, <img src="https://rawgit.com/sussmanLab/open-Qmin/None/svgs/f7a0c7db2f0eff424a274f52f4a5c8d6.svg?invert_in_darkmode" align=middle width=23.700435pt height=22.46574pt/>.
+`c` is the preferred value of $S_0$
+`d` is an integer specifying the number of sites, $N_B$.
 
-Subsequently, there MUST be <img src="https://rawgit.com/sussmanLab/open-Qmin/None/svgs/94bfe11ea19ce1c161ce62c04ec88ffb.svg?invert_in_darkmode" align=middle width=18.988695000000003pt height=22.46574pt/> lines of the form 
+Subsequently, there MUST be $N_b$ lines of the form 
 `x y z C1 C2 C3 C4 C5`,
 where `x`, `y`, and `z` are the integer lattice sites, and `C1`, `C2`, `C3`, `C4`, `C5` are real numbers
 corresponding to the desired anchoring conditions:
 For oriented anchoring, `C1`, `C2`, `C3`, `C4`, `C5` correspond directly to the surface-preferred Q-tensor:
 `C1` = Qxx, `C2` = Qxy, `C3` = Qxz, `C4` = Qyy, `C5` = Qyz,
-where one often will set the Q-tensor by choosing a locally preferred director, <img src="https://rawgit.com/sussmanLab/open-Qmin/None/svgs/97da1e028c51c0bb5b33c1d2f651483e.svg?invert_in_darkmode" align=middle width=15.371070000000005pt height=21.839399999999983pt/>, and setting
-<img src="https://rawgit.com/sussmanLab/open-Qmin/None/svgs/ebddd8eeea3595115ebc339ffeba8020.svg?invert_in_darkmode" align=middle width=209.237655pt height=27.656969999999987pt/>.
+where one often will set the Q-tensor by choosing a locally preferred director, $\nu^s$, and setting
+$Q^B = 3 S_0/2 * (\nu^s \nu^s - \delta{ab}/3)$.
 
 For degenerate planar anchoring the five constants should be specified as,
-`C1` = <img src="https://rawgit.com/sussmanLab/open-Qmin/None/svgs/e493d6466410a286d7c26ca0a60d11d6.svg?invert_in_darkmode" align=middle width=28.672215pt height=22.831379999999992pt/>
-`C2` = <img src="https://rawgit.com/sussmanLab/open-Qmin/None/svgs/2df2eaf9f1a072b53cc6e15c6fd28814.svg?invert_in_darkmode" align=middle width=27.926415000000006pt height=22.831379999999992pt/>
-`C3` = <img src="https://rawgit.com/sussmanLab/open-Qmin/None/svgs/e72d13341f599035cf86ef572de19874.svg?invert_in_darkmode" align=middle width=27.644760000000005pt height=22.831379999999992pt/>
-`C4` = <img src="https://rawgit.com/sussmanLab/open-Qmin/None/svgs/6936291f74cbc94423d8dfe5456c2e68.svg?invert_in_darkmode" align=middle width=21.004665000000006pt height=21.18732pt/>
-`C5` = <img src="https://rawgit.com/sussmanLab/open-Qmin/None/svgs/6936291f74cbc94423d8dfe5456c2e68.svg?invert_in_darkmode" align=middle width=21.004665000000006pt height=21.18732pt/>,
-where <img src="https://rawgit.com/sussmanLab/open-Qmin/None/svgs/09700427528bd15f1f8bdf8616f4e433.svg?invert_in_darkmode" align=middle width=232.626405pt height=24.65759999999998pt/>
+`C1` = <img src="https://render.githubusercontent.com/render/math?math=\hat{\nu}_x">
+`C2` = <img src="https://render.githubusercontent.com/render/math?math=\hat{\nu}_y">
+`C3` = <img src="https://render.githubusercontent.com/render/math?math=\hat{\nu}_z">
+`C4` = $0.0$
+`C5` = $0.0$,
+where $\nu^s = \{\cos\phi \sin\theta, \sin\phi sin\theta, cos\theta\}$
 is the direction to which the LC should try to be orthogonal.
 
 # Project information
