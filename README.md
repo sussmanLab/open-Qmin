@@ -1,20 +1,22 @@
-# open Qmin
+# open-Qmin
 
-open Qmin is an open-source code base for performing lattice-discretized Landau-deGennes modeling of
+open-Qmin is an open-source code base for performing lattice-discretized Landau-deGennes modeling of
 liquid crystal systems. It has been developed as a collaboration between the research groups of 
-[Daniel Sussman](https://www.dmsussman.org/) and [Daniel Beller](https://sites.ucmerced.edu/bellergroup).
+[Daniel Sussman](https://www.dmsussman.org/) and [Daniel Beller](https://bellerphysics.gitlab.io/).
 If you have any comments, want to contribute to this project, or simply want to share how you're using
 our code to do cool stuff feel free to send an email to either of us!
 
-This repository contains code for performing lattice-discretized Landau deGennes liquid crystal modeling,
+This repository contains code for performing lattice-discretized Landau-de Gennes liquid crystal modeling,
 using single or multiple CPU or GPU resources for efficient, large-scale simulations. Included is an optional
 graphical user interface for running and setting up the simulations. Usefully, the GUI has the functionality
 to generate a compilable file, allowing the GUI to be used for prototyping and then directly running larger-
 scale simulations.
 
+A user guide to open-Qmin can be found at [https://sussmanlab.github.io/open-Qmin/](https://sussmanlab.github.io/open-Qmin/).
+
 Some doxygen documentation has been completed, but lots remains to be written. In any
 event, executing the command
-"doxygen doc/openQmin_documentation"
+`doxygen doc/openQmin_documentation`
 from the root directory will produce a set of html documentation files.
 
 # Basic compilation
@@ -26,22 +28,22 @@ As noted in the INSTALLATION file, for maximum performance set CUDA_ARCH in line
 
 # Troubleshooting
 
-If you are having troubles compiling or using the open Qmin Graphical User Interface, before contacting the developers (who are happy to help!)
-we recommend trying the following ``standard'' troubleshooting steps:
+If you are having troubles compiling or using the open-Qmin Graphical User Interface, before contacting the developers (who are happy to help!)
+we recommend trying the following "standard" troubleshooting steps:
 
 ## Compilation troubleshooting
 
 If all required dependencies have been installed, the modern CMake build system should keep compilation difficulties to a minimum. If you installed any dependencies by hand you may have to give CMake hints about the location of various directories (see, e.g., lines 35-40 of the CMakeLists.txt file).
 
-If using a GPU, be sure to check what generation your card is and set the ``CUDA_ARCH'' variable (line 6 of the CMakeLists.txt file) appropriately for maximum performance. [This Website](https://arnon.dk/matching-sm-architectures-arch-and-gencode-for-various-nvidia-cards/) may help if you are unsure what to use.
+If using a GPU, be sure to check what generation your card is and set the "CUDA_ARCH'' variable (line 6 of the CMakeLists.txt file) appropriately for maximum performance. [This Website](https://en.wikipedia.org/wiki/CUDA) may help if you are unsure what to use.
 
-If you used conda to install some packages, you may need to ``conda deactivate'' in order for the compilation to succeed.
+If you used conda to install some packages, you may need to `conda deactivate` in order for the compilation to succeed.
 
 ## GUI troubleshooting
 
 Depending on your terminal and X11 set-up, there may be a variety of GL errors you might encounter
 (mismatched client/server versions of openGL, libGL errors related to fbConfigs and swrast, etc.).
-The developers have had luck using the ``terminal'' interface within the [x2go](https://wiki.x2go.org/doku.php)
+The developers have had luck using the "terminal" interface within the [x2go](https://wiki.x2go.org/doku.php)
 client, or alternatively using [VcXserv](https://sourceforge.net/projects/vcxsrv/) with the no-WGL option.
 
 # Basic use
@@ -106,20 +108,18 @@ eight ranks continues to control a block of 100x100x100 lattice sites.
 ## saving states and reading the output
 
 Both the command-line and gui executables can save the current configuration of the simulation, and simple visualization
-tools are available in the /visualizationTools directory to see the output of these systems. The output format is a simple
-txt file, where each line is:
-x y z Qxx Qxy Qxz Qyy Qyz t d,
-where x y z are the lattice site (in the case of MPI simulations, each rank will produce a separate 
-file with x y z in absolute coordinates), followed by the current values of the Q tensor. The integer
-t specifies the "type" of the lattice site (bulk, boundary, part of an object), and d is a defect
+tools are available in the /visualizationTools directory to see the output of these systems. The output format is a simple txt file, where each line is:
+`x y z Qxx Qxy Qxz Qyy Qyz t d`,
+where `x` `y` `z` are the lattice site (in the case of MPI simulations, each rank will produce a separate 
+file with `x` `y` `z` in absolute coordinates), followed by the current values of the Q tensor. The integer
+`t` specifies the "type" of the lattice site (bulk, boundary, part of an object), and `d` is a defect
 measure that is computed for all lattice sites not part of an object. By default this will be the largest
 eigenvalue of the Q tensor at that site; for lattice sites that are part of an object this will always be zero.
 
 ## adding various colloids and boundaries to the command-line executable
 
 A separate header file exists in the main directory of the repository, "addObjectsToOpenQmin.h", which exists just to
-give the user a sense of how to add some of the pre-defined objects to the simulation. See the comments in that file for
-more details.
+give the user a sense of how to add some of the pre-defined objects to the simulation. See the comments in that file for more details.
 
 ### Preparing a custom boundary file
 
@@ -133,56 +133,52 @@ we have included a simple utility to assist with this (although any other method
 the desired txt file, e.g. via python).  A few examples of these custom boundary files are in the /assets/
 directory; these were all created using the included mathematica notebook.
 
-The formatting requirements are the following (copying from
-identical information provided in the comments of src/simulation/multirankSimulationBoundaries.cpp):
+The formatting requirements are the following (copying from identical information provided in the comments of src/simulation/multirankSimulationBoundaries.cpp):
 
 The first line must be a single integer specifying the number of objects to be read in.
 This is meant in the colloquial English sense, not in the zero-indexed counting sense. So, if you want your file to specify one object, make sure the first line is the number 1.
 
 Each subsequent block must be formatted as follows (with no additional lines between the blocks):
 The first line MUST be formatted as
-a b c d
-where a=0 means oriented anchoring (such as homeotropic or oriented planar), a=1 means degenerate Planar
-b is a scalar setting the anchoring strength
-c is the preferred value of S0
-d is an integer specifying the number of sites, N_B.
+`a b c d`
+where `a=0` means oriented anchoring (such as homeotropic or oriented planar), `a=1` means degenerate Planar
+`b` is a scalar setting the anchoring strength
+`c` is the preferred value of $S_0$
+`d` is an integer specifying the number of sites, $N_B$.
 
-Subsequently, there MUST be N_b lines of the form 
-x y z C1 C2 C3 C4 C5,
-where x, y, and z are the integer lattice sites, and C1, C2, C3, C4, C5 are real numbers
+Subsequently, there MUST be $N_b$ lines of the form 
+`x y z C1 C2 C3 C4 C5`,
+where `x`, `y`, and `z` are the integer lattice sites, and `C1`, `C2`, `C3`, `C4`, `C5` are real numbers
 corresponding to the desired anchoring conditions:
-For oriented anchoring, C1, C2, C3, C4, C5 correspond directly to the surface-preferred Q-tensor:
-C1 = Qxx, C2 = Qxy, C3=Qxz, C4 = Qyy, C5=Qyz,
-where one often will set the Q-tensor by choosing a locally preferred director, \nu^s, and setting
-Q^B = 3 S_0/2 * (\nu^s \nu^s - \delta{ab}/3).
+For oriented anchoring, `C1`, `C2`, `C3`, `C4`, `C5` correspond directly to the surface-preferred Q-tensor:
+`C1` = Qxx, `C2` = Qxy, `C3` = Qxz, `C4` = Qyy, `C5` = Qyz,
+where one often will set the Q-tensor by choosing a locally preferred director, $\nu^s$, and setting
+$Q^B = 3 S_0/2 * (\nu^s \nu^s - \delta{ab}/3)$.
 
 For degenerate planar anchoring the five constants should be specified as,
-C1 = \hat{nu}x
-C2 = \hat{nu}y
-C3 = \hat{nu}z
-C4 = 0.0
-C5 = 0.0,
-where \nu^s = {Cos[\[Phi]] Sin[\[theta]], Sin[\[Phi]] Sin[\[theta]], Cos[\[theta]]}
-is the direction to which the LC should try to be orthogonal
+`C1` = $\hat{nu}x$
+`C2` = $\hat{nu}y$
+`C3` = $\hat{nu}z$
+`C4` = $0.0$
+`C5` = $0.0$,
+where $\nu^s = {Cos[\[Phi]] Sin[\[theta]], Sin[\[Phi]] Sin[\[theta]], Cos[\[theta]]}$
+is the direction to which the LC should try to be orthogonal.
 
 # Project information
-Here are some convenient links to a variety of general information about the landau deGUI project; all
-of the below can also be accessed from the @ref projectInfo tab (links work on the gitlab.io
-documenation website). Alternately, you can look at the markdown (.md) files in the base directory and the doc/markdown/
-directories
+Here are some convenient links to markdown files containing a variety of general information about the open-Qmin project.
 
-[Basic information about the code base and operation](@ref basicinfo)
+[Basic information about the code base and operation](doc/markdown/BasicInformation.md)
 
-[Installation guide](@ref install)
+[Installation guide](INSTALLATION.md)
 
-[Sample code snippets](@ref code)
+[Sample code snippets](doc/markdown/EXAMPLES.md)
 
-[Contributing to landau-deGUI](@ref contrib)
+[Contributing to open-Qmin](doc/markdown/CONTRIBUTING.md)
 
-[Citations](@ref cite)
+[Citations](CITATIONS.md)
 
-[Open-source information](@ref license)
+[Open-source information](LICENSE.md)
 
-[Changelog](@ref changelog)
+[Changelog](ChangeLog.md)
 
-[Contributors](@ref contributorList)
+[Contributors](doc/markdown/ContributorList.md)
