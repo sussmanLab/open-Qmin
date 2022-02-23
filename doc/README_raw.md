@@ -143,25 +143,25 @@ The first line MUST be formatted as
 `a b c d`
 where `a=0` means oriented anchoring (such as homeotropic or oriented planar), `a=1` means degenerate Planar
 `b` is a scalar setting the anchoring strength
-`c` is the preferred value of  <img src="https://render.githubusercontent.com/render/math?math=S_0">
-`d` is an integer specifying the number of sites,  <img src="https://render.githubusercontent.com/render/math?math=N_B">.
+`c` is the preferred value of $S_0$
+`d` is an integer specifying the number of sites, $N_B$.
 
-Subsequently, there MUST be  <img src="https://render.githubusercontent.com/render/math?math=N_b"> lines of the form 
+Subsequently, there MUST be $N_b$ lines of the form 
 `x y z C1 C2 C3 C4 C5`,
 where `x`, `y`, and `z` are the integer lattice sites, and `C1`, `C2`, `C3`, `C4`, `C5` are real numbers
 corresponding to the desired anchoring conditions:
 For oriented anchoring, `C1`, `C2`, `C3`, `C4`, `C5` correspond directly to the surface-preferred Q-tensor:
 `C1` = Qxx, `C2` = Qxy, `C3` = Qxz, `C4` = Qyy, `C5` = Qyz,
-where one often will set the Q-tensor by choosing a locally preferred director,  <img src="https://render.githubusercontent.com/render/math?math=\nu^s">, and setting
- <img src="https://render.githubusercontent.com/render/math?math=Q^B = 3 S_0/2 * (\nu^s \nu^s - \delta_{ab}/3)">.
+where one often will set the Q-tensor by choosing a locally preferred director, $\nu^s$, and setting
+$Q^B = 3 S_0/2 * (\nu^s \nu^s - \delta_{ab}/3)$.
 
 For degenerate planar anchoring the five constants should be specified as,
-`C1` =  <img src="https://render.githubusercontent.com/render/math?math=\hat{\nu}^s_x">
-`C2` =  <img src="https://render.githubusercontent.com/render/math?math=\hat{\nu}^s_y">
-`C3` =  <img src="https://render.githubusercontent.com/render/math?math=\hat{\nu}^s_z">
-`C4` =  <img src="https://render.githubusercontent.com/render/math?math=0.0">
-`C5` =  <img src="https://render.githubusercontent.com/render/math?math=0.0">,
-where  <img src="https://render.githubusercontent.com/render/math?math=\nu^s = \{\cos\phi \sin\theta, \sin\phi sin\theta, cos\theta\}">
+`C1` = $\hat{\nu}^s_x$
+`C2` = $\hat{\nu}^s_y$
+`C3` = $\hat{\nu}^s_z$
+`C4` = $0.0$
+`C5` = $0.0$,
+where $\nu^s = \{\cos\phi \sin\theta, \sin\phi sin\theta, cos\theta\}$
 is the direction to which the LC should try to be orthogonal.
 
 # Project information
