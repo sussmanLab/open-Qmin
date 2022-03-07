@@ -8,6 +8,7 @@
 # The dictionary keys of `runHelper.params` are the same as the long forms (appearing after the `--`s) of the command-line flags seen when you run `build/openQmin.out --help`, with the following exceptions:
 # * `help` itself is not a key in `runHelper.params`
 # * Parameters `'whole_Lx'`, `'whole_Ly'`, and `'whole_Lz'`, which define the system size **before** subdivision over MPI ranks, override `'Lx'`, `'Ly'`, and `'Lz'` by default. If you want to use `'Lx'`, `'Ly'`, `'Lz'` instead (which give the system size on each rank), you can pass `do_partition=False` to `runHelper.get_runcmd()`.
+# * `--boxL` (or `-l`) for specifying cubic box size is not used here to avoid ambiguity.
 # 
 # In the example below, we'll make use of an example boundaryFile that we created in the page on [Boundary conditions (Python interface)](py-boundaries) and the example initialConfigurationFiles that we created in the page on [Initialization (Python interface)](py-initialization). 
 # 
@@ -17,12 +18,12 @@
 
 
 from sys import path
-path.append("../tools/")  # path to runHelper.py
+path.append("../tools/")  # <-- replace with your path to runHelper.py
 
 import runHelper
 
 runHelper.directory = "../" # path to openQmin main directory
-runHelper.mpi_num_processes = 3  # set to 1 for non-MPI run
+runHelper.mpi_num_processes = 4  # set to 1 for non-MPI run
 
 runHelper.params["boundaryFile"] = "ceiling_and_wavy_floor.txt"
 runHelper.params["initialConfigurationFile"] = "my_init_file"
@@ -53,20 +54,14 @@ print(runcmd)
 runHelper.run()
 
 
-# Let's take a look at the result using openViewMin.
+# Let's take a look at the result. Here we're using [openViewMin](https://gitlab.com/d.a.beller/openviewmin), a visualization environment under development for use with open-Qmin. This project is not yet publicly available, so if you want to help test it out, please contact Daniel Beller at d.a.beller \[at\] jhu.edu.
 
 # In[3]:
 
 
-# Install openViewMin dependencies as needed
-get_ipython().system('{sys.executable} -m pip install pandas "PyQt5<5.14" pyvistaqt tqdm imageio-ffmpeg >> /dev/null')
+# NOTE: Running this cell requires using openViewMin's auto-generated Python environment "openViewMin-env" as the kernel for the Jupyter notebook.
 
-
-# In[4]:
-
-
-# replace with your path to openViewMin:
-sys.path.append("../../openviewmin/")
+path.append("../../openviewmin/") # <-- replace with your path to openViewMin
 
 import openViewMin
 import glob
@@ -80,6 +75,18 @@ nplot.update_filter("director_plane", {"normal":[0,1,0]}, update_self_actor=True
 # reduce lighting intensity a bit
 nplot.set_lights_intensity(0.6)
 # display in notebook
-display(nplot.to_pythreejs())
+nplot_p3js = nplot.to_pythreejs()
 nplot.close()
+
+
+# In[4]:
+
+
+display(nplot_p3js)
+
+
+# In[ ]:
+
+
+
 

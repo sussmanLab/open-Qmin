@@ -29,20 +29,13 @@ path.append("../tools")  # path to boundaryHelper.py
 import boundaryHelper as bh
 
 
-# In[3]:
-
-
-# Make sure we have matplotlib and Jupyter interface thereto:
-get_ipython().system('{sys.executable} -m pip install matplotlib ipympl > /dev/null')
-
-
 # ## Example 1: One spherical colloid from user-supplied functions
 
 # To demonstrate usage with user-supplied custom functions, we'll start with a simple example of a single spherical colloid with homeotropic (perpendicular) anchoring.
 
 # The first step is always to make a `Scene`.
 
-# In[4]:
+# In[3]:
 
 
 Lx = 50
@@ -58,7 +51,7 @@ sc = bh.Scene(Lx, Ly, Lz)
 # 
 # We need to supply an anchoring strength and the value of $S_0$ (nematic degree of order) preferred at the surface.
 
-# In[5]:
+# In[4]:
 
 
 ac = bh.OrientedAnchoringCondition(strength=5.3, S0=0.53)
@@ -66,7 +59,7 @@ ac = bh.OrientedAnchoringCondition(strength=5.3, S0=0.53)
 
 # Now we assign our anchoring condition as the anchoring condition of a `BoundaryObject`.
 
-# In[6]:
+# In[5]:
 
 
 bo = bh.BoundaryObject(ac)
@@ -76,7 +69,7 @@ bo = bh.BoundaryObject(ac)
 # 
 # Note that `X, Y, Z` are three one-dimensional NumPy arrays of the same length.
 
-# In[7]:
+# In[6]:
 
 
 # choose center of box as sphere center
@@ -95,7 +88,7 @@ bo.member_func = sphere_member_func
 # 
 # The normal vectors don't need to be normalized. The formula only needs to be valid at the surface of the object, since the values for interior sites are not used. For oriented anchoring that isn't strictly homeotropic (perpendicular), we can supply the preferred direction as `normal_func` regardless of the true surface normal.
 
-# In[8]:
+# In[7]:
 
 
 def sphere_normal_func(X, Y, Z):
@@ -107,11 +100,11 @@ bo.normal_func = sphere_normal_func
 
 # Lastly, we add our `BoundaryObject` to the `Scene` and instruct the `Scene` to create our boundaryFile.
 
-# In[9]:
+# In[8]:
 
 
 sc.boundary_objects.append(bo)
-sc.to_file("../../one_spherical_colloid.txt")
+sc.to_file("../one_spherical_colloid.txt")
 
 
 # Now we can use the file as 
@@ -122,7 +115,7 @@ sc.to_file("../../one_spherical_colloid.txt")
 
 # The whole operation looks like this:
 
-# In[10]:
+# In[9]:
 
 
 import numpy as np
@@ -154,7 +147,7 @@ def sphere_normal_func(X, Y, Z):
 
 bo.normal_func = sphere_normal_func
 sc.boundary_objects.append(bo)
-sc.to_file("../../one_spherical_colloid.txt")
+sc.to_file("../one_spherical_colloid.txt")
 
 
 # Now you can `cd` back into the openQmin main directory and use this boundaryFile by running
@@ -174,7 +167,7 @@ sc.to_file("../../one_spherical_colloid.txt")
 # 
 # Here's an example `Scene` with one homeotropic-anchoring `SphericalColloid` and one `Wall` with degenerate planar anchoring. Because of periodic boundary conditions for the simulation box, a single wall functions as both floor and ceiling.
 
-# In[11]:
+# In[10]:
 
 
 sc = bh.Scene(50, 50, 50)
@@ -183,7 +176,7 @@ co = bh.SphericalColloid(anch1, (24, 24, 24), 10)
 anch2 = bh.DegeneratePlanarAnchoringCondition(strength=10, S0=0.53)
 wall = bh.Wall(anch2, "x", 5)  # normal to x, positioned at x=5
 sc.boundary_objects = [co, wall]
-sc.to_file("../../sphere_and_wall.txt")
+sc.to_file("../sphere_and_wall.txt")
 
 
 # ## Example 3: User-defined surface from height function
@@ -194,7 +187,7 @@ sc.to_file("../../sphere_and_wall.txt")
 # 
 # Here's a plot of the shape we want for the floor.
 
-# In[12]:
+# In[11]:
 
 
 get_ipython().run_line_magic('matplotlib', 'inline')
@@ -227,7 +220,7 @@ plt.show()
 
 # And here's the code to make this surface a boundary condition for openQmin.
 
-# In[13]:
+# In[12]:
 
 
 sc = bh.Scene(Lx, Ly, Lz)
@@ -263,5 +256,5 @@ wavy_floor.normal_func = wavy_floor_normal_func
 anch2 = bh.DegeneratePlanarAnchoringCondition(strength=5.3, S0=0.53)
 ceiling = bh.Wall(anch2, "z", Lz - 1)
 sc.boundary_objects = [wavy_floor, ceiling]
-sc.to_file("../../ceiling_and_wavy_floor.txt")
+sc.to_file("../ceiling_and_wavy_floor.txt")
 

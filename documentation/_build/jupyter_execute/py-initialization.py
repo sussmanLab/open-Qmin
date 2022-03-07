@@ -27,7 +27,7 @@ path.append("../tools/")  # <-- replace with your path to initHelper.py
 from initHelper import create_init_state
 
 
-# First let's define the setup and a name (with path) for our initConfigurationFiles. We're using 3 MPI processes for this example, but you can also run it with `mpi_num_processes = 1`. 
+# First let's define the setup and a name (with path) for our initConfigurationFiles. We're using 4 MPI processes for this example, but you can also run it with `mpi_num_processes = 1`. 
 
 # In[2]:
 
@@ -37,7 +37,7 @@ whole_Lx = 50
 whole_Ly = 50
 whole_Lz = 50
 S = 0.53  # uniaxial order for all sites
-mpi_num_processes = 3  # set to 1 for non-MPI run
+mpi_num_processes = 4  # set to 1 for non-MPI run
 # file path, without ".txt", for initialConfigurationFile(s)
 initfilename_prefix = "../my_init_file"
 
@@ -90,24 +90,31 @@ initfilenames = create_init_state(
 print(initfilenames)
 
 
-# Let's take a look at our initial configuration. If you're running this Jupyter notebook locally, you can set `off_screen=False` for more interactivity.
+# Let's take a look at our initial configuration. Here we're using [openViewMin](https://gitlab.com/d.a.beller/openviewmin), a visualization environment under development for use with open-Qmin. This project is not yet publicly available, so if you want to help test it out, please contact Daniel Beller at d.a.beller \[at\] jhu.edu. 
 
-# In[ ]:
-
-
-# Install openViewMin dependencies as needed
-get_ipython().system('{sys.executable} -m pip install pandas "PyQt5<5.14" pyvistaqt tqdm imageio-ffmpeg >> /dev/null')
+# In[5]:
 
 
-# In[ ]:
+# NOTE: Running this cell requires using openViewMin's auto-generated Python environment "openViewMin-env" as the kernel for the Jupyter notebook.
 
-
-# replace with your path to openViewMin
-path.append("../../openviewmin/")
+path.append("../../openviewmin/") # <-- replace with your path to openViewMin
 
 import openViewMin
 
+# If you're running this Jupyter notebook locally, you can set `off_screen=False` for more interactivity.
 nplot = openViewMin.NematicPlot(initfilenames, off_screen=True, window_size=(800, 800))
-display(nplot.to_pythreejs())
+nplot_p3js = nplot.to_pythreejs()
 nplot.close()
+
+
+# In[6]:
+
+
+display(nplot_p3js)
+
+
+# In[ ]:
+
+
+
 

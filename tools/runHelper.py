@@ -26,7 +26,6 @@ params = dict(
 	L3 = 4.64, # <float> value of L3 term
 	L4 = 4.64, # <float> value of L4 term
 	L6 = 4.64, # <float> value of L6 term
-	boxL = 50, # <int> number of lattice sites for cubic box
 	Lx = 50, # <int> number of lattice sites in x direction
 	Ly = 50, # <int> number of lattice sites in y direction
 	Lz = 50, # <int> number of lattice sites in z direction
