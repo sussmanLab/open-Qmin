@@ -4,7 +4,11 @@
  *
  * Sphinx JavaScript utilities for the full-text search.
  *
+<<<<<<< HEAD
  * :copyright: Copyright 2007-2021 by the Sphinx team, see AUTHORS.
+=======
+ * :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
+>>>>>>> documentation-recovery-3-justdocs
  * :license: BSD, see LICENSE for details.
  *
  */
@@ -328,7 +332,13 @@ var Search = {
     var results = [];
 
     for (var prefix in objects) {
+<<<<<<< HEAD
       for (var name in objects[prefix]) {
+=======
+      for (var iMatch = 0; iMatch != objects[prefix].length; ++iMatch) {
+        var match = objects[prefix][iMatch];
+        var name = match[4];
+>>>>>>> documentation-recovery-3-justdocs
         var fullname = (prefix ? prefix + '.' : '') + name;
         var fullnameLower = fullname.toLowerCase()
         if (fullnameLower.indexOf(object) > -1) {
@@ -342,7 +352,10 @@ var Search = {
           } else if (parts[parts.length - 1].indexOf(object) > -1) {
             score += Scorer.objPartialMatch;
           }
+<<<<<<< HEAD
           var match = objects[prefix][name];
+=======
+>>>>>>> documentation-recovery-3-justdocs
           var objname = objnames[match[1]][2];
           var title = titles[match[0]];
           // If more than one term searched for, we require other words to be
