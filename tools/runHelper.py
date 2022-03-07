@@ -9,17 +9,17 @@ import os
 from initHelper import partition_processors
 
 mpi_num_processes = 1
+directory = "./" # path to openQmin main directory (either absolute path or relative to where you'll run the command)
 
 params = dict(
 	initializationSwitch = 0, # <int> an integer controlling program branch
 	GPU = -1, # <int> which gpu to use
-	phaseConstantA = 0.172, # <float> value of phase constant A
-	phaseConstantB = 2.12, # <float> value of phase constant B
+	phaseConstantA = -0.172, # <float> value of phase constant A
+	phaseConstantB = -2.12, # <float> value of phase constant B
 	phaseConstantC = 1.73, # <float> value of phase constant C
 	deltaT = 0.0005, # <float> step size for minimizer
 	fTarget = 1e-12, # <float> target minimization threshold for norm of residual forces
 	iterations = 100, # <int> maximum number of minimization steps
-	nConstants = 1, # <int> approximation for distortion term
 	randomSeed = -1, # <int> seed for reproducible random number generation
 	L1 = 4.64, # <float> value of L1 term
 	L2 = 4.64, # <float> value of L2 term
@@ -58,6 +58,7 @@ params = dict(
 
   
 def get_runcmd(do_partition=True):
+    global directory
     if do_partition: 
         # calculate partitioned simulation box size automatically 
         # from entire simulation box size and number of MPI processes
@@ -69,7 +70,20 @@ def get_runcmd(do_partition=True):
         runcmd = f'mpirun -n {mpi_num_processes} '       
     else:
         runcmd = ''
-    runcmd += '../build/openQmin.out ' + ' '.join([
+    if not directory[-1] == '/':
+        directory += '/'
+    for filenamekey in [
+        "initialConfigurationFile", 
+        "spatiallyVaryingFieldFile", 
+        "boundaryFile", 
+        "saveFile"
+    ]:
+        filename = params[filenamekey]
+        if len(filename) > 0: # skip parameters with empty filenames 
+            # if file name doesn't begin with directory, prepend directory
+            if not filename[:len(directory)] == directory:
+                params[filenamekey] = directory + filename
+    runcmd += f'{directory}build/openQmin.out ' + ' '.join([
         f'--{key} {val}' for key, val in zip(
             params.keys(), params.values()
         )
@@ -79,3 +93,9 @@ def get_runcmd(do_partition=True):
         ]
     ])
     return runcmd
+
+def run(do_partition=True, runcmd=None):
+    if runcmd is None:
+        runcmd = get_runcmd(do_partition=do_partition)
+    os.system(runcmd)
+    

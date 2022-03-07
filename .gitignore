@@ -22,3 +22,14 @@ debug/*
 data/*
 doc/doxygenOutput
 */.ipynb_checkpoints/*
+*/__pycache__/
+Untitled*.ipynb
+__pycache__/
+.ipynb_checkpoints/
+ceiling_and_wavy_floor.txt
+my_init_file.txt
+my_init_file_x0y0z0.txt
+my_init_file_x1y0z0.txt
+my_init_file_x2y0z0.txt
+one_spherical_colloid.txt
+sphere_and_wall.txt
