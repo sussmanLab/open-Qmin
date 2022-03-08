@@ -51,8 +51,6 @@ const thebe_selector_input = "pre"
 const thebe_selector_output = ".output, .cell_output"
 </script>
     <script async="async" src="_static/sphinx-thebe.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script src="https://unpkg.com/@jupyter-widgets/html-manager@^0.20.0/dist/embed-amd.js"></script>
     <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -167,7 +165,7 @@ const thebe_selector_output = ".output, .cell_output"
    </li>
    <li class="toctree-l2">
     <a class="reference internal" href="py-run.html">
-     Running openQmin (Python interface)
+     Running open-Qmin (Python interface)
     </a>
    </li>
   </ul>
@@ -375,8 +373,8 @@ const thebe_selector_output = ".output, .cell_output"
 <h1>Boundary conditions (Python interface)<a class="headerlink" href="#boundary-conditions-python-interface" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="demo-for-usage-of-tools-boundaryhelper-py">
 <h2>Demo for usage of <em>tools/boundaryHelper.py</em><a class="headerlink" href="#demo-for-usage-of-tools-boundaryhelper-py" title="Permalink to this headline">¶</a></h2>
-<p>openQmin allows you to specify, site-by-site, the geometry and anchoring conditions of boundaries (including colloidal particles). This information is stored in an external <em>.txt</em> file that you can import into openQmin with the <code class="docutils literal notranslate"><span class="pre">--boundaryFile</span></code> command-line flag (without needing to recompile openQmin).</p>
-<p>This Jupyter notebook demonstrates the use of <em>tools/boundaryHelper.py</em> to create a boundaryFile for openQmin through a pure-Python interface.</p>
+<p>open-Qmin allows you to specify, site-by-site, the geometry and anchoring conditions of boundaries (including colloidal particles). This information is stored in an external <em>.txt</em> file that you can import into open-Qmin with the <code class="docutils literal notranslate"><span class="pre">--boundaryFile</span></code> command-line flag (without needing to recompile open-Qmin).</p>
+<p>This Jupyter notebook demonstrates the use of <em>tools/boundaryHelper.py</em> to create a boundaryFile for open-Qmin through a pure-Python interface.</p>
 <p>Before getting started, let’s make sure we have matplotlib and its Jupyter interface:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -474,8 +472,8 @@ const thebe_selector_output = ".output, .cell_output"
 </div>
 </div>
 </div>
-<p>Now we can use the file as</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>build/openQmin.out --boundaryFile one_spherical_colloid.txt ...
+<p>Now you can <code class="docutils literal notranslate"><span class="pre">cd</span></code> back into the open-Qmin main directory and use the file as</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>build/openQmin.out -l 50 --boundaryFile one_spherical_colloid.txt ...
 </pre></div>
 </div>
 <p>You may have to prefix the file name with a path to the file, of course.</p>
@@ -516,11 +514,6 @@ const thebe_selector_output = ".output, .cell_output"
 </div>
 </div>
 </div>
-<p>Now you can <code class="docutils literal notranslate"><span class="pre">cd</span></code> back into the openQmin main directory and use this boundaryFile by running</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>build/openQmin.out -l 50 --boundaryFile one_spherical_colloid.txt ...
-</pre></div>
-</div>
-<p>along with any other command-line options.</p>
 </div>
 <div class="section" id="example-2-using-pre-defined-boundary-objects">
 <h2>Example 2: Using pre-defined boundary objects<a class="headerlink" href="#example-2-using-pre-defined-boundary-objects" title="Permalink to this headline">¶</a></h2>
@@ -583,10 +576,10 @@ const thebe_selector_output = ".output, .cell_output"
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="_images/py-boundaries_29_0.png" src="_images/py-boundaries_29_0.png" />
+<img alt="_images/py-boundaries_28_0.png" src="_images/py-boundaries_28_0.png" />
 </div>
 </div>
-<p>And here’s the code to make this surface a boundary condition for openQmin.</p>
+<p>And here’s the code to make this surface a boundary condition for open-Qmin.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sc</span> <span class="o">=</span> <span class="n">bh</span><span class="o">.</span><span class="n">Scene</span><span class="p">(</span><span class="n">Lx</span><span class="p">,</span> <span class="n">Ly</span><span class="p">,</span> <span class="n">Lz</span><span class="p">)</span>
