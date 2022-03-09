@@ -1,5 +1,10 @@
 # Change log {#changelog}
 
+### open-Qmin version 0.10
+* Add Python "helper" scripts for boundaries, initialization, and command-line parameters
+* Introduce web documentation 
+* Automatically detect number of elastic energy terms in use
+
 ### OpenQMin version 0.9 -- in progress
 
 * Switch to GUI initialization according to Frank constants rather than landau-deGennes ones

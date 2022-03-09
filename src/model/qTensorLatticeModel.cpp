@@ -282,7 +282,7 @@ void qTensorLatticeModel::createBoundaryFromFile(string fname, bool verbose)
         else
             bound = boundaryType::degeneratePlanar;
         if(verbose)
-            printf("reading boudary type %i with %f %f and %i entries\n",iVar1,sVar1,sVar2,iVar2);
+            printf("reading boundary type %i with %f %f and %i entries\n",iVar1,sVar1,sVar2,iVar2);
 
         dVec Qtensor;
         vector<int> boundSites;
