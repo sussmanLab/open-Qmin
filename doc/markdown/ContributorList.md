@@ -2,7 +2,7 @@
 
 Daniel M. Sussman -- Lead developer
 
-Daniel A. Beller -- Extensive technical consultation on all things liquid crystalline
+Daniel A. Beller -- Extensive technical consultation on all things liquid crystalline; developer for Python wrappers
 
 -------------------------------------------------------------------------------------
 Community contributions:
