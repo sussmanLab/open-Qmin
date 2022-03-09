@@ -3,8 +3,8 @@
 ## Requirements
 
 You will need 
-* a C++ compiler compatible with the C++11 standard
-* openMPI (development is using version 4.0.0)
+* a C++ compiler compatible with the C++11 standard, such as the [GNU GCC compiler](https://gcc.gnu.org/) for C++ invoked as "g++"
+* [openMPI](https://www.open-mpi.org/) (development is using version 4.0.0)
 * [CUDA](https://developer.nvidia.com/cuda-downloads) (development is using version 8.0)
 * [CMake](https://cmake.org)
 * [Qt](https://www.qt.io/) (this dependency may be removed in future versions)
@@ -28,7 +28,7 @@ In the terminal, `cd` into the *build/* directory and type
 :::{note}
 By default the code will compile GPU code targeted at the (old, but still used in some XSEDE facilities) Tesla K40 cards. If you have newer GPUs, it is *highly* recommended to go to line 6 of the CMakeLists.txt file and set the `CUDA_ARCH` variable appropriately. 
 
-You should set `CUDA_ARCH` to 10 times your GPU model's "compute capability". One place you can look this up is [this Wikipedia page](https://en.wikipedia.org/wiki/CUDA#GPUs_supported), in the leftmost column of the row where your GPU's model is listed. For example, the A100 GPU is listed there as having CUDA compute ability 8.0, so users with this model should set `CUDA_ARCH` to "80".
+Before the compilation steps above, you should set `CUDA_ARCH` to 10 times your GPU model's "compute capability". One place you can look this up is [this Wikipedia page](https://en.wikipedia.org/wiki/CUDA#GPUs_supported), in the leftmost column of the row where your GPU's model is listed. For example, the A100 GPU is listed there as having CUDA compute ability 8.0, so users with this model should set `CUDA_ARCH` to "80".
 :::
 
 ### Compilation troubleshooting
@@ -68,5 +68,9 @@ cpp file to the base CMakeList.txt file in the "foreach()" line immediately foll
 
 Depending on your terminal and X11 set-up, there may be a variety of GL errors you might encounter
 (mismatched client/server versions of openGL, libGL errors related to fbConfigs and swrast, etc.).
-The developers have had luck using the "terminal" interface within the [x2go](https://wiki.x2go.org/doku.php)
-client, or alternatively using [VcXserv](https://sourceforge.net/projects/vcxsrv/) with the no-WGL option.
+The developers have had luck using any one of the following:
+
+* the "terminal" interface within the [x2go](https://wiki.x2go.org/doku.php)
+client,
+* [VcXserv](https://sourceforge.net/projects/vcxsrv/) with the no-WGL option,
+* the [Xpra](https://xpra.org/) screen forwarding system

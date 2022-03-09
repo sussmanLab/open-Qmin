@@ -51,8 +51,6 @@ const thebe_selector_input = "pre"
 const thebe_selector_output = ".output, .cell_output"
 </script>
     <script async="async" src="_static/sphinx-thebe.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script src="https://unpkg.com/@jupyter-widgets/html-manager@^0.20.0/dist/embed-amd.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Landau-de Gennes Theory" href="Landau-de-Gennes.html" />
@@ -376,8 +374,8 @@ const thebe_selector_output = ".output, .cell_output"
 <h2>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h2>
 <p>You will need</p>
 <ul class="simple">
-<li><p>a C++ compiler compatible with the C++11 standard</p></li>
-<li><p>openMPI (development is using version 4.0.0)</p></li>
+<li><p>a C++ compiler compatible with the C++11 standard, such as the <a class="reference external" href="https://gcc.gnu.org/">GNU GCC compiler</a> for C++ invoked as “g++”</p></li>
+<li><p><a class="reference external" href="https://www.open-mpi.org/">openMPI</a> (development is using version 4.0.0)</p></li>
 <li><p><a class="reference external" href="https://developer.nvidia.com/cuda-downloads">CUDA</a> (development is using version 8.0)</p></li>
 <li><p><a class="reference external" href="https://cmake.org">CMake</a></p></li>
 <li><p><a class="reference external" href="https://www.qt.io/">Qt</a> (this dependency may be removed in future versions)</p></li>
@@ -402,7 +400,7 @@ make
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>By default the code will compile GPU code targeted at the (old, but still used in some XSEDE facilities) Tesla K40 cards. If you have newer GPUs, it is <em>highly</em> recommended to go to line 6 of the CMakeLists.txt file and set the <code class="docutils literal notranslate"><span class="pre">CUDA_ARCH</span></code> variable appropriately.</p>
-<p>You should set <code class="docutils literal notranslate"><span class="pre">CUDA_ARCH</span></code> to 10 times your GPU model’s “compute capability”. One place you can look this up is <a class="reference external" href="https://en.wikipedia.org/wiki/CUDA#GPUs_supported">this Wikipedia page</a>, in the leftmost column of the row where your GPU’s model is listed. For example, the A100 GPU is listed there as having CUDA compute ability 8.0, so users with this model should set <code class="docutils literal notranslate"><span class="pre">CUDA_ARCH</span></code> to “80”.</p>
+<p>Before the compilation steps above, you should set <code class="docutils literal notranslate"><span class="pre">CUDA_ARCH</span></code> to 10 times your GPU model’s “compute capability”. One place you can look this up is <a class="reference external" href="https://en.wikipedia.org/wiki/CUDA#GPUs_supported">this Wikipedia page</a>, in the leftmost column of the row where your GPU’s model is listed. For example, the A100 GPU is listed there as having CUDA compute ability 8.0, so users with this model should set <code class="docutils literal notranslate"><span class="pre">CUDA_ARCH</span></code> to “80”.</p>
 </div>
 <div class="section" id="compilation-troubleshooting">
 <h3>Compilation troubleshooting<a class="headerlink" href="#compilation-troubleshooting" title="Permalink to this headline">¶</a></h3>
@@ -436,8 +434,13 @@ cpp file to the base CMakeList.txt file in the “foreach()” line immediately 
 <h2>GUI troubleshooting<a class="headerlink" href="#gui-troubleshooting" title="Permalink to this headline">¶</a></h2>
 <p>Depending on your terminal and X11 set-up, there may be a variety of GL errors you might encounter
 (mismatched client/server versions of openGL, libGL errors related to fbConfigs and swrast, etc.).
-The developers have had luck using the “terminal” interface within the <a class="reference external" href="https://wiki.x2go.org/doku.php">x2go</a>
-client, or alternatively using <a class="reference external" href="https://sourceforge.net/projects/vcxsrv/">VcXserv</a> with the no-WGL option.</p>
+The developers have had luck using any one of the following:</p>
+<ul class="simple">
+<li><p>the “terminal” interface within the <a class="reference external" href="https://wiki.x2go.org/doku.php">x2go</a>
+client,</p></li>
+<li><p><a class="reference external" href="https://sourceforge.net/projects/vcxsrv/">VcXserv</a> with the no-WGL option,</p></li>
+<li><p>the <a class="reference external" href="https://xpra.org/">Xpra</a> screen forwarding system</p></li>
+</ul>
 </div>
 </div>
 
