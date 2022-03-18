@@ -182,3 +182,5 @@ Here are some convenient links to markdown files containing a variety of general
 [Changelog](ChangeLog.md)
 
 [Contributors](doc/markdown/ContributorList.md)
+
+[![DOI](https://zenodo.org/badge/195413011.svg)](https://zenodo.org/badge/latestdoi/195413011)
