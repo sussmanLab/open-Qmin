@@ -50,7 +50,7 @@ int main(int argc, char*argv[])
     //printf("processes rank %i, local rank %i\n",myRank,myLocalRank);
 
     //First, we set up a basic command line parser with some message and version
-    CmdLine cmd("openQmin simulation!",' ',"V0.10");
+    CmdLine cmd("open-Qmin simulation!",' ',"V0.10");
 
     //define the various command line strings that can be passed in...
     //ValueArg<T> variableName("shortflag","longFlag","description",required or not, default value,"value type",CmdLine object to add to
@@ -73,10 +73,10 @@ int main(int argc, char*argv[])
 
     scalar defaultL=4.64;
     ValueArg<scalar> l1SwitchArg("","L1","value of L1 term",false,defaultL,"scalar",cmd);
-    ValueArg<scalar> l2SwitchArg("","L2","value of L2 term",false,defaultL,"scalar",cmd);
-    ValueArg<scalar> l3SwitchArg("","L3","value of L3 term",false,defaultL,"scalar",cmd);
-    ValueArg<scalar> l4SwitchArg("","L4","value of L4 term",false,defaultL,"scalar",cmd);
-    ValueArg<scalar> l6SwitchArg("","L6","value of L6 term",false,defaultL,"scalar",cmd);
+    ValueArg<scalar> l2SwitchArg("","L2","value of L2 term",false,0.,"scalar",cmd);
+    ValueArg<scalar> l3SwitchArg("","L3","value of L3 term",false,0.,"scalar",cmd);
+    ValueArg<scalar> l4SwitchArg("","L4","value of L4 term",false,0.,"scalar",cmd);
+    ValueArg<scalar> l6SwitchArg("","L6","value of L6 term",false,0.,"scalar",cmd);
 
     ValueArg<int> lSwitchArg("l","boxL","number of lattice sites for cubic box",false,50,"int",cmd);
     ValueArg<int> lxSwitchArg("","Lx","number of lattice sites in x direction",false,50,"int",cmd);
@@ -174,7 +174,7 @@ int main(int argc, char*argv[])
     if(verbose) printf("setting a rectilinear lattice of size (%i,%i,%i)\n",boxLx,boxLy,boxLz);
     profiler pInit("initialization");
     bool useOneConstantApprox = true;
-    if(L2 != defaultL || L3 != defaultL || L4 != defaultL || L6 != defaultL)
+    if(L2 != 0. || L3 != 0. || L4 != 0. || L6 != 0.)
         useOneConstantApprox = false;
     pInit.start();
     bool xH = (rankTopology.x >1) ? true : false;
