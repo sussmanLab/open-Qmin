@@ -50,7 +50,7 @@ int main(int argc, char*argv[])
     //printf("processes rank %i, local rank %i\n",myRank,myLocalRank);
 
     //First, we set up a basic command line parser with some message and version
-    CmdLine cmd("openQmin simulation!",' ',"V0.8");
+    CmdLine cmd("openQmin simulation!",' ',"V0.10");
 
     //define the various command line strings that can be passed in...
     //ValueArg<T> variableName("shortflag","longFlag","description",required or not, default value,"value type",CmdLine object to add to
@@ -253,7 +253,7 @@ int main(int argc, char*argv[])
 
     sim->setCPUOperation(true);//have cpu and gpu initialized the same...for debugging
     /*
-    The following header file includes various common ways you might want to set the inital state of the lattice of Qtensors. 
+    The following header file includes various common ways you might want to set the inital state of the lattice of Qtensors.
     It is controlled by the "initializationSwitch" command line option (-z integer); by default (-z 0) the lattice will be set to a different random Q-tensor at every lattice site (with uniform s0)
     */
     scalar S0 = (-b+sqrt(b*b-24*a*c))/(6*c);
