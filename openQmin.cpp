@@ -21,7 +21,7 @@
 int3 partitionProcessors(int numberOfProcesses)
     {
     int3 ans;
-    ans.z = floor(pow(numberOfProcesses,1./3.));
+    ans.z = floor(cbrt(numberOfProcesses));
     int nLeft = floor(numberOfProcesses/ans.z);
     ans.y = floor(sqrt(nLeft));
     ans.x = floor(nLeft / ans.y);
