@@ -1,24 +1,24 @@
-#ifndef cubicLattice_H
-#define cubicLattice_H
+#ifndef squareLattice_H
+#define squareLattice_H
 
 #include "simpleModel.h"
 #include "indexer.h"
 #include "latticeBoundaries.h"
 #include "kernelTuner.h"
 
-/*! \file cubicLattice.h
+/*! \file squareLattice.h
 \brief puts degrees of freedom on a cubic lattice... probably for spin-like models
 */
 
 //!define a type of simple model which places all degrees of freedom (which are still d-dimensional) on a cubic lattice with nearest neighbor interactions
-class cubicLattice : public simpleModel
+class squareLattice : public simpleModel
     {
     public:
         //!The base constructor takes the number of lattice sites along the cubic edge
-        cubicLattice(int l, bool _slice = false,bool _useGPU = false, bool _neverGPU = false);
+        squareLattice(int l, bool _slice = false,bool _useGPU = false, bool _neverGPU = false);
 
         //!A rectilinear set of lattice sits
-        cubicLattice(int lx, int ly, int lz, bool _slice = false,bool _useGPU = false, bool _neverGPU = false);
+        squareLattice(int lx, int ly, int lz, bool _slice = false,bool _useGPU = false, bool _neverGPU = false);
 
         //!move the degrees of freedom
         virtual void moveParticles(GPUArray<dVec> &displacements,scalar scale = 1.);
@@ -66,7 +66,7 @@ class cubicLattice : public simpleModel
             int3 temp; temp.x = px; temp.y = py; temp.z=pz;
             return positionToIndex(temp);
             };
-        virtual int positionToIndex(int3 &pos){UNWRITTENCODE("position to index in cubicLattice... currently this function exists only for multirankQTensor models");};
+        virtual int positionToIndex(int3 &pos){UNWRITTENCODE("position to index in squareLattice... currently this function exists only for multirankQTensor models");};
 
         //!Displace a boundary object (and surface sites) by one of the six primitive cubic lattice directions
         virtual void displaceBoundaryObject(int objectIndex, int motionDirection, int magnitude);
