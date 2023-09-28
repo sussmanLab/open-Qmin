@@ -7,7 +7,7 @@
 #include "kernelTuner.h"
 
 /*! \file squareLattice.h
-\brief puts degrees of freedom on a cubic lattice... probably for spin-like models
+\brief puts degrees of freedom on a square lattice lattice... probably for spin-like models. The degrees of freedom are still dVecs
 */
 
 //!define a type of simple model which places all degrees of freedom (which are still d-dimensional) on a cubic lattice with nearest neighbor interactions
@@ -18,7 +18,7 @@ class squareLattice : public simpleModel
         squareLattice(int l, bool _slice = false,bool _useGPU = false, bool _neverGPU = false);
 
         //!A rectilinear set of lattice sits
-        squareLattice(int lx, int ly, int lz, bool _slice = false,bool _useGPU = false, bool _neverGPU = false);
+        squareLattice(int lx, int ly, bool _slice = false,bool _useGPU = false, bool _neverGPU = false);
 
         //!move the degrees of freedom
         virtual void moveParticles(GPUArray<dVec> &displacements,scalar scale = 1.);
@@ -28,15 +28,15 @@ class squareLattice : public simpleModel
         //!initialize each d.o.f. to be a unit spin on the sphere
         void setSpinsRandomly(noiseSource &noise);
 
-        //! return the integer corresponding to the given site, along with the indices of the six nearest neighbors
+        //! return the integer corresponding to the given site, along with the indices of the four nearest neighbors (for default stencil type)
         virtual int getNeighbors(int target, vector<int> &neighbors, int &neighs, int stencilType = 0);
         //!decide to slice sites
         void sliceIndices(bool _s=true){sliceSites = _s;};
-        //!given a triple, determine what
+        //!given a pair of indices, determine what indexed spin is being pointed to
         int latticeSiteToLinearIndex(const int3 &target);
         //!indexer for lattice sites
-        Index3D latticeIndex;
-        int3 latticeSites;
+        Index2D latticeIndex;
+        int2 latticeSites;
 
         //!indexer for neighbors
         Index2D neighborIndex;
@@ -61,17 +61,19 @@ class squareLattice : public simpleModel
             ans = (1.0/nSites)*ans;
             return ans;
         };
-        virtual int positionToIndex(int px, int py, int pz)
+        virtual int positionToIndex(int px, int py)
             {
-            int3 temp; temp.x = px; temp.y = py; temp.z=pz;
+            int2 temp; temp.x = px; temp.y = py;
             return positionToIndex(temp);
             };
-        virtual int positionToIndex(int3 &pos){UNWRITTENCODE("position to index in squareLattice... currently this function exists only for multirankQTensor models");};
+        virtual int positionToIndex(int2 &pos){UNWRITTENCODE("position to index in squareLattice... currently this function is unwritten");};
 
         //!Displace a boundary object (and surface sites) by one of the six primitive cubic lattice directions
+        //DONT DO THIS YET
         virtual void displaceBoundaryObject(int objectIndex, int motionDirection, int magnitude);
 
         //!assign a collection of lattice sites to a new boundaryObject
+        //DONT DO THIS YET
         void createBoundaryObject(vector<int> &latticeSites, boundaryType _type, scalar Param1, scalar Param2);
 
         //!list of the non-bulk objects in the simulations
@@ -89,6 +91,7 @@ class squareLattice : public simpleModel
         //!An assist vector that can keep track of changes to surface sites during a move. First element is the index a Qtensor (second ) will move to
         GPUArray<pair<int,dVec> > boundaryMoveAssist2;
 
+        //DONT DO THIS YET
         virtual scalar getClassSize()
             {
             int bsSites = 0;
