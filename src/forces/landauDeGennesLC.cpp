@@ -59,6 +59,8 @@ void landauDeGennesLC::setModel(shared_ptr<cubicLattice> _model)
     model = _model;
     if(numberOfConstants == distortionEnergyType::multiConstant)
         {
+        //DMS: Note that we have moved away from the stenciled neighbor list approach and instead only need various first derivatives. Hence the precomputation of the first derivatives and the cubicLatticeDerivative vectors
+        //I've left the functionality to (in principle) allow for more complex distortion terms, but for now we only need to use stencilType=0
         lattice->fillNeighborLists(0);//fill neighbor lists to allow computing mixed partials
         }
     else // one constant approx
