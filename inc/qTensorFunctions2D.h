@@ -94,14 +94,33 @@ HOSTDEVICE dVec derivativeTr2DQ2Squared(dVec &q)
     };
 
 //!Phase components combined into one for computational efficiency
-HOSTDEVICE dVec allPhaseComponentForces2D(dVec &q, scalar &a, scalar &b, scalar &c)
+HOSTDEVICE dVec allPhaseComponentForces2D(dVec &q, scalar &a, scalar &c)
     {
-    UNWRITTENCODE("allPhaseComponentForces2D");
-    scalar squares = q[0]*q[0]+q[1]*q[1];
-    
     dVec ans;
-    ans[0] = 0.0;
-    ans[1] = 0.0;
+    scalar squareComponent = 2.0*c*(q[0]*q[0]+q[1]*q[1]);
+    ans[0] =2.0*q[0]*(a+squareComponent);
+    ans[1] =2.0*q[1]*(a+squareComponent);
+    return ans;
+    }
+
+//!9-point Laplacian stencil (Patra-Karttunen version)
+HOSTDEVICE scalar laplacianStencil(scalar scale, scalar &center,scalar &xDown, scalar &xUp,scalar &yDown, scalar &yUp, scalar &xDownyDown, scalar &xUpyDown, scalar &xDownyUp, scalar &xUpyUp)
+    {
+    scalar ans;
+    scalar factor = scale/6.0;
+    ans = factor*(xDownyUp +    4.0*yUp   + xUpyUp +
+                 4.0*xDown -  20.*center  + 4.0*xUp +
+                 xDownyDown +   4.0*yDown + xUpyDown);
+    return ans;
+    }
+
+HOSTDEVICE dVec laplacianStencil(scalar scale, dVec &center,dVec &xDown, dVec &xUp,dVec &yDown, dVec &yUp, dVec &xDownyDown, dVec &xUpyDown, dVec &xDownyUp, dVec &xUpyUp)
+    {
+    dVec ans;
+    scalar factor = scale/6.0;
+    ans = factor*(xDownyUp +    4.0*yUp   + xUpyUp +
+                 4.0*xDown -  20.*center  + 4.0*xUp +
+                 xDownyDown +   4.0*yDown + xUpyDown);
     return ans;
     }
 

@@ -29,7 +29,7 @@ class squareLattice : public simpleModel
         void setSpinsRandomly(noiseSource &noise);
 
         //! return the integer corresponding to the given site, along with the indices of the four nearest neighbors (for default stencil type)
-        virtual int getNeighbors(int target, vector<int> &neighbors, int &neighs, int stencilType = 0);
+        virtual int getNeighbors(int target, vector<int> &neighbors, int &neighs, int stencilType = 1);
         //!decide to slice sites
         void sliceIndices(bool _s=true){sliceSites = _s;};
         //!given a pair of indices, determine what indexed spin is being pointed to

@@ -1,15 +1,15 @@
-#ifndef baseLatticeForce_H
-#define baseLatticeForce_H
+#ifndef squareLatticeForce_H
+#define squareLatticeForce_H
 
 #include "baseForce.h"
-#include "cubicLattice.h"
-/*! \file baseLatticeForce.h */
+#include "squareLattice.h"
+/*! \file squareLatticeForce.h */
 
 //!A lattice-based force specialized to lattices (which support getNeighbor function)
-class baseLatticeForce : public force
+class squareLatticeForce : public force
     {
     public:
-        baseLatticeForce();
+        squareLatticeForce();
         //!the call to compute forces, and store them in the referenced variable
         virtual void computeForces(GPUArray<dVec> &forces,bool zeroOutForce = true, int type = 0)
             {
@@ -35,7 +35,7 @@ class baseLatticeForce : public force
         virtual void computeEnergyGPU(bool verbose = false){printf("gpu energy calculation of lattice model being done on the cpu");energy = 0.0;};
 
         //! virtual function to allow the model to be a derived class
-        virtual void setModel(shared_ptr<cubicLattice> _model){lattice=_model;model = _model;};
+        virtual void setModel(shared_ptr<squareLattice> _model){lattice=_model;model = _model;};
         //!kernelTuner object
         shared_ptr<kernelTuner> forceTuner;
 
@@ -45,7 +45,7 @@ class baseLatticeForce : public force
             };
 
     protected:
-        shared_ptr<cubicLattice> lattice;
+        shared_ptr<squareLattice> lattice;
         //!if all lattice interactions are uniform
         scalar J;
     };

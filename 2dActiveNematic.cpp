@@ -1,7 +1,7 @@
 #include "functions.h"
 //#include "multirankSimulation.h"
 //#include "multirankQTensorLatticeModel.h"
-//#include "landauDeGennesLC.h"
+#include "landauDeGennesLC2D.h"
 #include "energyMinimizerFIRE.h"
 #include "energyMinimizerGradientDescent.h"
 #include "noiseSource.h"
@@ -79,12 +79,15 @@ int main(int argc, char*argv[])
     if(verbose) printf("setting a rectilinear lattice of size (%i,%i)\n",boxLx,boxLy);
 
     bool slice = false;
-    scalar S0 = 0.5;
+    scalar a = -1;
+    scalar c = 1;
+    scalar S0 = sqrt(-a/(4.0*c));
+    scalar L1 = defaultL;
 
     shared_ptr<qTensorLatticeModel2D> Configuration = make_shared<qTensorLatticeModel2D>(boxLx,boxLy,slice,GPU, GPU);
-
-    
     Configuration->setNematicQTensorRandomly(noise,S0,false);
+
+    shared_ptr<landauDeGennesLC2D> landauLCForce = make_shared<landauDeGennesLC2D>(a,c,L1, GPU);
 
 
     return 0;
