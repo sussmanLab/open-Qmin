@@ -2,7 +2,6 @@
 //#include "multirankSimulation.h"
 //#include "multirankQTensorLatticeModel.h"
 //#include "landauDeGennesLC.h"
-#include "squareLattice.h"
 #include "energyMinimizerFIRE.h"
 #include "energyMinimizerGradientDescent.h"
 #include "noiseSource.h"
@@ -10,6 +9,7 @@
 #include "profiler.h"
 #include <tclap/CmdLine.h>
 
+#include "qTensorLatticeModel2D.h"
 
 using namespace TCLAP;
 int main(int argc, char*argv[])
@@ -79,17 +79,12 @@ int main(int argc, char*argv[])
     if(verbose) printf("setting a rectilinear lattice of size (%i,%i)\n",boxLx,boxLy);
 
     bool slice = false;
-    shared_ptr<squareLattice> Configuration = make_shared<squareLattice>(boxLx,boxLy,slice,GPU, GPU);
+    scalar S0 = 0.5;
 
-    int N = boxLx*boxLy;
-    printf("(w,h)= (%i,%i)\n",Configuration->latticeIndex.width, Configuration->latticeIndex.height);
-    for (int ii = 0; ii < N; ++ii)
-        {
-        int2 invIdx= Configuration->latticeIndex.inverseIndex(ii);
-        int idx = Configuration->latticeIndex(invIdx);
-        printf("%i\t%i\t\t (%i,%i)\n",ii,idx,invIdx.x,invIdx.y);
-        }
+    shared_ptr<qTensorLatticeModel2D> Configuration = make_shared<qTensorLatticeModel2D>(boxLx,boxLy,slice,GPU, GPU);
 
+    
+    Configuration->setNematicQTensorRandomly(noise,S0,false);
 
 
     return 0;
