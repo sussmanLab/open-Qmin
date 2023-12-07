@@ -112,7 +112,7 @@ set(HEADERS
 
 # list the names of cpp files corresponding to linked executables you'd like... This first set is
 # for cpp files which DO NOT need QT
-foreach(ARG openQmin customScriptFromGUI)
+foreach(ARG openQmin customScriptFromGUI 2dActiveNematic)
 add_executable("${ARG}.out" "${ARG}.cpp" )
 target_link_libraries("${ARG}.out" ${myLibs} ${MPI_LIBRARIES} -lnvToolsExt)
 if(MPI_COMPILE_FLAGS)

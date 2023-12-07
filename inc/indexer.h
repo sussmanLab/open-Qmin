@@ -38,8 +38,25 @@ class Index2D
 
         HOSTDEVICE unsigned int operator()(unsigned int i, unsigned int j) const
             {
-            return j*width + i;
+            return i+ j*width;
             }
+
+        HOSTDEVICE unsigned int operator()(const int2 &i) const
+            {
+            return i.x + width*i.y;
+            };
+
+        //!What int2 would correspond to a given unsigned int Index2D(int2)
+        HOSTDEVICE int2 inverseIndex(int i)
+            {
+            int2 ans;
+            int z0 = i;
+            ans.x = z0 % width;
+            z0 = (z0-ans.x)/width;
+            ans.y = z0 % height;
+            return ans;
+            };
+
         //!Return the number of elements that the indexer can index
         HOSTDEVICE unsigned int getNumElements() const
             {

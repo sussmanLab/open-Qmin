@@ -33,7 +33,7 @@ class squareLattice : public simpleModel
         //!decide to slice sites
         void sliceIndices(bool _s=true){sliceSites = _s;};
         //!given a pair of indices, determine what indexed spin is being pointed to
-        int latticeSiteToLinearIndex(const int3 &target);
+        int latticeSiteToLinearIndex(const int2 &target);
         //!indexer for lattice sites
         Index2D latticeIndex;
         int2 latticeSites;
