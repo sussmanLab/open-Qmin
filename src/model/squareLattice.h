@@ -44,6 +44,8 @@ class squareLattice : public simpleModel
         GPUArray<int> neighboringSites;
         //!store the neighbors of each lattice site. The i'th neighbor of site j is given by neighboringSites[neighborIndex(i,j)]
         virtual void fillNeighborLists(int stencilType = 0);
+        //!alternate fillNeighborList function that passes the list and indexer as well
+        virtual void fillNeighborLists(int stencilType, GPUArray<int> &neighs, Index2D &nidx);
 
         //!return the mean spin
         virtual dVec averagePosition()

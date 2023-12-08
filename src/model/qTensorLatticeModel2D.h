@@ -5,10 +5,10 @@
 #include "qTensorFunctions2D.h"
 /*
 no GPU code written yet... when it is, include this file:
-#include "2DTensorLatticeModel.cuh"
+#include "qTensorLatticeModel2D.cuh"
 */
 
-/*! \file 2DTensorLatticeModel.h */
+/*! \file qTensorLatticeModel2D.h */
 
 //! Each site on the underlying lattice gets a local Q-tensor
 /*!
@@ -16,6 +16,8 @@ The Q-tensor in two dimensions has two independent components, which will get pa
 a dVec of q[0,1] corresponds to the symmetric traceless tensor laid out as
     (q[0]     q[1]  )
 Q = (q[1]    -q[0] )
+
+Convention is that, for a director n, the corresponding Q = s (n x n - I/2)
 
 Boundaries are implemented by making use of the "type" data structure that is inherited from the base simpleModel
 class...: each bulk LC lattice site will have type zero (the default), and lattice sites *adjacent to a boundary* will
@@ -31,7 +33,7 @@ class qTensorLatticeModel2D : public squareLattice
     public:
         //! construct an underlying cubic lattice
         qTensorLatticeModel2D(int l,bool _useGPU = false, bool _neverGPU=false);
-        qTensorLatticeModel2D(int lx,int ly,int lz,bool _useGPU = false, bool _neverGPU=false);
+        qTensorLatticeModel2D(int lx,int ly,bool _useGPU = false, bool _neverGPU=false);
 
         //!(possibly) need to rewrite how the Q tensors update with respect to a displacement call
         virtual void moveParticles(GPUArray<dVec> &displacements, scalar scale = 1.);

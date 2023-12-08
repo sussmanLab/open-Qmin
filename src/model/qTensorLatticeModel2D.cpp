@@ -22,7 +22,7 @@ qTensorLatticeModel2D::qTensorLatticeModel2D(int l, bool _useGPU, bool _neverGPU
         }
     };
 
-qTensorLatticeModel2D::qTensorLatticeModel2D(int lx,int ly,int lz, bool _useGPU, bool _neverGPU)
+qTensorLatticeModel2D::qTensorLatticeModel2D(int lx,int ly, bool _useGPU, bool _neverGPU)
     : squareLattice(lx,ly,false,_useGPU,_neverGPU)
     {
     normalizeSpins = false;

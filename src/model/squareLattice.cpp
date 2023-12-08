@@ -148,7 +148,27 @@ void squareLattice::fillNeighborLists(int stencilType)
             }
         }
     }
+    };
 
+void squareLattice::fillNeighborLists(int stencilType, GPUArray<int> &neighborSites, Index2D &nidx)
+    {
+    vector<int> neighs;
+    int nNeighs;
+    int temp = getNeighbors(0, neighs,nNeighs,stencilType);
+
+    nidx = Index2D(nNeighs,N);
+    neighborSites.resize(nNeighs*N);
+    {//array handle scope
+    ArrayHandle<int> neighbors(neighborSites);
+    for (int ii = 0; ii < N; ++ii)
+        {
+        temp = getNeighbors(ii, neighs,nNeighs,stencilType);
+        for (int jj = 0; jj < nNeighs; ++jj)
+            {
+            neighbors.data[nidx(jj,ii)] = neighs[jj];
+            }
+        }
+    }
     };
 
 /*!
@@ -160,6 +180,9 @@ If stencilType ==1 neighbors will be suitable for computing 9-point stencil lapl
 neighs = 8;
 neighbors = {xMinus, xPlus, yMinus, yPlus,
             xMinus_yMinus,xMinus_yPlus,xPlus_yMinus,xPlus_yPlus}
+If stencilType ==2, we include sites a distance two away (suitable for, e.g., upwind advective derivatives, etc)
+neighs = 4;
+neighbors = {xMinusMinus, xPlusPlus, yMinusMinus, yPlusPlus}
 */
 int squareLattice::getNeighbors(int target, vector<int> &neighbors, int &neighs, int stencilType)
     {
@@ -196,11 +219,10 @@ int squareLattice::getNeighbors(int target, vector<int> &neighbors, int &neighs,
                 neighbors[3] = latticeIndex(position.x,1);
                 }
             else
-                { neighbors[2] = latticeIndex(position.x,latticeIndex.height-2);
+                {
+                neighbors[2] = latticeIndex(position.x,latticeIndex.height-2);
                 neighbors[3] = latticeIndex(position.x,0);
                 };
-           
-            return target;
             };
         }
 
@@ -218,6 +240,16 @@ int squareLattice::getNeighbors(int target, vector<int> &neighbors, int &neighs,
         neighbors[5] = latticeIndex(wrap(position.x-1,latticeIndex.width),wrap(position.y+1,latticeIndex.height));;
         neighbors[6] = latticeIndex(wrap(position.x+1,latticeIndex.width),wrap(position.y-1,latticeIndex.height));
         neighbors[7] = latticeIndex(wrap(position.x+1,latticeIndex.width),wrap(position.y+1,latticeIndex.height));
+        }
+    if(stencilType==2)
+        {
+        int2 position = latticeIndex.inverseIndex(target);
+        neighs = 4;
+        if(neighbors.size()!=neighs) neighbors.resize(neighs);
+        neighbors[0] = latticeIndex(wrap(position.x-2,latticeIndex.width),position.y);
+        neighbors[1] = latticeIndex(wrap(position.x+2,latticeIndex.width),position.y);
+        neighbors[2] = latticeIndex(position.x,wrap(position.y-2,latticeIndex.height));
+        neighbors[3] = latticeIndex(position.x,wrap(position.y+2,latticeIndex.height));
         }
 
     return target; 
