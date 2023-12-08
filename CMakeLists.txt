@@ -8,7 +8,7 @@ set(CUDA_ARCH "30")
                 #I have set this to work on Tesla K40s (still used at many XSEDE facilities), but add the correct codes for optimizing performance
                 #on your cards
 
-add_definitions(-DDIMENSION=5)
+add_definitions(-DDIMENSION=2)
 add_definitions(-DDIRECTORY="${CMAKE_CURRENT_SOURCE_DIR}")
 message("dir = " "${CMAKE_CURRENT_SOURCE_DIR}")
 

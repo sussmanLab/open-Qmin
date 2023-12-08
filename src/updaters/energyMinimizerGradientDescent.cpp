@@ -124,8 +124,9 @@ void energyMinimizerGradientDescent::minimize()
     };
 
 
-void energyMinimizerGradientDescent::setGradientDescentParameters(scalar deltaT, scalar forceCutoff)
+void energyMinimizerGradientDescent::setGradientDescentParameters(scalar deltaT, scalar forceCutoff, int maxSteps)
     {
     setDeltaT(deltaT);
     setForceCutoff(forceCutoff);
+    setMaximumIterations(maxSteps);
     };

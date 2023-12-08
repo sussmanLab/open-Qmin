@@ -3,13 +3,14 @@
 //#include "multirankQTensorLatticeModel.h"
 #include "landauDeGennesLC2D.h"
 #include "energyMinimizerFIRE.h"
-#include "energyMinimizerGradientDescent.h"
+#include "energyMinimizerNesterovAG.h"
 #include "noiseSource.h"
 #include "indexer.h"
 #include "profiler.h"
 #include <tclap/CmdLine.h>
 
 #include "qTensorLatticeModel2D.h"
+#include "simulation.h"
 
 using namespace TCLAP;
 int main(int argc, char*argv[])
@@ -79,8 +80,8 @@ int main(int argc, char*argv[])
     if(verbose) printf("setting a rectilinear lattice of size (%i,%i)\n",boxLx,boxLy);
 
     bool slice = false;
-    scalar a = -1;
-    scalar c = 1;
+    scalar a = -64;
+    scalar c = 64;
     scalar S0 = sqrt(-a/(4.0*c));
     scalar L1 = defaultL;
 
@@ -88,7 +89,30 @@ int main(int argc, char*argv[])
     Configuration->setNematicQTensorRandomly(noise,S0,false);
 
     shared_ptr<landauDeGennesLC2D> landauLCForce = make_shared<landauDeGennesLC2D>(a,c,L1, GPU);
+    landauLCForce->setModel(Configuration);
 
+    shared_ptr<energyMinimizerNesterovAG> minimizer =  make_shared<energyMinimizerNesterovAG>(Configuration);
+    minimizer->setNesterovAGParameters(dt, 0.01,forceCutoff);
+    minimizer->setMaximumIterations(maximumIterations);
+
+
+    shared_ptr<Simulation> sim = make_shared<Simulation>();
+    
+    sim->setConfiguration(Configuration);
+    sim->addForce(landauLCForce);
+    sim->addUpdater(minimizer,Configuration);
+
+    vector<scalar> maxEvec;
+    Configuration->getAverageMaximalEigenvector(maxEvec);
+    printf("(%f,%f)\n",maxEvec[0],maxEvec[1]);
+    sim->performTimestep();
+    Configuration->getAverageMaximalEigenvector(maxEvec);
+    printf("(%f,%f)\n",maxEvec[0],maxEvec[1]);
+
+    ArrayHandle<dVec> fp(Configuration->returnPositions());
+    printdVec(fp.data[0]);
+    printdVec(fp.data[10]);
+    printdVec(fp.data[20]);
 
     return 0;
     };

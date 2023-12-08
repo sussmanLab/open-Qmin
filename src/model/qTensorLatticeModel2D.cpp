@@ -29,9 +29,9 @@ qTensorLatticeModel2D::qTensorLatticeModel2D(int lx,int ly,int lz, bool _useGPU,
     if(neverGPU)
         defectMeasures.noGPU = true;
     defectMeasures.resize(N);
-    if(DIMENSION !=5)
+    if(DIMENSION <2 )
         {
-        printf("\nAttempting to run a simulation with incorrectly set dimension... change the root CMakeLists.txt file to have dimension 5 and recompile\n");
+        printf("\nAttempting to run a simulation with incorrectly set dimension... change the root CMakeLists.txt file to have dimension at least 5 and recompile\n");
         throw std::exception();
         }
     };
@@ -55,9 +55,10 @@ void qTensorLatticeModel2D::getAverageMaximalEigenvector(vector<scalar> &average
             eigensystemOfQ2D(Q.data[pp],eigenValues,eigenVector1,eigenVector2);
             averageN[0] += eigenVector2[0];
             averageN[1] += eigenVector2[1];
-            averageN[2] += eigenVector2[2];
             }
         }
+    averageN[0] /=n;
+    averageN[1] /=n;
     }
 
 void qTensorLatticeModel2D::getAverageEigenvalues(bool verbose)

@@ -30,7 +30,7 @@ class energyMinimizerGradientDescent : public equationOfMotion
         void initializeFromModel();
 
         //!Set a lot of parameters!
-        void setGradientDescentParameters(scalar deltaT, scalar forceCutoff);
+        void setGradientDescentParameters(scalar deltaT, scalar forceCutoff, int maxSteps);
 
         //!Set the force cutoff
         void setForceCutoff(scalar fc){forceCutoff = fc;};
