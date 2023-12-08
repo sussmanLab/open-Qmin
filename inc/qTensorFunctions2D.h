@@ -42,8 +42,8 @@ HOSTDEVICE void qTensorFromDirector2D(scalar2 n, scalar S0, dVec &q)
         {
         n.x /=scale;n.y /=scale;
         }
-    q[0] = 2.0*S0*(n.x*n.x-0.5);
-    q[1] = 2.0*S0*n.x*n.y;
+    q[0] = S0*(n.x*n.x-0.5);
+    q[1] = S0*n.x*n.y;
     };
 
 //!Tr(Q^2) = Q_{kl}Q_{lk}
