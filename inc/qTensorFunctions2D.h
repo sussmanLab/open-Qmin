@@ -6,7 +6,7 @@
 /*!
 The 2Q-tensor has five independent components, which will get passed around in dVec structures...
 a dVec of q[0,1] corresponds to the symmetric traceless tensor laid out as
-    (q[0]    q[1]  )       q[2]    )
+    (q[0]    q[1]  )
 Q = (q[1]    -q[0] )
 
 This file implements handy manipulations and functions of the Q-tensor as laid out this way
@@ -42,8 +42,8 @@ HOSTDEVICE void qTensorFromDirector2D(scalar2 n, scalar S0, dVec &q)
         {
         n.x /=scale;n.y /=scale;
         }
-    q[0] = S0*(n.x*n.x-0.5);
-    q[1] = S0*n.x*n.y;
+    q[0] = 2.0*S0*(n.x*n.x-0.5);
+    q[1] = 2.0*S0*n.x*n.y;
     };
 
 //!Tr(Q^2) = Q_{kl}Q_{lk}

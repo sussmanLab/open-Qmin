@@ -9,7 +9,7 @@
 #include "profiler.h"
 #include <tclap/CmdLine.h>
 
-#include "qTensorLatticeModel2D.h"
+#include "activeQTensorModel2D.h"
 #include "simulation.h"
 
 using namespace TCLAP;
@@ -82,10 +82,10 @@ int main(int argc, char*argv[])
     bool slice = false;
     scalar a = -64;
     scalar c = 64;
-    scalar S0 = sqrt(-2.0*a/(1.0*c));
+    scalar S0 = sqrt(-1.0*a/(4.0*c));
     scalar L1 = defaultL;
 
-    shared_ptr<qTensorLatticeModel2D> Configuration = make_shared<qTensorLatticeModel2D>(boxLx,boxLy,GPU, GPU);
+    shared_ptr<activeQTensorModel2D> Configuration = make_shared<activeQTensorLattice2D>(boxLx,boxLy,GPU, GPU);
     Configuration->setNematicQTensorRandomly(noise,S0,false);
 
     shared_ptr<landauDeGennesLC2D> landauLCForce = make_shared<landauDeGennesLC2D>(a,c,L1, GPU);
