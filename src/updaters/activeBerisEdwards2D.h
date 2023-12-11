@@ -34,7 +34,7 @@ class activeBerisEdwards2D : public equationOfMotion
         dVec upwindAdvectiveDerivative(dVec &u, dVec &f, dVec &fxd, dVec &fyd, dVec &fxu, dVec &fyu, dVec &fxdd, dVec &fydd, dVec &fxuu, dVec &fyuu);
 
         //!helper function for the pressure-poisson method
-        double2 relaxPressureCPU();
+        double3 relaxPressureCPU();
 
         //!Auxilliary data structures
         GPUArray<dVec> generalizedAdvection;

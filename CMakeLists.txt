@@ -85,7 +85,12 @@ file(GLOB UTILITIESLIB_CU ${UTILITIESLIB_DIR}/*.cu)
 add_library(Utilities ${UTILITIESLIB_CPP} ${UTILITIESLIB_CU})
 set_target_properties(Utilities PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 
-set(myLibs Forces Model Simulation Updaters Utilities)
+set(DATABASELIB_DIR src/database)
+file(GLOB DATABASELIB_CPP ${DATABASELIB_DIR}/*.cpp)
+add_library(Databases ${DATABASELIB_CPP})
+set_target_properties(Forces PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+
+set(myLibs Forces Model Simulation Updaters Utilities Databases)
 include_directories(
     inc
     ${FORCESLIB_DIR}
@@ -93,6 +98,7 @@ include_directories(
     ${SIMULATIONLIB_DIR}
     ${UPDATERSLIB_DIR}
     ${UTILITIESLIB_DIR}
+    ${DATABASELIB_DIR}
     ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}
     ${Qt5Widgets_INCLUDE_DIRS}
     ${OPENGL_INCLUDE_DIRS}
@@ -114,7 +120,7 @@ set(HEADERS
 # for cpp files which DO NOT need QT
 foreach(ARG openQmin customScriptFromGUI 2dActiveNematic)
 add_executable("${ARG}.out" "${ARG}.cpp" )
-target_link_libraries("${ARG}.out" ${myLibs} ${MPI_LIBRARIES} -lnvToolsExt)
+target_link_libraries("${ARG}.out" ${myLibs} ${MPI_LIBRARIES} -lnvToolsExt netcdf netcdf_c++)
 if(MPI_COMPILE_FLAGS)
     set_target_properties("${ARG}.out" PROPERTIES COMPILE_FLAGS "${MPI_COMPILE_FLAGS}")
 endif()

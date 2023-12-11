@@ -12,6 +12,7 @@
 #include "activeQTensorModel2D.h"
 #include "activeBerisEdwards2D.h"
 #include "simulation.h"
+#include "vectorValueDatabase.h"
 
 using namespace TCLAP;
 int main(int argc, char*argv[])
@@ -39,7 +40,8 @@ int main(int argc, char*argv[])
     ValueArg<scalar> flowAlignmentSwitchArg("F","flowAlignment","flow alignment parameter lambda",false,0.1,"scalar",cmd);
     ValueArg<scalar> rotationalViscositySwitchArg("q","rv","rotational viscosity parameter",false,2560.,"scalar",cmd);
 
-    ValueArg<scalar> dtSwitchArg("e","deltaT","step size for minimizer",false,0.0002,"scalar",cmd);
+    ValueArg<scalar> dtSwitchArg("e","deltaT","step size for equation of motion",false,0.0002,"scalar",cmd);
+    ValueArg<scalar> pdtSwitchArg("w","pseudodeltaT","step size for pressure poisson relaxation",false,0.0002,"scalar",cmd);
     ValueArg<scalar> forceToleranceSwitchArg("f","fTarget","target minimization threshold for norm of residual forces",false,0.000000000001,"scalar",cmd);
 
     ValueArg<int> iterationsSwitchArg("i","iterations","maximum number of minimization steps",false,100,"int",cmd);
@@ -103,7 +105,7 @@ int main(int argc, char*argv[])
     shared_ptr<landauDeGennesLC2D> landauLCForce = make_shared<landauDeGennesLC2D>(a,c,L1, GPU);
     landauLCForce->setModel(Configuration);
 
-    scalar pseudoTimestep = dt;
+    scalar pseudoTimestep = pdtSwitchArg.getValue();
     scalar dpTarget = 0.0001;
     shared_ptr<activeBerisEdwards2D> activeBE2D = make_shared<activeBerisEdwards2D>(L1,rotationalViscosity,flowAlignmentParameter,ReynoldsNumber,activeLengthScale,dt,pseudoTimestep, dpTarget);
 
@@ -112,12 +114,37 @@ int main(int argc, char*argv[])
     sim->addForce(landauLCForce);
     sim->addUpdater(activeBE2D,Configuration);
 
+
     profiler timestepProf("timestep cost");
+    char dataname[256];
+    sprintf(dataname,"./test.nc");
+    //store database: [x,y,qxx,qxy,vx,vy,p]
+    vectorValueDatabase vvdat(7*boxLx*boxLy,dataname,NcFile::Replace);
     for (int ii = 0; ii < maximumIterations; ++ii)
         {
         timestepProf.start();
         sim->performTimestep();
         timestepProf.end();
+        if(ii%((int)(1/dt))==0)
+            {
+            cout << ii << endl;
+            ArrayHandle<dVec> p(Configuration->returnPositions());
+            ArrayHandle<dVec> v(Configuration->returnVelocities());
+            ArrayHandle<scalar> pressure(Configuration->pressure);
+            vector<double> saveVec(7*boxLx*boxLy);
+            for (int nn = 0; nn < boxLx*boxLy; ++nn)
+                {
+                int2 invIdx= Configuration->latticeIndex.inverseIndex(nn);
+                saveVec[7*nn+0] = invIdx.x;
+                saveVec[7*nn+1] = invIdx.y;
+                saveVec[7*nn+2] = p.data[nn].x[0];
+                saveVec[7*nn+3] = p.data[nn].x[1];
+                saveVec[7*nn+4] = v.data[nn].x[0];
+                saveVec[7*nn+5] = v.data[nn].x[1];
+                saveVec[7*nn+6] = pressure.data[nn];
+                };
+            vvdat.writeState(saveVec,ii*dt);
+            }
         }
     timestepProf.print();
 /*

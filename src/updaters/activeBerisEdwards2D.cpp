@@ -10,7 +10,7 @@ activeBerisEdwards2D::activeBerisEdwards2D(scalar _K, scalar _gamma, scalar _lam
     viscosity = sqrt(_K/_Re);
     pseudotimestep = pdt;
     deltaT = _dt;
-    targetRelativePressureChange = _dpTarget;
+    targetRelativePressureChange = _dpTarget*pseudotimestep/deltaT;
     }
 
 void activeBerisEdwards2D::initializeFromModel()
@@ -138,7 +138,7 @@ void activeBerisEdwards2D::pressurePoissonCPU()
     //Next, iteratively relax towards the correct pressure field
     pIterations = 0;
     bool fieldConverged = false;
-    double2 pRelaxationData;
+    double3 pRelaxationData;
     scalar relativePressureChange;
     while(!fieldConverged)
         {
@@ -155,11 +155,18 @@ void activeBerisEdwards2D::pressurePoissonCPU()
                 fieldConverged = true;
             }
         };
+
+    //p->(p-<p>)
+    ArrayHandle<scalar> p(activeModel->pressure);
+    for (int ii = 0; ii < Ndof; ++ii)
+        {
+        p.data[ii] -= pRelaxationData.z;
+        }
     };
 
-double2 activeBerisEdwards2D::relaxPressureCPU()
+double3 activeBerisEdwards2D::relaxPressureCPU()
     {
-    double2 answer; //store abs value of pressure field and abs of difference between aux and p fields
+    double3 answer; //store abs value of pressure field, abs of difference between aux and p fields, and mean pressure field
     ArrayHandle<scalar> p(activeModel->pressure);
     ArrayHandle<scalar> pAux(auxiliaryPressure);
     ArrayHandle<scalar> pRHS(pressurePoissonHelper);
@@ -173,6 +180,7 @@ double2 activeBerisEdwards2D::relaxPressureCPU()
     //update the pressure field based on the auxiliary and RHS terms
     scalar accumulatedDifference = 0.;
     scalar pTotal = 0.;
+    scalar pMean = 0.;
     for (int ii = 0; ii < Ndof; ++ii)
         {
         //lattice indices of four nearest neighbors
@@ -189,9 +197,11 @@ double2 activeBerisEdwards2D::relaxPressureCPU()
                           + pAux.data[ixdyd] + pAux.data[ixdyu] + pAux.data[ixuyd] + pAux.data[ixuyu]);
         accumulatedDifference += fabs(pAux.data[ii] - p.data[ii]);
         pTotal += fabs(p.data[ii]);
+        pMean += p.data[ii];
         };
     answer.x = pTotal;
     answer.y=accumulatedDifference;
+    answer.z = pMean / Ndof;
     return answer;
     };
 
