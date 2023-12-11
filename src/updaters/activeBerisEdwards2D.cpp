@@ -48,6 +48,7 @@ void activeBerisEdwards2D::integrateEOMCPU()
     calculateMolecularFieldAdvectionStressCPU();
     pressurePoissonCPU();
     relaxPressureCPU();
+    updateQFieldCPU();
     updateVelocityFieldCPU();
     };
 
