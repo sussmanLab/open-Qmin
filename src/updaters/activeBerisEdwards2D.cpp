@@ -1,6 +1,18 @@
 #include "activeBerisEdwards2D.h"
 #include "utilities.cuh"
 
+activeBerisEdwards2D::activeBerisEdwards2D(scalar _K, scalar _gamma, scalar _lambda, scalar _Re, scalar _activeLengthScale, scalar _dt, scalar pdt,scalar _dpTarget)
+    {
+    lambda = _lambda;
+    activeLengthScale = _activeLengthScale;
+    rotationalViscosity = _gamma;
+    ReynoldsNumber = _Re;
+    viscosity = sqrt(_K/_Re);
+    pseudotimestep = pdt;
+    deltaT = _dt;
+    targetRelativePressureChange = _dpTarget;
+    }
+
 void activeBerisEdwards2D::initializeFromModel()
     {
     iterations = 0;
@@ -130,6 +142,7 @@ void activeBerisEdwards2D::pressurePoissonCPU()
     scalar relativePressureChange;
     while(!fieldConverged)
         {
+        pIterations +=1;
         pRelaxationData = relaxPressureCPU();
         if(pRelaxationData.y == 0 || pRelaxationData.x == 0)
             {

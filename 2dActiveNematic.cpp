@@ -32,13 +32,18 @@ int main(int argc, char*argv[])
     ValueArg<int> lxSwitchArg("","Lx","number of lattice sites in x direction",false,50,"int",cmd);
     ValueArg<int> lySwitchArg("","Ly","number of lattice sites in y direction",false,50,"int",cmd);
 
-    ValueArg<scalar> dtSwitchArg("e","deltaT","step size for minimizer",false,0.0005,"scalar",cmd);
+    ValueArg<scalar> L1SwitchArg("L","L1","LdG constant for the first distortion term",false,65536.,"scalar",cmd);
+    ValueArg<scalar> nclSwitchArg("n","nematicCoherenceLength","nematic coherence length",false,0.5,"scalar",cmd);
+    ValueArg<scalar> alSwitchArg("a","activeLengthscale","active length scale ",false,2.,"scalar",cmd);
+    ValueArg<scalar> ReSwitchArg("R","Re","Reynolds number",false,0.1,"scalar",cmd);
+    ValueArg<scalar> flowAlignmentSwitchArg("F","flowAlignment","flow alignment parameter lambda",false,0.1,"scalar",cmd);
+    ValueArg<scalar> rotationalViscositySwitchArg("q","rv","rotational viscosity parameter",false,2560.,"scalar",cmd);
+
+    ValueArg<scalar> dtSwitchArg("e","deltaT","step size for minimizer",false,0.0002,"scalar",cmd);
     ValueArg<scalar> forceToleranceSwitchArg("f","fTarget","target minimization threshold for norm of residual forces",false,0.000000000001,"scalar",cmd);
 
     ValueArg<int> iterationsSwitchArg("i","iterations","maximum number of minimization steps",false,100,"int",cmd);
     ValueArg<int> randomSeedSwitch("","randomSeed","seed for reproducible random number generation", false, -1, "int",cmd);
-
-    scalar defaultL=4.64;
 
     //parse the arguments
     cmd.parse( argc, argv );
@@ -80,11 +85,17 @@ int main(int argc, char*argv[])
 
     if(verbose) printf("setting a rectilinear lattice of size (%i,%i)\n",boxLx,boxLy);
 
+    scalar L1 =L1SwitchArg.getValue();
     bool slice = false;
-    scalar a = -64*64;
-    scalar c = 64*64;
+    scalar c = L1 / (nclSwitchArg.getValue()*nclSwitchArg.getValue());
+    scalar a = -c;
     scalar S0 = sqrt(-1.0*a/(4.0*c));
-    scalar L1 = defaultL;
+
+    scalar nCoherence = nclSwitchArg.getValue();
+    scalar activeLengthScale = alSwitchArg.getValue();
+    scalar ReynoldsNumber = ReSwitchArg.getValue();
+    scalar flowAlignmentParameter = flowAlignmentSwitchArg.getValue();
+    scalar rotationalViscosity = rotationalViscositySwitchArg.getValue();
 
     shared_ptr<activeQTensorModel2D> Configuration = make_shared<activeQTensorModel2D>(boxLx,boxLy,GPU, GPU);
     Configuration->setNematicQTensorRandomly(noise,S0,false);
@@ -92,15 +103,23 @@ int main(int argc, char*argv[])
     shared_ptr<landauDeGennesLC2D> landauLCForce = make_shared<landauDeGennesLC2D>(a,c,L1, GPU);
     landauLCForce->setModel(Configuration);
 
-    shared_ptr<activeBerisEdwards2D> activeBE2D = make_shared<activeBerisEdwards2D>();
+    scalar pseudoTimestep = dt;
+    scalar dpTarget = 0.0001;
+    shared_ptr<activeBerisEdwards2D> activeBE2D = make_shared<activeBerisEdwards2D>(L1,rotationalViscosity,flowAlignmentParameter,ReynoldsNumber,activeLengthScale,dt,pseudoTimestep, dpTarget);
 
     shared_ptr<Simulation> sim = make_shared<Simulation>();
     sim->setConfiguration(Configuration);
     sim->addForce(landauLCForce);
     sim->addUpdater(activeBE2D,Configuration);
 
-
-    sim->performTimestep();
+    profiler timestepProf("timestep cost");
+    for (int ii = 0; ii < maximumIterations; ++ii)
+        {
+        timestepProf.start();
+        sim->performTimestep();
+        timestepProf.end();
+        }
+    timestepProf.print();
 /*
     vector<scalar> maxEvec;
     Configuration->getAverageMaximalEigenvector(maxEvec);

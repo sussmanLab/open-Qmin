@@ -8,6 +8,8 @@
 class activeBerisEdwards2D : public equationOfMotion
     {
     public:
+        activeBerisEdwards2D(scalar _K, scalar _gamma, scalar _lambda, scalar _Re, scalar _activeLengthScale, scalar _dt, scalar pdt,scalar _dpTarget);
+
         virtual void integrateEOMGPU();
         virtual void integrateEOMCPU();
 
