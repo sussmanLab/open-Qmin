@@ -85,7 +85,7 @@ int main(int argc, char*argv[])
     scalar S0 = sqrt(-1.0*a/(4.0*c));
     scalar L1 = defaultL;
 
-    shared_ptr<activeQTensorModel2D> Configuration = make_shared<activeQTensorLattice2D>(boxLx,boxLy,GPU, GPU);
+    shared_ptr<activeQTensorModel2D> Configuration = make_shared<activeQTensorModel2D>(boxLx,boxLy,GPU, GPU);
     Configuration->setNematicQTensorRandomly(noise,S0,false);
 
     shared_ptr<landauDeGennesLC2D> landauLCForce = make_shared<landauDeGennesLC2D>(a,c,L1, GPU);
@@ -102,6 +102,7 @@ int main(int argc, char*argv[])
     sim->addForce(landauLCForce);
     sim->addUpdater(minimizer,Configuration);
 
+/*
     vector<scalar> maxEvec;
     Configuration->getAverageMaximalEigenvector(maxEvec);
     printf("(%f,%f)\n",maxEvec[0],maxEvec[1]);
@@ -113,6 +114,6 @@ int main(int argc, char*argv[])
     printdVec(fp.data[0]);
     printdVec(fp.data[10]);
     printdVec(fp.data[20]);
-
+*/
     return 0;
     };

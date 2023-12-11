@@ -23,9 +23,25 @@ class activeBerisEdwards2D : public equationOfMotion
             initializeFromModel();
             };
     protected:
-        void relaxPressure();
-        void calculateStrainAndVorticity();
-        void updateQField();
-        void updateVelocityField();
+        void calculateMolecularFieldAdvectionStressCPU();
+        void relaxPressureCPU();
+        void updateQFieldCPU();
+        void updateVelocityFieldCPU();
+
+        //!helper function for upwind advective derivatives
+        dVec upwindAdvectiveDerivative(dVec &u, dVec &f, dVec &fxd, dVec &fyd, dVec &fxu, dVec &fyu, dVec &fxdd, dVec &fydd, dVec &fxuu, dVec &fyuu);
+
+        //!Auxilliary data structures
+        GPUArray<dVec> generalizedAdvection;
+        GPUArray<dVec> velocityUpdate;
+
+        //!model parameters
+        scalar lambda = 0.1;
+        scalar zeta = 400;
+        scalar activeLengthScale = 2;
+        scalar rotationalViscosity = 2560.;
+        scalar ReynoldsNumber = 0.1;
+        scalar viscosity = 655360.;
+        scalar rho = 1.0;
     };
 #endif

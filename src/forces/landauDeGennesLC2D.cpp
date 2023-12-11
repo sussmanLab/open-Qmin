@@ -42,7 +42,7 @@ void landauDeGennesLC2D::setModel(shared_ptr<squareLattice> _model)
     lattice=_model;
     model = _model;
     //DMS: Note that we have moved away from the stenciled neighbor list approach and instead only need various first derivatives. Hence the precomputation of the first derivatives and the cubicLatticeDerivative vectors
-    //I've left the functionality to (in principle) allow for more complex distortion terms, but for now we only need to use stencilType=0
+    //I've left the functionality to (in principle) allow for more complex distortion terms, but for now we only need to use stencilType=1, which corresponds to a nine-point stencil in 2D
     lattice->fillNeighborLists(1);//fill neighbor lists to allow computing mixed partials
     int N = lattice->getNumberOfParticles();
     energyDensity.resize(N);

@@ -10,9 +10,10 @@ void landauDeGennesLC2D::computeL1Bulk2DCPU(GPUArray<dVec> &forces,bool zeroOutF
 
     scalar a = 0.5*A;
     scalar c = 0.25*C;
+    dVec qCurrent, xDown, xUp, yDown,yUp,xDownyDown, xUpyDown, xDownyUp, xUpyUp;
+    int ixd, ixu, iyd,iyu, ixdyd, ixdyu, ixuyd, ixuyu;
     for (int i = 0; i < lattice->getNumberOfParticles(); ++i)
         {
-        dVec qCurrent, xDown, xUp, yDown,yUp,xDownyDown, xUpyDown, xDownyUp, xUpyUp;
         int currentIndex = i;
         dVec force(0.0);
         dVec spatialTerm(0.0);
@@ -23,7 +24,6 @@ void landauDeGennesLC2D::computeL1Bulk2DCPU(GPUArray<dVec> &forces,bool zeroOutF
             force -= a*derivativeTr2DQ2(qCurrent);
             force -= c*derivativeTr2DQ2Squared(qCurrent);
 
-            int ixd, ixu, iyd,iyu, ixdyd, ixdyu, ixuyd, ixuyu;
             ixd =latticeNeighbors.data[lattice->neighborIndex(0,currentIndex)];
             ixu =latticeNeighbors.data[lattice->neighborIndex(1,currentIndex)];
             iyd =latticeNeighbors.data[lattice->neighborIndex(2,currentIndex)];
