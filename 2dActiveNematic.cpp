@@ -10,6 +10,7 @@
 #include <tclap/CmdLine.h>
 
 #include "activeQTensorModel2D.h"
+#include "activeBerisEdwards2D.h"
 #include "simulation.h"
 
 using namespace TCLAP;
@@ -80,8 +81,8 @@ int main(int argc, char*argv[])
     if(verbose) printf("setting a rectilinear lattice of size (%i,%i)\n",boxLx,boxLy);
 
     bool slice = false;
-    scalar a = -64;
-    scalar c = 64;
+    scalar a = -64*64;
+    scalar c = 64*64;
     scalar S0 = sqrt(-1.0*a/(4.0*c));
     scalar L1 = defaultL;
 
@@ -91,17 +92,15 @@ int main(int argc, char*argv[])
     shared_ptr<landauDeGennesLC2D> landauLCForce = make_shared<landauDeGennesLC2D>(a,c,L1, GPU);
     landauLCForce->setModel(Configuration);
 
-    shared_ptr<energyMinimizerNesterovAG> minimizer =  make_shared<energyMinimizerNesterovAG>(Configuration);
-    minimizer->setNesterovAGParameters(dt, 0.01,forceCutoff);
-    minimizer->setMaximumIterations(maximumIterations);
-
+    shared_ptr<activeBerisEdwards2D> activeBE2D = make_shared<activeBerisEdwards2D>();
 
     shared_ptr<Simulation> sim = make_shared<Simulation>();
-    
     sim->setConfiguration(Configuration);
     sim->addForce(landauLCForce);
-    sim->addUpdater(minimizer,Configuration);
+    sim->addUpdater(activeBE2D,Configuration);
 
+
+    sim->performTimestep();
 /*
     vector<scalar> maxEvec;
     Configuration->getAverageMaximalEigenvector(maxEvec);
@@ -114,6 +113,10 @@ int main(int argc, char*argv[])
     printdVec(fp.data[0]);
     printdVec(fp.data[10]);
     printdVec(fp.data[20]);
+    shared_ptr<energyMinimizerNesterovAG> minimizer =  make_shared<energyMinimizerNesterovAG>(Configuration);
+    minimizer->setNesterovAGParameters(dt, 0.01,forceCutoff);
+    minimizer->setMaximumIterations(maximumIterations);
+    sim->addUpdater(minimizer,Configuration);
 */
     return 0;
     };

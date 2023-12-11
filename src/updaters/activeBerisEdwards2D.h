@@ -24,16 +24,21 @@ class activeBerisEdwards2D : public equationOfMotion
             };
     protected:
         void calculateMolecularFieldAdvectionStressCPU();
-        void relaxPressureCPU();
+        void pressurePoissonCPU();
         void updateQFieldCPU();
         void updateVelocityFieldCPU();
 
         //!helper function for upwind advective derivatives
         dVec upwindAdvectiveDerivative(dVec &u, dVec &f, dVec &fxd, dVec &fyd, dVec &fxu, dVec &fyu, dVec &fxdd, dVec &fydd, dVec &fxuu, dVec &fyuu);
 
+        //!helper function for the pressure-poisson method
+        double2 relaxPressureCPU();
+
         //!Auxilliary data structures
         GPUArray<dVec> generalizedAdvection;
         GPUArray<dVec> velocityUpdate;
+        GPUArray<scalar> auxiliaryPressure;
+        GPUArray<scalar> pressurePoissonHelper;
 
         //!model parameters
         scalar lambda = 0.1;
@@ -42,6 +47,12 @@ class activeBerisEdwards2D : public equationOfMotion
         scalar rotationalViscosity = 2560.;
         scalar ReynoldsNumber = 0.1;
         scalar viscosity = 655360.;
-        scalar rho = 1.0;
+        scalar rho = 1.0; //should be one by choice of units
+
+
+        scalar pseudotimestep = 0.0002;
+        scalar targetRelativePressureChange = 0.0001;//better to eventually switch to a different condition for convergence of pressure-poisson method
+        int pIterations;
+        int maxPIterations = 1000000;
     };
 #endif

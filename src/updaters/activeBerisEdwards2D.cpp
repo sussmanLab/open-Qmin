@@ -11,10 +11,14 @@ void activeBerisEdwards2D::initializeFromModel()
         displacement.noGPU = true;
         generalizedAdvection.noGPU = true;
         velocityUpdate.noGPU=true;
+        auxiliaryPressure.noGPU=true;
+        pressurePoissonHelper.noGPU=true;
         }
     displacement.resize(Ndof);
     generalizedAdvection.resize(Ndof);
     velocityUpdate.resize(Ndof);
+    auxiliaryPressure.resize(Ndof);
+    pressurePoissonHelper.resize(Ndof);
 
     vector<dVec> zeroes(Ndof,make_dVec(0.0));
     fillGPUArrayWithVector(zeroes,displacement);
@@ -30,6 +34,7 @@ void activeBerisEdwards2D::integrateEOMGPU()
 void activeBerisEdwards2D::integrateEOMCPU()
     {
     calculateMolecularFieldAdvectionStressCPU();
+    pressurePoissonCPU();
     relaxPressureCPU();
     updateVelocityFieldCPU();
     };
@@ -59,7 +64,7 @@ void activeBerisEdwards2D::calculateMolecularFieldAdvectionStressCPU()
         ixd = nearestNeighbors.data[activeModel->neighborIndex(0,ii)];
         ixu = nearestNeighbors.data[activeModel->neighborIndex(1,ii)];
         iyd = nearestNeighbors.data[activeModel->neighborIndex(2,ii)];
-        ixu = nearestNeighbors.data[activeModel->neighborIndex(3,ii)];
+        iyu = nearestNeighbors.data[activeModel->neighborIndex(3,ii)];
 
         //relevant strain and vorticity terms
         dxux = 0.5*(v.data[ixu].x[0] - v.data[ixd].x[0]);
@@ -77,15 +82,111 @@ void activeBerisEdwards2D::calculateMolecularFieldAdvectionStressCPU()
         };
     };
 
-void activeBerisEdwards2D::relaxPressureCPU()
+//
+void activeBerisEdwards2D::pressurePoissonCPU()
     {
+    //first, find the RHS of the pressure-poisson equation
+        {//array handle scope
+    ArrayHandle<scalar> p(activeModel->pressure);
+    ArrayHandle<dVec> v(activeModel->returnVelocities(),access_location::host,access_mode::read);
+    ArrayHandle<scalar> pAux(auxiliaryPressure);
+    ArrayHandle<scalar> pRHS(pressurePoissonHelper);
+    ArrayHandle<dVec> PiS(activeModel->symmetricStress);
+    ArrayHandle<int> nearestNeighbors(activeModel->neighboringSites,access_location::host,access_mode::read);
+    int ixd, ixu,iyd,iyu,ixdyd, ixdyu, ixuyd, ixuyu;
+    scalar dudx,dudy,dvdx,dvdy;//convention that u is x-component of velocity, v is y-component
+    for (int ii = 0; ii < Ndof; ++ii)
+        {
+        //lattice indices of four nearest neighbors
+        ixd = nearestNeighbors.data[activeModel->neighborIndex(0,ii)];
+        ixu = nearestNeighbors.data[activeModel->neighborIndex(1,ii)];
+        iyd = nearestNeighbors.data[activeModel->neighborIndex(2,ii)];
+        iyu = nearestNeighbors.data[activeModel->neighborIndex(3,ii)];
+        ixdyd =nearestNeighbors.data[activeModel->neighborIndex(4,ii)];
+        ixdyu =nearestNeighbors.data[activeModel->neighborIndex(5,ii)];
+        ixuyd =nearestNeighbors.data[activeModel->neighborIndex(6,ii)];
+        ixuyu =nearestNeighbors.data[activeModel->neighborIndex(7,ii)];
+    
+        dudx = 0.5*(v.data[ixu].x[0]-v.data[ixd].x[0]);
+        dudy = 0.5*(v.data[iyu].x[0]-v.data[iyd].x[0]);
+        dvdy = 0.5*(v.data[iyu].x[1] - v.data[iyd].x[1]);
+        dvdx = 0.5*(v.data[ixu].x[1] - v.data[ixd].x[1]);
+        //pRHS = \nabla\cdot u / pseudotimestep
+        pRHS.data[ii] = (1.0/pseudotimestep)*(dudx+dvdy);
+        
+        //pRHS += \nabla\cdot F
+        pRHS.data[ii] += (PiS.data[ixu].x[0] + PiS.data[ixd].x[0] - PiS.data[iyu].x[0] - PiS.data[iyd].x[0])
+                        +0.5*(PiS.data[ixuyu].x[1] - PiS.data[ixuyd].x[1] - PiS.data[ixdyu].x[1] + PiS.data[ixdyd].x[1]);
 
+        //pRHS -=  d_i u_j d_j u_i
+        pRHS.data[ii] += - (dudx*dudx + dvdy*dvdy + 2.0*dudy*dvdx);
+        };
+        }//end array handle scope
+
+    //Next, iteratively relax towards the correct pressure field
+    pIterations = 0;
+    bool fieldConverged = false;
+    double2 pRelaxationData;
+    scalar relativePressureChange;
+    while(!fieldConverged)
+        {
+        pRelaxationData = relaxPressureCPU();
+        if(pRelaxationData.y == 0 || pRelaxationData.x == 0)
+            {
+            fieldConverged= true;
+            }
+        else
+            {
+            relativePressureChange = pRelaxationData.y / pRelaxationData.x;
+            if(relativePressureChange < targetRelativePressureChange)
+                fieldConverged = true;
+            }
+        };
     };
+
+double2 activeBerisEdwards2D::relaxPressureCPU()
+    {
+    double2 answer; //store abs value of pressure field and abs of difference between aux and p fields
+    ArrayHandle<scalar> p(activeModel->pressure);
+    ArrayHandle<scalar> pAux(auxiliaryPressure);
+    ArrayHandle<scalar> pRHS(pressurePoissonHelper);
+    ArrayHandle<int> nearestNeighbors(activeModel->neighboringSites,access_location::host,access_mode::read);
+    int ixd, ixu,iyd,iyu,ixdyd, ixdyu, ixuyd, ixuyu;
+    //set auxiliary pressure field to current pressure field
+    for (int ii = 0; ii < Ndof; ++ii)
+        {
+        pAux.data[ii] = p.data[ii];
+        }
+    //update the pressure field based on the auxiliary and RHS terms
+    scalar accumulatedDifference = 0.;
+    scalar pTotal = 0.;
+    for (int ii = 0; ii < Ndof; ++ii)
+        {
+        //lattice indices of four nearest neighbors
+        ixd = nearestNeighbors.data[activeModel->neighborIndex(0,ii)];
+        ixu = nearestNeighbors.data[activeModel->neighborIndex(1,ii)];
+        iyd = nearestNeighbors.data[activeModel->neighborIndex(2,ii)];
+        iyu = nearestNeighbors.data[activeModel->neighborIndex(3,ii)];
+        ixdyd =nearestNeighbors.data[activeModel->neighborIndex(4,ii)];
+        ixdyu =nearestNeighbors.data[activeModel->neighborIndex(5,ii)];
+        ixuyd =nearestNeighbors.data[activeModel->neighborIndex(6,ii)];
+        ixuyu =nearestNeighbors.data[activeModel->neighborIndex(7,ii)];
+        p.data[ii] = 0.05*(-6.0*pRHS.data[ii]
+                          + 4.0*(pAux.data[ixu] + pAux.data[iyu] + pAux.data[iyd] + pAux.data[ixd])
+                          + pAux.data[ixdyd] + pAux.data[ixdyu] + pAux.data[ixuyd] + pAux.data[ixuyu]);
+        accumulatedDifference += fabs(pAux.data[ii] - p.data[ii]);
+        pTotal += fabs(p.data[ii]);
+        };
+    answer.x = pTotal;
+    answer.y=accumulatedDifference;
+    return answer;
+    };
+
 /*!
 returns -(\vec{u}\cdot\nabla) f
 This function could be optimized by splitting into multiple functions (so that less data needs to be accessed)
 */
-dVec upwindAdvectiveDerivative(dVec &u, dVec &f, dVec &fxd, dVec &fyd, dVec &fxu, dVec &fyu, dVec &fxdd, dVec &fydd, dVec &fxuu, dVec &fyuu)
+dVec activeBerisEdwards2D::upwindAdvectiveDerivative(dVec &u, dVec &f, dVec &fxd, dVec &fyd, dVec &fxu, dVec &fyu, dVec &fxdd, dVec &fydd, dVec &fxuu, dVec &fyuu)
     {
     dVec ans;
     if(u[0] >0)
@@ -130,7 +231,7 @@ void activeBerisEdwards2D::updateQFieldCPU()
         ixd = nearestNeighbors.data[activeModel->neighborIndex(0,ii)];
         ixu = nearestNeighbors.data[activeModel->neighborIndex(1,ii)];
         iyd = nearestNeighbors.data[activeModel->neighborIndex(2,ii)];
-        ixu = nearestNeighbors.data[activeModel->neighborIndex(3,ii)];
+        iyu = nearestNeighbors.data[activeModel->neighborIndex(3,ii)];
         ixdd = alternateNeighbors.data[activeModel->alternateNeighborIndex(0,ii)];
         ixuu = alternateNeighbors.data[activeModel->alternateNeighborIndex(1,ii)];
         iydd = alternateNeighbors.data[activeModel->alternateNeighborIndex(2,ii)];
@@ -169,7 +270,7 @@ void activeBerisEdwards2D::updateVelocityFieldCPU()
         ixd = nearestNeighbors.data[activeModel->neighborIndex(0,ii)];
         ixu = nearestNeighbors.data[activeModel->neighborIndex(1,ii)];
         iyd = nearestNeighbors.data[activeModel->neighborIndex(2,ii)];
-        ixu = nearestNeighbors.data[activeModel->neighborIndex(3,ii)];
+        iyu = nearestNeighbors.data[activeModel->neighborIndex(3,ii)];
         ixdyd =nearestNeighbors.data[activeModel->neighborIndex(4,ii)];
         ixdyu =nearestNeighbors.data[activeModel->neighborIndex(5,ii)];
         ixuyd =nearestNeighbors.data[activeModel->neighborIndex(6,ii)];
