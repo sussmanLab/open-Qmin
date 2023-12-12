@@ -8,11 +8,12 @@
 #include "indexer.h"
 #include "profiler.h"
 #include <tclap/CmdLine.h>
+#include "logSpacedIntegers.h"
+#include "simulation.h"
+#include "vectorValueDatabase.h"
 
 #include "activeQTensorModel2D.h"
 #include "activeBerisEdwards2D.h"
-#include "simulation.h"
-#include "vectorValueDatabase.h"
 
 void getVecToSave(shared_ptr<activeQTensorModel2D> Conf, int N, vector<double> &vec)
     {
@@ -146,17 +147,23 @@ int main(int argc, char*argv[])
     vectorValueDatabase vvdat(7*boxLx*boxLy,dataname,NcFile::Replace);
 
     profiler timestepProf("timestep cost");
+    //For testing purposes, save in log-spaced time
+    logSpacedIntegers lsi(0,.15);
+    int currentIteration = lsi.nextSave;
+
     for (int ii = 0; ii < maximumIterations; ++ii)
         {
-        timestepProf.start();
-        sim->performTimestep();
-        timestepProf.end();
-        if(ii%((int)(1/dt))==0)
+        if(ii == currentIteration)
             {
             cout << ii << endl;
             getVecToSave(Configuration, boxLx*boxLy,saveVec);
-            vvdat.writeState(saveVec,(ii+1)*dt);
+            vvdat.writeState(saveVec,(ii)*dt);
+            lsi.update();
+            currentIteration = lsi.nextSave;
             }
+        timestepProf.start();
+        sim->performTimestep();
+        timestepProf.end();
         }
     timestepProf.print();
 /*
