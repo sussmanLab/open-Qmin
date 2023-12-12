@@ -9,7 +9,7 @@ operational).
 Additionally, throws an exception if the dimensionality is incorrect.
  */
 qTensorLatticeModel2D::qTensorLatticeModel2D(int l, bool _useGPU, bool _neverGPU)
-    : squareLattice(l,false,_useGPU, neverGPU)
+    : squareLattice(l,false,_useGPU, _neverGPU)
     {
     normalizeSpins = false;
     if(neverGPU)

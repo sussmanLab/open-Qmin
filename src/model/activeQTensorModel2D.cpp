@@ -1,7 +1,7 @@
 #include "activeQTensorModel2D.h"
 
 activeQTensorModel2D::activeQTensorModel2D(int l, bool _useGPU, bool _neverGPU)
-    : qTensorLatticeModel2D(l,_useGPU, neverGPU)
+    : qTensorLatticeModel2D(l,_useGPU, _neverGPU)
     {
     initializeDataStructures();
     };

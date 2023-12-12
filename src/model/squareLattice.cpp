@@ -7,12 +7,9 @@ no gpu functions written yet
 */
 /*! \file squareLattice.cpp */
 
-squareLattice::squareLattice(int l, bool _slice, bool _useGPU, bool _neverGPU)
+squareLattice::squareLattice(int l, bool _slice, bool _useGPU, bool _neverGPU) : simpleModel(l*l,_useGPU,_neverGPU)
     {
-    useGPU=_useGPU;
-    neverGPU = _neverGPU;
     sliceSites = _slice;
-    N = l*l;
     L=l;
     Box = make_shared<periodicBoundaryConditions>(L);
     selfForceCompute = false;
@@ -21,12 +18,9 @@ squareLattice::squareLattice(int l, bool _slice, bool _useGPU, bool _neverGPU)
     latticeIndex = Index2D(l);
     };
 
-squareLattice::squareLattice(int lx, int ly, bool _slice, bool _useGPU, bool _neverGPU)
+squareLattice::squareLattice(int lx, int ly, bool _slice, bool _useGPU, bool _neverGPU) : simpleModel(lx*ly,_useGPU,_neverGPU)
     {
-    useGPU=_useGPU;
-    neverGPU = _neverGPU;
     sliceSites = _slice;
-    N = lx*ly;
     Box = make_shared<periodicBoundaryConditions>(lx);//should not be used; lattices carry around a Box for compatibility reasons with other parts of the code.
     latticeIndex = Index2D(lx, ly);
     selfForceCompute = false;
@@ -43,7 +37,7 @@ void squareLattice::initializeNSites()
         boundaryMoveAssist1.noGPU = true;
         boundaryMoveAssist2.noGPU = true;
         }
-    initializeSimpleModel(N);
+    //initializeSimpleModel(N);
 
     moveParticlesTuner = make_shared<kernelTuner>(512,1024,128,10,200000);
     };

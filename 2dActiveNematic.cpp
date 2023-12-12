@@ -80,7 +80,7 @@ int main(int argc, char*argv[])
     bool verbose= verboseSwitch.getValue();
     int gpu = gpuSwitchArg.getValue();
     int initializationSwitch = initializationSwitchArg.getValue();
-    int nDev;
+    int nDev=0;
     cudaGetDeviceCount(&nDev);
     if(nDev == 0)
         gpu = -1;
