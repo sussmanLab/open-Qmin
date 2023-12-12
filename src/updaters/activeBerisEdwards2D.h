@@ -48,13 +48,13 @@ class activeBerisEdwards2D : public equationOfMotion
         scalar activeLengthScale = 2;
         scalar rotationalViscosity = 2560.;
         scalar ReynoldsNumber = 0.1;
-        scalar viscosity = 655360.;
+        scalar viscosity = 809.542;
         scalar rho = 1.0; //should be one by choice of units
 
 
         scalar pseudotimestep = 0.0002;
         scalar targetRelativePressureChange = 0.0001;//better to eventually switch to a different condition for convergence of pressure-poisson method
         int pIterations;
-        int maxPIterations = 1000000;
+        int maxPIterations = 10000;
     };
 #endif

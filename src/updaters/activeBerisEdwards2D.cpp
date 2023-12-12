@@ -121,8 +121,8 @@ void activeBerisEdwards2D::pressurePoissonCPU()
         ixuyd =nearestNeighbors.data[activeModel->neighborIndex(6,ii)];
         ixuyu =nearestNeighbors.data[activeModel->neighborIndex(7,ii)];
     
-        dudx = 0.5*(v.data[ixu].x[0]-v.data[ixd].x[0]);
-        dudy = 0.5*(v.data[iyu].x[0]-v.data[iyd].x[0]);
+        dudx = 0.5*(v.data[ixu].x[0] - v.data[ixd].x[0]);
+        dudy = 0.5*(v.data[iyu].x[0] - v.data[iyd].x[0]);
         dvdy = 0.5*(v.data[iyu].x[1] - v.data[iyd].x[1]);
         dvdx = 0.5*(v.data[ixu].x[1] - v.data[ixd].x[1]);
         //pRHS = \nabla\cdot u / pseudotimestep
@@ -156,14 +156,12 @@ void activeBerisEdwards2D::pressurePoissonCPU()
             if(relativePressureChange < targetRelativePressureChange)
                 fieldConverged = true;
             }
+        /*
+        if(pIterations > maxPIterations)
+            fieldConverged= true;
+        */
         };
 
-    //p->(p-<p>)
-    ArrayHandle<scalar> p(activeModel->pressure);
-    for (int ii = 0; ii < Ndof; ++ii)
-        {
-        p.data[ii] -= pRelaxationData.z;
-        }
     };
 
 double3 activeBerisEdwards2D::relaxPressureCPU()
@@ -203,7 +201,12 @@ double3 activeBerisEdwards2D::relaxPressureCPU()
         };
     answer.x = pTotal;
     answer.y=accumulatedDifference;
-    answer.z = pMean / Ndof;
+    answer.z = pMean / (1.0*Ndof);
+    //p->(p-<p>)
+    for (int ii = 0; ii < Ndof; ++ii)
+        {
+        p.data[ii] -= answer.z;
+        }
     return answer;
     };
 
@@ -228,7 +231,7 @@ dVec activeBerisEdwards2D::upwindAdvectiveDerivative(dVec &u, dVec &f, dVec &fxd
         }
     else
         {
-        ans += 0.5*u[0]*(3.*f - 4.*fyu + 1.*fxuu);
+        ans += 0.5*u[1]*(3.*f - 4.*fyu + 1.*fyuu);
         }
 
     return ans;
