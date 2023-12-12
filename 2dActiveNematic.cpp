@@ -149,6 +149,7 @@ int main(int argc, char*argv[])
     profiler timestepProf("timestep cost");
     //For testing purposes, save in log-spaced time
     logSpacedIntegers lsi(0,.15);
+    lsi.update();
     int currentIteration = lsi.nextSave;
 
     for (int ii = 0; ii < maximumIterations; ++ii)
