@@ -11,6 +11,7 @@ activeBerisEdwards2D::activeBerisEdwards2D(scalar _K, scalar _gamma, scalar _lam
     pseudotimestep = pdt;
     deltaT = _dt;
     targetRelativePressureChange = _dpTarget*pseudotimestep/deltaT;
+    zeta = K / (activeLengthScale*activeLengthScale);
     }
 
 void activeBerisEdwards2D::initializeFromModel()

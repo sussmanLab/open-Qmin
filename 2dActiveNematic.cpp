@@ -14,6 +14,25 @@
 #include "simulation.h"
 #include "vectorValueDatabase.h"
 
+void getVecToSave(shared_ptr<activeQTensorModel2D> Conf, int N, vector<double> &vec)
+    {
+    vec.resize(7*N);
+    ArrayHandle<dVec> p(Conf->returnPositions());
+    ArrayHandle<dVec> v(Conf->returnVelocities());
+    ArrayHandle<scalar> pressure(Conf->pressure);
+    for (int nn = 0; nn < N; ++nn)
+        {
+        int2 invIdx= Conf->latticeIndex.inverseIndex(nn);
+        vec[7*nn+0] = invIdx.x;
+        vec[7*nn+1] = invIdx.y;
+        vec[7*nn+2] = p.data[nn].x[0];
+        vec[7*nn+3] = p.data[nn].x[1];
+        vec[7*nn+4] = v.data[nn].x[0];
+        vec[7*nn+5] = v.data[nn].x[1];
+        vec[7*nn+6] = pressure.data[nn];
+        };
+    }
+
 using namespace TCLAP;
 int main(int argc, char*argv[])
     {
@@ -106,6 +125,7 @@ int main(int argc, char*argv[])
     landauLCForce->setModel(Configuration);
 
     scalar pseudoTimestep = pdtSwitchArg.getValue();
+
     scalar dpTarget = 0.0001;
     shared_ptr<activeBerisEdwards2D> activeBE2D = make_shared<activeBerisEdwards2D>(L1,rotationalViscosity,flowAlignmentParameter,ReynoldsNumber,activeLengthScale,dt,pseudoTimestep, dpTarget);
 
@@ -115,11 +135,13 @@ int main(int argc, char*argv[])
     sim->addUpdater(activeBE2D,Configuration);
 
 
-    profiler timestepProf("timestep cost");
     char dataname[256];
     sprintf(dataname,"./test.nc");
+    vector<double> saveVec(7*boxLx*boxLy);
     //store database: [x,y,qxx,qxy,vx,vy,p]
     vectorValueDatabase vvdat(7*boxLx*boxLy,dataname,NcFile::Replace);
+
+    profiler timestepProf("timestep cost");
     for (int ii = 0; ii < maximumIterations; ++ii)
         {
         timestepProf.start();
@@ -128,22 +150,8 @@ int main(int argc, char*argv[])
         if(ii%((int)(1/dt))==0)
             {
             cout << ii << endl;
-            ArrayHandle<dVec> p(Configuration->returnPositions());
-            ArrayHandle<dVec> v(Configuration->returnVelocities());
-            ArrayHandle<scalar> pressure(Configuration->pressure);
-            vector<double> saveVec(7*boxLx*boxLy);
-            for (int nn = 0; nn < boxLx*boxLy; ++nn)
-                {
-                int2 invIdx= Configuration->latticeIndex.inverseIndex(nn);
-                saveVec[7*nn+0] = invIdx.x;
-                saveVec[7*nn+1] = invIdx.y;
-                saveVec[7*nn+2] = p.data[nn].x[0];
-                saveVec[7*nn+3] = p.data[nn].x[1];
-                saveVec[7*nn+4] = v.data[nn].x[0];
-                saveVec[7*nn+5] = v.data[nn].x[1];
-                saveVec[7*nn+6] = pressure.data[nn];
-                };
-            vvdat.writeState(saveVec,ii*dt);
+            getVecToSave(Configuration, 7*boxLx*boxLy,saveVec);
+            vvdat.writeState(saveVec,(ii+1)*dt);
             }
         }
     timestepProf.print();
@@ -163,6 +171,27 @@ int main(int argc, char*argv[])
     minimizer->setNesterovAGParameters(dt, 0.01,forceCutoff);
     minimizer->setMaximumIterations(maximumIterations);
     sim->addUpdater(minimizer,Configuration);
+*/
+/*
+    shared_ptr<energyMinimizerNesterovAG> minimizer =  make_shared<energyMinimizerNesterovAG>(Configuration);
+    minimizer->setNesterovAGParameters(dt, 0.01,forceCutoff);
+    minimizer->setMaximumIterations(maximumIterations);
+
+    shared_ptr<Simulation> sim = make_shared<Simulation>();
+    sim->setConfiguration(Configuration);
+    sim->addForce(landauLCForce);
+    sim->addUpdater(minimizer,Configuration);
+    
+    char dataname[256];
+    sprintf(dataname,"./test.nc");
+    //store database: [x,y,qxx,qxy,vx,vy,p]
+    vectorValueDatabase vvdat(7*boxLx*boxLy,dataname,NcFile::Replace);
+    vector<double> saveVec(7*boxLx*boxLy);
+    getVecToSave(Configuration, 7*boxLx*boxLy,saveVec);
+    vvdat.writeState(saveVec,0.0);
+    sim->performTimestep();
+    getVecToSave(Configuration, 7*boxLx*boxLy,saveVec);
+    vvdat.writeState(saveVec,0.0);
 */
     return 0;
     };

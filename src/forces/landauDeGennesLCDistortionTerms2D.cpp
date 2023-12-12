@@ -37,8 +37,8 @@ void landauDeGennesLC2D::computeL1Bulk2DCPU(GPUArray<dVec> &forces,bool zeroOutF
             xDownyDown = Qtensors.data[ixdyd]; xDownyUp= Qtensors.data[ixdyu];
             xUpyDown = Qtensors.data[ixuyd]; xUpyUp= Qtensors.data[ixuyu];
             //use the neighbors to compute the distortion
-            spatialTerm = laplacianStencil(L1,qCurrent,xDown,xUp,yDown,yUp,xDownyDown, xUpyDown, xDownyUp, xUpyUp);
-            force -= spatialTerm;
+            spatialTerm = 1.0*laplacianStencil(L1,qCurrent,xDown,xUp,yDown,yUp,xDownyDown, xUpyDown, xDownyUp, xUpyUp);
+            force += spatialTerm;
             };
         if(zeroOutForce)
             h_f.data[currentIndex] = force;
