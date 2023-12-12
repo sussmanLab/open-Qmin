@@ -6,7 +6,7 @@ activeQTensorModel2D::activeQTensorModel2D(int l, bool _useGPU, bool _neverGPU)
     initializeDataStructures();
     };
 activeQTensorModel2D::activeQTensorModel2D(int lx, int ly, bool _useGPU, bool _neverGPU)
-    : qTensorLatticeModel2D(lx,ly,_useGPU, neverGPU)
+    : qTensorLatticeModel2D(lx,ly,_useGPU, _neverGPU)
     {
     initializeDataStructures();
     };

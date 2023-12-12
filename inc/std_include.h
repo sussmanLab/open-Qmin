@@ -153,7 +153,7 @@ static void HandleError(cudaError_t err, const char *file, int line)
     {
     //as an additional debugging check, synchronize cuda threads after every kernel call
     #ifdef DEBUGFLAGUP
-    cudaThreadSynchronize();
+//    cudaThreadSynchronize();
     #endif
     if (err != cudaSuccess)
         {

@@ -16,6 +16,7 @@
 
 void getVecToSave(shared_ptr<activeQTensorModel2D> Conf, int N, vector<double> &vec)
     {
+//printf("%i\n",    (Conf->returnPositions()).getNumElements());
     vec.resize(7*N);
     ArrayHandle<dVec> p(Conf->returnPositions());
     ArrayHandle<dVec> v(Conf->returnVelocities());
@@ -81,9 +82,12 @@ int main(int argc, char*argv[])
     int gpu = gpuSwitchArg.getValue();
     int initializationSwitch = initializationSwitchArg.getValue();
     int nDev=0;
-    cudaGetDeviceCount(&nDev);
-    if(nDev == 0)
-        gpu = -1;
+    if(gpu>0)
+        {
+        cudaGetDeviceCount(&nDev);
+        if(nDev == 0)
+            gpu = -1;
+        };
 
     if(boxL!=50)
         {
@@ -150,7 +154,7 @@ int main(int argc, char*argv[])
         if(ii%((int)(1/dt))==0)
             {
             cout << ii << endl;
-            getVecToSave(Configuration, 7*boxLx*boxLy,saveVec);
+            getVecToSave(Configuration, boxLx*boxLy,saveVec);
             vvdat.writeState(saveVec,(ii+1)*dt);
             }
         }
