@@ -255,7 +255,7 @@ void activeBerisEdwards2D::updateQFieldCPU()
         h = H.data[ii];
         v = V.data[ii];
         s = advection.data[ii];
-        //lattice indices of four nearest neighbors
+        //lattice indices of four nearest neighbors and four potential upwind neighbors (for advection)
         ixd = nearestNeighbors.data[activeModel->neighborIndex(0,ii)];
         ixu = nearestNeighbors.data[activeModel->neighborIndex(1,ii)];
         iyd = nearestNeighbors.data[activeModel->neighborIndex(2,ii)];
@@ -265,10 +265,10 @@ void activeBerisEdwards2D::updateQFieldCPU()
         iydd = alternateNeighbors.data[activeModel->alternateNeighborIndex(2,ii)];
         iyuu = alternateNeighbors.data[activeModel->alternateNeighborIndex(3,ii)];
         
-        disp.data[ii] = deltaT*((1.0/rotationalViscosity)*h+s + upwindAdvectiveDerivative(v,Q.data[ii],
+        disp.data[ii] = deltaT*((1.0/rotationalViscosity)*h + s
+                                  + upwindAdvectiveDerivative(v,Q.data[ii],
                                                                 Q.data[ixd],Q.data[iyd],Q.data[ixu],Q.data[iyu],
-                                                                Q.data[ixdd],Q.data[iydd],Q.data[ixuu],Q.data[iyuu])
-                                );
+                                                                Q.data[ixdd],Q.data[iydd],Q.data[ixuu],Q.data[iyuu]));
         };
 
         }//array handle scope end
@@ -294,7 +294,7 @@ void activeBerisEdwards2D::updateVelocityFieldCPU()
     for (int ii = 0; ii < Ndof; ++ii)
         {
         v = V.data[ii];
-        //lattice indices of four nearest neighbors
+        //lattice indices of eight nearest  and next-nearest neighbors and four  NNN-nearest neighbors (for potential upwind calculations)
         ixd = nearestNeighbors.data[activeModel->neighborIndex(0,ii)];
         ixu = nearestNeighbors.data[activeModel->neighborIndex(1,ii)];
         iyd = nearestNeighbors.data[activeModel->neighborIndex(2,ii)];
