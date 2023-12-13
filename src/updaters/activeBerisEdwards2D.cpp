@@ -46,9 +46,9 @@ void activeBerisEdwards2D::integrateEOMGPU()
 
 void activeBerisEdwards2D::integrateEOMCPU()
     {
+    iterations+=1;
     calculateMolecularFieldAdvectionStressCPU();
     pressurePoissonCPU();
-    relaxPressureCPU();
     updateQFieldCPU();
     updateVelocityFieldCPU();
     };
@@ -145,7 +145,9 @@ void activeBerisEdwards2D::pressurePoissonCPU()
     while(!fieldConverged)
         {
         pIterations +=1;
-        pRelaxationData = relaxPressureCPU();
+        //pRelaxationData = relaxPressureJacobiCPU();
+        pRelaxationData = relaxPressureGaussSeidelCPU();
+        //pRelaxationData = relaxPressureSORCPU(1.05); //set omega = 1.05 or 1.1 or 1.2 for testing... I think this routine might be wrong
         if(pRelaxationData.y == 0 || pRelaxationData.x == 0)
             {
             fieldConverged= true;
@@ -161,10 +163,10 @@ void activeBerisEdwards2D::pressurePoissonCPU()
             fieldConverged= true;
         */
         };
-
+    meanPressureIterations += pIterations;
     };
 
-double3 activeBerisEdwards2D::relaxPressureCPU()
+double3 activeBerisEdwards2D::relaxPressureJacobiCPU()
     {
     double3 answer; //store abs value of pressure field, abs of difference between aux and p fields, and mean pressure field
     ArrayHandle<scalar> p(activeModel->pressure);
@@ -196,6 +198,99 @@ double3 activeBerisEdwards2D::relaxPressureCPU()
                           + 4.0*(pAux.data[ixu] + pAux.data[iyu] + pAux.data[iyd] + pAux.data[ixd])
                           + pAux.data[ixdyd] + pAux.data[ixdyu] + pAux.data[ixuyd] + pAux.data[ixuyu]);
         accumulatedDifference += fabs(pAux.data[ii] - p.data[ii]);
+        pTotal += fabs(p.data[ii]);
+        pMean += p.data[ii];
+        };
+    answer.x = pTotal;
+    answer.y=accumulatedDifference;
+    answer.z = pMean / (1.0*Ndof);
+    //p->(p-<p>)
+    for (int ii = 0; ii < Ndof; ++ii)
+        {
+        p.data[ii] -= answer.z;
+        }
+    return answer;
+    };
+
+//currently Implemented for a 5-point laplacian stenciel;
+double3 activeBerisEdwards2D::relaxPressureGaussSeidelCPU()
+    {
+    double3 answer; //store abs value of pressure field, abs of difference between aux and p fields, and mean pressure field
+    ArrayHandle<scalar> p(activeModel->pressure);
+    ArrayHandle<scalar> pRHS(pressurePoissonHelper);
+    ArrayHandle<int> nearestNeighbors(activeModel->neighboringSites,access_location::host,access_mode::read);
+    int ixd, ixu,iyd,iyu,ixdyd, ixdyu, ixuyd, ixuyu;
+    scalar pAux = 0;
+    //update the pressure field based on the auxiliary and RHS terms
+    scalar accumulatedDifference = 0.;
+    scalar pTotal = 0.;
+    scalar pMean = 0.;
+    for (int ii = 0; ii < Ndof; ++ii)
+        {
+        //lattice indices of four nearest neighbors
+        ixd = nearestNeighbors.data[activeModel->neighborIndex(0,ii)];
+        ixu = nearestNeighbors.data[activeModel->neighborIndex(1,ii)];
+        iyd = nearestNeighbors.data[activeModel->neighborIndex(2,ii)];
+        iyu = nearestNeighbors.data[activeModel->neighborIndex(3,ii)];
+//        ixdyd =nearestNeighbors.data[activeModel->neighborIndex(4,ii)];
+//        ixdyu =nearestNeighbors.data[activeModel->neighborIndex(5,ii)];
+//        ixuyd =nearestNeighbors.data[activeModel->neighborIndex(6,ii)];
+//        ixuyu =nearestNeighbors.data[activeModel->neighborIndex(7,ii)];
+//        pAux = 0.05*(-6.0*pRHS.data[ii]
+//                          + 4.0*(p.data[ixu] + p.data[iyu] + p.data[iyd] + p.data[ixd])
+//                          + p.data[ixdyd] + p.data[ixdyu] + p.data[ixuyd] + p.data[ixuyu]);
+        //5-point scheme for GS method?
+        pAux = 0.25*(-1.0*pRHS.data[ii] + p.data[ixu] + p.data[iyu] + p.data[iyd] + p.data[ixd]);
+        accumulatedDifference += fabs(pAux - p.data[ii]);
+        p.data[ii] = pAux;
+        pTotal += fabs(p.data[ii]);
+        pMean += p.data[ii];
+        };
+    answer.x = pTotal;
+    answer.y=accumulatedDifference;
+    answer.z = pMean / (1.0*Ndof);
+    //p->(p-<p>)
+    for (int ii = 0; ii < Ndof; ++ii)
+        {
+        p.data[ii] -= answer.z;
+        }
+    return answer;
+    };
+
+//This implementation might be incorrect (?), and I think I don't understand the correct generalization for the 9-point stencil...In any event, this implements SOR on top of GS
+double3 activeBerisEdwards2D::relaxPressureSORCPU(scalar omega)
+    {
+    double3 answer; //store abs value of pressure field, abs of difference between aux and p fields, and mean pressure field
+    ArrayHandle<scalar> p(activeModel->pressure);
+    ArrayHandle<scalar> pRHS(pressurePoissonHelper);
+    ArrayHandle<int> nearestNeighbors(activeModel->neighboringSites,access_location::host,access_mode::read);
+    int ixd, ixu,iyd,iyu,ixdyd, ixdyu, ixuyd, ixuyu;
+    scalar pAux = 0;
+    //update the pressure field based on the auxiliary and RHS terms
+    scalar accumulatedDifference = 0.;
+    scalar pTotal = 0.;
+    scalar pMean = 0.;
+    for (int ii = 0; ii < Ndof; ++ii)
+        {
+        //lattice indices of four nearest neighbors
+        ixd = nearestNeighbors.data[activeModel->neighborIndex(0,ii)];
+        ixu = nearestNeighbors.data[activeModel->neighborIndex(1,ii)];
+        iyd = nearestNeighbors.data[activeModel->neighborIndex(2,ii)];
+        iyu = nearestNeighbors.data[activeModel->neighborIndex(3,ii)];
+        ixdyd =nearestNeighbors.data[activeModel->neighborIndex(4,ii)];
+        ixdyu =nearestNeighbors.data[activeModel->neighborIndex(5,ii)];
+        ixuyd =nearestNeighbors.data[activeModel->neighborIndex(6,ii)];
+        ixuyu =nearestNeighbors.data[activeModel->neighborIndex(7,ii)];
+        /*
+        p.data[ii] = (1-omega)*pAux.data[ii] + 0.05*omega*(-6.0*pRHS.data[ii]
+                                  + 4.0*(pAux.data[ixu] + pAux.data[iyu] + pAux.data[iyd] + pAux.data[ixd])
+                                  + pAux.data[ixdyd] + pAux.data[ixdyu] + pAux.data[ixuyd] + pAux.data[ixuyu]);
+        */
+        //5-point scheme fore SOR?
+        pAux = (1.0-omega)*p.data[ii] + 0.25*omega*(-1.0*pRHS.data[ii]
+                                                    + p.data[ixu] + p.data[iyu] + p.data[iyd] + p.data[ixd]);
+        accumulatedDifference += fabs(pAux - p.data[ii]);
+        p.data[ii] = pAux;
         pTotal += fabs(p.data[ii]);
         pMean += p.data[ii];
         };

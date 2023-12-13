@@ -23,21 +23,24 @@ void landauDeGennesLC2D::computeL1Bulk2DCPU(GPUArray<dVec> &forces,bool zeroOutF
             //compute the phase terms depending only on the current site
             force -= a*derivativeTr2DQ2(qCurrent);
             force -= c*derivativeTr2DQ2Squared(qCurrent);
-
+            //nearest-neighbors
             ixd =latticeNeighbors.data[lattice->neighborIndex(0,currentIndex)];
             ixu =latticeNeighbors.data[lattice->neighborIndex(1,currentIndex)];
             iyd =latticeNeighbors.data[lattice->neighborIndex(2,currentIndex)];
             iyu =latticeNeighbors.data[lattice->neighborIndex(3,currentIndex)];
+            xDown = Qtensors.data[ixd]; xUp = Qtensors.data[ixu];
+            yDown = Qtensors.data[iyd]; yUp = Qtensors.data[iyu];
+            //next-nearest neighbors
             ixdyd =latticeNeighbors.data[lattice->neighborIndex(4,currentIndex)];
             ixdyu =latticeNeighbors.data[lattice->neighborIndex(5,currentIndex)];
             ixuyd =latticeNeighbors.data[lattice->neighborIndex(6,currentIndex)];
             ixuyu =latticeNeighbors.data[lattice->neighborIndex(7,currentIndex)];
-            xDown = Qtensors.data[ixd]; xUp = Qtensors.data[ixu];
-            yDown = Qtensors.data[iyd]; yUp = Qtensors.data[iyu];
             xDownyDown = Qtensors.data[ixdyd]; xDownyUp= Qtensors.data[ixdyu];
             xUpyDown = Qtensors.data[ixuyd]; xUpyUp= Qtensors.data[ixuyu];
-            //use the neighbors to compute the distortion
+
             spatialTerm = 1.0*laplacianStencil(L1,qCurrent,xDown,xUp,yDown,yUp,xDownyDown, xUpyDown, xDownyUp, xUpyUp);
+            //spatialTerm = 1.0*laplacianStencil5(L1,qCurrent,xDown,xUp,yDown,yUp);
+            //use the neighbors to compute the distortion
             force += spatialTerm;
             };
         if(zeroOutForce)

@@ -3,6 +3,8 @@
 
 #include "squareLattice.h"
 #include "qTensorFunctions2D.h"
+#include "latticeBoundaries.h"
+
 /*
 no GPU code written yet... when it is, include this file:
 #include "qTensorLatticeModel2D.cuh"
@@ -47,7 +49,11 @@ class qTensorLatticeModel2D : public squareLattice
         void getAverageMaximalEigenvector(vector<scalar> &averageN);
 
 
+        //!assign a collection of lattice sites to a new boundaryObject
+        void createBoundaryObject(vector<int> &latticeSites, boundaryType _type, scalar Param1, scalar Param2);
 
+        //!create a flat wall (with z-normal) at the specified location, with anchoring given by the boundary object
+        void createSimpleFlatWall(int xyPlane, boundaryObject &bObj);
         //!import a boundary object from a (carefully prepared) text file
         void createBoundaryFromFile(string fname, bool verbose = false);
 
@@ -58,5 +64,12 @@ class qTensorLatticeModel2D : public squareLattice
             {
             return squareLattice::getClassSize();
             }
+
+        GPUArray<boundaryObject> boundaries;
+        //!A vector that keeps track of the sites associated with each boundary object
+        vector<GPUArray<int> > boundarySites;
+        //!A vector that keeps track of the surface sites associated with each boundary object
+        vector<GPUArray<int> > surfaceSites;
+        //!A vector of flags that specifies the state of each boundary object...most schemes will be 0 = fixed boundary, 1 = movable boudnary
     };
 #endif

@@ -103,6 +103,21 @@ HOSTDEVICE dVec allPhaseComponentForces2D(dVec &q, scalar &a, scalar &c)
     return ans;
     }
 
+//!5-point Laplacian stencil 
+HOSTDEVICE scalar laplacianStencil5(scalar scale, scalar &center,scalar &xDown, scalar &xUp,scalar &yDown, scalar &yUp)
+    {
+    scalar ans;
+    ans = scale*(xUp+xDown+yUp+yDown-4.0*center); 
+    return ans;
+    }
+
+HOSTDEVICE dVec laplacianStencil5(scalar scale, dVec &center,dVec &xDown, dVec &xUp,dVec &yDown, dVec &yUp)
+    {
+    dVec ans;
+    ans = scale*(xUp+xDown+yUp+yDown-4.0*center); 
+    return ans;
+    }
+
 //!9-point Laplacian stencil (Patra-Karttunen version)
 HOSTDEVICE scalar laplacianStencil(scalar scale, scalar &center,scalar &xDown, scalar &xUp,scalar &yDown, scalar &yUp, scalar &xDownyDown, scalar &xUpyDown, scalar &xDownyUp, scalar &xUpyUp)
     {

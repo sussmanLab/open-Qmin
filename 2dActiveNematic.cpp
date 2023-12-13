@@ -35,6 +35,8 @@ void getVecToSave(shared_ptr<activeQTensorModel2D> Conf, int N, vector<double> &
         };
     }
 
+
+//programBranch = 0 --> active flow, branch=1 -->minimization
 using namespace TCLAP;
 int main(int argc, char*argv[])
     {
@@ -44,7 +46,7 @@ int main(int argc, char*argv[])
 
     //define the various command line strings that can be passed in...
     //ValueArg<T> variableName("shortflag","longFlag","description",required or not, default value,"value type",CmdLine object to add to
-    ValueArg<int> initializationSwitchArg("z","initializationSwitch","an integer controlling program branch",false,0,"int",cmd);
+    ValueArg<int> programBranchSwitchArg("z","programBranchSwitch","an integer controlling program branch",false,0,"int",cmd);
     ValueArg<int> gpuSwitchArg("g","GPU","which gpu to use",false,-1,"int",cmd);
 
     SwitchArg reproducibleSwitch("r","reproducible","reproducible random number generation", cmd, true);
@@ -81,7 +83,7 @@ int main(int argc, char*argv[])
 
     bool verbose= verboseSwitch.getValue();
     int gpu = gpuSwitchArg.getValue();
-    int initializationSwitch = initializationSwitchArg.getValue();
+    int programBranch = programBranchSwitchArg.getValue();
     int nDev=0;
     if(gpu>0)
         {
@@ -131,42 +133,70 @@ int main(int argc, char*argv[])
 
     scalar pseudoTimestep = pdtSwitchArg.getValue();
 
-    scalar dpTarget = 0.0001;
-    shared_ptr<activeBerisEdwards2D> activeBE2D = make_shared<activeBerisEdwards2D>(L1,rotationalViscosity,flowAlignmentParameter,ReynoldsNumber,activeLengthScale,dt,pseudoTimestep, dpTarget);
-
-    shared_ptr<Simulation> sim = make_shared<Simulation>();
-    sim->setConfiguration(Configuration);
-    sim->addForce(landauLCForce);
-    sim->addUpdater(activeBE2D,Configuration);
 
 
-    char dataname[256];
-    sprintf(dataname,"./test.nc");
-    vector<double> saveVec(7*boxLx*boxLy);
-    //store database: [x,y,qxx,qxy,vx,vy,p]
-    vectorValueDatabase vvdat(7*boxLx*boxLy,dataname,NcFile::Replace);
-
-    profiler timestepProf("timestep cost");
-    //For testing purposes, save in log-spaced time
-    logSpacedIntegers lsi(0,.15);
-    lsi.update();
-    int currentIteration = lsi.nextSave;
-
-    for (int ii = 0; ii < maximumIterations; ++ii)
+    if(programBranch ==0)//active flow simulations
         {
-        if(ii == currentIteration)
+        scalar dpTarget = 0.0001;
+        shared_ptr<activeBerisEdwards2D> activeBE2D = make_shared<activeBerisEdwards2D>(L1,rotationalViscosity,flowAlignmentParameter,ReynoldsNumber,activeLengthScale,dt,pseudoTimestep, dpTarget);
+        shared_ptr<Simulation> sim = make_shared<Simulation>();
+        sim->setConfiguration(Configuration);
+        sim->addForce(landauLCForce);
+        sim->addUpdater(activeBE2D,Configuration);
+
+
+        char dataname[256];
+        sprintf(dataname,"./activeFlow.nc");
+        vector<double> saveVec(7*boxLx*boxLy);
+        //store database: [x,y,qxx,qxy,vx,vy,p]
+        vectorValueDatabase vvdat(7*boxLx*boxLy,dataname,NcFile::Replace);
+
+        profiler timestepProf("timestep cost");
+        //For testing purposes, save in log-spaced time
+        logSpacedIntegers lsi(0,.15);
+        lsi.update();
+        int currentIteration = lsi.nextSave;
+
+        for (int ii = 0; ii < maximumIterations; ++ii)
             {
-            cout << ii << endl;
-            getVecToSave(Configuration, boxLx*boxLy,saveVec);
-            vvdat.writeState(saveVec,(ii)*dt);
-            lsi.update();
-            currentIteration = lsi.nextSave;
+            if(ii == currentIteration)
+                {
+                cout << ii << endl;
+                getVecToSave(Configuration, boxLx*boxLy,saveVec);
+                vvdat.writeState(saveVec,(ii)*dt);
+                lsi.update();
+                currentIteration = lsi.nextSave;
+                }
+            timestepProf.start();
+            sim->performTimestep();
+            timestepProf.end();
             }
-        timestepProf.start();
-        sim->performTimestep();
-        timestepProf.end();
+        printf("Mean number of pressure relaxation iterations = %f\n",activeBE2D->reportMeanPressureIterations());
+        timestepProf.print();
         }
-    timestepProf.print();
+    if(programBranch == 1)//non-active minimization
+        {
+        shared_ptr<energyMinimizerNesterovAG> minimizer =  make_shared<energyMinimizerNesterovAG>(Configuration);
+        minimizer->setNesterovAGParameters(dt, 0.01,forceCutoff);
+        minimizer->setMaximumIterations(maximumIterations);
+
+        shared_ptr<Simulation> sim = make_shared<Simulation>();
+        sim->setConfiguration(Configuration);
+        sim->addForce(landauLCForce);
+        sim->addUpdater(minimizer,Configuration);
+    
+        char dataname[256];
+        sprintf(dataname,"./minimize.nc");
+        //store database: [x,y,qxx,qxy,vx,vy,p]
+        vectorValueDatabase vvdat(7*boxLx*boxLy,dataname,NcFile::Replace);
+        vector<double> saveVec(7*boxLx*boxLy);
+        getVecToSave(Configuration, 7*boxLx*boxLy,saveVec);
+        vvdat.writeState(saveVec,0.0);
+        sim->performTimestep();
+        getVecToSave(Configuration, 7*boxLx*boxLy,saveVec);
+        vvdat.writeState(saveVec,0.0);
+        };
+    
 /*
     vector<scalar> maxEvec;
     Configuration->getAverageMaximalEigenvector(maxEvec);
@@ -185,25 +215,6 @@ int main(int argc, char*argv[])
     sim->addUpdater(minimizer,Configuration);
 */
 /*
-    shared_ptr<energyMinimizerNesterovAG> minimizer =  make_shared<energyMinimizerNesterovAG>(Configuration);
-    minimizer->setNesterovAGParameters(dt, 0.01,forceCutoff);
-    minimizer->setMaximumIterations(maximumIterations);
-
-    shared_ptr<Simulation> sim = make_shared<Simulation>();
-    sim->setConfiguration(Configuration);
-    sim->addForce(landauLCForce);
-    sim->addUpdater(minimizer,Configuration);
-    
-    char dataname[256];
-    sprintf(dataname,"./test.nc");
-    //store database: [x,y,qxx,qxy,vx,vy,p]
-    vectorValueDatabase vvdat(7*boxLx*boxLy,dataname,NcFile::Replace);
-    vector<double> saveVec(7*boxLx*boxLy);
-    getVecToSave(Configuration, 7*boxLx*boxLy,saveVec);
-    vvdat.writeState(saveVec,0.0);
-    sim->performTimestep();
-    getVecToSave(Configuration, 7*boxLx*boxLy,saveVec);
-    vvdat.writeState(saveVec,0.0);
 */
     return 0;
     };

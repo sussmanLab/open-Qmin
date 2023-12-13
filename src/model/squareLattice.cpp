@@ -11,6 +11,8 @@ squareLattice::squareLattice(int l, bool _slice, bool _useGPU, bool _neverGPU) :
     {
     sliceSites = _slice;
     L=l;
+    Lx=l;
+    Ly=l;
     Box = make_shared<periodicBoundaryConditions>(L);
     selfForceCompute = false;
     initializeNSites();
@@ -22,6 +24,8 @@ squareLattice::squareLattice(int lx, int ly, bool _slice, bool _useGPU, bool _ne
     {
     sliceSites = _slice;
     Box = make_shared<periodicBoundaryConditions>(lx);//should not be used; lattices carry around a Box for compatibility reasons with other parts of the code.
+    Lx=lx;
+    Ly=ly;
     latticeIndex = Index2D(lx, ly);
     selfForceCompute = false;
     normalizeSpins = true;

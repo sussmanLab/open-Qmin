@@ -45,6 +45,8 @@ class activeBerisEdwards2D : public equationOfMotion
             activeModel = dynamic_pointer_cast<activeQTensorModel2D>(model);
             initializeFromModel();
             };
+
+        scalar reportMeanPressureIterations(){return meanPressureIterations / iterations;};
     protected:
         void calculateMolecularFieldAdvectionStressCPU();
         void pressurePoissonCPU();
@@ -54,8 +56,12 @@ class activeBerisEdwards2D : public equationOfMotion
         //!helper function for upwind advective derivatives
         dVec upwindAdvectiveDerivative(dVec &u, dVec &f, dVec &fxd, dVec &fyd, dVec &fxu, dVec &fyu, dVec &fxdd, dVec &fydd, dVec &fxuu, dVec &fyuu);
 
-        //!helper function for the pressure-poisson method
-        double3 relaxPressureCPU();
+        //!helper function for the pressure-poisson method: relax towards solution via Jacobi method
+        double3 relaxPressureJacobiCPU();
+        //!helper function for the pressure-poisson method: relax towards solution via teh Gauss-Siedel varaition of the Jacobi method
+        double3 relaxPressureGaussSeidelCPU();
+        //!helper function for the pressure-poisson method: relax towards solution via successive overrelaxation (SOR) methd
+        double3 relaxPressureSORCPU(scalar omega);
 
         //!Auxilliary data structures
         GPUArray<dVec> generalizedAdvection;
@@ -77,5 +83,6 @@ class activeBerisEdwards2D : public equationOfMotion
         scalar targetRelativePressureChange = 0.0001;//better to eventually switch to a different condition for convergence of pressure-poisson method
         int pIterations;
         int maxPIterations = 10000;
+        scalar meanPressureIterations = 0;
     };
 #endif

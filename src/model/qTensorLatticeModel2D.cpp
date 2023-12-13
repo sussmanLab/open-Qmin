@@ -197,6 +197,96 @@ void qTensorLatticeModel2D::moveParticles(GPUArray<dVec> &displacements,scalar s
         };
     };
 
+void qTensorLatticeModel2D::createBoundaryObject(vector<int> &latticeSites, boundaryType _type, scalar Param1, scalar Param2)
+    {
+    growGPUArray(boundaries,1);
+    ArrayHandle<boundaryObject> boundaryObjs(boundaries);
+    boundaryObject bound(_type,Param1,Param2);
+    boundaryObjs.data[boundaries.getNumElements()-1] = bound;
+
+    //set all sites in the boundary to the correct type
+    int j = boundaries.getNumElements();
+    ArrayHandle<int> t(types);
+    for (int ii = 0; ii < latticeSites.size();++ii)
+        {
+        t.data[latticeSites[ii]] = j;
+        };
+
+    int neighNum;
+    vector<int> neighbors;
+    vector<int> surfaceSite;
+    //set all neighbors of boundary sites to type -1
+    for (int ii = 0; ii < latticeSites.size();++ii)
+        {
+        int currentIndex = getNeighbors(latticeSites[ii],neighbors,neighNum,1);
+        for (int nn = 0; nn < neighbors.size(); ++nn)
+            if(t.data[neighbors[nn]] < 1)
+                {
+                t.data[neighbors[nn]] = -1;
+                surfaceSite.push_back(neighbors[nn]);
+                }
+        };
+    removeDuplicateVectorElements(surfaceSite);
+
+    //add object and surface sites to the vectors
+    GPUArray<int> newBoundarySites;
+    GPUArray<int> newSurfaceSites;
+    if(neverGPU)
+        {
+        newBoundarySites.noGPU = true;
+        newSurfaceSites.noGPU = true;
+        }
+    fillGPUArrayWithVector(latticeSites, newBoundarySites);
+    fillGPUArrayWithVector(surfaceSite, newSurfaceSites);
+
+    boundarySites.push_back(newBoundarySites);
+    surfaceSites.push_back(newSurfaceSites);
+    boundaryState.push_back(0);
+    printf("there are now %i boundary objects known to the configuration...",boundaries.getNumElements());
+    printf(" last object had %lu sites and %lu surface sites \n",latticeSites.size(),surfaceSite.size());
+    };
+
+//put a boundary with x-normal on lattice plane xyplane
+void qTensorLatticeModel2D::createSimpleFlatWall(int xyPlane, boundaryObject &bObj)
+    {
+    if (xyPlane <0 || xyPlane >=Lx)
+        UNWRITTENCODE("NOT AN OPTION FOR A FLAT SIMPLE WALL");
+    dVec Qtensor(0.0);
+    scalar s0 = bObj.P2;
+    switch(bObj.boundary)
+        {
+        case boundaryType::homeotropic:
+            {
+            if(xyPlane ==0)
+                {Qtensor[0] = s0; Qtensor[1] = 0;}
+            else 
+                {Qtensor[0] = -s0; Qtensor[1] = 0;}
+            break;
+            }
+        case boundaryType::degeneratePlanar:
+            {
+            Qtensor[0]=0.0; Qtensor[1] = 0.0;
+            Qtensor[xyPlane]=1.0;
+            break;
+            }
+        default:
+            UNWRITTENCODE("non-defined boundary type is attempting to create a boundary");
+        };
+
+    vector<int> boundSites;
+    ArrayHandle<dVec> pos(positions);
+    int currentSite;
+    int size1,size2;
+    for (int yy = 0; yy < Ly; ++yy)
+        {
+        currentSite = latticeIndex(xyPlane,yy);
+        boundSites.push_back(currentSite);
+        pos.data[currentSite] = Qtensor;
+        };
+
+    createBoundaryObject(boundSites,bObj.boundary,bObj.P1,bObj.P2);
+    };
+
 /*!
 Reads a carefully prepared text file to create a new boundary object...
 The first line must be a single integer specifying the number of objects to be read in.

@@ -114,6 +114,8 @@ class squareLattice : public simpleModel
 
         //!lattice sites per edge
         int L;
+        int Lx;
+        int Ly;
 
         //!normalize vector length when moving spins?
         bool normalizeSpins;
