@@ -2,12 +2,8 @@
 #define activeQTensorModel2D_H
 
 #include "qTensorLatticeModel2D.h"
-/*
-no GPU code written yet... when it is, include this file:
-#include "activeQTensorModel2D.cuh"
-*/
 
-/*! \file 2DTensorLatticeModel.h */
+/*! \file activeQTensorModel2D.h */
 
 //! Each site on the underlying lattice gets a local Q-tensor
 /*!

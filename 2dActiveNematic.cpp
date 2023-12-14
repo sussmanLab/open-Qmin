@@ -197,6 +197,25 @@ int main(int argc, char*argv[])
         vvdat.writeState(saveVec,0.0);
         };
     
+        profiler p2("vnr cost");
+        profiler p1("vr cost");
+        vector<int> tester1;
+        vector<int> tester2;
+        p2.start();
+        for(int jj = 0; jj < 2000;++jj)
+            {
+            tester1.push_back(jj);
+            }
+        p2.end();
+        p1.start();
+        tester2.reserve(2000);
+        for(int jj = 0; jj < 2000;++jj)
+            {
+            tester2.push_back(jj);
+            }
+        p1.end();
+        p2.print();
+        p1.print();
 /*
     vector<scalar> maxEvec;
     Configuration->getAverageMaximalEigenvector(maxEvec);

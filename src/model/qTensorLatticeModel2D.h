@@ -5,11 +5,6 @@
 #include "qTensorFunctions2D.h"
 #include "latticeBoundaries.h"
 
-/*
-no GPU code written yet... when it is, include this file:
-#include "qTensorLatticeModel2D.cuh"
-*/
-
 /*! \file qTensorLatticeModel2D.h */
 
 //! Each site on the underlying lattice gets a local Q-tensor
@@ -19,7 +14,7 @@ a dVec of q[0,1] corresponds to the symmetric traceless tensor laid out as
     (q[0]     q[1]  )
 Q = (q[1]    -q[0] )
 
-Convention is that, for a director n, the corresponding Q = s (n x n - I/2)
+Convention is that, for a director n, the corresponding Q =2*s (n x n - I/2)
 
 Boundaries are implemented by making use of the "type" data structure that is inherited from the base simpleModel
 class...: each bulk LC lattice site will have type zero (the default), and lattice sites *adjacent to a boundary* will

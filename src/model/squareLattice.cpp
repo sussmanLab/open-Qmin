@@ -1,6 +1,6 @@
 #include "squareLattice.h"
 #include "functions.h"
-#include "cubicLattice.cuh"//some basic spin functionality has already been written, such as simple spin updating GPU calls -- refactor code later
+#include "cubicLattice.cuh"//some basic spin functionality has already been written, such as simple spin updating GPU calls -- refactor code later, but for now no need to write squareLattice.cu/cuh files
 /*
 no gpu functions written yet
 #include "squareLattice.cuh"
