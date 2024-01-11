@@ -65,7 +65,6 @@ void activeBerisEdwards2D::calculateMolecularFieldAdvectionStressCPU()
     ArrayHandle<dVec> advection(generalizedAdvection);
     ArrayHandle<dVec> PiS(activeModel->symmetricStress);
     ArrayHandle<dVec> PiA(activeModel->antisymmetricStress);
-    ArrayHandle<scalar> p(activeModel->pressure);
     ArrayHandle<int> nearestNeighbors(activeModel->neighboringSites,access_location::host,access_mode::read);
     dVec q,h;
     int ixd, ixu,iyd,iyu;
