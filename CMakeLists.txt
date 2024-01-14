@@ -18,7 +18,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 set(CMAKE_CC_FLAGS "${CMAKE_CC_FLAGS}")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -flto")
 set(CMAKE_CUDA_FLAGS "${CUDA_NVCC_FLAGS} --expt-relaxed-constexpr -arch=sm_${CUDA_ARCH} -gencode=arch=compute_${CUDA_ARCH},code=sm_${CUDA_ARCH}")
 set(CMAKE_CUDA_ARCHITECTURES ${CUDA_ARCH})
 
@@ -123,7 +123,7 @@ set(HEADERS
 # for cpp files which DO NOT need QT
 foreach(ARG openQmin customScriptFromGUI 2dActiveNematic)
 add_executable("${ARG}.out" "${ARG}.cpp" )
-target_link_libraries("${ARG}.out" ${myLibs} ${MPI_LIBRARIES} -lnvToolsExt netcdf netcdf_c++)
+target_link_libraries("${ARG}.out" ${myLibs} ${MPI_LIBRARIES} -lnvToolsExt netcdf netcdf_c++ -flto)
 if(MPI_COMPILE_FLAGS)
     set_target_properties("${ARG}.out" PROPERTIES COMPILE_FLAGS "${MPI_COMPILE_FLAGS}")
 endif()
