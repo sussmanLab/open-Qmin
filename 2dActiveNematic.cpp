@@ -51,6 +51,7 @@ int main(int argc, char*argv[])
 
     SwitchArg reproducibleSwitch("r","reproducible","reproducible random number generation", cmd, true);
     SwitchArg verboseSwitch("v","verbose","output more things to screen ", cmd, false);
+    SwitchArg saveSwitch("s","save","save files", cmd, false);
 
     ValueArg<int> lSwitchArg("l","boxL","number of lattice sites for cubic box",false,50,"int",cmd);
     ValueArg<int> lxSwitchArg("","Lx","number of lattice sites in x direction",false,50,"int",cmd);
@@ -78,6 +79,7 @@ int main(int argc, char*argv[])
     int boxLy = lySwitchArg.getValue();
     int randomSeed = randomSeedSwitch.getValue();
     bool reproducible = reproducibleSwitch.getValue();
+    bool saveFiles = saveSwitch.getValue();
     if(randomSeed != -1)
         reproducible = true;
 
@@ -163,7 +165,8 @@ int main(int argc, char*argv[])
                 {
                 cout << ii << endl;
                 getVecToSave(Configuration, boxLx*boxLy,saveVec);
-                vvdat.writeState(saveVec,(ii)*dt);
+                if(saveFiles)
+                    vvdat.writeState(saveVec,(ii)*dt);
                 lsi.update();
                 currentIteration = lsi.nextSave;
                 }

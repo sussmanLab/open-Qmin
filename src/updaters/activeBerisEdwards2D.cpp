@@ -41,7 +41,7 @@ void activeBerisEdwards2D::initializeFromModel()
 
 void activeBerisEdwards2D::integrateEOMGPU()
     {
-    UNWRITTENCODE("2D active Beris-Edwards GPU branch");    
+    UNWRITTENCODE("2D active Beris-Edwards GPU branch");
     };
 
 void activeBerisEdwards2D::integrateEOMCPU()
@@ -119,14 +119,14 @@ void activeBerisEdwards2D::pressurePoissonCPU()
         ixdyu =nearestNeighbors.data[activeModel->neighborIndex(5,ii)];
         ixuyd =nearestNeighbors.data[activeModel->neighborIndex(6,ii)];
         ixuyu =nearestNeighbors.data[activeModel->neighborIndex(7,ii)];
-    
+
         dudx = 0.5*(v.data[ixu].x[0] - v.data[ixd].x[0]);
         dudy = 0.5*(v.data[iyu].x[0] - v.data[iyd].x[0]);
         dvdy = 0.5*(v.data[iyu].x[1] - v.data[iyd].x[1]);
         dvdx = 0.5*(v.data[ixu].x[1] - v.data[ixd].x[1]);
         //pRHS = \nabla\cdot u / pseudotimestep
         pRHS.data[ii] = (1.0/pseudotimestep)*(dudx+dvdy);
-        
+
         //pRHS += \nabla\cdot F
         pRHS.data[ii] += (PiS.data[ixu].x[0] + PiS.data[ixd].x[0] - PiS.data[iyu].x[0] - PiS.data[iyd].x[0])
                         +0.5*(PiS.data[ixuyu].x[1] - PiS.data[ixuyd].x[1] - PiS.data[ixdyu].x[1] + PiS.data[ixdyd].x[1]);
@@ -144,8 +144,8 @@ void activeBerisEdwards2D::pressurePoissonCPU()
     while(!fieldConverged)
         {
         pIterations +=1;
-        //pRelaxationData = relaxPressureJacobiCPU();
-        pRelaxationData = relaxPressureGaussSeidelCPU();
+        pRelaxationData = relaxPressureJacobiCPU();
+        //pRelaxationData = relaxPressureGaussSeidelCPU();
         //pRelaxationData = relaxPressureSORCPU(1.05); //set omega = 1.05 or 1.1 or 1.2 for testing... I think this routine might be wrong
         if(pRelaxationData.y == 0 || pRelaxationData.x == 0)
             {
@@ -341,7 +341,7 @@ void activeBerisEdwards2D::updateQFieldCPU()
     ArrayHandle<dVec> advection(generalizedAdvection);
     ArrayHandle<int> nearestNeighbors(activeModel->neighboringSites,access_location::host,access_mode::read);
     ArrayHandle<int> alternateNeighbors(activeModel->alternateNeighboringSites,access_location::host,access_mode::read);
-        
+
     dVec dqdt,h,s,v;
     int ixd, ixu,iyd,iyu,ixdd,ixuu,iydd,iyuu;
     for (int ii = 0; ii < Ndof; ++ii)
@@ -358,7 +358,7 @@ void activeBerisEdwards2D::updateQFieldCPU()
         ixuu = alternateNeighbors.data[activeModel->alternateNeighborIndex(1,ii)];
         iydd = alternateNeighbors.data[activeModel->alternateNeighborIndex(2,ii)];
         iyuu = alternateNeighbors.data[activeModel->alternateNeighborIndex(3,ii)];
-        
+
         disp.data[ii] = deltaT*((1.0/rotationalViscosity)*h + s
                                   + upwindAdvectiveDerivative(v,Q.data[ii],
                                                                 Q.data[ixd],Q.data[iyd],Q.data[ixu],Q.data[iyu],
@@ -367,7 +367,7 @@ void activeBerisEdwards2D::updateQFieldCPU()
 
         }//array handle scope end
     sim->moveParticles(displacement);
-    }; 
+    };
 
 /*!
 \partial_t \vec{u} = -(\vec{u}\cdot\nabla)\vec{u} + (viscosity)*\nabla^2\vec{u} + (1/rho)*(\vec{F} - \nabla p)
@@ -382,7 +382,7 @@ void activeBerisEdwards2D::updateVelocityFieldCPU()
     ArrayHandle<scalar> p(activeModel->pressure);
     ArrayHandle<int> nearestNeighbors(activeModel->neighboringSites,access_location::host,access_mode::read);
     ArrayHandle<int> alternateNeighbors(activeModel->alternateNeighboringSites,access_location::host,access_mode::read);
-        
+
     dVec dudt,v;
     int ixd, ixu,iyd,iyu,ixdd,ixuu,iydd,iyuu,ixdyd, ixdyu, ixuyd, ixuyu;
     for (int ii = 0; ii < Ndof; ++ii)
@@ -412,14 +412,14 @@ void activeBerisEdwards2D::updateVelocityFieldCPU()
                                     V.data[ixdyd],V.data[ixuyd],V.data[ixdyu],V.data[ixuyu]);
 
         //add pressure and active/elastic stress terms:. F_x = dx Pixx + dy Pixy,
-        dudt[0] += (0.5/rho)*(-(p.data[ixu] - p.data[ixd]) 
+        dudt[0] += (0.5/rho)*(-(p.data[ixu] - p.data[ixd])
                                 // F_x = dx Pixx + dy Pixy,
-                                + (PiS.data[ixu].x[0] - PiS.data[ixd].x[0] ) 
+                                + (PiS.data[ixu].x[0] - PiS.data[ixd].x[0] )
                                 + ((PiS.data[iyu].x[1]+PiA.data[iyu].x[0])-(PiS.data[iyd].x[1]+PiA.data[iyd].x[0]) )
                                 );
-        dudt[1] += (0.5/rho)*(-(p.data[iyu] - p.data[iyd]) 
+        dudt[1] += (0.5/rho)*(-(p.data[iyu] - p.data[iyd])
                                 // F_y = dx Piyx + dy Piyy = -dy Pixx + dx Pi yx,
-                                - (PiS.data[iyu].x[0] - PiS.data[iyd].x[0] ) 
+                                - (PiS.data[iyu].x[0] - PiS.data[iyd].x[0] )
                                 + ((PiS.data[ixu].x[1]-PiA.data[ixu].x[0])-(PiS.data[ixd].x[1]-PiA.data[ixd].x[0]) )
                                 );
 
@@ -427,11 +427,11 @@ void activeBerisEdwards2D::updateVelocityFieldCPU()
         disp.data[ii] = deltaT*dudt;
         };
         }//array handle scope end
-    
+
     //update all velocities
     ArrayHandle<dVec> V(activeModel->returnVelocities());
     ArrayHandle<dVec> disp(velocityUpdate);
     for (int ii = 0; ii < Ndof; ++ii)
         V.data[ii] = V.data[ii] + disp.data[ii];
-        
+
     };
