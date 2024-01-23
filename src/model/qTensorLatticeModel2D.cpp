@@ -20,7 +20,7 @@ qTensorLatticeModel2D::qTensorLatticeModel2D(int l, bool _useGPU, bool _neverGPU
     defectMeasures.resize(N);
     if(DIMENSION <2 )
         {
-        printf("\nAttempting to run a simulation with incorrectly set dimension... change the root CMakeLists.txt file to have dimension at least 5 and recompile\n");
+        printf("\nAttempting to run a simulation with incorrectly set dimension... change the root CMakeLists.txt file to have dimension at least 2 and recompile\n");
         throw std::exception();
         }
     };
@@ -34,7 +34,7 @@ qTensorLatticeModel2D::qTensorLatticeModel2D(int lx,int ly, bool _useGPU, bool _
     defectMeasures.resize(N);
     if(DIMENSION <2 )
         {
-        printf("\nAttempting to run a simulation with incorrectly set dimension... change the root CMakeLists.txt file to have dimension at least 5 and recompile\n");
+        printf("\nAttempting to run a simulation with incorrectly set dimension... change the root CMakeLists.txt file to have dimension at least 2 and recompile\n");
         throw std::exception();
         }
     };
