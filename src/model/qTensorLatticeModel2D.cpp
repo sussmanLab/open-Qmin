@@ -1,9 +1,7 @@
 #include "qTensorLatticeModel2D.h"
 #include "cubicLattice.cuh" // note that cubicLattice.cuh actually has all of the default "spin updating" gpu codes...keep this here, and refactor name later
-/*
-no GPU code written yet... when it is, include this file:
 #include "qTensorLatticeModel2D.cuh"
-*/
+
 
 
 /*! \file qTensorLatticeModel2D.cpp" */
@@ -119,8 +117,8 @@ void qTensorLatticeModel2D::computeDefectMeasures(int defectType)
             ArrayHandle<int> t(types,access_location::device,access_mode::read);
             ArrayHandle<dVec> pos(positions,access_location::device,access_mode::read);
             ArrayHandle<scalar> defects(defectMeasures,access_location::device,access_mode::overwrite);
-            UNWRITTENCODE("NEED TO WRITE 2Dqtensor defect measures computation on the gpu");
-//            gpu_get_2Dqtensor_DefectMeasures(pos.data,defects.data,t.data,defectType,N);
+//            UNWRITTENCODE("NEED TO WRITE 2Dqtensor defect measures computation on the gpu");
+            gpu_get_2DqTensor_DefectMeasures(pos.data,defects.data,t.data,defectType,N);
         }
     }
 
@@ -150,8 +148,8 @@ void qTensorLatticeModel2D::setNematicQTensorRandomly(noiseSource &noise,scalar 
         }
     else
         {
-        UNWRITTENCODE("set random 2dqtensor code on the gpu");
-        /*
+//        UNWRITTENCODE("set random 2dqtensor code on the gpu");
+        
         ArrayHandle<int> t(types,access_location::device,access_mode::read);
         ArrayHandle<dVec> pos(positions,access_location::device,access_mode::readwrite);
         int blockSize = 128;
@@ -159,8 +157,8 @@ void qTensorLatticeModel2D::setNematicQTensorRandomly(noiseSource &noise,scalar 
         noise.initialize(N);
         noise.initializeGPURNGs();
         ArrayHandle<curandState> d_curandRNGs(noise.RNGs,access_location::device,access_mode::readwrite);
-        gpu_set_random_nematic_2DqTensors(pos.data,t.data,d_curandRNGs.data, S0, blockSize,nBlocks,globallyAligned,globalTheta,globalPhi,N);
-        */
+        gpu_set_random_nematic_2DqTensors(pos.data,t.data,d_curandRNGs.data, S0, blockSize,nBlocks,globallyAligned,globalPhi,N);
+        
         }
     };
 
@@ -187,18 +185,18 @@ void qTensorLatticeModel2D::moveParticles(GPUArray<dVec> &displacements,scalar s
         }
     else
         {//gpu branch
-        UNWRITTENCODE("GPU move particles");
-        /*
+//        UNWRITTENCODE("GPU move particles");
+        
         moveParticlesTuner->begin();
         ArrayHandle<dVec> d_disp(displacements,access_location::device,access_mode::read);
         ArrayHandle<dVec> d_pos(positions,access_location::device,access_mode::readwrite);
         if(scale == 1.0)
-            gpu_update_2dqTensor(d_disp.data,d_pos.data,N,moveParticlesTuner->getParameter());
+            gpu_update_2DqTensor(d_disp.data,d_pos.data,N,moveParticlesTuner->getParameter());
         else
-            gpu_update_2dqTensor(d_disp.data,d_pos.data,scale,N,moveParticlesTuner->getParameter());
+            gpu_update_2DqTensor(d_disp.data,d_pos.data,scale,N,moveParticlesTuner->getParameter());
 
         moveParticlesTuner->end();
-        */
+        
         };
     };
 
