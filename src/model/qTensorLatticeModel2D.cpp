@@ -20,7 +20,7 @@ qTensorLatticeModel2D::qTensorLatticeModel2D(int l, bool _useGPU, bool _neverGPU
     defectMeasures.resize(N);
     if(DIMENSION <2 )
         {
-        printf("\nAttempting to run a simulation with incorrectly set dimension... change the root CMakeLists.txt file to have dimension at least 5 and recompile\n");
+        printf("\nAttempting to run a simulation with incorrectly set dimension... change the root CMakeLists.txt file to have dimension at least 2 and recompile\n");
         throw std::exception();
         }
     };
@@ -34,7 +34,7 @@ qTensorLatticeModel2D::qTensorLatticeModel2D(int lx,int ly, bool _useGPU, bool _
     defectMeasures.resize(N);
     if(DIMENSION <2 )
         {
-        printf("\nAttempting to run a simulation with incorrectly set dimension... change the root CMakeLists.txt file to have dimension at least 5 and recompile\n");
+        printf("\nAttempting to run a simulation with incorrectly set dimension... change the root CMakeLists.txt file to have dimension at least 2 and recompile\n");
         throw std::exception();
         }
     };
@@ -117,7 +117,6 @@ void qTensorLatticeModel2D::computeDefectMeasures(int defectType)
             ArrayHandle<int> t(types,access_location::device,access_mode::read);
             ArrayHandle<dVec> pos(positions,access_location::device,access_mode::read);
             ArrayHandle<scalar> defects(defectMeasures,access_location::device,access_mode::overwrite);
-//            UNWRITTENCODE("NEED TO WRITE 2Dqtensor defect measures computation on the gpu");
             gpu_get_2DqTensor_DefectMeasures(pos.data,defects.data,t.data,defectType,N);
         }
     }
@@ -148,8 +147,6 @@ void qTensorLatticeModel2D::setNematicQTensorRandomly(noiseSource &noise,scalar 
         }
     else
         {
-//        UNWRITTENCODE("set random 2dqtensor code on the gpu");
-        
         ArrayHandle<int> t(types,access_location::device,access_mode::read);
         ArrayHandle<dVec> pos(positions,access_location::device,access_mode::readwrite);
         int blockSize = 128;
@@ -158,7 +155,6 @@ void qTensorLatticeModel2D::setNematicQTensorRandomly(noiseSource &noise,scalar 
         noise.initializeGPURNGs();
         ArrayHandle<curandState> d_curandRNGs(noise.RNGs,access_location::device,access_mode::readwrite);
         gpu_set_random_nematic_2DqTensors(pos.data,t.data,d_curandRNGs.data, S0, blockSize,nBlocks,globallyAligned,globalPhi,N);
-        
         }
     };
 
@@ -185,8 +181,6 @@ void qTensorLatticeModel2D::moveParticles(GPUArray<dVec> &displacements,scalar s
         }
     else
         {//gpu branch
-//        UNWRITTENCODE("GPU move particles");
-        
         moveParticlesTuner->begin();
         ArrayHandle<dVec> d_disp(displacements,access_location::device,access_mode::read);
         ArrayHandle<dVec> d_pos(positions,access_location::device,access_mode::readwrite);

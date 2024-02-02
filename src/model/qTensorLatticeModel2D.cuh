@@ -26,7 +26,5 @@ bool gpu_get_2DqTensor_DefectMeasures(dVec *Q, scalar *defects, int *t, int defe
 bool gpu_set_random_nematic_2DqTensors(dVec *d_pos, int *d_types, curandState *rngs, scalar amplitude, int blockSize,
                                             int nBlocks, bool globallyAligned, scalar phi, int N);
 
-
-
 /** @} */ //end of group declaration
 #endif

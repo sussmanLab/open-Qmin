@@ -127,7 +127,7 @@ int main(int argc, char*argv[])
     scalar flowAlignmentParameter = flowAlignmentSwitchArg.getValue();
     scalar rotationalViscosity = rotationalViscositySwitchArg.getValue();
 
-    shared_ptr<activeQTensorModel2D> Configuration = make_shared<activeQTensorModel2D>(boxLx,boxLy,GPU, GPU);
+    shared_ptr<activeQTensorModel2D> Configuration = make_shared<activeQTensorModel2D>(boxLx,boxLy,GPU, !GPU);
     Configuration->setNematicQTensorRandomly(noise,S0,false);
 
     shared_ptr<landauDeGennesLC2D> landauLCForce = make_shared<landauDeGennesLC2D>(a,c,L1, GPU);

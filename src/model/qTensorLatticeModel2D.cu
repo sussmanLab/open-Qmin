@@ -12,7 +12,7 @@
 
 __global__ void gpu_update_2DqTensor_simple_kernel(dVec *d_disp, dVec *d_pos, int N)
     { 
-        //sums displacement to position on the gpu
+    //sums displacement to position on the gpu
     unsigned int idx = blockDim.x * blockIdx.x + threadIdx.x;
     int pidx = idx/DIMENSION;  //row index
     if(pidx>=N) return;
@@ -25,7 +25,7 @@ __global__ void gpu_update_2DqTensor_simple_kernel(dVec *d_disp, dVec *d_pos, in
 
 __global__ void gpu_update_2DqTensor_simple_kernel(dVec *d_disp, dVec *d_pos, int N, scalar scale)
     {
-        //sums scaled displacemment to position on the gpu
+    //sums scaled displacemment to position on the gpu
     unsigned int idx = blockDim.x * blockIdx.x + threadIdx.x;
     int pidx = idx/DIMENSION; 
     if(pidx>=N) return;
@@ -38,7 +38,7 @@ __global__ void gpu_update_2DqTensor_simple_kernel(dVec *d_disp, dVec *d_pos, in
 
 __global__ void gpu_2DqTensor_largestEigenvalue_kernel(dVec *Q, scalar *defects, int *t, int N)
     {
-        //calls the function that finds the largest eigenvalue for a qtensor for gpu
+    //calls the function that finds the largest eigenvalue for a qtensor for gpu
     unsigned int idx = blockDim.x * blockIdx.x + threadIdx.x;
     if(idx >= N)
         return;
@@ -54,7 +54,7 @@ __global__ void gpu_2DqTensor_largestEigenvalue_kernel(dVec *Q, scalar *defects,
 
 __global__ void gpu_2DqTensor_computeDeterminant_kernel(dVec *Q, scalar *defects, int *t, int N)
     {
-        //calls the function that finds the determinant of a qtensor for gpu
+    //calls the function that finds the determinant of a qtensor for gpu
     unsigned int idx = blockDim.x * blockIdx.x + threadIdx.x;
     if(idx >= N)
         return;
@@ -96,11 +96,6 @@ bool gpu_update_2DqTensor(dVec *d_disp, dVec *Q, scalar scale, int N, int blockS
     {
     if (N < 128) blockSize = 16;
     unsigned int nBlocks  = DIMENSION*N/blockSize + 1;
-    if(DIMENSION < 2)   //qtensor, encoded as a vector, has two independent elements in 2D 
-        {
-        printf("\nAttempting to initialize Q-tensors with incorrectly set dimension...change the root CMakeLists.txt file to have dimension 5 and recompile\n");
-        throw std::exception();
-        }
     gpu_update_2DqTensor_simple_kernel<<<nBlocks,blockSize>>>(d_disp, Q,scale,N);
     HANDLE_ERROR(cudaGetLastError());
     return cudaSuccess;
@@ -111,11 +106,6 @@ bool gpu_update_2DqTensor(dVec *d_disp, dVec *Q, int N,int blockSize)
     {
     if (N < 128) blockSize = 16;
     unsigned int nBlocks  = DIMENSION*N/blockSize + 1;
-    if(DIMENSION < 2)
-        {
-        printf("\nAttempting to initialize Q-tensors with incorrectly set dimension...change the root CMakeLists.txt file to have dimension 5 and recompile\n");
-        throw std::exception();
-        }
     gpu_update_2DqTensor_simple_kernel<<<nBlocks,blockSize>>>(d_disp, Q,N);
     HANDLE_ERROR(cudaGetLastError());
     return cudaSuccess;
@@ -127,7 +117,7 @@ bool gpu_set_random_nematic_2DqTensors(dVec *d_pos, int *d_types, curandState *r
     {
     if(DIMENSION < 2)
         {
-        printf("\nAttempting to initialize Q- tensors with incorrectly set dimension...change the root CMakeLists.txt file to have dimension 5 and recompile\n");
+        printf("\nAttempting to initialize Q- tensors with incorrectly set dimension...change the root CMakeLists.txt file to have dimension 2 and recompile\n");
         throw std::exception();
         }
     
@@ -150,6 +140,4 @@ bool gpu_get_2DqTensor_DefectMeasures(dVec *Q, scalar *defects, int *t, int defe
     HANDLE_ERROR(cudaGetLastError());
     return cudaSuccess;
     };
-
-
 /** @} */ //end of group declaration
