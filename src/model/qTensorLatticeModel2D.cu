@@ -140,5 +140,4 @@ bool gpu_get_2DqTensor_DefectMeasures(dVec *Q, scalar *defects, int *t, int defe
     HANDLE_ERROR(cudaGetLastError());
     return cudaSuccess;
     };
-
 /** @} */ //end of group declaration
