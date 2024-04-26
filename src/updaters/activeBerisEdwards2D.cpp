@@ -1,5 +1,8 @@
 #include "activeBerisEdwards2D.h"
+#include "activeBerisEdwards2D.cuh"
 #include "utilities.cuh"
+
+/*! \file activeBerisEdwards2D.cpp */
 
 activeBerisEdwards2D::activeBerisEdwards2D(scalar _K, scalar _gamma, scalar _lambda, scalar _Re, scalar _activeLengthScale, scalar _dt, scalar pdt,scalar _dpTarget)
     {
@@ -26,12 +29,20 @@ void activeBerisEdwards2D::initializeFromModel()
         velocityUpdate.noGPU=true;
         auxiliaryPressure.noGPU=true;
         pressurePoissonHelper.noGPU=true;
+        sumReductionHelper1.noGPU=true;
+        sumReductionHelper2.noGPU=true;
+        sumReductionHelper3.noGPU=true;
+        pAuxMinusPHolder.noGPU=true;
         }
     displacement.resize(Ndof);
     generalizedAdvection.resize(Ndof);
     velocityUpdate.resize(Ndof);
     auxiliaryPressure.resize(Ndof);
     pressurePoissonHelper.resize(Ndof);
+    sumReductionHelper1.resize(Ndof);
+    sumReductionHelper2.resize(Ndof);
+    sumReductionHelper3.resize(Ndof);
+    pAuxMinusPHolder.resize(Ndof);
 
     vector<dVec> zeroes(Ndof,make_dVec(0.0));
     fillGPUArrayWithVector(zeroes,displacement);
@@ -41,7 +52,11 @@ void activeBerisEdwards2D::initializeFromModel()
 
 void activeBerisEdwards2D::integrateEOMGPU()
     {
-    UNWRITTENCODE("2D active Beris-Edwards GPU branch");
+    iterations+=1;
+    calculateMolecularFieldAdvectionStressGPU();
+    pressurePoissonGPU();
+    updateQFieldGPU();
+    updateVelocityFieldGPU();
     };
 
 void activeBerisEdwards2D::integrateEOMCPU()
@@ -65,6 +80,7 @@ void activeBerisEdwards2D::calculateMolecularFieldAdvectionStressCPU()
     ArrayHandle<dVec> advection(generalizedAdvection);
     ArrayHandle<dVec> PiS(activeModel->symmetricStress);
     ArrayHandle<dVec> PiA(activeModel->antisymmetricStress);
+    ArrayHandle<scalar> p(activeModel->pressure);
     ArrayHandle<int> nearestNeighbors(activeModel->neighboringSites,access_location::host,access_mode::read);
     dVec q,h;
     int ixd, ixu,iyd,iyu;
@@ -95,7 +111,27 @@ void activeBerisEdwards2D::calculateMolecularFieldAdvectionStressCPU()
         };
     };
 
+
+void activeBerisEdwards2D::calculateMolecularFieldAdvectionStressGPU() 
+    {
+    //the molecular field is calculated by the active model, according to whichever version of the landau theory it is implementing
+    sim->computeForces();
+     
+    //Calculate the strain tensor, vorticity tensor, the generalized advection tensor, and the symmetric/antisymmetric stress tensor per lattice site via gpu
+    ArrayHandle<dVec> Q(activeModel->returnPositions(), access_location::device, access_mode::read);
+    ArrayHandle<dVec> v(activeModel->returnVelocities(), access_location::device, access_mode::read);
+    ArrayHandle<dVec> H(activeModel->returnForces(), access_location::device, access_mode::read);
+    ArrayHandle<dVec> advection(generalizedAdvection, access_location::device, access_mode::readwrite);
+    ArrayHandle<dVec> PiS(activeModel->symmetricStress, access_location::device, access_mode::readwrite);
+    ArrayHandle<dVec> PiA(activeModel->antisymmetricStress, access_location::device, access_mode::readwrite);
+    ArrayHandle<int> nearestNeighbors(activeModel->neighboringSites, access_location::device, access_mode::read);
+    
+    gpu_calculateMolecularFieldAdvectionStressGPU(Q.data, v.data, H.data, advection.data, PiS.data, PiA.data, nearestNeighbors.data,
+                                                    lambda, zeta, Ndof);
+    }
 //
+
+
 void activeBerisEdwards2D::pressurePoissonCPU()
     {
     //first, find the RHS of the pressure-poisson equation
@@ -119,14 +155,14 @@ void activeBerisEdwards2D::pressurePoissonCPU()
         ixdyu =nearestNeighbors.data[activeModel->neighborIndex(5,ii)];
         ixuyd =nearestNeighbors.data[activeModel->neighborIndex(6,ii)];
         ixuyu =nearestNeighbors.data[activeModel->neighborIndex(7,ii)];
-
+    
         dudx = 0.5*(v.data[ixu].x[0] - v.data[ixd].x[0]);
         dudy = 0.5*(v.data[iyu].x[0] - v.data[iyd].x[0]);
         dvdy = 0.5*(v.data[iyu].x[1] - v.data[iyd].x[1]);
         dvdx = 0.5*(v.data[ixu].x[1] - v.data[ixd].x[1]);
         //pRHS = \nabla\cdot u / pseudotimestep
         pRHS.data[ii] = (1.0/pseudotimestep)*(dudx+dvdy);
-
+        
         //pRHS += \nabla\cdot F
         pRHS.data[ii] += (PiS.data[ixu].x[0] + PiS.data[ixd].x[0] - PiS.data[iyu].x[0] - PiS.data[iyd].x[0])
                         +0.5*(PiS.data[ixuyu].x[1] - PiS.data[ixuyd].x[1] - PiS.data[ixdyu].x[1] + PiS.data[ixdyd].x[1]);
@@ -134,7 +170,7 @@ void activeBerisEdwards2D::pressurePoissonCPU()
         //pRHS -=  d_i u_j d_j u_i
         pRHS.data[ii] += - (dudx*dudx + dvdy*dvdy + 2.0*dudy*dvdx);
         };
-        }//end array handle scope
+        };//end array handle scope
 
     //Next, iteratively relax towards the correct pressure field
     pIterations = 0;
@@ -164,6 +200,47 @@ void activeBerisEdwards2D::pressurePoissonCPU()
         };
     meanPressureIterations += pIterations;
     };
+
+
+void activeBerisEdwards2D::pressurePoissonGPU()
+    {
+    //first, find the RHS of the pressure-poisson equation
+        {
+        //handle scope for RHS
+        ArrayHandle<scalar> p(activeModel->pressure, access_location::device, access_mode::read);   
+        ArrayHandle<dVec> v(activeModel->returnVelocities(), access_location::device, access_mode::read); 
+        ArrayHandle<scalar> pAux(auxiliaryPressure, access_location::device, access_mode::readwrite);
+        ArrayHandle<scalar> pRHS(pressurePoissonHelper, access_location::device, access_mode::readwrite);
+        ArrayHandle<dVec> PiS(activeModel->symmetricStress, access_location::device, access_mode::read);
+        ArrayHandle<int> nearestNeighbors(activeModel->neighboringSites, access_location::device, access_mode::read);
+
+        gpu_calculatePoissonPressureRHS(v.data, PiS.data, nearestNeighbors.data, pRHS.data, Ndof, pseudotimestep);
+      
+        };//end handle scope for RHS
+
+        pIterations = 0;
+        bool fieldConverged = false;
+        double3 pRelaxationData;
+        scalar relativePressureChange;
+        while(!fieldConverged)
+            {
+            pIterations += 1;
+            pRelaxationData = relaxPressureJacobiGPU();
+
+            if(pRelaxationData.y == 0 || pRelaxationData.x == 0)
+            {
+            fieldConverged = true;
+            } 
+            else
+            {
+            relativePressureChange = pRelaxationData.y/pRelaxationData.x;
+            if(relativePressureChange < targetRelativePressureChange)
+                fieldConverged = true;
+            }  
+            };
+        meanPressureIterations += pIterations;
+    };
+
 
 double3 activeBerisEdwards2D::relaxPressureJacobiCPU()
     {
@@ -210,6 +287,49 @@ double3 activeBerisEdwards2D::relaxPressureJacobiCPU()
         }
     return answer;
     };
+
+
+double3 activeBerisEdwards2D::relaxPressureJacobiGPU()
+    {
+    //copy (scalar) values of Pressure into auxiliarypressure
+    gpu_copy_gpuarray<scalar>(auxiliaryPressure, activeModel->pressure, 512);
+
+    double3 answer; //store abs value of pressure field, abs of difference between aux and p fields, and mean pressure field
+    ArrayHandle<scalar> p(activeModel->pressure, access_location::device, access_mode::readwrite);    
+    ArrayHandle<scalar> pAux(auxiliaryPressure, access_location::device, access_mode::readwrite);
+    ArrayHandle<scalar> sumReduction1(sumReductionHelper1, access_location::device, access_mode::readwrite);
+    ArrayHandle<scalar> sumReduction2(sumReductionHelper2, access_location::device, access_mode::readwrite);
+    ArrayHandle<scalar> sumReduction3(sumReductionHelper3, access_location::device, access_mode::readwrite);
+    ArrayHandle<scalar> pAuxMinusP(pAuxMinusPHolder, access_location::device, access_mode::readwrite);
+    ArrayHandle<scalar> pRHS(pressurePoissonHelper, access_location::device, access_mode::read);
+    ArrayHandle<int> nearestNeighbors(activeModel->neighboringSites, access_location::device, access_mode::read);
+    
+    //update the pressure field based on the auxiliary and RHS terms
+    gpu_updatePressureJacobi(p.data, pRHS.data, pAux.data, nearestNeighbors.data, Ndof);
+
+
+    //scalar accumulatedDifference = 0.;
+    scalar pTotal = 0.;
+    scalar pMean = 0.;
+
+    scalar accumulatedDifference;
+    
+    pTotal = gpu_absoluteValueSumReduction(p.data, sumReduction1.data, Ndof);
+    pMean = gpu_sumReduction(p.data, sumReduction2.data, Ndof);
+    gpu_subtractPFromPAux(pAux.data, p.data, pAuxMinusP.data, Ndof);
+
+    accumulatedDifference = gpu_absoluteValueSumReduction(pAuxMinusP.data, sumReduction3.data, Ndof);
+    
+    answer.x = pTotal;
+    answer.y = accumulatedDifference;
+    answer.z = pMean / (1.0*Ndof); 
+
+    //p->(p-<p>)
+    gpu_subtractpMeanPressureFromPressure(p.data, answer.z, Ndof);
+    return answer; 
+    }
+
+
 
 //currently Implemented for a 5-point laplacian stenciel;
 double3 activeBerisEdwards2D::relaxPressureGaussSeidelCPU()
@@ -341,7 +461,7 @@ void activeBerisEdwards2D::updateQFieldCPU()
     ArrayHandle<dVec> advection(generalizedAdvection);
     ArrayHandle<int> nearestNeighbors(activeModel->neighboringSites,access_location::host,access_mode::read);
     ArrayHandle<int> alternateNeighbors(activeModel->alternateNeighboringSites,access_location::host,access_mode::read);
-
+        
     dVec dqdt,h,s,v;
     int ixd, ixu,iyd,iyu,ixdd,ixuu,iydd,iyuu;
     for (int ii = 0; ii < Ndof; ++ii)
@@ -358,7 +478,7 @@ void activeBerisEdwards2D::updateQFieldCPU()
         ixuu = alternateNeighbors.data[activeModel->alternateNeighborIndex(1,ii)];
         iydd = alternateNeighbors.data[activeModel->alternateNeighborIndex(2,ii)];
         iyuu = alternateNeighbors.data[activeModel->alternateNeighborIndex(3,ii)];
-
+        
         disp.data[ii] = deltaT*((1.0/rotationalViscosity)*h + s
                                   + upwindAdvectiveDerivative(v,Q.data[ii],
                                                                 Q.data[ixd],Q.data[iyd],Q.data[ixu],Q.data[iyu],
@@ -367,7 +487,27 @@ void activeBerisEdwards2D::updateQFieldCPU()
 
         }//array handle scope end
     sim->moveParticles(displacement);
-    };
+    }; 
+
+void activeBerisEdwards2D::updateQFieldGPU()
+    {
+        {
+        //scope for array handles
+        ArrayHandle<dVec> disp(displacement, access_location::device, access_mode::readwrite);
+        ArrayHandle<dVec> Q(activeModel->returnPositions(), access_location::device, access_mode::read);
+        ArrayHandle<dVec> V(activeModel->returnVelocities(), access_location::device, access_mode::read);
+        ArrayHandle<dVec> H(activeModel->returnForces(), access_location::device, access_mode::read);
+        ArrayHandle<dVec> advection(generalizedAdvection, access_location::device, access_mode::read);
+        ArrayHandle<int> nearestNeighbors(activeModel->neighboringSites, access_location::device, access_mode::read);
+        ArrayHandle<int> alternateNeighbors(activeModel->alternateNeighboringSites, access_location::device, access_mode::read); 
+
+        gpu_get_QField_update(disp.data, Q.data, V.data, H.data, advection.data, nearestNeighbors.data, alternateNeighbors.data,
+                             deltaT, rotationalViscosity, Ndof);   
+        }//array handle scope end
+
+    sim->moveParticles(displacement);
+    }
+
 
 /*!
 \partial_t \vec{u} = -(\vec{u}\cdot\nabla)\vec{u} + (viscosity)*\nabla^2\vec{u} + (1/rho)*(\vec{F} - \nabla p)
@@ -382,7 +522,7 @@ void activeBerisEdwards2D::updateVelocityFieldCPU()
     ArrayHandle<scalar> p(activeModel->pressure);
     ArrayHandle<int> nearestNeighbors(activeModel->neighboringSites,access_location::host,access_mode::read);
     ArrayHandle<int> alternateNeighbors(activeModel->alternateNeighboringSites,access_location::host,access_mode::read);
-
+        
     dVec dudt,v;
     int ixd, ixu,iyd,iyu,ixdd,ixuu,iydd,iyuu,ixdyd, ixdyu, ixuyd, ixuyu;
     for (int ii = 0; ii < Ndof; ++ii)
@@ -412,26 +552,45 @@ void activeBerisEdwards2D::updateVelocityFieldCPU()
                                     V.data[ixdyd],V.data[ixuyd],V.data[ixdyu],V.data[ixuyu]);
 
         //add pressure and active/elastic stress terms:. F_x = dx Pixx + dy Pixy,
-        dudt[0] += (0.5/rho)*(-(p.data[ixu] - p.data[ixd])
+        dudt[0] += (0.5/rho)*(-(p.data[ixu] - p.data[ixd]) 
                                 // F_x = dx Pixx + dy Pixy,
-                                + (PiS.data[ixu].x[0] - PiS.data[ixd].x[0] )
+                                + (PiS.data[ixu].x[0] - PiS.data[ixd].x[0] ) 
                                 + ((PiS.data[iyu].x[1]+PiA.data[iyu].x[0])-(PiS.data[iyd].x[1]+PiA.data[iyd].x[0]) )
                                 );
-        dudt[1] += (0.5/rho)*(-(p.data[iyu] - p.data[iyd])
+        dudt[1] += (0.5/rho)*(-(p.data[iyu] - p.data[iyd]) 
                                 // F_y = dx Piyx + dy Piyy = -dy Pixx + dx Pi yx,
-                                - (PiS.data[iyu].x[0] - PiS.data[iyd].x[0] )
+                                - (PiS.data[iyu].x[0] - PiS.data[iyd].x[0] ) 
                                 + ((PiS.data[ixu].x[1]-PiA.data[ixu].x[0])-(PiS.data[ixd].x[1]-PiA.data[ixd].x[0]) )
                                 );
-
+        
         //scale by deltaT
         disp.data[ii] = deltaT*dudt;
         };
         }//array handle scope end
-
+    
     //update all velocities
     ArrayHandle<dVec> V(activeModel->returnVelocities());
     ArrayHandle<dVec> disp(velocityUpdate);
     for (int ii = 0; ii < Ndof; ++ii)
         V.data[ii] = V.data[ii] + disp.data[ii];
-
+        
     };
+
+void activeBerisEdwards2D::updateVelocityFieldGPU()
+    {
+        {//scope for array handles
+        ArrayHandle<dVec> V(activeModel->returnVelocities(), access_location::device, access_mode::readwrite);
+        ArrayHandle<dVec> disp(velocityUpdate, access_location::device, access_mode::readwrite);
+        ArrayHandle<dVec> PiS(activeModel->symmetricStress, access_location::device, access_mode::read);
+        ArrayHandle<dVec> PiA(activeModel->antisymmetricStress, access_location::device, access_mode::read);
+        ArrayHandle<scalar> p(activeModel->pressure, access_location::device, access_mode::read);
+        ArrayHandle<int> nearestNeighbors(activeModel->neighboringSites,access_location::device,access_mode::read);
+        ArrayHandle<int> alternateNeighbors(activeModel->alternateNeighboringSites,access_location::device,access_mode::read);
+
+        gpu_get_velocityFieldUpdate(V.data, disp.data, PiS.data, PiA.data, p.data, nearestNeighbors.data, alternateNeighbors.data,
+                                 viscosity, deltaT, rho, Ndof);
+        //cudaDeviceSynchronize();
+        //update all velocities
+        gpu_updateAllVelocities(V.data, disp.data, Ndof);
+        }
+    }

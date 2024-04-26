@@ -52,12 +52,17 @@ class activeBerisEdwards2D : public equationOfMotion
         void pressurePoissonCPU();
         void updateQFieldCPU();
         void updateVelocityFieldCPU();
+        void calculateMolecularFieldAdvectionStressGPU();
+        void pressurePoissonGPU();
+        void updateQFieldGPU();
+        void updateVelocityFieldGPU();
 
         //!helper function for upwind advective derivatives
         dVec upwindAdvectiveDerivative(dVec &u, dVec &f, dVec &fxd, dVec &fyd, dVec &fxu, dVec &fyu, dVec &fxdd, dVec &fydd, dVec &fxuu, dVec &fyuu);
 
         //!helper function for the pressure-poisson method: relax towards solution via Jacobi method
         double3 relaxPressureJacobiCPU();
+        double3 relaxPressureJacobiGPU();
         //!helper function for the pressure-poisson method: relax towards solution via teh Gauss-Siedel varaition of the Jacobi method
         double3 relaxPressureGaussSeidelCPU();
         //!helper function for the pressure-poisson method: relax towards solution via successive overrelaxation (SOR) methd
@@ -68,6 +73,10 @@ class activeBerisEdwards2D : public equationOfMotion
         GPUArray<dVec> velocityUpdate;
         GPUArray<scalar> auxiliaryPressure;
         GPUArray<scalar> pressurePoissonHelper;
+        GPUArray<scalar> sumReductionHelper1;
+        GPUArray<scalar> sumReductionHelper2;
+        GPUArray<scalar> sumReductionHelper3;
+        GPUArray<scalar> pAuxMinusPHolder;
 
         //!model parameters
         scalar lambda = 0.1;

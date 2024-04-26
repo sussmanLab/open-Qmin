@@ -145,6 +145,7 @@ int main(int argc, char*argv[])
         sim->setConfiguration(Configuration);
         sim->addForce(landauLCForce);
         sim->addUpdater(activeBE2D,Configuration);
+        sim->setCPUOperation(!GPU);
 
 
         char dataname[256];

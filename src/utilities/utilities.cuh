@@ -86,6 +86,13 @@ bool gpu_dVec_dot_products(
                     int N,
                     int block_size);
 
+//!Reduce sum the absolute value of scalar arrays
+scalar gpu_absoluteValueSumreduction(
+                        GPUArray<scalar> &input1,
+                        int N,
+                        int block_size);
+
+
 //!when dotting two "velocity" vectors of 5-component representations of the qtensor, need to include the cross term
 scalar gpu_gpuarray_QT_vector_dot_product(
                         GPUArray<dVec> &input1,
@@ -118,6 +125,18 @@ scalar gpu_gpuarray_dVec_dot_products(
                     int N = 0,
                     int maxBlockSize=512);
 
+
+//! returns the sum reduction of two inputs by calling gpuReduction
+scalar gpu_sumReduction(scalar *input1,
+                        scalar *input2,
+                        int N);
+                        
+//! returns the sum reduction of absolute values by calling gpuAbsReduction
+scalar gpu_absoluteValueSumReduction(scalar *input1,
+                        scalar *input2,
+                        int N);
+
+
 //!access cuda sdk reduction6
 template <class T>
 void reduce(int size, int threads, int blocks, T *d_idata, T *d_odata);
@@ -127,6 +146,16 @@ template <class T>
 T gpuReduction(int  n,
                int  numThreads,
                int  numBlocks,
+                  int  maxThreads,
+                  int  maxBlocks,
+                  T *d_idata,
+                  T *d_odata);
+
+//!like benchmarkReduce, interfaces with absolute reduce and returns result
+template <class T>
+T gpuAbsReduction(int  n,
+                  int  numThreads,
+                  int  numBlocks,
                   int  maxThreads,
                   int  maxBlocks,
                   T *d_idata,
