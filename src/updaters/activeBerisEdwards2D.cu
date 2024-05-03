@@ -121,12 +121,12 @@ __global__ void gpu_updatePressureJacobi_kernel(scalar *p, scalar *pAux, scalar 
     }
 
 
-__global__ void gpu_subtractpMeanPressureFromPressure_kernel(scalar *p, scalar pMean, int Ndof)
+__global__ void gpu_subtractpMeanPressureFromPressure_kernel(scalar *p, scalar *pMean, int Ndof)
     {
     unsigned int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if(idx >= Ndof) return;
 
-    p[idx] = p[idx] - pMean;
+    p[idx] = p[idx] - pMean[0]/((double)Ndof);
     return;
     }
 
@@ -256,7 +256,7 @@ bool gpu_subtractPFromPAux(scalar *pAux, scalar *p, scalar *pAuxMinusPHolder, in
     }
 
 
-bool gpu_subtractpMeanPressureFromPressure(scalar *p, scalar pMean, int Ndof)
+bool gpu_subtractpMeanPressureFromPressure(scalar *p, scalar *pMean, int Ndof)
     {
     unsigned int blockSize = 128;
     if(Ndof < 128) blockSize = 16;

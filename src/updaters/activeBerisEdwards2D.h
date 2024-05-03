@@ -72,11 +72,13 @@ class activeBerisEdwards2D : public equationOfMotion
         GPUArray<dVec> generalizedAdvection;
         GPUArray<dVec> velocityUpdate;
         GPUArray<scalar> auxiliaryPressure;
-        GPUArray<scalar> pressurePoissonHelper;
-        GPUArray<scalar> sumReductionHelper1;
-        GPUArray<scalar> sumReductionHelper2;
-        GPUArray<scalar> sumReductionHelper3;
         GPUArray<scalar> pAuxMinusPHolder;
+        GPUArray<scalar> pressurePoissonHelper;
+        //GPU arrays to hold pressure relaxation data and sum reduction assistance
+        GPUArray<scalar> pressureRelaxationData1;
+        GPUArray<scalar> pressureRelaxationData2;
+        GPUArray<scalar> pressureRelaxationData3;
+        GPUArray<scalar> sumReductionHelper;
 
         //!model parameters
         scalar lambda = 0.1;

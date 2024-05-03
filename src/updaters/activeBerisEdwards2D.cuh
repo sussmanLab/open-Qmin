@@ -24,7 +24,7 @@ bool gpu_updatePressureJacobi(scalar *p, scalar *pRHS, scalar *pAux, int *neares
 bool gpu_subtractPFromPAux(scalar *pAux, scalar *p, scalar *pAuxMinusPHolder, int Ndof);
 
 //! p -> p - pMean
-bool gpu_subtractpMeanPressureFromPressure(scalar *p, scalar pMean, int Ndof);
+bool gpu_subtractpMeanPressureFromPressure(scalar *p, scalar *pMean, int Ndof);
 
 //! update Q field; use both nearest neighbors and alternate neighbors
 bool gpu_get_QField_update(dVec *disp, dVec *Q, dVec *v, dVec *H, dVec *advection, int *nearestNeighbors,

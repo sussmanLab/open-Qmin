@@ -252,6 +252,35 @@ T gpuReduction(int  n,
     return gpu_result;
     }
 
+template <class T>
+void gpuReduction(int  n,
+                  int  numThreads,
+                  int  numBlocks,
+                  int  maxThreads,
+                  int  maxBlocks,
+                  T *d_idata,
+                  T *d_odata,
+                  T *finalDataLocation)
+    {
+    int cpuFinalThreshold = 1;
+
+
+    // execute the kernel
+    reduce<T>(n, numThreads, numBlocks, d_idata, d_odata);
+    HANDLE_ERROR(cudaGetLastError());
+
+    //T *h_odata = (T *) malloc(numBlocks*sizeof(T));
+    // sum partial block sums on GPU
+    int s=numBlocks;
+    while (s > cpuFinalThreshold)
+        {
+        int threads = 0, blocks = 0;
+        getNumBlocksAndThreads(s, maxBlocks, maxThreads, blocks, threads);
+        reduce<T>(s, threads, blocks, d_odata, d_odata);
+        s = (s + (threads*2-1)) / (threads*2);
+        }
+    cudaMemcpy(finalDataLocation, d_odata, sizeof(T), cudaMemcpyDeviceToDevice);
+    }
 /*!
 add the first N elements of array and put it in output[helperIdx]
 */
@@ -461,6 +490,36 @@ T gpuAbsReduction(int  n,
         }
     cudaMemcpy(&gpu_result, d_odata, sizeof(T), cudaMemcpyDeviceToHost);
     return gpu_result;
+    }
+
+template <class T>
+void  gpuAbsReduction(int  n,
+                  int  numThreads,
+                  int  numBlocks,
+                  int  maxThreads,
+                  int  maxBlocks,
+                  T *d_idata,
+                  T *d_odata,
+                  T *finalDataLocation)
+    {
+    int cpuFinalThreshold = 1;
+    
+
+    // execute the kernel
+    AbsReduce<T>(n, numThreads, numBlocks, d_idata, d_odata);
+    HANDLE_ERROR(cudaGetLastError());
+
+    //T *h_odata = (T *) malloc(numBlocks*sizeof(T));
+    // sum partial block sums on GPU
+    int s=numBlocks;
+    while (s > cpuFinalThreshold)
+        {
+        int threads = 0, blocks = 0;
+        getNumBlocksAndThreads(s, maxBlocks, maxThreads, blocks, threads);
+        AbsReduce<T>(s, threads, blocks, d_odata, d_odata);
+        s = (s + (threads*2-1)) / (threads*2);
+        }
+    cudaMemcpy(finalDataLocation, d_odata, sizeof(T), cudaMemcpyDeviceToDevice);
     }
 
 
@@ -1075,6 +1134,26 @@ scalar gpu_sumReduction(scalar *input1, scalar *input2, int N)
      
     };
 
+void gpu_sum_reduction(scalar *input, scalar *helper, scalar *output, int N)
+    {
+    int numBlocks = 0;
+    int numThreads = 0;
+    int maxBlocks = 64;
+    int maxThreads = 256;
+    getNumBlocksAndThreads(N, maxBlocks, maxThreads, numBlocks, numThreads);
+    gpuReduction(N,numThreads,numBlocks,maxThreads,maxBlocks,input,helper, output);        
+    };
+
+void gpu_abs_sum_reduction(scalar *input, scalar *helper, scalar *output, int N)
+    {
+    int numBlocks = 0;
+    int numThreads = 0;
+    int maxBlocks = 64;
+    int maxThreads = 256;
+    getNumBlocksAndThreads(N, maxBlocks, maxThreads, numBlocks, numThreads);
+    gpuAbsReduction(N,numThreads,numBlocks,maxThreads,maxBlocks,input,helper, output);        
+    };
+
 /*!
 takes the dot product of every element of the two input arrays and performs a reduction on the sum
 \param input1 vector 1...wow!
@@ -1250,9 +1329,9 @@ void host_dVec_times_scalar(dVec *d_vec1, scalar factor, dVec *d_ans, int N)
     }
 //explicit template instantiations
 template scalar gpuReduction<scalar>(int  n,int  numThreads,int  numBlocks,int  maxThreads,int  maxBlocks,scalar *d_idata,scalar *d_odata);
+template void gpuReduction<scalar>(int  n,int  numThreads,int  numBlocks,int  maxThreads,int  maxBlocks,scalar *d_idata,scalar *d_odata, scalar *finalDataLocation);
 template int gpuReduction<int>(int  n,int  numThreads,int  numBlocks,int  maxThreads,int  maxBlocks,int *d_idata,int *d_odata);
-template scalar gpuAbsReduction<scalar>(int  n,int  numThreads,int  numBlocks,int  maxThreads,int  maxBlocks,scalar *d_idata,scalar *d_odata);
-template int gpuAbsReduction<int>(int  n,int  numThreads,int  numBlocks,int  maxThreads,int  maxBlocks,int *d_idata,int *d_odata);
+template void gpuAbsReduction<scalar>(int  n,int  numThreads,int  numBlocks,int  maxThreads,int  maxBlocks,scalar *d_idata,scalar *d_odata, scalar *finalDataLocation);
 template void reduce<int>(int size, int threads, int blocks, int *d_idata, int *d_odata);
 template void reduce<scalar>(int size, int threads, int blocks, scalar *d_idata, scalar *d_odata);
 

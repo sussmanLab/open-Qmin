@@ -29,19 +29,21 @@ void activeBerisEdwards2D::initializeFromModel()
         velocityUpdate.noGPU=true;
         auxiliaryPressure.noGPU=true;
         pressurePoissonHelper.noGPU=true;
-        sumReductionHelper1.noGPU=true;
-        sumReductionHelper2.noGPU=true;
-        sumReductionHelper3.noGPU=true;
+        sumReductionHelper.noGPU=true;
         pAuxMinusPHolder.noGPU=true;
+        pressureRelaxationData1.noGPU=true;
+        pressureRelaxationData2.noGPU=true;
+        pressureRelaxationData3.noGPU=true;
         }
     displacement.resize(Ndof);
     generalizedAdvection.resize(Ndof);
     velocityUpdate.resize(Ndof);
     auxiliaryPressure.resize(Ndof);
     pressurePoissonHelper.resize(Ndof);
-    sumReductionHelper1.resize(Ndof);
-    sumReductionHelper2.resize(Ndof);
-    sumReductionHelper3.resize(Ndof);
+    sumReductionHelper.resize(Ndof);
+    pressureRelaxationData1.resize(1);
+    pressureRelaxationData2.resize(1);
+    pressureRelaxationData3.resize(1);
     pAuxMinusPHolder.resize(Ndof);
 
     vector<dVec> zeroes(Ndof,make_dVec(0.0));
@@ -295,37 +297,51 @@ double3 activeBerisEdwards2D::relaxPressureJacobiGPU()
     gpu_copy_gpuarray<scalar>(auxiliaryPressure, activeModel->pressure, 512);
 
     double3 answer; //store abs value of pressure field, abs of difference between aux and p fields, and mean pressure field
+    {//array handle scope
     ArrayHandle<scalar> p(activeModel->pressure, access_location::device, access_mode::readwrite);    
     ArrayHandle<scalar> pAux(auxiliaryPressure, access_location::device, access_mode::readwrite);
-    ArrayHandle<scalar> sumReduction1(sumReductionHelper1, access_location::device, access_mode::readwrite);
-    ArrayHandle<scalar> sumReduction2(sumReductionHelper2, access_location::device, access_mode::readwrite);
-    ArrayHandle<scalar> sumReduction3(sumReductionHelper3, access_location::device, access_mode::readwrite);
+    ArrayHandle<scalar> sumReduction1(sumReductionHelper, access_location::device, access_mode::overwrite);
     ArrayHandle<scalar> pAuxMinusP(pAuxMinusPHolder, access_location::device, access_mode::readwrite);
     ArrayHandle<scalar> pRHS(pressurePoissonHelper, access_location::device, access_mode::read);
     ArrayHandle<int> nearestNeighbors(activeModel->neighboringSites, access_location::device, access_mode::read);
+
+    ArrayHandle<scalar> pTotal(pressureRelaxationData1,access_location::device,access_mode::overwrite);
+    ArrayHandle<scalar> pMean(pressureRelaxationData2,access_location::device,access_mode::overwrite);
+    ArrayHandle<scalar> accumulatedDifference(pressureRelaxationData3,access_location::device,access_mode::overwrite);
     
     //update the pressure field based on the auxiliary and RHS terms
     gpu_updatePressureJacobi(p.data, pRHS.data, pAux.data, nearestNeighbors.data, Ndof);
+    //copmute the difference between the current and auxilliary fields
+    gpu_subtractPFromPAux(pAux.data, p.data, pAuxMinusP.data, Ndof);
 
 
     //scalar accumulatedDifference = 0.;
-    scalar pTotal = 0.;
-    scalar pMean = 0.;
+    //scalar pTotal = 0.;
+    //scalar pMean = 0.;
 
-    scalar accumulatedDifference;
+    //scalar accumulatedDifference;
     
-    pTotal = gpu_absoluteValueSumReduction(p.data, sumReduction1.data, Ndof);
-    pMean = gpu_sumReduction(p.data, sumReduction2.data, Ndof);
-    gpu_subtractPFromPAux(pAux.data, p.data, pAuxMinusP.data, Ndof);
+    gpu_sum_reduction(p.data,sumReduction1.data,pMean.data,Ndof);
+    gpu_abs_sum_reduction(p.data,sumReduction1.data,pTotal.data,Ndof);
+    gpu_abs_sum_reduction(p.data,sumReduction1.data,accumulatedDifference.data,Ndof);
 
-    accumulatedDifference = gpu_absoluteValueSumReduction(pAuxMinusP.data, sumReduction3.data, Ndof);
+/*
+    pTotal = gpu_absoluteValueSumReduction(p.data, sumReduction1.data, Ndof);
+
+    accumulatedDifference = gpu_absoluteValueSumReduction(pAuxMinusP.data, sumReduction1.data, Ndof);
     
     answer.x = pTotal;
     answer.y = accumulatedDifference;
     answer.z = pMean / (1.0*Ndof); 
+*/
 
     //p->(p-<p>)
-    gpu_subtractpMeanPressureFromPressure(p.data, answer.z, Ndof);
+    gpu_subtractpMeanPressureFromPressure(p.data, pMean.data, Ndof);
+    }//end arrayhandle scope
+    ArrayHandle<scalar> pTotal(pressureRelaxationData1,access_location::host,access_mode::read);
+    ArrayHandle<scalar> accumulatedDifference(pressureRelaxationData3,access_location::host,access_mode::read);
+    answer.x = pTotal.data[0];
+    answer.y = accumulatedDifference.data[0];
     return answer; 
     }
 

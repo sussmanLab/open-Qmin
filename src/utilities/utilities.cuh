@@ -126,6 +126,9 @@ scalar gpu_gpuarray_dVec_dot_products(
                     int maxBlockSize=512);
 
 
+void gpu_sum_reduction(scalar *input, scalar *helper, scalar *output, int N);
+void gpu_abs_sum_reduction(scalar *input, scalar *helper, scalar *output, int N);
+
 //! returns the sum reduction of two inputs by calling gpuReduction
 scalar gpu_sumReduction(scalar *input1,
                         scalar *input2,
@@ -150,6 +153,16 @@ T gpuReduction(int  n,
                   int  maxBlocks,
                   T *d_idata,
                   T *d_odata);
+//!as in the above, but keep all data on the GPU
+template <class T>
+void gpuReduction(int  n,
+               int  numThreads,
+               int  numBlocks,
+                  int  maxThreads,
+                  int  maxBlocks,
+                  T *d_idata,
+                  T *d_odata,
+                  T *finalDataLocation);
 
 //!like benchmarkReduce, interfaces with absolute reduce and returns result
 template <class T>
@@ -160,6 +173,17 @@ T gpuAbsReduction(int  n,
                   int  maxBlocks,
                   T *d_idata,
                   T *d_odata);
+
+//!like benchmarkReduce, interfaces with absolute reduce and returns result
+template <class T>
+void gpuAbsReduction(int  n,
+                  int  numThreads,
+                  int  numBlocks,
+                  int  maxThreads,
+                  int  maxBlocks,
+                  T *d_idata,
+                  T *d_odata,
+                  T *finalDataLocation);
 
 //!copy data into target on the device
 template<typename T>
