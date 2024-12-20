@@ -153,10 +153,17 @@ inline bool fileExists(const std::string& name)
     return f.good();
     }
 
+//!report the line and file we've gotten to
+inline static void debugCodeHelper(const char *file, const int line)
+    {
+    std::cerr << "Reached file " << file<<" at line " << line <<"\n";
+    };
+
 //A macro to say code needs to be written
 #define UNWRITTENCODE(message) (unwrittenCode(message,__FILE__,__LINE__))
+
 //spot-checking of code for debugging
-#define DEBUGCODEHELPER printf("\nReached: file %s at line %d\n",__FILE__,__LINE__);
+#define DEBUGCODEHELPER (debugCodeHelper(__FILE__,__LINE__))
 
 #ifdef ENABLE_CUDA
 //A macro to wrap cuda calls

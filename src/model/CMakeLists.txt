@@ -4,6 +4,7 @@ add_library(models STATIC
     multirankQTensorLatticeModel.cpp
     cubicLattice.cpp
     )
+target_link_libraries(models utilities)
 set_target_properties(models PROPERTIES
                             CUDA_SEPARABLE_COMPILATION ON)
 

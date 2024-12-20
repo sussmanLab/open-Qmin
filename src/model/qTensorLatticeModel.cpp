@@ -224,15 +224,15 @@ void qTensorLatticeModel::moveParticles(GPUArray<dVec> &displacements,scalar sca
     #ifdef ENABLE_CUDA
         else
             {//gpu branch
-            moveParticlesTuner->begin();
+            moveParticlesTuner.begin();
             ArrayHandle<dVec> d_disp(displacements,access_location::device,access_mode::read);
             ArrayHandle<dVec> d_pos(positions,access_location::device,access_mode::readwrite);
             if(scale == 1.0)
-                gpu_update_qTensor(d_disp.data,d_pos.data,N,moveParticlesTuner->getParameter());
+                gpu_update_qTensor(d_disp.data,d_pos.data,N,moveParticlesTuner.getParameter());
             else
-                gpu_update_qTensor(d_disp.data,d_pos.data,scale,N,moveParticlesTuner->getParameter());
+                gpu_update_qTensor(d_disp.data,d_pos.data,scale,N,moveParticlesTuner.getParameter());
 
-            moveParticlesTuner->end();
+            moveParticlesTuner.end();
             };
     #endif
     };

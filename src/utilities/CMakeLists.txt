@@ -13,6 +13,7 @@ add_library(utilities STATIC
     noiseSource.cpp
     utilities.cpp
     )
+target_link_libraries(utilities dataTypesAndContainersLibrary)
 set_target_properties(utilities PROPERTIES
                             CUDA_SEPARABLE_COMPILATION ON)
 if(ENABLE_CUDA)

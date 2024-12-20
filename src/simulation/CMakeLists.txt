@@ -4,3 +4,4 @@ add_library(simulations STATIC
     multirankSimulation.cpp
     multirankSimulationBoundaries.cpp
     )
+target_link_libraries(simulations utilities)

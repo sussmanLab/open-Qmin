@@ -1,6 +1,9 @@
 #include "gpuarray.h"
 #include "cudaDataTypes.h"
+#include "dDimensionalVectorTypes.h"
 #include "latticeBoundaries.h"
+#include "matrix.h"
+#include "std_include.h"
 #include <cstddef>
 #include <cstring>
 #include <utility> //the new include algorithm, since c++11
@@ -374,8 +377,8 @@ T* GPUArray<T>::resizeHostArray(unsigned int num_elements)
 template<class T>
 void GPUArray<T>::resize(unsigned int num_elements)
     {
-    arraySize = num_elements;
     resizeHostArray(num_elements);
+    arraySize = num_elements;
 #ifdef ENABLE_CUDA
     if(dataHasTouchedDevice)
         resizeDeviceArray(num_elements);
@@ -471,3 +474,15 @@ template class GPUArray<double4>;
 
 template class ArrayHandle<boundaryObject>;
 template class GPUArray<boundaryObject>;
+
+template class ArrayHandle<dVec>;
+template class GPUArray<dVec>;
+
+template class ArrayHandle<cubicLatticeDerivativeVector>;
+template class GPUArray<cubicLatticeDerivativeVector>;
+
+template class ArrayHandle<std::pair<int, dVec>>;
+template class GPUArray<std::pair<int, dVec>>;
+
+template class ArrayHandle<Matrix3x3>;
+template class GPUArray<Matrix3x3>;

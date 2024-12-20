@@ -9,6 +9,7 @@ add_library(updaters STATIC
     )
 set_target_properties(updaters PROPERTIES
                             CUDA_SEPARABLE_COMPILATION ON)
+target_link_libraries(updaters dataTypesAndContainersLibrary)
 if(ENABLE_CUDA)
 add_library(updatersGPU STATIC 
     velocityVerlet.cu

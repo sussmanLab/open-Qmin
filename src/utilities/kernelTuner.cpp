@@ -27,12 +27,6 @@ kernelTuner::kernelTuner(int start, int end, int step, int nSamples, int _period
 
     };
 
-kernelTuner::~kernelTuner()
-    {
-    //cudaEventDestroy(startEvent);
-    //cudaEventDestroy(stopEvent);
-    };
-
 void kernelTuner::begin()
     {
     if (internalState != IDLE)

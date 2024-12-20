@@ -19,7 +19,7 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wshadow -Wno-unused-function -Wextra -Wno-deprecated-copy -Wno-sign-compare -Wno-unused-parameter")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wshadow -Wno-unused-function -Wno-deprecated-copy -Wno-sign-compare -Wno-unused-parameter -Wno-unused-variable -Wno-unknown-pragmas -Wno-class-memaccess -Wno-shadow -Wno-return-type -Wno-reorder")
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 
 if(${CMAKE_BUILD_TYPE} MATCHES "Debug")
@@ -78,55 +78,32 @@ set( myLibraries "${myLibraries} utilitiesGPU forcesGPU modelsGPU updatersGPU
 endif()
 
 
-# set(myLibs Forces Model Simulation Updaters Utilities)
 include_directories(
     inc
     src/model src/forces src/simulation src/updaters src/utilities
 #     ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}
-#     ${Qt5Widgets_INCLUDE_DIRS}
-#     ${OPENGL_INCLUDE_DIRS}
-#     ${OPENGL_INCLUDE_DIRS}/GL
-#     /usr/include/GL
     ${MPI_INCLUDE_PATH}
 )
 
+if(ENABLE_QT)
+include_directories(
+    ${Qt5Widgets_INCLUDE_DIRS}
+    ${OPENGL_INCLUDE_DIRS}
+    ${OPENGL_INCLUDE_DIRS}/GL
+    /usr/include/GL
+    )
+endif()
 
 add_subdirectory(src)
 
 message(STATUS "${myLibraries}")
 
 add_executable(${PROJECT_NAME}
-    test.cpp
+    openQmin.cpp
 )
-target_link_libraries(${PROJECT_NAME} PUBLIC ${myLibraries})
+target_link_libraries(${PROJECT_NAME} PUBLIC ${myLibraries} MPI::MPI_CXX)
 
 
-
-# set(myLibs Forces Model Simulation Updaters Utilities)
-# include_directories(
-#     inc
-#     ${FORCESLIB_DIR}
-#     ${MODELLIB_DIR}
-#     ${SIMULATIONLIB_DIR}
-#     ${UPDATERSLIB_DIR}
-#     ${UTILITIESLIB_DIR}
-#     ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}
-#     ${Qt5Widgets_INCLUDE_DIRS}
-#     ${OPENGL_INCLUDE_DIRS}
-#     ${OPENGL_INCLUDE_DIRS}/GL
-#     /usr/include/GL
-#     ${MPI_INCLUDE_PATH})
-# link_directories(${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}/../lib)
-#
-# message("libraries = " "${myLibs}")
-#
-# qt5_wrap_ui(UI_HEADERS mainwindow.ui)
-# set(SOURCES mainwindow.cpp oglwidget.cpp)
-# set(HEADERS
-#        mainwindow.h
-#        oglwidget.h
-#     )
-#
 # # list the names of cpp files corresponding to linked executables you'd like... This first set is
 # # for cpp files which DO NOT need QT
 # foreach(ARG openQmin customScriptFromGUI)
@@ -139,6 +116,20 @@ target_link_libraries(${PROJECT_NAME} PUBLIC ${myLibraries})
 #     set_target_properties("${ARG}.out" PROPERTIES LINK_FLAGS "${MPI_LINK_FLAGS}")
 # endif()
 # endforeach()
+
+# link_directories(${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}/../lib)
+#
+if(ENABLE_QT)
+
+endif()
+#
+# qt5_wrap_ui(UI_HEADERS mainwindow.ui)
+# set(SOURCES mainwindow.cpp oglwidget.cpp)
+# set(HEADERS
+#        mainwindow.h
+#        oglwidget.h
+#     )
+#
 #
 # # list the names of cpp files corresponding to linked executables you'd like... This second set is
 # # for GUI-related cpp files

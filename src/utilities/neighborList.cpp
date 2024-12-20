@@ -18,7 +18,7 @@ neighborList::neighborList(scalar range, BoxPtr _box, int subGridReduction)
     cellList->computeAdjacentCells(width);
     Nmax = 4;
     maxRange = range;
-    nlistTuner = make_shared<kernelTuner>(16,1024,16,5,200000);
+    nlistTuner = kernelTuner(16,1024,16,5,200000);
     };
 
 
@@ -157,7 +157,7 @@ void neighborList::computeGPU(GPUArray<dVec> &points)
         ArrayHandle<dVec> d_vec(neighborVectors,access_location::device,access_mode::overwrite);
         ArrayHandle<int> d_assist(assist,access_location::device,access_mode::readwrite);
         //!call gpu function
-        nlistTuner->begin();
+        nlistTuner.begin();
         gpu_compute_neighbor_list(d_idx.data,
                                   d_npp.data,
                                   d_vec.data,
@@ -179,8 +179,8 @@ void neighborList::computeGPU(GPUArray<dVec> &points)
                                   maxRange,
                                   nmax,
                                   Np,
-                                  nlistTuner->getParameter());
-        nlistTuner->end();
+                                  nlistTuner.getParameter());
+        nlistTuner.end();
         }//scope
         {
         ArrayHandle<int> h_assist(assist,access_location::host,access_mode::readwrite);

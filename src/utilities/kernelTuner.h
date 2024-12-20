@@ -10,10 +10,9 @@
 class kernelTuner
     {
     public:
+        kernelTuner(){};
         //!Base constructor takes (start,end,step) values to scan, sample number, and period
         kernelTuner(int start, int end, int step, int nSamples, int _period);
-        //!destroy the cuda events
-        ~kernelTuner();
 
         void begin();
         void end();

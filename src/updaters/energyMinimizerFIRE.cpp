@@ -23,7 +23,6 @@ Initialize the minimizer with some default parameters. that do not depend on Ndo
 */
 void energyMinimizerFIRE::initializeParameters()
     {
-    dotProductTuner = make_shared<kernelTuner>(1024,1024,32,5,200000);
     iterations = 0;
     Power = 0;
     NSinceNegativePower = 0;

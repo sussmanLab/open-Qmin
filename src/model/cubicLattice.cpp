@@ -38,7 +38,7 @@ cubicLattice::cubicLattice(int lx, int ly, int lz, bool _slice, bool _useGPU, bo
 void cubicLattice::initializeNSites()
     {
     initializeSimpleModel(N);
-    moveParticlesTuner = make_shared<kernelTuner>(512,1024,128,10,200000);
+    moveParticlesTuner = kernelTuner(512,1024,128,10,200000);
     };
 
 void cubicLattice::moveParticles(GPUArray<dVec> &dofs,GPUArray<dVec> &displacements,scalar scale)

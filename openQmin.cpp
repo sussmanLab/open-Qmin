@@ -1,3 +1,4 @@
+#include "initializationFunctions.h"
 #include "functions.h"
 #include "multirankSimulation.h"
 #include "multirankQTensorLatticeModel.h"
@@ -15,8 +16,12 @@
 #include <tclap/CmdLine.h>
 #include <mpi.h>
 #include "logSpacedIntegers.h"
+#include "kernelTuner.h"
+#include "std_include.h"
 
+#ifdef ENABLE_CUDA
 #include "cuda_profiler_api.h"
+#endif
 
 int3 partitionProcessors(int numberOfProcesses)
     {
@@ -31,7 +36,8 @@ int3 partitionProcessors(int numberOfProcesses)
 using namespace TCLAP;
 int main(int argc, char*argv[])
     {
-    int myRank,worldSize;
+    int myRank=0;
+    int worldSize =0;
     int tag=99;
     char message[20];
     MPI_Status status;
@@ -124,8 +130,10 @@ int main(int argc, char*argv[])
     bool verbose= verboseSwitch.getValue();
     int gpu = gpuSwitchArg.getValue();
     int initializationSwitch = initializationSwitchArg.getValue();
-    int nDev;
+    int nDev = 0;
+#ifdef ENABLE_CUDA
     cudaGetDeviceCount(&nDev);
+#endif
     if(nDev == 0)
         gpu = -1;
     scalar phaseA = aSwitchArg.getValue();
@@ -183,7 +191,6 @@ int main(int argc, char*argv[])
     bool edges = ((rankTopology.y >1) && !useOneConstantApprox) ? true : false;
     bool corners = ((rankTopology.z >1) && !useOneConstantApprox) ? true : false;
     bool neverGPU = !GPU;
-
     shared_ptr<multirankQTensorLatticeModel> Configuration = make_shared<multirankQTensorLatticeModel>(boxLx,boxLy,boxLz,xH,yH,zH,false,neverGPU);
     shared_ptr<multirankSimulation> sim = make_shared<multirankSimulation>(myRank,rankTopology.x,rankTopology.y,rankTopology.z,edges,corners);
     shared_ptr<landauDeGennesLC> landauLCForce = make_shared<landauDeGennesLC>(neverGPU);

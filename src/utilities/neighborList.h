@@ -57,7 +57,7 @@ class neighborList
         //! the maximum number of particles found in any neighborhood
         int Nmax;
         //!kernelTuner object
-        shared_ptr<kernelTuner> nlistTuner;
+        kernelTuner nlistTuner;
     protected:
 
         //!Save the displacement and distances associated with neihgbors?

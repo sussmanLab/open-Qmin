@@ -1,5 +1,6 @@
 #include "multirankSimulation.h"
 #include "qTensorFunctions.h"
+#include "cudaDataTypes.h"
 /*! \file multrankSimulationBoundaries.cpp */
 
 /*!
@@ -529,7 +530,10 @@ void multirankSimulation::createMultirankBoundaryObject(vector<int3> &latticeSit
         //check if it is within control of this rank
         if(currentSite >=latticeMinPosition && currentSite < latticeMax)
             {
-            int3 currentLatticePos = currentSite - latticeMinPosition;
+            int3 currentLatticePos;
+            currentLatticePos.x = currentSite.x - latticeMinPosition.x;
+            currentLatticePos.y = currentSite.y - latticeMinPosition.y;
+            currentLatticePos.z = currentSite.z - latticeMinPosition.z;
             int currentLatticeSite = Conf->positionToIndex(currentLatticePos);
             latticeSitesToEmploy.push_back(currentLatticeSite);
             pos.data[currentLatticeSite] = qTensors[ii];

@@ -7,6 +7,8 @@ add_library(forces STATIC
     )
 set_target_properties(forces PROPERTIES
                             CUDA_SEPARABLE_COMPILATION ON)
+target_link_libraries(forces dataTypesAndContainersLibrary)
+
 if(ENABLE_CUDA)
 add_library(forcesGPU STATIC 
     baseLatticeForce.cu
