@@ -1,6 +1,8 @@
 #include"energyMinimizerNesterovAG.h"
+#ifdef ENABLE_CUDA
 #include"energyMinimizerNesterovAG.cuh"
 #include "utilities.cuh"
+#endif
 
 /*! \file energyMinimizerNesterovAG.cpp */
 
@@ -36,6 +38,7 @@ void energyMinimizerNesterovAG::initializeFromModel()
     alternateSequence = model->returnPositions();
     };
 
+#ifdef ENABLE_CUDA
 void energyMinimizerNesterovAG::nesterovStepGPU()
     {
     sim->computeForces();
@@ -67,6 +70,7 @@ void energyMinimizerNesterovAG::nesterovStepGPU()
     scalar forceNorm = h_assist.data[0];
     forceMax = sqrt(forceNorm) / (scalar)Ndof;
     }
+#endif
 
 void energyMinimizerNesterovAG::nesterovStepCPU()
     {
@@ -103,9 +107,11 @@ void energyMinimizerNesterovAG::minimize()
             //printf("momentum at %f\n",mu);
             };
         iterations +=1;
+#ifdef ENABLE_CUDA
         if(useGPU)
             nesterovStepGPU();
         else
+#endif
             nesterovStepCPU();
         if(iterations%1000 == 999)
             printf("nesterov step %i max force:%.3g\t energy %.3g\n",iterations,forceMax,sim->computePotentialEnergy());

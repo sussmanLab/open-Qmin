@@ -37,10 +37,13 @@ class energyMinimizerGradientDescent : public equationOfMotion
 
         //!an interface to call either the CPU or GPU FIRE algorithm
         void gradientDescentStep();
-        //!Perform a velocity Verlet step on the CPU
+        //!Perform a GD step on the CPU
         void gradientDescentCPU();
-        //!Perform a velocity Verlet step on the GPU
+        //!Perform a GD step on the GPU
+
+#ifdef ENABLE_CUDA
         void gradientDescentGPU();
+#endif
 
         //!Minimize to either the force tolerance or the maximum number of iterations
         void minimize();

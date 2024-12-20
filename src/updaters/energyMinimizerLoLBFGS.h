@@ -64,10 +64,12 @@ class energyMinimizerLoLBFGS : public equationOfMotion
             }
     protected:
         void LoLBFGSStepCPU();
+#ifdef ENABLE_CUDA
         void LoLBFGSStepGPU();
+        void lineSearchGPU(GPUArray<dVec> &descentDirection);
+#endif
 
         void lineSearchCPU(GPUArray<dVec> &descentDirection);
-        void lineSearchGPU(GPUArray<dVec> &descentDirection);
 
         //!the number of past gradients, etc., to save
         int m=0;

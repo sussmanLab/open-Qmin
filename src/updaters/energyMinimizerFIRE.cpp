@@ -1,6 +1,8 @@
 #include "energyMinimizerFIRE.h"
+#ifdef ENABLE_CUDA
 #include "energyMinimizerFIRE.cuh"
 #include "utilities.cuh"
+#endif
 
 /*! \file energyMinimizerFIRE.cpp
  */
@@ -50,13 +52,6 @@ void energyMinimizerFIRE::initializeFromModel()
     {
     Ndof = model->getNumberOfParticles();
     neverGPU = model->neverGPU;
-    if(neverGPU)
-        {
-        displacement.noGPU = true;
-        sumReductions.noGPU=true;
-        sumReductionIntermediate.noGPU=true;
-        sumReductionIntermediate2.noGPU=true;
-        }
     //printf("FIRE dof = %i\n",Ndof);
     sumReductions.resize(3);
     displacement.resize(Ndof);
@@ -69,69 +64,12 @@ void energyMinimizerFIRE::initializeFromModel()
  */
 void energyMinimizerFIRE::fireStep()
     {
+#ifdef ENABLE_CUDA
     if (useGPU)
         fireStepGPU();
     else
+#endif
         fireStepCPU();
-    };
-
-/*!
- * Perform a FIRE minimization step on the GPU
- */
-void energyMinimizerFIRE::fireStepGPU()
-    {
-    Power = 0.0;
-    forceMax = 0.0;
-    //
-    //The forces are really ``co-forces'' as defined in the non-orthonormal basis of Qxx,Qxy,Qyy,Qxz,Qyz
-    //As a result, we take the vector norm of all three quantities
-    //
-    scalar forceNorm = gpu_gpuarray_QT_vector_dot_product(model->returnForces(),
-                                            sumReductionIntermediate,sumReductionIntermediate2,Ndof);
-    scalar velocityNorm = gpu_gpuarray_QT_vector_dot_product(model->returnVelocities(),
-                                                sumReductionIntermediate,sumReductionIntermediate2,Ndof);
-    Power = gpu_gpuarray_QT_vector_dot_product(model->returnForces(),model->returnVelocities(),
-                                                sumReductionIntermediate,sumReductionIntermediate2,Ndof);
-
-    updaterData[0] = forceNorm;
-    updaterData[1] = Power;
-    updaterData[2] = velocityNorm;
-    sim->sumUpdaterData(updaterData);
-    forceNorm = updaterData[0];
-    Power = updaterData[1];
-    velocityNorm = updaterData[2];
-
-    forceMax = sqrt(forceNorm) / ((scalar)nTotal);
-    scaling = 0.0;
-    if(forceNorm > 0.)
-        scaling = sqrt(velocityNorm/forceNorm);
-    {
-    ArrayHandle<dVec> d_f(model->returnForces(),access_location::device,access_mode::read);
-    ArrayHandle<dVec> d_v(model->returnVelocities(),access_location::device,access_mode::readwrite);
-    gpu_update_velocity_FIRE(d_v.data,d_f.data,alpha,scaling,Ndof);
-    }
-
-    //check how the power is doing
-    if (Power > 0 && iterations % 500 != 0)
-        {
-        if (NSinceNegativePower > NMin)
-            {
-            deltaT = min(deltaT*deltaTInc,deltaTMax);
-            alpha = alpha * alphaDec;
-            alpha = max(alpha, alphaMin);
-            };
-        NSinceNegativePower += 1;
-        }
-    else
-        {
-        NSinceNegativePower = 0;
-        deltaT = deltaT*deltaTDec;
-        deltaT = max (deltaT,deltaTMin);
-        alpha = alphaStart;
-        ArrayHandle<dVec> d_v(model->returnVelocities(),access_location::device,access_mode::overwrite);
-        dVec zero(0.0);
-        gpu_set_array(d_v.data,zero,Ndof,512);
-        };
     };
 
 /*!
@@ -232,7 +170,6 @@ void energyMinimizerFIRE::minimize()
         printf("fire finished: step %i max force:%.3g \tpower: %.3g\t alpha %.3g\t dt %g \tscaling %.3g \n",iterations,forceMax,Power,alpha,deltaT,scaling);cout.flush();
     };
 
-
 void energyMinimizerFIRE::setFIREParameters(scalar deltaT, scalar alphaStart, scalar deltaTMax, scalar deltaTInc, scalar deltaTDec, scalar alphaDec, int nMin, scalar forceCutoff, scalar _alphaMin)
     {
     setDeltaT(deltaT);
@@ -245,3 +182,64 @@ void energyMinimizerFIRE::setFIREParameters(scalar deltaT, scalar alphaStart, sc
     setForceCutoff(forceCutoff);
     alphaMin = _alphaMin;
     };
+
+#ifdef ENABLE_CUDA
+/*!
+ * Perform a FIRE minimization step on the GPU
+ */
+void energyMinimizerFIRE::fireStepGPU()
+    {
+    Power = 0.0;
+    forceMax = 0.0;
+    //
+    //The forces are really ``co-forces'' as defined in the non-orthonormal basis of Qxx,Qxy,Qyy,Qxz,Qyz
+    //As a result, we take the vector norm of all three quantities
+    //
+    scalar forceNorm = gpu_gpuarray_QT_vector_dot_product(model->returnForces(),
+                                            sumReductionIntermediate,sumReductionIntermediate2,Ndof);
+    scalar velocityNorm = gpu_gpuarray_QT_vector_dot_product(model->returnVelocities(),
+                                                sumReductionIntermediate,sumReductionIntermediate2,Ndof);
+    Power = gpu_gpuarray_QT_vector_dot_product(model->returnForces(),model->returnVelocities(),
+                                                sumReductionIntermediate,sumReductionIntermediate2,Ndof);
+
+    updaterData[0] = forceNorm;
+    updaterData[1] = Power;
+    updaterData[2] = velocityNorm;
+    sim->sumUpdaterData(updaterData);
+    forceNorm = updaterData[0];
+    Power = updaterData[1];
+    velocityNorm = updaterData[2];
+
+    forceMax = sqrt(forceNorm) / ((scalar)nTotal);
+    scaling = 0.0;
+    if(forceNorm > 0.)
+        scaling = sqrt(velocityNorm/forceNorm);
+    {
+    ArrayHandle<dVec> d_f(model->returnForces(),access_location::device,access_mode::read);
+    ArrayHandle<dVec> d_v(model->returnVelocities(),access_location::device,access_mode::readwrite);
+    gpu_update_velocity_FIRE(d_v.data,d_f.data,alpha,scaling,Ndof);
+    }
+
+    //check how the power is doing
+    if (Power > 0 && iterations % 500 != 0)
+        {
+        if (NSinceNegativePower > NMin)
+            {
+            deltaT = min(deltaT*deltaTInc,deltaTMax);
+            alpha = alpha * alphaDec;
+            alpha = max(alpha, alphaMin);
+            };
+        NSinceNegativePower += 1;
+        }
+    else
+        {
+        NSinceNegativePower = 0;
+        deltaT = deltaT*deltaTDec;
+        deltaT = max (deltaT,deltaTMin);
+        alpha = alphaStart;
+        ArrayHandle<dVec> d_v(model->returnVelocities(),access_location::device,access_mode::overwrite);
+        dVec zero(0.0);
+        gpu_set_array(d_v.data,zero,Ndof,512);
+        };
+    };
+#endif

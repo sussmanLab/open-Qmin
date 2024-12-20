@@ -11,6 +11,7 @@ add_library(utilities STATIC
     hyperrectangularCellList.cpp
     neighborList.cpp
     noiseSource.cpp
+    utilities.cpp
     )
 set_target_properties(utilities PROPERTIES
                             CUDA_SEPARABLE_COMPILATION ON)

@@ -1,4 +1,5 @@
 #include "multirankSimulation.h"
+#include "qTensorFunctions.h"
 /*! \file multrankSimulationBoundaries.cpp */
 
 /*!

@@ -36,7 +36,9 @@ class energyMinimizerNesterovAG : public equationOfMotion
         bool scheduledMomentum;
     protected:
         void nesterovStepCPU();
+#ifdef ENABLE_CUDA
         void nesterovStepGPU();
+#endif
         scalar mu;
         scalar forceMax;
         //!The cutoff value of the maximum force

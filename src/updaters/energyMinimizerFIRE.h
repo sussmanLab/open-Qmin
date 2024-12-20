@@ -52,10 +52,12 @@ class energyMinimizerFIRE : public velocityVerlet
 
         //!an interface to call either the CPU or GPU FIRE algorithm
         void fireStep();
-        //!Perform a velocity Verlet step on the CPU
+        //!Perform a fire step on the CPU
         void fireStepCPU();
-        //!Perform a velocity Verlet step on the GPU
+        //!Perform a fire step on the GPU
+#ifdef ENABLE_CUDA
         void fireStepGPU();
+#endif
 
         //!Minimize to either the force tolerance or the maximum number of iterations
         void minimize();
