@@ -1,5 +1,3 @@
-#define NVCC
-
 #include "noiseSource.h"
 
 /*! \file noiseSource.cpp */
@@ -37,6 +35,18 @@ scalar noiseSource::getRealNormal(scalar mean, scalar std)
     return answer;
     };
 
+void noiseSource::setReproducibleSeed(int _seed)
+    {
+    RNGSeed = _seed;
+    mt19937 Gener(RNGSeed);
+    gen = Gener;
+#ifdef DEBUGFLAGUP
+    mt19937 GenerRd(13377);
+    genrd=GenerRd;
+#endif
+    };
+
+#ifdef ENABLE_CUDA
 /*!
 \param globalSeed the global seed to use
 \param tempSeed a value of the offset that should be sent to the cuda RNG...
@@ -58,15 +68,4 @@ void noiseSource::initializeGPURNGs(int globalSeed,int tempSeed)
         };
     gpu_initialize_RNG_array(d_curandRNGs.data,N,tempSeed,globalseed);
     };
-
-void noiseSource::setReproducibleSeed(int _seed)
-    {
-    RNGSeed = _seed;
-    mt19937 Gener(RNGSeed);
-    gen = Gener;
-#ifdef DEBUGFLAGUP
-    mt19937 GenerRd(13377);
-    genrd=GenerRd;
 #endif
-    };
-

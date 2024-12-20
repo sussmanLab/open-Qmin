@@ -336,6 +336,7 @@ HOSTDEVICE scalar computeSignNoCast(scalar x)
     return 0.0;
     };
 
+#ifdef ENABLE_CUDA
 //!Get basic stats about the chosen GPU (if it exists)
 __host__ inline bool chooseGPU(int USE_GPU,bool verbose = false)
     {
@@ -368,7 +369,7 @@ __host__ inline bool chooseGPU(int USE_GPU,bool verbose = false)
         cout << "using " << prop.name << "\t ClockRate = " << prop.memoryClockRate << " memBusWidth = " << prop.memoryBusWidth << endl << endl;
         };
     return true;
-    };
+    }
 
 //!Get basic stats about the chosen GPU (if it exists)
 __host__ inline bool getAvailableGPUs(vector<string> &devices)
@@ -383,7 +384,17 @@ __host__ inline bool getAvailableGPUs(vector<string> &devices)
         devices.push_back(curName);
         };
     return true;
-    };
+    }
+#else
+bool chooseGPU(int USE_GPU,bool verbose)
+    {
+    return true;
+    }
+bool getAvailableGPUs(vector<string> &devices)
+    {
+    return false;
+    }
+#endif
 
 /** @} */ //end of group declaration
 #undef HOSTDEVICE

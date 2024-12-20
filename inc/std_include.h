@@ -9,8 +9,12 @@ It also defines scalars as either floats or doubles, depending on
 how the program is compiled
 */
 
-#define THRESHOLD 1e-18
-#define EPSILON 1e-18
+#ifdef ENABLE_CUDA
+#include <cuda_runtime.h>
+#include "vector_functions.h"
+#include "nvToolsExt.h"
+#endif
+#include "cudaDataTypes.h" //conditionally includes vector_types
 
 #include <cmath>
 #include <algorithm>
@@ -32,14 +36,12 @@ how the program is compiled
 
 using namespace std;
 
-#include <cuda_runtime.h>
-#include "vector_types.h"
-#include "vector_functions.h"
-#include "nvToolsExt.h"
 
 #define PI 3.14159265358979323846
 #define sqrt2 1.4142135623730950488
 #define sqrt3 1.7320508075688772935
+#define THRESHOLD 1e-18
+#define EPSILON 1e-18
 
 //decide whether to compute everything in floating point or double precision
 #ifndef SCALARFLOAT
@@ -76,7 +78,6 @@ using namespace std;
 
 #include "dDimensionalVectorTypes.h"
 #include "matrix.h"
-#include "structures.h"
 
 #ifdef __NVCC__
 #define HOSTDEVICE __host__ __device__ inline
@@ -118,17 +119,6 @@ HOSTDEVICE scalar3 operator+(const scalar3 &a, const scalar3 &b)
     return make_scalar3(a.x+b.x,a.y+b.y,a.z+b.z);
     }
 
-//!component-wise subtraction of two int3s
-HOSTDEVICE int3 operator-(const int3 &a, const int3 &b)
-    {
-    return make_int3(a.x-b.x,a.y-b.y,a.z-b.z);
-    }
-//!component-wise addition of two int3s
-HOSTDEVICE int3 operator+(const int3 &a, const int3 &b)
-    {
-    return make_int3(a.x+b.x,a.y+b.y,a.z+b.z);
-    }
-
 //!strict comparison of int3s
 HOSTDEVICE bool operator<(const int3 &a,const int3 &b)
     {
@@ -148,19 +138,6 @@ HOSTDEVICE bool operator>=(const int3 &a,const int3 &b)
     return (a.x >= b.x && a.y >= b.y && a.z >= b.z);
     }
 
-//!Handle errors in kernel calls...returns file and line numbers if cudaSuccess doesn't pan out
-static void HandleError(cudaError_t err, const char *file, int line)
-    {
-    //as an additional debugging check, synchronize cuda threads after every kernel call
-    #ifdef DEBUGFLAGUP
-    cudaThreadSynchronize();
-    #endif
-    if (err != cudaSuccess)
-        {
-        printf("\nError: %s in file %s at line %d\n",cudaGetErrorString(err),file,line);
-        throw std::exception();
-        }
-    }
 
 //!Report somewhere that code needs to be written
 static void unwrittenCode(const char *message, const char *file, int line)
@@ -176,30 +153,28 @@ inline bool fileExists(const std::string& name)
     return f.good();
     }
 
-static void nvtxProfPush(const char *message)
-    {
-    #ifdef DEBUGFLAGUP
-    nvtxRangePushA(message);
-    printf("%s\n",message);
-    #endif
-    };
-
-static void nvtxProfPop()
-    {
-    #ifdef DEBUGFLAGUP
-    nvtxRangePop();
-    #endif
-    };
-
-#define NVTXPUSH(message) (nvtxProfPush(message))
-#define NVTXPOP(message) (nvtxProfPop())
-
-//A macro to wrap cuda calls
-#define HANDLE_ERROR(err) (HandleError( err, __FILE__,__LINE__ ))
 //A macro to say code needs to be written
 #define UNWRITTENCODE(message) (unwrittenCode(message,__FILE__,__LINE__))
 //spot-checking of code for debugging
 #define DEBUGCODEHELPER printf("\nReached: file %s at line %d\n",__FILE__,__LINE__);
+
+#ifdef ENABLE_CUDA
+//A macro to wrap cuda calls
+#define HANDLE_ERROR(err) (HandleError( err, __FILE__,__LINE__ ))
+//!Handle errors in kernel calls...returns file and line numbers if cudaSuccess doesn't pan out
+static void HandleError(cudaError_t err, const char *file, int line)
+    {
+    //as an additional debugging check, synchronize cuda threads after every kernel call
+    #ifdef DEBUGFLAGUP
+    cudaThreadSynchronize();
+    #endif
+    if (err != cudaSuccess)
+        {
+        printf("\nError: %s in file %s at line %d\n",cudaGetErrorString(err),file,line);
+        throw std::exception();
+        }
+    }
+#endif
 
 #undef HOSTDEVICE
 #endif

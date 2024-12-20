@@ -1,14 +1,14 @@
 # Installation {#install}
 
-# Requirements
+## Requirements
 
 The current iteration of the code was written using some features of C++11, and was compiled using CUDA-8.0.
 Default compilation is via QT, so you need that, and CMake, too. Multirank simulations tested with openMPI 4.0.0
 
 Note that there is a non-GUI version of the code (particularly intended for running on clusters), in which all 
-of the QT dependencies have been stripped out. This is the "noQT" branch of the code in the git repository
+of the QT dependencies have been stripped out. This is the "noQT" branch of the code in the git repository, but it is fairly out of date at the moment
 
-# Basic compilation
+## Basic compilation
 
 * cd into build/ directory. 
 * $ cmake ..
@@ -16,6 +16,13 @@ of the QT dependencies have been stripped out. This is the "noQT" branch of the 
 
 Note: by default the code will compile gpu code targeted at the (old, but still used in some XSEDE facilities) Tesla K40 cards... if you have newer GPUs, it is highly recommended to go to 
 line 6 of the CMakeLists.txt file and set the CUDA_ARCH variable appropriately
+
+### Compilation without cuda
+
+You may (for instance, on a mac), want to disable cuda altogether (i.e., compile without access to it). After cd-ing into a build/ directory:
+
+    $ cmake -DDISABLE_CUDA=On ..
+    $ make
 
 ## executables created
 
@@ -33,7 +40,7 @@ To make additional executables on compilation, copy a cpp file into the base dir
 cpp file to the base CMakeList.txt file in the "foreach()" line immediately following the comment that says
 "list the names of cpp files cooresponding to linked executables you'd like..."
 
-# Helpful websites
+## Helpful websites
 The requirements can be obtained by looking at the info on the following:
 
 CUDA: https://developer.nvidia.com/cuda-downloads

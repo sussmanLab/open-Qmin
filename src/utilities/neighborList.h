@@ -3,6 +3,7 @@
 
 #include "hyperrectangularCellList.h"
 #include "kernelTuner.h"
+
 /*! \file neighborList.h */
 //!take a set of positions, sort those positions according to a cellList, and create data structures of possible neighbors of each particle
 class neighborList
@@ -14,14 +15,12 @@ class neighborList
         //!computethe neighborlist of the set of points passed in
         void computeNeighborLists(GPUArray<dVec> &points)
             {
+#ifdef ENABLE_CUDA
             if(useGPU)
-                {
                 computeGPU(points);
-                }
             else
-                {
+#endif
                 computeCPU(points);
-                }
             };
 
         //!Enforce GPU operation
@@ -65,14 +64,16 @@ class neighborList
         bool saveDistanceData;
         //!first index is Nmax, second is whether to recompute
         GPUArray<int> assist;
-        //! compute via GPU
-        void computeGPU(GPUArray<dVec> &points);
         //! compute via CPU
         void computeCPU(GPUArray<dVec> &points);
         //!Initialization and helper without using the GPU
         void resetNeighborsCPU(int size, int _nmax);
+#ifdef ENABLE_CUDA
         //!Initialization and helper
         void resetNeighborsGPU(int size,int _nmax);
+        //! compute via GPU
+        void computeGPU(GPUArray<dVec> &points);
+#endif
 
     };
 

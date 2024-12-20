@@ -1,11 +1,14 @@
 #ifndef noiseSource_H
 #define noiseSource_H
 
-#include "curand.h"
-#include "curand_kernel.h"
 #include "std_include.h"
 #include "gpuarray.h"
+
+#ifdef ENABLE_CUDA
 #include "noiseSource.cuh"
+#include "curand.h"
+#include "curand_kernel.h"
+#endif
 
 /*! \file noiseSource.h */
 //!A class that gives access to a RNG on the cpu and gpu
@@ -42,7 +45,9 @@ class noiseSource
         void initialize(int _N)
             {
             N=_N;
+#ifdef ENABLE_CUDA
             RNGs.resize(N);
+#endif
             };
         //!set reproducibility
         void setReproducible(bool _rep){Reproducible = _rep;};
@@ -60,6 +65,8 @@ class noiseSource
         mt19937 gen;
         //!A non-reproducible Mersenne Twister
         mt19937 genrd;
+
+#ifdef ENABLE_CUDA
         //!A flag to determine whether the CUDA RNGs should be initialized or not (so that the program will run on systems with no GPU by setting this to false
         bool initializeGPURNG;
 
@@ -68,6 +75,7 @@ class noiseSource
 
         //!An array random-number-generators for use on the GPU branch of the code
         GPUArray<curandState> RNGs;
+#endif
     };
 
 #endif

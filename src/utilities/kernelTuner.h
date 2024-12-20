@@ -1,8 +1,9 @@
 #ifndef kernelTuner_H
 #define kernelTuner_H
 
-#include "std_include.h"
 #include <chrono>
+#include <iostream>
+#include <vector>
 /*!\file kernelTuner.h */
 
 //!A class that tries to dynamically optimize a kernel parameter
@@ -25,10 +26,10 @@ class kernelTuner
         //! print timing data to screen
         void printTimingData()
             {
-            cout << "parameter used: " << parameterValue << endl;
+                std::cout << "parameter used: " << parameterValue << std::endl;
             for (int ii = 1; ii < possibleParameters.size();++ii)
                 {
-                cout <<"tuner value " << possibleParameters[ii] << " median time " << sampleMedian[ii]  << endl;
+                    std::cout <<"tuner value " << possibleParameters[ii] << " median time " << sampleMedian[ii]  << std::endl;
                 }
             };
 
@@ -52,18 +53,18 @@ class kernelTuner
         int parameterValue;
         int samplesPerValue;
         int period;
-        vector<int> possibleParameters;
+        std::vector<int> possibleParameters;
         State internalState;
         int currentSample;
         int currentParameterIndex;
         int callsSinceLastSample;
-        vector<vector< float> > sampleData;
-        vector<float> sampleMedian;
+        std::vector<std::vector< float> > sampleData;
+        std::vector<float> sampleMedian;
 
         //cudaEvent_t startEvent;
         //cudaEvent_t stopEvent;
-        chrono::time_point<chrono::high_resolution_clock>  startTime;
-        chrono::time_point<chrono::high_resolution_clock>  endTime;
+        std::chrono::time_point<std::chrono::high_resolution_clock>  startTime;
+        std::chrono::time_point<std::chrono::high_resolution_clock>  endTime;
 
     };
 #endif
