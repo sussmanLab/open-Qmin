@@ -2,27 +2,38 @@
 
 ## Requirements
 
-The current iteration of the code was written using some features of C++11, and was compiled using CUDA-8.0.
-Default compilation is via QT, so you need that, and CMake, too. Multirank simulations tested with openMPI 4.0.0
+The current iteration of the code was written using some features of C++17, and was compiled using CUDA-10.0 and CUDA 12, with a relatively modern version of cmake
 
-Note that there is a non-GUI version of the code (particularly intended for running on clusters), in which all 
-of the QT dependencies have been stripped out. This is the "noQT" branch of the code in the git repository, but it is fairly out of date at the moment
+Multirank simulations tested with openMPI 4.0.0.
+
+The GUI needs Qt6 and also openGL.
+
+A flag during the cmake phase can be used to not compile the GUI (particularly useful when you just want to run the command-line code on a cluster), and another flag can be used to build the entire project *without* any of the GPU / CUDA stuff (particularly useful, e.g., on a mac now that Apple has stopped supporting cuda). See below for those options.
 
 ## Basic compilation
 
-* cd into build/ directory. 
-* $ cmake ..
-* $ make
+Basic compilation (with CUDA support, and with the graphical user interface also being compiled):
 
-Note: by default the code will compile gpu code targeted at the (old, but still used in some XSEDE facilities) Tesla K40 cards... if you have newer GPUs, it is highly recommended to go to 
-line 6 of the CMakeLists.txt file and set the CUDA_ARCH variable appropriately
+    $ cd build/ 
+    $ cmake -DENABLE_QT=ON ..
+    $ make
+
+### Compilation without the GUI
+
+    $ cd build/ 
+    $ cmake ..
+    $ make
 
 ### Compilation without cuda
 
-You may (for instance, on a mac), want to disable cuda altogether (i.e., compile without access to it). After cd-ing into a build/ directory:
 
-    $ cmake -DDISABLE_CUDA=On ..
+    $ cd build/ 
+    $ cmake -DDISABLE_CUDA=ON ..
     $ make
+
+(And of course, the cuda and QT flags are independent, so `cmake -DDISABLE_CUDA=ON -DENABLE_QT=ON ..` will work as expected)
+
+### Compilation 
 
 ## executables created
 

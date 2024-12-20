@@ -21,10 +21,7 @@ from the root directory will produce a set of html documentation files.
 
 # Basic compilation
 
-See "INSTALLATION.md" for a few more details. Note that the "noQT" branch has stripped away all code
-related to the GUI for easy installation in environments without QT installed or where it is not necessary (e.g., on clusters)
-
-As noted in the INSTALLATION file, for maximum performance set CUDA_ARCH in line 6 of the CMakeLists.txt file to correspond to the card you want to use
+See "INSTALLATION.md" for details. 
 
 # Troubleshooting
 
@@ -33,9 +30,7 @@ we recommend trying the following "standard" troubleshooting steps:
 
 ## Compilation troubleshooting
 
-If all required dependencies have been installed, the modern CMake build system should keep compilation difficulties to a minimum. If you installed any dependencies by hand you may have to give CMake hints about the location of various directories (see, e.g., lines 35-40 of the CMakeLists.txt file).
-
-If using a GPU, be sure to check what generation your card is and set the "CUDA_ARCH'' variable (line 6 of the CMakeLists.txt file) appropriately for maximum performance. [This Website](https://en.wikipedia.org/wiki/CUDA) may help if you are unsure what to use.
+If all required dependencies have been installed, the modern CMake build system should keep compilation difficulties to a minimum. If you installed any dependencies by hand you may have to give CMake hints about the location of various directories.
 
 If you used conda to install some packages, you may need to `conda deactivate` in order for the compilation to succeed.
 
@@ -50,11 +45,11 @@ client, or alternatively using [VcXserv](https://sourceforge.net/projects/vcxsrv
 
 ## To use the GUI
 
-`build/openQminGUI.out`
+`build/guiOpenQmin`
 
 ## Running on the command line
 
-build/openQmin.out options...
+`build/openQmin` options...
 
 For example, to run 100 FIRE minimization steps on a cubic lattice of side length 250:  
 `build/openQmin.out -i 100 -l 250`

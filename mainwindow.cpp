@@ -4,6 +4,7 @@
 #include <chrono>
 
 #include "mainwindow.h"
+#include "initializationFunctions.h"
 #include "ui_mainwindow.h"
 
 MainWindow::~MainWindow()
@@ -34,10 +35,12 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->displayZone,SIGNAL(zRotationChanged(int)),ui->zRotSlider,SLOT(setValue(int)));
 
     vector<string> deviceNames;
-    int nDev;
+    int nDev=0;
+#ifdef ENABLE_CUDA
     cudaGetDeviceCount(&nDev);
     if(nDev >0)
         getAvailableGPUs(deviceNames);
+#endif
     deviceNames.push_back("CPU");
     computationalNames.resize(deviceNames.size());
     for(unsigned int ii = 0; ii < computationalNames.size(); ++ii)
@@ -1366,6 +1369,8 @@ void MainWindow::startCustomFile()
 }
 void MainWindow::saveCustomFile()
 {
+    std::cout << "We are deprecating the use of custom files generated from the GUI. It was a nice idea, but syncrhonizing changes to the codebase with the output of these files is currently a headache." << std::endl;
+    std::cout << "You file will still be saved, but it almost certainly will not directly compile!" << std::endl;
     customFile.save();
 }
 
