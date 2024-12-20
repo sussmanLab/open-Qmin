@@ -1,4 +1,7 @@
 #include "qTensorLatticeModel.h"
+#include "qTensorFunctions.h"
+
+#include "qTensorLatticeModel.cuh"
 #include "cubicLattice.cuh"
 /*! \file qTensorLatticeModel.cpp" */
 

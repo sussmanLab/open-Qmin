@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.22) #present from, e.g., ubuntu 22.04 on
-project(openQmin VERSION 1.0
+
+project(openQmin VERSION 0.11
                 DESCRIPTION "a base project structure that allows for copmilation with or without cuda"
                 LANGUAGES CXX)
 
@@ -18,13 +19,24 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wshadow -Wno-unused-function -Wextra -Wpedantic -Wno-deprecated-copy -Wno-sign-compare")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wshadow -Wno-unused-function -Wextra -Wno-deprecated-copy -Wno-sign-compare -Wno-unused-parameter")
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 
 if(${CMAKE_BUILD_TYPE} MATCHES "Debug")
     add_definitions(-DDEBUGFLAGUP)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
     set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -g -lineinfo -Xptxas --generate-line-info")
+endif()
+
+if(DEFINED ENABLE_QT)
+    # Tell CMake to run moc when necessary:
+    set(CMAKE_AUTOMOC ON)
+    # As moc files are generated in the binary dir, tell CMake to always look for includes there:
+    set(CMAKE_INCLUDE_CURRENT_DIR ON)
+    find_package(Qt5 COMPONENTS Core Gui Widgets OpenGL)
+    find_package(OpenGL)
+else()
+    message(STATUS "Disabling QT compilation")
 endif()
 
 # Check for CUDA, and if it is present, set a project-wide variable
@@ -50,23 +62,15 @@ if(CMAKE_CUDA_COMPILER)
     set_source_files_properties(src/utilities/gpuarray.cpp PROPERTIES LANGUAGE CUDA)
 endif()
 
-# require hdf5 for databases
 find_package(MPI REQUIRED)
-find_package(HDF5 REQUIRED)
-find_package(Qt5 COMPONENTS Core Gui Widgets OpenGL)
-find_package(OpenGL)
 
 add_definitions(-DDIMENSION=5)
 add_definitions(-DDIRECTORY="${CMAKE_CURRENT_SOURCE_DIR}")
 
-# Tell CMake to run moc when necessary:
-set(CMAKE_AUTOMOC ON)
-# As moc files are generated in the binary dir, tell CMake to always look for includes there:
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 set(myLibraries
     dataTypesAndContainersLibrary
-    utilities #simulations forces models updaters
+    utilities forces #simulations  models updaters
     )
 if(ENABLE_CUDA)
 set( myLibraries "${myLibraries} utilitiesGPU forcesGPU modelGPU updatersGPU
@@ -83,7 +87,7 @@ include_directories(
 #     ${OPENGL_INCLUDE_DIRS}
 #     ${OPENGL_INCLUDE_DIRS}/GL
 #     /usr/include/GL
-#     ${MPI_INCLUDE_PATH}
+    ${MPI_INCLUDE_PATH}
 )
 
 

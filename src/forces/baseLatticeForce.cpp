@@ -1,5 +1,7 @@
 #include "baseLatticeForce.h"
+#ifdef ENABLE_CUDA
 #include "baseLatticeForce.cuh"
+#endif
 /*! \file baseLatticeForce.cpp */
 
 baseLatticeForce::baseLatticeForce()
@@ -22,14 +24,14 @@ void baseLatticeForce::computeForceCPU(GPUArray<dVec> &forces, bool zeroOutForce
         {
         //the current scheme for getting the six nearest neighbors
         int neighNum;
-        vector<int> neighbors(6);
+        vector<int> localNeighbors(6);
         int si,sj;
         dVec spinI, spinJ;
-        si = lattice->getNeighbors(i,neighbors,neighNum);
+        si = lattice->getNeighbors(i,localNeighbors,neighNum);
         spinI = spins.data[si];
         for (int j = 0; j < neighNum; ++j)
             {
-            int sj = neighbors[j];
+            sj = localNeighbors[j];
             if(sj < si) continue;
             spinJ = spins.data[sj];
             h_f.data[si] += (J*spinJ);
@@ -38,6 +40,31 @@ void baseLatticeForce::computeForceCPU(GPUArray<dVec> &forces, bool zeroOutForce
         };
     };
 
+//!As an example of usage, we'll implement an n-Vector model force w/ nearest-neighbor interactions
+void baseLatticeForce::computeEnergyCPU(bool verbose)
+    {
+    energy=0.0;
+    ArrayHandle<dVec> spins(lattice->returnPositions());
+    //the current scheme for getting the six nearest neighbors
+    int neighNum;
+    vector<int> localNeighbors;
+    int si,sj;
+    dVec spinI, spinJ;
+    for (int i = 0; i < lattice->getNumberOfParticles(); ++i)
+        {
+        si = lattice->getNeighbors(i,localNeighbors,neighNum);
+        spinI = spins.data[si];
+        for (int j = 0; j < neighNum; ++j)
+            {
+            sj = localNeighbors[j];
+            if(sj < si) continue;
+            spinJ = spins.data[sj];
+            energy += -J*dot(spinI,spinJ);
+            }
+        };
+    };
+
+#ifdef ENABLE_CUDA
 //!As an example of usage, we'll implement an n-Vector model force w/ nearest-neighbor interactions
 void baseLatticeForce::computeForceGPU(GPUArray<dVec> &forces, bool zeroOutForce)
     {
@@ -56,27 +83,4 @@ void baseLatticeForce::computeForceGPU(GPUArray<dVec> &forces, bool zeroOutForce
                               );
     forceTuner->end();
     };
-
-//!As an example of usage, we'll implement an n-Vector model force w/ nearest-neighbor interactions
-void baseLatticeForce::computeEnergyCPU(bool verbose)
-    {
-    energy=0.0;
-    ArrayHandle<dVec> spins(lattice->returnPositions());
-    //the current scheme for getting the six nearest neighbors
-    int neighNum;
-    vector<int> neighbors;
-    int si,sj;
-    dVec spinI, spinJ;
-    for (int i = 0; i < lattice->getNumberOfParticles(); ++i)
-        {
-        si = lattice->getNeighbors(i,neighbors,neighNum);
-        spinI = spins.data[si];
-        for (int j = 0; j < neighNum; ++j)
-            {
-            int sj = neighbors[j];
-            if(sj < si) continue;
-            spinJ = spins.data[sj];
-            energy += -J*dot(spinI,spinJ);
-            }
-        };
-    };
+#endif

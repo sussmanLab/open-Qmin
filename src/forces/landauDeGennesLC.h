@@ -28,9 +28,6 @@ class landauDeGennesLC : public baseLatticeForce
         //!use the "type" flag to select either bulk or boundary routines
         virtual void computeForces(GPUArray<dVec> &forces,bool zeroOutForce = true, int type = 0);
 
-        //select the force routing based on the number of elastic constants
-        virtual void computeForceGPU(GPUArray<dVec> &forces,bool zeroOutForce = true);
-
         //when using the Qxx,Qxy,Qxz,Qyy,Qyz basis, correct forces according to the non-orthogonal metric
         virtual void correctForceFromMetric(GPUArray<dVec> &forces);
 
@@ -50,20 +47,13 @@ class landauDeGennesLC : public baseLatticeForce
         virtual void computeStressTensors(GPUArray<int> &sites,GPUArray<Matrix3x3> &stress);
 
         virtual void computeBoundaryForcesCPU(GPUArray<dVec> &forces,bool zeroOutForce);
-        virtual void computeBoundaryForcesGPU(GPUArray<dVec> &forces,bool zeroOutForce);
 
         virtual void computeEorHFieldForcesCPU(GPUArray<dVec> &forces,bool zeroOutForce,
                                     scalar3 field, scalar anisotropicSusceptibility,scalar vacuumPermeability);
 
-        virtual void computeEorHFieldForcesGPU(GPUArray<dVec> &forces,bool zeroOutForce,
-                                    scalar3 field, scalar anisotropicSusceptibility,scalar vacuumPermeability);
-
         virtual void computeSpatiallyVaryingFieldCPU(GPUArray<dVec> &forces,bool zeroOutForce,
                                     GPUArray<scalar3> field, scalar anisotropicSusceptibility,scalar vacuumPermeability);
-        virtual void computeSpatiallyVaryingFieldGPU(GPUArray<dVec> &forces,bool zeroOutForce,
-                                    GPUArray<scalar3> field, scalar anisotropicSusceptibility,scalar vacuumPermeability);
         virtual void computeEnergyCPU(bool verbose = false);
-        virtual void computeEnergyGPU(bool verbose = false);
 
         //!A vector storing the components of energy (phase,distortion,anchoring)
         vector<scalar> energyComponents;
@@ -114,7 +104,15 @@ class landauDeGennesLC : public baseLatticeForce
             scalar thisClassSize = sizeof(scalar)*(energyComponents.size() + energyDensity.getNumElements() + 3*objectForceArray.getNumElements()+20) + 3*sizeof(bool) + 4*sizeof(kernelTuner)+ sizeof(cubicLatticeDerivativeVector)*forceCalculationAssist.getNumElements();
             return 0.000000001*thisClassSize + baseLatticeForce::getClassSize();
             }
-
+#ifdef ENABLE_CUDA
+        virtual void computeEnergyGPU(bool verbose = false);
+        virtual void computeBoundaryForcesGPU(GPUArray<dVec> &forces,bool zeroOutForce);
+        virtual void computeForceGPU(GPUArray<dVec> &forces,bool zeroOutForce = true);
+        virtual void computeEorHFieldForcesGPU(GPUArray<dVec> &forces,bool zeroOutForce,
+                                    scalar3 field, scalar anisotropicSusceptibility,scalar vacuumPermeability);
+        virtual void computeSpatiallyVaryingFieldGPU(GPUArray<dVec> &forces,bool zeroOutForce,
+                                    GPUArray<scalar3> field, scalar anisotropicSusceptibility,scalar vacuumPermeability);
+#endif
     protected:
         //!constants, etc.
         scalar A;
