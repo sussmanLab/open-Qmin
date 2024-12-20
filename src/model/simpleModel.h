@@ -89,23 +89,6 @@ class simpleModel
 
         virtual void displaceBoundaryObject(int objectIndex, int motionDirection, int magnitude){};
 
-        //!some situations do not require us to maintain various data structures
-        virtual void freeGPUArrays(bool freeVelocities, bool freeRadii, bool freeMasses)
-                        {
-                        //if(freeVelocities)
-                        //    velocities.resize(1);
-                        //else
-                        //    velocities.resize(N);
-                        //if(freeRadii)
-                        //    radii.resize(1);
-                        //else
-                        //    radii.resize(N);
-                        //if(freeMasses)
-                        //    masses.resize(1);
-                        //else
-                        //    masses.resize(N);
-                        };
-
         //!scalars that can represent different defect measures
         GPUArray<scalar> defectMeasures;
         //!return size of data in class in GB
@@ -113,11 +96,13 @@ class simpleModel
             {
             return 0.000000001*(DIMENSION*(positions.getNumElements() + velocities.getNumElements()+forces.getNumElements())*sizeof(scalar) + (2+types.getNumElements())*sizeof(int)+sizeof(bool) + sizeof(scalar)*defectMeasures.getNumElements());
             }
+        //!The number of particles
+        int N;
+        //!Whether the GPU should be used to compute anything
+        bool useGPU;
         //!Whereas useGPU can be turned on and off, neverGPU is fixed
         bool neverGPU;
     protected:
-        //!The number of particles
-        int N;
         //!number of threads to use
         int nThreads=1;
         //!particle  positions
@@ -133,8 +118,6 @@ class simpleModel
         //!particle masses
         //GPUArray<scalar> masses;
 
-        //!Whether the GPU should be used to compute anything
-        bool useGPU;
 
     };
 typedef shared_ptr<simpleModel> ConfigPtr;

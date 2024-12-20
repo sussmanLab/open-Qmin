@@ -21,6 +21,6 @@ add_library(utilitiesGPU STATIC
     noiseSource.cu
     utilities.cu
     )
-set_target_properties(utilities PROPERTIES
+set_target_properties(utilitiesGPU PROPERTIES
                             CUDA_SEPARABLE_COMPILATION ON)
 endif()

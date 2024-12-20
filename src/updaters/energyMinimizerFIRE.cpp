@@ -48,7 +48,6 @@ Initialize the minimizer with some default parameters.
 */
 void energyMinimizerFIRE::initializeFromModel()
     {
-    //model->freeGPUArrays(false,false,false);
     Ndof = model->getNumberOfParticles();
     neverGPU = model->neverGPU;
     if(neverGPU)

@@ -12,6 +12,6 @@ add_library(forcesGPU STATIC
     baseLatticeForce.cu
     landauDeGennesLC.cu
     )
-set_target_properties(forces PROPERTIES
+set_target_properties(forcesGPU PROPERTIES
                             CUDA_SEPARABLE_COMPILATION ON)
 endif()

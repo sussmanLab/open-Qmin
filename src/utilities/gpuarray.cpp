@@ -1,5 +1,6 @@
 #include "gpuarray.h"
 #include "cudaDataTypes.h"
+#include "latticeBoundaries.h"
 #include <cstddef>
 #include <cstring>
 #include <utility> //the new include algorithm, since c++11
@@ -52,6 +53,25 @@ template<class T>
 GPUArray<T>::~GPUArray()
     {
     deallocate();
+    }
+template <class T>
+GPUArray<T>::GPUArray(GPUArray<T>&& other)  
+    : whereIsTheData(other.whereIsTheData), 
+      arraySize(other.arraySize), 
+      Acquired(other.Acquired),
+#ifdef ENABLE_CUDA
+      d_data(other.d_data),
+#endif
+      h_data(other.h_data)
+    {
+    // Transfer ownership of the data
+    other.whereIsTheData = data_location::host; // Or another appropriate default
+    other.arraySize = 0;
+    other.Acquired = false;
+#ifdef ENABLE_CUDA
+    other.d_data = NULL; 
+#endif
+    other.h_data = NULL;
     }
 
 template<class T>
@@ -448,3 +468,6 @@ template class ArrayHandle<double3>;
 template class GPUArray<double3>;
 template class ArrayHandle<double4>;
 template class GPUArray<double4>;
+
+template class ArrayHandle<boundaryObject>;
+template class GPUArray<boundaryObject>;

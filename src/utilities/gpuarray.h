@@ -69,6 +69,7 @@ template<class T> class GPUArray
 
         GPUArray( GPUArray& from);
         GPUArray& operator=( GPUArray& rhs);
+        GPUArray(GPUArray<T>&& other);
 
         mutable data_location::Enum whereIsTheData;    //!< Tracks the current location of the data
         //!Swap two GPUArrays efficiently

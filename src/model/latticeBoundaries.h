@@ -1,6 +1,7 @@
 #ifndef latticeBoundaries_H
 #define latticeBoundaries_H
 
+
 /*! \file latticeBoundaries.h */
 
 //! Distinguish the potential types of non-liquid-crystalline lattice sites
@@ -19,7 +20,7 @@ P1 is W_1 and P2 is S_0 (at the moment we use the W_2 = W_1 simplification)
 class boundaryObject
     {
     public:
-        boundaryObject(boundaryType _boundary, scalar _p1, scalar _p2)
+        boundaryObject(boundaryType _boundary, double _p1, double _p2)
             {
             boundary= _boundary;
             P1 = _p1;
@@ -35,7 +36,7 @@ class boundaryObject
                 return *this;
                 }
         boundaryType boundary;
-        scalar P1, P2 ;
+        double P1, P2 ;
     };
 
 #endif

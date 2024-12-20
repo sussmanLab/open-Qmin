@@ -1,5 +1,8 @@
 #include "multirankQTensorLatticeModel.h"
+#include "qTensorFunctions.h"
+#ifdef ENABLE_CUDA
 #include "multirankQTensorLatticeModel.cuh"
+#endif
 /*! \file multirankQTensorLatticeModel.cpp" */
 
 multirankQTensorLatticeModel::multirankQTensorLatticeModel(int lx, int ly, int lz, bool _xHalo, bool _yHalo, bool _zHalo, bool _useGPU, bool _neverGPU)
@@ -11,13 +14,6 @@ multirankQTensorLatticeModel::multirankQTensorLatticeModel(int lx, int ly, int l
     latticeSites.x = Lx;
     latticeSites.y = Ly;
     latticeSites.z = Lz;
-    if(neverGPU)
-        {
-        intTransferBufferSend.noGPU = true;
-        intTransferBufferReceive.noGPU = true;
-        doubleTransferBufferSend.noGPU = true;
-        doubleTransferBufferReceive.noGPU = true;
-        }
     determineBufferLayout();
 
     if(xHalo)
@@ -48,7 +44,8 @@ multirankQTensorLatticeModel::multirankQTensorLatticeModel(int lx, int ly, int l
             h_t.data[ii]=-2;
         if( zHalo && (site.z ==0 || site.z == latticeSites.z-1))
             h_t.data[ii]=-2;
-        if(h_t.data[ii] == -2) tTest +=1;
+        if(h_t.data[ii] == -2) 
+            tTest +=1;
         }
     }
 
@@ -434,15 +431,17 @@ void multirankQTensorLatticeModel::prepareSendingBuffer(int directionType)
                 dBuf.data[DIMENSION*ii+dd] = hp.data[currentSite][dd];
             }
         }//end of CPU part
-    else
-        {
-        ArrayHandle<int> ht(types,access_location::device,access_mode::read);
-        ArrayHandle<dVec> hp(positions,access_location::device,access_mode::read);
-        ArrayHandle<int> iBuf(intTransferBufferSend,access_location::device,access_mode::readwrite);
-        ArrayHandle<scalar> dBuf(doubleTransferBufferSend,access_location::device,access_mode::readwrite);
-        int maxIndex = transferStartStopIndexes[transferStartStopIndexes.size()-1].y;
-        gpu_prepareSendingBuffer(ht.data,hp.data,iBuf.data,dBuf.data,latticeSites,latticeIndex,maxIndex);
-        }
+    #ifdef ENABLE_CUDA
+        else
+            {
+            ArrayHandle<int> ht(types,access_location::device,access_mode::read);
+            ArrayHandle<dVec> hp(positions,access_location::device,access_mode::read);
+            ArrayHandle<int> iBuf(intTransferBufferSend,access_location::device,access_mode::readwrite);
+            ArrayHandle<scalar> dBuf(doubleTransferBufferSend,access_location::device,access_mode::readwrite);
+            int maxIndex = transferStartStopIndexes[transferStartStopIndexes.size()-1].y;
+            gpu_prepareSendingBuffer(ht.data,hp.data,iBuf.data,dBuf.data,latticeSites,latticeIndex,maxIndex);
+            }
+    #endif
     }
 
 void multirankQTensorLatticeModel::readReceivingBuffer(int directionType)
@@ -469,16 +468,18 @@ void multirankQTensorLatticeModel::readReceivingBuffer(int directionType)
                 hp.data[currentSite][dd] = dBuf.data[DIMENSION*ii+dd];
             }
         }//end of CPU part
-    else
-        {
-        //GPU branch reads *the entire* buffer in one kernel call
-        ArrayHandle<int> ht(types,access_location::device,access_mode::readwrite);
-        ArrayHandle<dVec> hp(positions,access_location::device,access_mode::readwrite);
-        ArrayHandle<int> iBuf(intTransferBufferReceive,access_location::device,access_mode::read);
-        ArrayHandle<scalar> dBuf(doubleTransferBufferReceive,access_location::device,access_mode::read);
-        int maxIndex = transferStartStopIndexes[transferStartStopIndexes.size()-1].y;
-        gpu_copyReceivingBuffer(ht.data,hp.data,iBuf.data,dBuf.data,N,maxIndex);
-        }
+    #ifdef ENABLE_CUDA
+        else
+            {
+            //GPU branch reads *the entire* buffer in one kernel call
+            ArrayHandle<int> ht(types,access_location::device,access_mode::readwrite);
+            ArrayHandle<dVec> hp(positions,access_location::device,access_mode::readwrite);
+            ArrayHandle<int> iBuf(intTransferBufferReceive,access_location::device,access_mode::read);
+            ArrayHandle<scalar> dBuf(doubleTransferBufferReceive,access_location::device,access_mode::read);
+            int maxIndex = transferStartStopIndexes[transferStartStopIndexes.size()-1].y;
+            gpu_copyReceivingBuffer(ht.data,hp.data,iBuf.data,dBuf.data,N,maxIndex);
+            }
+    #endif
     }
 
 /*!

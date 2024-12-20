@@ -70,10 +70,10 @@ add_definitions(-DDIRECTORY="${CMAKE_CURRENT_SOURCE_DIR}")
 
 set(myLibraries
     dataTypesAndContainersLibrary
-    utilities forces #simulations  models updaters
+    utilities forces models #simulations  updaters
     )
 if(ENABLE_CUDA)
-set( myLibraries "${myLibraries} utilitiesGPU forcesGPU modelGPU updatersGPU
+set( myLibraries "${myLibraries} utilitiesGPU forcesGPU modelsGPU updatersGPU
     ")
 endif()
 

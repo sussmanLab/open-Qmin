@@ -1,8 +1,11 @@
 #include "qTensorLatticeModel.h"
 #include "qTensorFunctions.h"
 
+#ifdef ENABLE_CUDA
 #include "qTensorLatticeModel.cuh"
 #include "cubicLattice.cuh"
+#endif
+
 /*! \file qTensorLatticeModel.cpp" */
 
 /*!
@@ -14,8 +17,6 @@ qTensorLatticeModel::qTensorLatticeModel(int l, bool _useGPU, bool _neverGPU)
     : cubicLattice(l,false,_useGPU, neverGPU)
     {
     normalizeSpins = false;
-    if(neverGPU)
-        defectMeasures.noGPU = true;
     defectMeasures.resize(N);
     if(DIMENSION !=5)
         {
@@ -28,8 +29,6 @@ qTensorLatticeModel::qTensorLatticeModel(int lx,int ly,int lz, bool _useGPU, boo
     : cubicLattice(lx,ly,lz,false,_useGPU,_neverGPU)
     {
     normalizeSpins = false;
-    if(neverGPU)
-        defectMeasures.noGPU = true;
     defectMeasures.resize(N);
     if(DIMENSION !=5)
         {
@@ -122,13 +121,15 @@ void qTensorLatticeModel::computeDefectMeasures(int defectType)
                 }
             }
         }//end CPU
-    else
-        {
-            ArrayHandle<int> t(types,access_location::device,access_mode::read);
-            ArrayHandle<dVec> pos(positions,access_location::device,access_mode::read);
-            ArrayHandle<scalar> defects(defectMeasures,access_location::device,access_mode::overwrite);
-            gpu_get_qtensor_DefectMeasures(pos.data,defects.data,t.data,defectType,N);
-        }
+    #ifdef ENABLE_CUDA
+        else
+            {
+                ArrayHandle<int> t(types,access_location::device,access_mode::read);
+                ArrayHandle<dVec> pos(positions,access_location::device,access_mode::read);
+                ArrayHandle<scalar> defects(defectMeasures,access_location::device,access_mode::overwrite);
+                gpu_get_qtensor_DefectMeasures(pos.data,defects.data,t.data,defectType,N);
+            }
+    #endif
     }
 void qTensorLatticeModel::setNematicQTensorRandomly(noiseSource &noise,scalar S0, bool globallyAligned)
     {
@@ -160,17 +161,19 @@ void qTensorLatticeModel::setNematicQTensorRandomly(noiseSource &noise,scalar S0
                 };
             };
         }
-    else
-        {
-        ArrayHandle<int> t(types,access_location::device,access_mode::read);
-        ArrayHandle<dVec> pos(positions,access_location::device,access_mode::readwrite);
-        int blockSize = 128;
-        int nBlocks = N/blockSize+1;
-        noise.initialize(N);
-        noise.initializeGPURNGs();
-        ArrayHandle<curandState> d_curandRNGs(noise.RNGs,access_location::device,access_mode::readwrite);
-        gpu_set_random_nematic_qTensors(pos.data,t.data,d_curandRNGs.data, S0, blockSize,nBlocks,globallyAligned,globalTheta,globalPhi,N);
-        }
+    #ifdef ENABLE_CUDA
+        else
+            {
+            ArrayHandle<int> t(types,access_location::device,access_mode::read);
+            ArrayHandle<dVec> pos(positions,access_location::device,access_mode::readwrite);
+            int blockSize = 128;
+            int nBlocks = N/blockSize+1;
+            noise.initialize(N);
+            noise.initializeGPURNGs();
+            ArrayHandle<curandState> d_curandRNGs(noise.RNGs,access_location::device,access_mode::readwrite);
+            gpu_set_random_nematic_qTensors(pos.data,t.data,d_curandRNGs.data, S0, blockSize,nBlocks,globallyAligned,globalTheta,globalPhi,N);
+            }
+    #endif
     };
 
 void qTensorLatticeModel::moveParticles(GPUArray<dVec> &displacements,scalar scale)
@@ -218,18 +221,20 @@ void qTensorLatticeModel::moveParticles(GPUArray<dVec> &displacements,scalar sca
                 }
             }
         }
-    else
-        {//gpu branch
-        moveParticlesTuner->begin();
-        ArrayHandle<dVec> d_disp(displacements,access_location::device,access_mode::read);
-        ArrayHandle<dVec> d_pos(positions,access_location::device,access_mode::readwrite);
-        if(scale == 1.0)
-            gpu_update_qTensor(d_disp.data,d_pos.data,N,moveParticlesTuner->getParameter());
+    #ifdef ENABLE_CUDA
         else
-            gpu_update_qTensor(d_disp.data,d_pos.data,scale,N,moveParticlesTuner->getParameter());
+            {//gpu branch
+            moveParticlesTuner->begin();
+            ArrayHandle<dVec> d_disp(displacements,access_location::device,access_mode::read);
+            ArrayHandle<dVec> d_pos(positions,access_location::device,access_mode::readwrite);
+            if(scale == 1.0)
+                gpu_update_qTensor(d_disp.data,d_pos.data,N,moveParticlesTuner->getParameter());
+            else
+                gpu_update_qTensor(d_disp.data,d_pos.data,scale,N,moveParticlesTuner->getParameter());
 
-        moveParticlesTuner->end();
-        };
+            moveParticlesTuner->end();
+            };
+    #endif
     };
 
 /*!
