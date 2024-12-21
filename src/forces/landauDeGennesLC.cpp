@@ -40,6 +40,7 @@ void landauDeGennesLC::baseInitialization()
     useNeighborList=false;
     computeEfieldContribution=false;
     computeHfieldContribution=false;
+    spatiallyVaryingFieldContribution = false;
     forceTuner = make_shared<kernelTuner>(128,256,32,10,200000);
     boundaryForceTuner = make_shared<kernelTuner>(128,256,32,10,200000);
     l24ForceTuner = make_shared<kernelTuner>(128,256,32,10,200000);

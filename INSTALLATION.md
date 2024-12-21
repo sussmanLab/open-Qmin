@@ -6,7 +6,7 @@ The current iteration of the code was written using some features of C++17, and 
 
 Multirank simulations tested with openMPI 4.0.0.
 
-The GUI needs Qt6 and also openGL.
+The GUI needs Qt6 (e.g., `apt-get install qt6-base-dev`) and also openGL.
 
 A flag during the cmake phase can be used to not compile the GUI (particularly useful when you just want to run the command-line code on a cluster), and another flag can be used to build the entire project *without* any of the GPU / CUDA stuff (particularly useful, e.g., on a mac now that Apple has stopped supporting cuda). See below for those options.
 
