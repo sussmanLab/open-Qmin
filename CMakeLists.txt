@@ -76,9 +76,8 @@ set(myLibraries
     dataTypesAndContainersLibrary
     utilities forces models simulations  updaters
     )
-if(ENABLE_CUDA)
-set( myLibraries "${myLibraries} utilitiesGPU forcesGPU modelsGPU updatersGPU
-    ")
+if(CMAKE_CUDA_COMPILER)
+    list(APPEND myLibraries utilitiesGPU forcesGPU modelsGPU updatersGPU)
 endif()
 
 

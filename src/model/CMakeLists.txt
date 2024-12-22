@@ -8,7 +8,7 @@ target_link_libraries(models utilities)
 set_target_properties(models PROPERTIES
                             CUDA_SEPARABLE_COMPILATION ON)
 
-if(ENABLE_CUDA)
+if(CMAKE_CUDA_COMPILER)
 add_library(modelsGPU STATIC 
     simpleModel.cu
     qTensorLatticeModel.cu

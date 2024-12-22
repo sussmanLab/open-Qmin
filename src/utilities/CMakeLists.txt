@@ -16,7 +16,7 @@ add_library(utilities STATIC
 target_link_libraries(utilities dataTypesAndContainersLibrary)
 set_target_properties(utilities PROPERTIES
                             CUDA_SEPARABLE_COMPILATION ON)
-if(ENABLE_CUDA)
+if(CMAKE_CUDA_COMPILER)
 add_library(utilitiesGPU STATIC 
     hyperrectangularCellList.cu
     neighborList.cu
