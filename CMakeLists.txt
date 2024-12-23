@@ -59,14 +59,16 @@ else()
         add_definitions(-DENABLE_CUDA)
         enable_language(CUDA)
         include_directories(${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES})
+        set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -diag-suppress 20040 -diag-suppress 20015 -diag-suppress 20013")
+	set(CMAKE_CUDA_ARCHITECTURES "50;52;70")
+	message(STATUS "setting cuda compilation of gpuarray file")
     else()
         message(STATUS "CUDA not found, building without GPU support")
     endif()
 endif()
 
 if(CMAKE_CUDA_COMPILER)
-    message(STATUS "setting cuda compilation of gpuarray file")
-    message("cuda directories ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}")
+    # message("cuda directories ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}")
     set_source_files_properties(src/utilities/gpuarray.cpp PROPERTIES LANGUAGE CUDA)
 endif()
 
@@ -77,7 +79,7 @@ set(myLibraries
     utilities forces models simulations  updaters
     )
 if(CMAKE_CUDA_COMPILER)
-    list(APPEND myLibraries utilitiesGPU forcesGPU modelsGPU updatersGPU)
+    list(APPEND myLibraries utilitiesGPU modelsGPU forcesGPU updatersGPU)
 endif()
 
 
@@ -85,12 +87,13 @@ find_package(MPI REQUIRED)
 include_directories(
     inc
     src/model src/forces src/simulation src/updaters src/utilities
-#     ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}
+    #    ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}
     ${MPI_INCLUDE_PATH}
 )
 
 add_subdirectory(src)
 
+message(STATUS "${myLibraries}")
 
 
 
@@ -99,22 +102,6 @@ add_executable(${PROJECT_NAME}
 )
 target_link_libraries(${PROJECT_NAME} PUBLIC ${myLibraries} MPI::MPI_CXX)
 
-
-# # list the names of cpp files corresponding to linked executables you'd like... This first set is
-# # for cpp files which DO NOT need QT
-# foreach(ARG openQmin)
-# add_executable("${ARG}.out" "${ARG}.cpp" )
-# target_link_libraries("${ARG}.out" ${myLibs} ${MPI_LIBRARIES} -lnvToolsExt)
-# if(MPI_COMPILE_FLAGS)
-#     set_target_properties("${ARG}.out" PROPERTIES COMPILE_FLAGS "${MPI_COMPILE_FLAGS}")
-# endif()
-# if(MPI_LINK_FLAGS)
-#     set_target_properties("${ARG}.out" PROPERTIES LINK_FLAGS "${MPI_LINK_FLAGS}")
-# endif()
-# endforeach()
-
-# link_directories(${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}/../lib)
-#
 if(ENABLE_QT)
     qt_add_executable(guiOpenQMin 
         openQminGUI.cpp mainwindow.cpp oglwidget.cpp

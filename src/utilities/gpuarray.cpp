@@ -227,7 +227,6 @@ T* GPUArray<T>::acquire( access_location::Enum location,  access_mode::Enum mode
 #ifdef ENABLE_CUDA
     if(location == access_location::device && !dataHasTouchedDevice)
         {
-        dataHasTouchedDevice = true;
         resizeDeviceArray(arraySize);
         }
 #endif
@@ -239,6 +238,7 @@ T* GPUArray<T>::acquire( access_location::Enum location,  access_mode::Enum mode
             {
             return h_data;
             }
+#ifdef ENABLE_CUDA
         else if (whereIsTheData == data_location::hostdevice)
             {
             if (mode == access_mode::read)
@@ -254,7 +254,6 @@ T* GPUArray<T>::acquire( access_location::Enum location,  access_mode::Enum mode
 
             return h_data;
             }
-#ifdef ENABLE_CUDA
         else if (whereIsTheData == data_location::device)
             {
             if (mode == access_mode::read)
@@ -424,7 +423,10 @@ T* GPUArray<T>::resizeDeviceArray(unsigned int num_elements)
     {
     //if we've never put data on the device, allocate some space for it?
     if(!dataHasTouchedDevice)
+        {
+        dataHasTouchedDevice = true;
         cudaMalloc(&d_data, arraySize*sizeof(T));
+        }
 
     // allocate resized array
     T *d_tmp;

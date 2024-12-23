@@ -4,7 +4,7 @@
 
 The current iteration of the code was written using some features of C++17, and was compiled using CUDA-10.0 and CUDA 12, with a relatively modern version of cmake
 
-Multirank simulations tested with openMPI 4.0.0.
+Multirank simulations tested with openMPI 4.0.0 (`sudo apt-get install libopenmpi-dev`, e.g.)
 
 The GUI needs Qt6 (e.g., `apt-get install qt6-base-dev`) and also openGL.
 
