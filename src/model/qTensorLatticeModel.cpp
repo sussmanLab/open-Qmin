@@ -14,7 +14,7 @@ operational).
 Additionally, throws an exception if the dimensionality is incorrect.
  */
 qTensorLatticeModel::qTensorLatticeModel(int l, bool _useGPU, bool _neverGPU)
-    : cubicLattice(l,false,_useGPU, neverGPU)
+    : cubicLattice(l,false,_useGPU, _neverGPU)
     {
     normalizeSpins = false;
     defectMeasures.resize(N);

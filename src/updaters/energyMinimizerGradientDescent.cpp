@@ -101,7 +101,7 @@ void energyMinimizerGradientDescent::minimize()
 
         gradientDescentStep();
         if(iterations%1000 == 999)
-            printf("step %i max force:%.3g \n",iterations,forceMax);cout.flush();
+            printf("step %i max force:%.3g \n",iterations,forceMax);
         };
         printf("gradient descent finished: step %i max force:%.3g \n",iterations,forceMax);cout.flush();
     };

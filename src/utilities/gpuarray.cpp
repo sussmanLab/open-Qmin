@@ -3,6 +3,7 @@
 #include "dDimensionalVectorTypes.h"
 #include "latticeBoundaries.h"
 #include "matrix.h"
+#include "curand_kernel.h"
 #include "std_include.h"
 #include <cstddef>
 #include <cstring>
@@ -486,3 +487,6 @@ template class GPUArray<std::pair<int, dVec>>;
 
 template class ArrayHandle<Matrix3x3>;
 template class GPUArray<Matrix3x3>;
+
+template class ArrayHandle<curandStateXORWOW>;
+template class GPUArray<curandStateXORWOW>;

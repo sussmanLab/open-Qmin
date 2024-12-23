@@ -73,7 +73,7 @@ template<class T> class GPUArray
 
         mutable data_location::Enum whereIsTheData;    //!< Tracks the current location of the data
         //!Swap two GPUArrays efficiently
-        inline void swap(GPUArray& from);
+        void swap(GPUArray& from);
         //!Get the size of the array
         unsigned int getNumElements()
             {
