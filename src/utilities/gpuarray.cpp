@@ -3,7 +3,6 @@
 #include "dDimensionalVectorTypes.h"
 #include "latticeBoundaries.h"
 #include "matrix.h"
-#include "curand_kernel.h"
 #include "std_include.h"
 #include <cstddef>
 #include <cstring>
@@ -11,6 +10,7 @@
 #include <stdlib.h>
 #include <stdexcept>
 #ifdef ENABLE_CUDA
+#include "curand_kernel.h"
 #include <cuda_runtime.h>
 #endif
 
