@@ -26,12 +26,16 @@ Basic compilation (with CUDA support, and with the graphical user interface also
 
 ### Compilation without cuda
 
-
     $ cd build/ 
     $ cmake -DDISABLE_CUDA=ON ..
     $ make
 
-(And of course, the cuda and QT flags are independent, so `cmake -DDISABLE_CUDA=ON -DENABLE_QT=ON ..` will work as expected)
+(And of course, the cuda and QT flags are independent, so `cmake -DDISABLE_CUDA=ON -DENABLE_QT=ON ..` will work as expected).
+Please note that on modern macOS, you might have to explicitly specify the location of the mpi cxx compiler, along the lines of 
+    
+    $ cmake -DCMAKE_CXX_COMPILER=/opt/homebrew/bin/mpicxx -DDISABLE_CUDA=ON ..
+
+Specifying the MacOSX15 SDK via the SDKROOT environment variable (and then setting the CMAKE_CXX_COMPILER to clang++) may also work.
 
 ### Compilation 
 
