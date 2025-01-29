@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.22) #present from, e.g., ubuntu 22.04 on
 
 project(openQmin VERSION 0.11
-                DESCRIPTION "a base project structure that allows for copmilation with or without cuda"
+    DESCRIPTION "Landau  de Gennes  liquid crystal modeling, with or without cuda"
                 LANGUAGES CXX)
 
 #generate compile commands for clangd

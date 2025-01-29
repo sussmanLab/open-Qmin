@@ -490,5 +490,7 @@ template class GPUArray<std::pair<int, dVec>>;
 template class ArrayHandle<Matrix3x3>;
 template class GPUArray<Matrix3x3>;
 
+#ifdef ENABLE_CUDA
 template class ArrayHandle<curandStateXORWOW>;
 template class GPUArray<curandStateXORWOW>;
+#endif
