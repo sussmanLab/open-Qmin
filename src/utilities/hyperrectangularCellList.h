@@ -62,13 +62,17 @@ class hyperrectangularCellList
             {
             if(!adjCellsComputed)
                 computeAdjacentCells();
+#ifdef ENABLE_CUDA
             if(useGPU)
                 computeGPU(points);
             else
+#endif
                 computeCPU(points);
             };
+#ifdef ENABLE_CUDA
         //! compute the cell list of the gpuarry passed to it. GPU function
         void computeGPU(GPUArray<dVec> &points);
+#endif
         //! compute the cell list of the gpuarry passed to it. CPU function
         void computeCPU(GPUArray<dVec> &points);
 

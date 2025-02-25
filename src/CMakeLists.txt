@@ -1,0 +1,5 @@
+add_subdirectory(forces)
+add_subdirectory(model)
+add_subdirectory(simulation)
+add_subdirectory(updaters)
+add_subdirectory(utilities)

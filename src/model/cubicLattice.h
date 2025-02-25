@@ -114,6 +114,6 @@ class cubicLattice : public simpleModel
         bool normalizeSpins;
 
         //!performance for the moveParticles kernel
-        shared_ptr<kernelTuner> moveParticlesTuner;
+        kernelTuner moveParticlesTuner;
     };
 #endif

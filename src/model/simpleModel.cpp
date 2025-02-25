@@ -1,6 +1,8 @@
 #include "simpleModel.h"
+#ifdef ENABLE_CUDA
 #include "utilities.cuh"
 #include "simpleModel.cuh"
+#endif
 /*! \file simpleModel.cpp" */
 
 /*!
@@ -21,14 +23,6 @@ simpleModel::simpleModel(int n, bool _useGPU, bool _neverGPU) :
 void simpleModel::initializeSimpleModel(int n)
     {
     N=n;
-    if(neverGPU)
-        {
-        positions.noGPU = true;
-        velocities.noGPU = true;
-        forces.noGPU = true;
-        types.noGPU = true;
-        defectMeasures.noGPU=true;
-        }
     selfForceCompute = false;
     positions.resize(n);
     velocities.resize(n);
@@ -155,12 +149,14 @@ void simpleModel::moveParticles(GPUArray<dVec> &displacement, scalar scale)
             Box->putInBoxReal(h_pos.data[pp]);
             }
         }
-    else
-        {//gpu branch
-        ArrayHandle<dVec> d_disp(displacement,access_location::device,access_mode::readwrite);
-        ArrayHandle<dVec> d_pos(positions,access_location::device,access_mode::readwrite);
-        gpu_move_particles(d_pos.data,d_disp.data,*(Box),scale,N);
-        };
+    #ifdef ENABLE_CUDA
+        else
+            {//gpu branch
+            ArrayHandle<dVec> d_disp(displacement,access_location::device,access_mode::readwrite);
+            ArrayHandle<dVec> d_pos(positions,access_location::device,access_mode::readwrite);
+            gpu_move_particles(d_pos.data,d_disp.data,*(Box),scale,N);
+            };
+    #endif
     forcesComputed = false;
     };
 
@@ -178,11 +174,13 @@ void simpleModel::computeForces(bool zeroOutForces)
             for(int pp = 0; pp <N;++pp)
                 h_f.data[pp] = dArrayZero;
             }
-        else
-            {
-            ArrayHandle<dVec> d_f(forces);
-            dVec zero(0.0);
-            gpu_set_array(d_f.data,zero,N,512);
-            };
+        #ifdef ENABLE_CUDA
+                else
+                    {
+                    ArrayHandle<dVec> d_f(forces);
+                    dVec zero(0.0);
+                    gpu_set_array(d_f.data,zero,N,512);
+                    };
+        #endif
         };
     };

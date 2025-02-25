@@ -2,6 +2,7 @@
 #define __NOISESOURCE_CUH__
 
 #include "std_include.h"
+#include <curand_kernel.h>
 #include <cuda_runtime.h>
 
 /*!

@@ -4,20 +4,19 @@
 #include <chrono>
 #include <string>
 #include <iostream>
-using namespace std;
 class profiler
     {
     public:
-        profiler(string profilerName) : name(profilerName) {functionCalls = 0; timeTaken = 0;};
+        profiler(std::string profilerName) : name(profilerName) {functionCalls = 0; timeTaken = 0;};
 
         void start()
             {
-            startTime = chrono::high_resolution_clock::now();
+            startTime = std::chrono::high_resolution_clock::now();
             };
         void end()
             {
-            endTime = chrono::high_resolution_clock::now();
-            chrono::duration<double> difference = endTime-startTime;
+            endTime = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double> difference = endTime-startTime;
             timeTaken += difference.count();
             functionCalls +=1;
             };
@@ -32,13 +31,13 @@ class profiler
 
         void print()
             {
-            cout << "profiler \"" << name << "\" took an average of " << timing() << " per call over " << functionCalls << " calls...total time = "<<timing()*functionCalls << endl;
+            std::cout << "profiler \"" << name << "\" took an average of " << timing() << " per call over " << functionCalls << " calls...total time = "<<timing()*functionCalls << std::endl;
             }
 
-        chrono::time_point<chrono::high_resolution_clock>  startTime;
-        chrono::time_point<chrono::high_resolution_clock>  endTime;
+        std::chrono::time_point<std::chrono::high_resolution_clock>  startTime;
+        std::chrono::time_point<std::chrono::high_resolution_clock>  endTime;
         int functionCalls;
         double timeTaken;
-        string name;
+        std::string name;
     };
 #endif

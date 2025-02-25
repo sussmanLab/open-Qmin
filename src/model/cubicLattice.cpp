@@ -1,6 +1,8 @@
 #include "cubicLattice.h"
-#include "cubicLattice.cuh"
 #include "functions.h"
+#ifdef ENABLE_CUDA
+#include "cubicLattice.cuh"
+#endif
 /*! \file cubicLattice.cpp */
 
 cubicLattice::cubicLattice(int l, bool _slice, bool _useGPU, bool _neverGPU)
@@ -35,16 +37,8 @@ cubicLattice::cubicLattice(int lx, int ly, int lz, bool _slice, bool _useGPU, bo
 
 void cubicLattice::initializeNSites()
     {
-    if(neverGPU)
-        {
-        neighboringSites.noGPU = true;
-        boundaries.noGPU = true;
-        boundaryMoveAssist1.noGPU = true;
-        boundaryMoveAssist2.noGPU = true;
-        }
     initializeSimpleModel(N);
-
-    moveParticlesTuner = make_shared<kernelTuner>(512,1024,128,10,200000);
+    moveParticlesTuner = kernelTuner(512,1024,128,10,200000);
     };
 
 void cubicLattice::moveParticles(GPUArray<dVec> &dofs,GPUArray<dVec> &displacements,scalar scale)
@@ -63,12 +57,14 @@ void cubicLattice::moveParticles(GPUArray<dVec> &dofs,GPUArray<dVec> &displaceme
                 }
             }
         }
-    else
-        {//gpu branch
-        ArrayHandle<dVec> d_disp(displacements,access_location::device,access_mode::read);
-        ArrayHandle<dVec> d_pos(dofs,access_location::device,access_mode::readwrite);
-        gpu_update_spins(d_disp.data,d_pos.data,scale,N,normalizeSpins);
-        };
+    #ifdef ENABLE_CUDA
+        else
+            {//gpu branch
+            ArrayHandle<dVec> d_disp(displacements,access_location::device,access_mode::read);
+            ArrayHandle<dVec> d_pos(dofs,access_location::device,access_mode::readwrite);
+            gpu_update_spins(d_disp.data,d_pos.data,scale,N,normalizeSpins);
+            };
+    #endif
     };
 
 void cubicLattice::moveParticles(GPUArray<dVec> &displacements, scalar scale)
@@ -87,12 +83,14 @@ void cubicLattice::moveParticles(GPUArray<dVec> &displacements, scalar scale)
                 }
             }
         }
-    else
-        {//gpu branch
-        ArrayHandle<dVec> d_disp(displacements,access_location::device,access_mode::read);
-        ArrayHandle<dVec> d_pos(positions,access_location::device,access_mode::readwrite);
-        gpu_update_spins(d_disp.data,d_pos.data,scale,N,normalizeSpins);
-        };
+    #ifdef ENABLE_CUDA
+        else
+            {//gpu branch
+            ArrayHandle<dVec> d_disp(displacements,access_location::device,access_mode::read);
+            ArrayHandle<dVec> d_pos(positions,access_location::device,access_mode::readwrite);
+            gpu_update_spins(d_disp.data,d_pos.data,scale,N,normalizeSpins);
+            };
+    #endif
     };
 
 void cubicLattice::setSpinsRandomly(noiseSource &noise)
@@ -108,16 +106,18 @@ void cubicLattice::setSpinsRandomly(noiseSource &noise)
             pos.data[pp] = (1/sqrt(lambda))*pos.data[pp];
             };
         }
-    else
-        {
-        ArrayHandle<dVec> pos(positions,access_location::device,access_mode::overwrite);
-        int blockSize = 128;
-        int nBlocks = N/blockSize+1;
-        noise.initialize(nBlocks);
-        noise.initializeGPURNGs();
-        ArrayHandle<curandState> d_curandRNGs(noise.RNGs,access_location::device,access_mode::readwrite);
-        gpu_set_random_spins(pos.data,d_curandRNGs.data, blockSize,nBlocks,N);
-        }
+    #ifdef ENABLE_CUDA
+        else
+            {
+            ArrayHandle<dVec> pos(positions,access_location::device,access_mode::overwrite);
+            int blockSize = 128;
+            int nBlocks = N/blockSize+1;
+            noise.initialize(nBlocks);
+            noise.initializeGPURNGs();
+            ArrayHandle<curandState> d_curandRNGs(noise.RNGs,access_location::device,access_mode::readwrite);
+            gpu_set_random_spins(pos.data,d_curandRNGs.data, blockSize,nBlocks,N);
+            }
+    #endif
     };
 
 int cubicLattice::latticeSiteToLinearIndex(const int3 &target)
@@ -151,7 +151,6 @@ void cubicLattice::fillNeighborLists(int stencilType)
     neighboringSites.resize(nNeighs*N);
 
     //if(!useGPU)
-        {
         ArrayHandle<int> neighbors(neighboringSites);
         for (int ii = 0; ii < N; ++ii)
             {
@@ -161,7 +160,6 @@ void cubicLattice::fillNeighborLists(int stencilType)
                 neighbors.data[neighborIndex(jj,ii)] = neighs[jj];
                 }
             }
-        }
     //else
     //    {
     //    }
@@ -300,16 +298,11 @@ void cubicLattice::createBoundaryObject(vector<int> &latticeSites, boundaryType 
     //add object and surface sites to the vectors
     GPUArray<int> newBoundarySites;
     GPUArray<int> newSurfaceSites;
-    if(neverGPU)
-        {
-        newBoundarySites.noGPU = true;
-        newSurfaceSites.noGPU = true;
-        }
     fillGPUArrayWithVector(latticeSites, newBoundarySites);
     fillGPUArrayWithVector(surfaceSite, newSurfaceSites);
 
-    boundarySites.push_back(newBoundarySites);
-    surfaceSites.push_back(newSurfaceSites);
+    boundarySites.push_back(std::move(newBoundarySites));
+    surfaceSites.push_back(std::move(newSurfaceSites));
     boundaryState.push_back(0);
     scalar3 zero; zero.x = 0.0;zero.y = 0.0;zero.z = 0.0;
     boundaryForce.push_back(zero);
@@ -378,28 +371,30 @@ void cubicLattice::displaceBoundaryObject(int objectIndex, int motionDirection, 
             t.data[site] = -1;
             }
         }
-    else
-        {
-        ArrayHandle<dVec> pos(positions,access_location::device,access_mode::readwrite);
-        ArrayHandle<int> t(types,access_location::device,access_mode::readwrite);
-        ArrayHandle<int> bSites(boundarySites[objectIndex],access_location::device,access_mode::readwrite);
-        ArrayHandle<int> sSites(surfaceSites[objectIndex],access_location::device,access_mode::readwrite);
-        ArrayHandle<pair<int,dVec> > bma1(boundaryMoveAssist1,access_location::device,access_mode::overwrite);
-        ArrayHandle<pair<int,dVec> > bma2(boundaryMoveAssist2,access_location::device,access_mode::overwrite);
-        ArrayHandle<int> neighbors(neighboringSites,access_location::device,access_mode::read);
+    #ifdef ENABLE_CUDA
+        else
+            {
+            ArrayHandle<dVec> pos(positions,access_location::device,access_mode::readwrite);
+            ArrayHandle<int> t(types,access_location::device,access_mode::readwrite);
+            ArrayHandle<int> bSites(boundarySites[objectIndex],access_location::device,access_mode::readwrite);
+            ArrayHandle<int> sSites(surfaceSites[objectIndex],access_location::device,access_mode::readwrite);
+            ArrayHandle<pair<int,dVec> > bma1(boundaryMoveAssist1,access_location::device,access_mode::overwrite);
+            ArrayHandle<pair<int,dVec> > bma2(boundaryMoveAssist2,access_location::device,access_mode::overwrite);
+            ArrayHandle<int> neighbors(neighboringSites,access_location::device,access_mode::read);
 
-        //copy boundary...don't reset lattice type
-        gpu_copy_boundary_object(pos.data,bSites.data,neighbors.data,bma1.data,t.data,neighborIndex,
-                                 motionDirection,false,boundarySites[objectIndex].getNumElements());
-        //copy suface...reset lattice type
-        gpu_copy_boundary_object(pos.data,sSites.data,neighbors.data,bma2.data,t.data,neighborIndex,
-                                 motionDirection,true,surfaceSites[objectIndex].getNumElements());
+            //copy boundary...don't reset lattice type
+            gpu_copy_boundary_object(pos.data,bSites.data,neighbors.data,bma1.data,t.data,neighborIndex,
+                                     motionDirection,false,boundarySites[objectIndex].getNumElements());
+            //copy suface...reset lattice type
+            gpu_copy_boundary_object(pos.data,sSites.data,neighbors.data,bma2.data,t.data,neighborIndex,
+                                     motionDirection,true,surfaceSites[objectIndex].getNumElements());
 
-        //move both...
-        gpu_move_boundary_object(pos.data,bSites.data,bma1.data,t.data,objectIndex+1,
-                                 boundarySites[objectIndex].getNumElements());
-        gpu_move_boundary_object(pos.data,sSites.data,bma2.data,t.data,-1,
-                                 surfaceSites[objectIndex].getNumElements());
-        };
+            //move both...
+            gpu_move_boundary_object(pos.data,bSites.data,bma1.data,t.data,objectIndex+1,
+                                     boundarySites[objectIndex].getNumElements());
+            gpu_move_boundary_object(pos.data,sSites.data,bma2.data,t.data,-1,
+                                     surfaceSites[objectIndex].getNumElements());
+            };
+    #endif
     }//end loop over steps.... this should be (easily) optimized away at some point.
     };

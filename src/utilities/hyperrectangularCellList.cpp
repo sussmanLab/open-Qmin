@@ -1,7 +1,9 @@
 #include "hyperrectangularCellList.h"
+#ifdef ENABLE_CUDA
 #include "hyperrectangularCellList.cuh"
 #include "utilities.cuh"
 #include "cuda_runtime.h"
+#endif
 
 /*! \file hyperrectangularCellList.cpp */
 
@@ -84,14 +86,19 @@ all on the GPU so that arrays don't need to be copied back to the host
 */
 void hyperrectangularCellList::resetCellSizes()
     {
-NVTXPUSH("cell list resetting");
     //set all cell sizes to zero
     if(elementsPerCell.getNumElements() != totalCells)
         elementsPerCell.resize(totalCells);
 
+#ifdef ENABLE_CUDA
     ArrayHandle<unsigned int> d_elementsPerCell(elementsPerCell,access_location::device,access_mode::overwrite);
     unsigned int zero = 0;
     gpu_set_array(d_elementsPerCell.data,zero,totalCells,512);
+#else
+    ArrayHandle<unsigned int> h_elementsPerCell(elementsPerCell,access_location::host,access_mode::overwrite);
+    for (int ii = 0; ii < totalCells; ++ii)
+        h_elementsPerCell.data[ii] = 0;
+#endif
 
     //set all cell indexes to zero
     cellListIndexer = Index2D(Nmax,totalCells);
@@ -106,7 +113,6 @@ NVTXPUSH("cell list resetting");
     ArrayHandle<int> h_assist(assist,access_location::host,access_mode::overwrite);
     h_assist.data[0]=Nmax;
     h_assist.data[1] = 0;
-NVTXPOP();
     };
 
 /*!
@@ -249,6 +255,8 @@ void hyperrectangularCellList::computeAdjacentCells(int width)
     adjCellsComputed = true;
     };
 
+
+#ifdef ENABLE_CUDA
 /*!
 \param points the set of points to assign to cells...on the GPU
  */
@@ -294,7 +302,6 @@ void hyperrectangularCellList::computeGPU(GPUArray<dVec> &points)
             }
         //get cell list arrays
         recompute = false;
-NVTXPUSH("cell list thing");
         if (true)
             {
             ArrayHandle<unsigned int> h_elementsPerCell(elementsPerCell,access_location::host,access_mode::read);
@@ -310,7 +317,7 @@ NVTXPUSH("cell list thing");
                     };
                 };
             };
-NVTXPOP();
         };
     cellListIndexer = Index2D(Nmax,totalCells);
     };
+#endif

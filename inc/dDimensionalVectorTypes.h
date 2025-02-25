@@ -5,6 +5,17 @@ defines dVec class (d-dimensional array of scalars)
 defines iVec class (d-dimensional array of ints)
 */
 
+
+#include "cudaDataTypes.h"
+#include <iostream>
+#ifndef SCALARFLOAT
+//double variables types
+#define scalar double
+#else
+//floats
+#define scalar float
+#endif
+
 #ifdef __NVCC__
 #define HOSTDEVICE __host__ __device__ inline
 #define MY_ALIGN(n) __align__(n)
@@ -171,26 +182,26 @@ HOSTDEVICE dVec operator*(const dVec &b, const scalar &a)
 //!print a dVec to screen
 inline __attribute__((always_inline)) void printdVecListable(dVec a)
     {
-    cout <<"{";
+    std::cout <<"{";
     for (int dd = 0; dd < DIMENSION; ++dd)
         if(dd != DIMENSION-1)
-            cout << a.x[dd] <<", ";
+            std::cout << a.x[dd] <<", ";
         else
-            cout << a.x[dd];
+            std::cout << a.x[dd];
 
-    cout << "},";
+    std::cout << "},";
     };
 //!print a dVec to screen
 inline __attribute__((always_inline)) void printdVec(dVec a)
     {
-    cout <<"{";
+    std::cout <<"{";
     for (int dd = 0; dd < DIMENSION; ++dd)
         if(dd != DIMENSION-1)
-            cout << a.x[dd] <<", ";
+            std::cout << a.x[dd] <<", ";
         else
-            cout << a.x[dd];
+            std::cout << a.x[dd];
 
-    cout << "}" << endl;
+    std::cout << "}" << std::endl;
     };
 
 
@@ -323,14 +334,14 @@ inline __attribute__((always_inline)) void printInt3(int3 a)
 //!print a iVec to screen
 inline __attribute__((always_inline)) void printiVec(iVec a)
     {
-    cout <<"{";
+    std::cout <<"{";
     for (int dd = 0; dd < DIMENSION; ++dd)
         if(dd != DIMENSION-1)
-            cout << a.x[dd] <<", ";
+            std::cout << a.x[dd] <<", ";
         else
-            cout << a.x[dd];
+            std::cout << a.x[dd];
 
-    cout << "}" << endl;
+    std::cout << "}" << std::endl;
     };
 
 //! iterate through an iVec... on the first call, pass in (it = min except it.x[0] = min.x[0]-1

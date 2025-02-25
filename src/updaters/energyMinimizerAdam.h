@@ -31,7 +31,9 @@ class energyMinimizerAdam : public equationOfMotion
 
     protected:
         void adamStepCPU();
+        #ifdef ENABLE_CUDA
         void adamStepGPU();
+        #endif
         scalar beta1;
         scalar beta2;
         scalar beta1t;

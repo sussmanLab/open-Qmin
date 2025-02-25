@@ -1,20 +1,15 @@
 #include "landauDeGennesLC.h"
-#include "landauDeGennesLC.cuh"
 #include "qTensorFunctions.h"
+
+#ifdef ENABLE_CUDA
 #include "utilities.cuh"
+#include "landauDeGennesLC.cuh"
+#endif
 /*! \file landauDeGennesLC.cpp */
 
 landauDeGennesLC::landauDeGennesLC(bool _neverGPU)
     {
     neverGPU = _neverGPU;
-    if(neverGPU)
-        {
-        energyDensity.noGPU =true;
-        energyDensityReduction.noGPU=true;
-        objectForceArray.noGPU = true;
-        forceCalculationAssist.noGPU=true;
-        energyPerParticle.noGPU = true;
-        }
     baseInitialization();
     }
 
@@ -45,6 +40,7 @@ void landauDeGennesLC::baseInitialization()
     useNeighborList=false;
     computeEfieldContribution=false;
     computeHfieldContribution=false;
+    spatiallyVaryingFieldContribution = false;
     forceTuner = make_shared<kernelTuner>(128,256,32,10,200000);
     boundaryForceTuner = make_shared<kernelTuner>(128,256,32,10,200000);
     l24ForceTuner = make_shared<kernelTuner>(128,256,32,10,200000);
@@ -68,22 +64,6 @@ void landauDeGennesLC::setModel(shared_ptr<cubicLattice> _model)
     int N = lattice->getNumberOfParticles();
     energyDensity.resize(N);
     energyDensityReduction.resize(N);
-    /*
-    forceCalculationAssist.resize(N);
-    if(useGPU)
-        {
-        ArrayHandle<cubicLatticeDerivativeVector> fca(forceCalculationAssist,access_location::device,access_mode::overwrite);
-        cubicLatticeDerivativeVector zero(0.0);
-        gpu_set_array(fca.data,zero,N,512);
-        }
-    else
-        {
-        ArrayHandle<cubicLatticeDerivativeVector> fca(forceCalculationAssist);
-        cubicLatticeDerivativeVector zero(0.0);
-        for(int ii = 0; ii < N; ++ii)
-            fca.data[ii] = zero;
-        };
-    */
     };
 
 /*!
@@ -107,7 +87,7 @@ void landauDeGennesLC::setSpatiallyVaryingField(string fname, scalar chi, scalar
     int N = lattice->getNumberOfParticles();
 
     //initialize field to all zero values
-    double3 zero = make_double3(0,0,0);
+    double3 zero = make_scalar3(0,0,0);
     vector<double3> zeroVector(N,zero);
     fillGPUArrayWithVector(zeroVector, spatiallyVaryingField);
     char fn[256];
@@ -126,7 +106,6 @@ void landauDeGennesLC::setSpatiallyVaryingField(string fname, scalar chi, scalar
         printf("\nYou have tried to load a file that either does not exist or that you do not have permission to access! \n Error in file %s at line %d\n",__FILE__,__LINE__);
         throw std::exception();
         }
-    int px,py,pz;
     double fx, fy,fz;
     double Hx,Hy,Hz;
     while(myfile >> fx >> fy >>fz >> Hx >> Hy >> Hz)
@@ -145,9 +124,11 @@ void landauDeGennesLC::setSpatiallyVaryingField(string fname, scalar chi, scalar
 
 void landauDeGennesLC::computeForces(GPUArray<dVec> &forces,bool zeroOutForce, int type)
     {
+#ifdef ENABLE_CUDA
     if(useGPU)
         computeForceGPU(forces,zeroOutForce);
     else
+#endif
         computeForceCPU(forces,zeroOutForce,type);
 
     correctForceFromMetric(forces);
@@ -156,12 +137,14 @@ void landauDeGennesLC::computeForces(GPUArray<dVec> &forces,bool zeroOutForce, i
 void landauDeGennesLC::correctForceFromMetric(GPUArray<dVec> &forces)
     {
     int N = lattice->getNumberOfParticles();
+#ifdef ENABLE_CUDA
     if(useGPU)
         {
         ArrayHandle<dVec> d_force(forces,access_location::device,access_mode::readwrite);
         gpuCorrectForceFromMetric(d_force.data,N,forceTuner->getParameter());
         }
     else
+#endif
         {
         ArrayHandle<dVec> h_force(forces,access_location::host,access_mode::readwrite);
         scalar QxxOld, QyyOld;
@@ -175,49 +158,6 @@ void landauDeGennesLC::correctForceFromMetric(GPUArray<dVec> &forces)
             };
         }
     }
-
-void landauDeGennesLC::computeForceGPU(GPUArray<dVec> &forces,bool zeroOutForce)
-    {
-    int N = lattice->getNumberOfParticles();
-    ArrayHandle<dVec> d_force(forces,access_location::device,access_mode::readwrite);
-    ArrayHandle<dVec> d_spins(lattice->returnPositions(),access_location::device,access_mode::read);
-    ArrayHandle<int>  d_latticeTypes(lattice->returnTypes(),access_location::device,access_mode::read);
-    ArrayHandle<int>  d_latticeNeighbors(lattice->neighboringSites,access_location::device,access_mode::read);
-    forceTuner->begin();
-    switch (numberOfConstants)
-        {
-        case distortionEnergyType::oneConstant :
-            {
-            gpu_qTensor_oneConstantForce(d_force.data, d_spins.data, d_latticeTypes.data, d_latticeNeighbors.data,
-                                         lattice->neighborIndex,
-                                         A,B,C,L1,N,
-                                         zeroOutForce,forceTuner->getParameter());
-            break;
-            };
-        case distortionEnergyType::multiConstant:
-            {
-            bool zeroForce = zeroOutForce;
-            computeFirstDerivatives();
-            ArrayHandle<cubicLatticeDerivativeVector> d_derivatives(forceCalculationAssist,access_location::device,access_mode::read);
-            gpu_qTensor_multiConstantForce(d_force.data, d_spins.data, d_latticeTypes.data, d_derivatives.data,
-                                        d_latticeNeighbors.data, lattice->neighborIndex,
-                                         A,B,C,L1,L2,L3,L4,L6,N,
-                                         zeroOutForce,forceTuner->getParameter());
-            break;
-            };
-        };
-    forceTuner->end();
-    if(lattice->boundaries.getNumElements() >0)
-        {
-        computeBoundaryForcesGPU(forces,false);
-        };
-    if(computeEfieldContribution)
-        computeEorHFieldForcesGPU(forces,false,Efield,deltaEpsilon,epsilon0);
-    if(computeHfieldContribution)
-        computeEorHFieldForcesGPU(forces,false,Hfield,deltaChi,mu0);
-    if(spatiallyVaryingFieldContribution)
-        computeSpatiallyVaryingFieldGPU(forces,false,spatiallyVaryingField, deltaChi,mu0);
-    };
 
 void landauDeGennesLC::computeForceCPU(GPUArray<dVec> &forces,bool zeroOutForce, int type)
     {
@@ -261,39 +201,6 @@ void landauDeGennesLC::computeForceCPU(GPUArray<dVec> &forces,bool zeroOutForce,
         };
     };
 
-void landauDeGennesLC::computeEnergyGPU(bool verbose)
-    {
-    int N = lattice->getNumberOfParticles();
-    energy=0.0;
-    {//scope for initial arrays
-    ArrayHandle<dVec> Qtensors(lattice->returnPositions(),access_location::device,access_mode::read);
-    ArrayHandle<int> latticeTypes(lattice->returnTypes(),access_location::device,access_mode::read);
-    ArrayHandle<boundaryObject> bounds(lattice->boundaries,access_location::device,access_mode::read);
-    ArrayHandle<scalar> energyPerSite(energyDensity,access_location::device,access_mode::readwrite);
-    ArrayHandle<int>  latticeNeighbors(lattice->neighboringSites,access_location::device,access_mode::read);
-    scalar a = 0.5*A;
-    scalar b = B/3.0;
-    scalar c = 0.25*C;
-    gpu_computeAllEnergyTerms(energyPerSite.data,Qtensors.data,latticeTypes.data,bounds.data,
-                                latticeNeighbors.data, lattice->neighborIndex,
-                            a,b,c,L1,L2,L3,L4,L6,
-                            computeEfieldContribution,computeHfieldContribution,
-                            epsilon,epsilon0,deltaEpsilon,Efield,
-                            Chi,mu0,deltaChi,Hfield,
-                            N);
-    }
-
-    //now reduce to get total energy
-    int numBlocks = 0;
-    int numThreads = 0;
-    int maxBlocks = 64;
-    int maxThreads = 256;
-    getNumBlocksAndThreads(N, maxBlocks, maxThreads, numBlocks, numThreads);
-    ArrayHandle<scalar> energyPerSite(energyDensity,access_location::device,access_mode::read);
-    ArrayHandle<scalar> energyPerSiteReduction(energyDensityReduction,access_location::device,access_mode::readwrite);
-    energy = gpuReduction(N,numThreads,numBlocks,maxThreads,maxBlocks,energyPerSite.data,energyPerSiteReduction.data);
-    }
-
 void landauDeGennesLC::computeEnergyCPU(bool verbose)
     {
     scalar phaseEnergy = 0.0;
@@ -316,10 +223,10 @@ void landauDeGennesLC::computeEnergyCPU(bool verbose)
         energyPerSite.data[i] = 0.0;
         //the current scheme for getting the six nearest neighbors
         int neighNum;
-        vector<int> neighbors(6);
+        vector<int> localNeighbors(6);
         int currentIndex;
         dVec qCurrent, xDown, xUp, yDown,yUp,zDown,zUp;
-        currentIndex = lattice->getNeighbors(i,neighbors,neighNum);
+        currentIndex = lattice->getNeighbors(i,localNeighbors,neighNum);
         qCurrent = Qtensors.data[currentIndex];
         if(latticeTypes.data[currentIndex] <=0)
             {
@@ -356,12 +263,12 @@ void landauDeGennesLC::computeEnergyCPU(bool verbose)
                     hFieldEnergy+=hFieldAtSite;
                     energyPerSite.data[i] +=hFieldAtSite;
                 }
-            xDown = Qtensors.data[neighbors[0]];
-            xUp = Qtensors.data[neighbors[1]];
-            yDown = Qtensors.data[neighbors[2]];
-            yUp = Qtensors.data[neighbors[3]];
-            zDown = Qtensors.data[neighbors[4]];
-            zUp = Qtensors.data[neighbors[5]];
+            xDown = Qtensors.data[localNeighbors[0]];
+            xUp = Qtensors.data[localNeighbors[1]];
+            yDown = Qtensors.data[localNeighbors[2]];
+            yUp = Qtensors.data[localNeighbors[3]];
+            zDown = Qtensors.data[localNeighbors[4]];
+            zUp = Qtensors.data[localNeighbors[5]];
 
             dVec firstDerivativeX = 0.5*(xUp - xDown);
             dVec firstDerivativeY = 0.5*(yUp - yDown);
@@ -369,34 +276,34 @@ void landauDeGennesLC::computeEnergyCPU(bool verbose)
             scalar anchoringEnergyAtSite = 0.0;
             if(latticeTypes.data[currentIndex] <0)
                 {
-                if(latticeTypes.data[neighbors[0]]>0)
+                if(latticeTypes.data[localNeighbors[0]]>0)
                     {
-                    anchoringEnergyAtSite+= computeBoundaryEnergy(qCurrent, xDown, bounds.data[latticeTypes.data[neighbors[0]]-1]);
+                    anchoringEnergyAtSite+= computeBoundaryEnergy(qCurrent, xDown, bounds.data[latticeTypes.data[localNeighbors[0]]-1]);
                     firstDerivativeX = xUp - qCurrent;
                     }
-                if(latticeTypes.data[neighbors[1]]>0)
+                if(latticeTypes.data[localNeighbors[1]]>0)
                     {
-                    anchoringEnergyAtSite += computeBoundaryEnergy(qCurrent, xUp, bounds.data[latticeTypes.data[neighbors[1]]-1]);
+                    anchoringEnergyAtSite += computeBoundaryEnergy(qCurrent, xUp, bounds.data[latticeTypes.data[localNeighbors[1]]-1]);
                     firstDerivativeX = qCurrent - xDown;
                     }
-                if(latticeTypes.data[neighbors[2]]>0)
+                if(latticeTypes.data[localNeighbors[2]]>0)
                     {
-                    anchoringEnergyAtSite += computeBoundaryEnergy(qCurrent, yDown, bounds.data[latticeTypes.data[neighbors[2]]-1]);
+                    anchoringEnergyAtSite += computeBoundaryEnergy(qCurrent, yDown, bounds.data[latticeTypes.data[localNeighbors[2]]-1]);
                     firstDerivativeY = yUp - qCurrent;
                     }
-                if(latticeTypes.data[neighbors[3]]>0)
+                if(latticeTypes.data[localNeighbors[3]]>0)
                     {
-                    anchoringEnergyAtSite += computeBoundaryEnergy(qCurrent, yUp, bounds.data[latticeTypes.data[neighbors[3]]-1]);
+                    anchoringEnergyAtSite += computeBoundaryEnergy(qCurrent, yUp, bounds.data[latticeTypes.data[localNeighbors[3]]-1]);
                     firstDerivativeY = qCurrent - yDown;
                     }
-                if(latticeTypes.data[neighbors[4]]>0)
+                if(latticeTypes.data[localNeighbors[4]]>0)
                     {
-                    anchoringEnergyAtSite += computeBoundaryEnergy(qCurrent, zDown, bounds.data[latticeTypes.data[neighbors[4]]-1]);
+                    anchoringEnergyAtSite += computeBoundaryEnergy(qCurrent, zDown, bounds.data[latticeTypes.data[localNeighbors[4]]-1]);
                     firstDerivativeZ = zUp - qCurrent;
                     }
-                if(latticeTypes.data[neighbors[5]]>0)
+                if(latticeTypes.data[localNeighbors[5]]>0)
                     {
-                    anchoringEnergyAtSite += computeBoundaryEnergy(qCurrent, zUp, bounds.data[latticeTypes.data[neighbors[5]]-1]);
+                    anchoringEnergyAtSite += computeBoundaryEnergy(qCurrent, zUp, bounds.data[latticeTypes.data[localNeighbors[5]]-1]);
                     firstDerivativeZ = qCurrent - zDown;
                     }
                 anchoringEnergy += anchoringEnergyAtSite;
@@ -451,3 +358,83 @@ void landauDeGennesLC::computeEnergyCPU(bool verbose)
     if(verbose)
         printf("%f %f %f %f %f\n",phaseEnergy , distortionEnergy , anchoringEnergy , eFieldEnergy , hFieldEnergy);
     };
+
+#ifdef ENABLE_CUDA
+
+void landauDeGennesLC::computeForceGPU(GPUArray<dVec> &forces,bool zeroOutForce)
+    {
+    int N = lattice->getNumberOfParticles();
+    ArrayHandle<dVec> d_force(forces,access_location::device,access_mode::readwrite);
+    ArrayHandle<dVec> d_spins(lattice->returnPositions(),access_location::device,access_mode::read);
+    ArrayHandle<int>  d_latticeTypes(lattice->returnTypes(),access_location::device,access_mode::read);
+    ArrayHandle<int>  d_latticeNeighbors(lattice->neighboringSites,access_location::device,access_mode::read);
+    forceTuner->begin();
+    switch (numberOfConstants)
+        {
+        case distortionEnergyType::oneConstant :
+            {
+            gpu_qTensor_oneConstantForce(d_force.data, d_spins.data, d_latticeTypes.data, d_latticeNeighbors.data,
+                                         lattice->neighborIndex,
+                                         A,B,C,L1,N,
+                                         zeroOutForce,forceTuner->getParameter());
+            break;
+            };
+        case distortionEnergyType::multiConstant:
+            {
+            bool zeroForce = zeroOutForce;
+            computeFirstDerivatives();
+            ArrayHandle<cubicLatticeDerivativeVector> d_derivatives(forceCalculationAssist,access_location::device,access_mode::read);
+            gpu_qTensor_multiConstantForce(d_force.data, d_spins.data, d_latticeTypes.data, d_derivatives.data,
+                                        d_latticeNeighbors.data, lattice->neighborIndex,
+                                         A,B,C,L1,L2,L3,L4,L6,N,
+                                         zeroOutForce,forceTuner->getParameter());
+            break;
+            };
+        };
+    forceTuner->end();
+    if(lattice->boundaries.getNumElements() >0)
+        {
+        computeBoundaryForcesGPU(forces,false);
+        };
+    if(computeEfieldContribution)
+        computeEorHFieldForcesGPU(forces,false,Efield,deltaEpsilon,epsilon0);
+    if(computeHfieldContribution)
+        computeEorHFieldForcesGPU(forces,false,Hfield,deltaChi,mu0);
+    if(spatiallyVaryingFieldContribution)
+        computeSpatiallyVaryingFieldGPU(forces,false,spatiallyVaryingField, deltaChi,mu0);
+    };
+
+void landauDeGennesLC::computeEnergyGPU(bool verbose)
+    {
+    int N = lattice->getNumberOfParticles();
+    energy=0.0;
+    {//scope for initial arrays
+    ArrayHandle<dVec> Qtensors(lattice->returnPositions(),access_location::device,access_mode::read);
+    ArrayHandle<int> latticeTypes(lattice->returnTypes(),access_location::device,access_mode::read);
+    ArrayHandle<boundaryObject> bounds(lattice->boundaries,access_location::device,access_mode::read);
+    ArrayHandle<scalar> energyPerSite(energyDensity,access_location::device,access_mode::readwrite);
+    ArrayHandle<int>  latticeNeighbors(lattice->neighboringSites,access_location::device,access_mode::read);
+    scalar a = 0.5*A;
+    scalar b = B/3.0;
+    scalar c = 0.25*C;
+    gpu_computeAllEnergyTerms(energyPerSite.data,Qtensors.data,latticeTypes.data,bounds.data,
+                                latticeNeighbors.data, lattice->neighborIndex,
+                            a,b,c,L1,L2,L3,L4,L6,
+                            computeEfieldContribution,computeHfieldContribution,
+                            epsilon,epsilon0,deltaEpsilon,Efield,
+                            Chi,mu0,deltaChi,Hfield,
+                            N);
+    }
+
+    //now reduce to get total energy
+    int numBlocks = 0;
+    int numThreads = 0;
+    int maxBlocks = 64;
+    int maxThreads = 256;
+    getNumBlocksAndThreads(N, maxBlocks, maxThreads, numBlocks, numThreads);
+    ArrayHandle<scalar> energyPerSite(energyDensity,access_location::device,access_mode::read);
+    ArrayHandle<scalar> energyPerSiteReduction(energyDensityReduction,access_location::device,access_mode::readwrite);
+    energy = gpuReduction(N,numThreads,numBlocks,maxThreads,maxBlocks,energyPerSite.data,energyPerSiteReduction.data);
+    }
+
+#endif

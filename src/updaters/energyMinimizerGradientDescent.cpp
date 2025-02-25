@@ -1,5 +1,7 @@
 #include "energyMinimizerGradientDescent.h"
+#ifdef ENABLE_CUDA
 #include "utilities.cuh"
+#endif
 
 /*! \file energyMinimizerGradientDescent.cpp
  */
@@ -38,12 +40,6 @@ void energyMinimizerGradientDescent::initializeFromModel()
     {
     Ndof = model->getNumberOfParticles();
     neverGPU = model->neverGPU;
-    if(neverGPU)
-        {
-        displacement.noGPU = true;
-        sumReductionIntermediate.noGPU=true;
-        sumReductionIntermediate2.noGPU=true;
-        }
     displacement.resize(Ndof);
     sumReductionIntermediate.resize(Ndof);
     sumReductionIntermediate2.resize(Ndof);
@@ -54,25 +50,12 @@ void energyMinimizerGradientDescent::initializeFromModel()
  */
 void energyMinimizerGradientDescent::gradientDescentStep()
     {
+#ifdef ENABLE_CUDA
     if (useGPU)
         gradientDescentGPU();
     else
+#endif
         gradientDescentCPU();
-    };
-
-/*!
- * Perform a GD minimization step on the GPU
- */
-void energyMinimizerGradientDescent::gradientDescentGPU()
-    {
-    sim->moveParticles(model->returnForces(),deltaT);
-    sim->computeForces();
-    scalar forceNorm = gpu_gpuarray_dVec_dot_products(model->returnForces(),model->returnForces(),
-                                                sumReductionIntermediate,sumReductionIntermediate2,Ndof);
-    updaterData[0] = forceNorm;
-    sim->sumUpdaterData(updaterData);
-    forceNorm = updaterData[0];
-    forceMax = sqrt(forceNorm) / ((scalar)nTotal);
     };
 
 /*!
@@ -118,14 +101,32 @@ void energyMinimizerGradientDescent::minimize()
 
         gradientDescentStep();
         if(iterations%1000 == 999)
-            printf("step %i max force:%.3g \n",iterations,forceMax);cout.flush();
+            printf("step %i max force:%.3g \n",iterations,forceMax);
         };
         printf("gradient descent finished: step %i max force:%.3g \n",iterations,forceMax);cout.flush();
     };
 
 
-void energyMinimizerGradientDescent::setGradientDescentParameters(scalar deltaT, scalar forceCutoff)
+void energyMinimizerGradientDescent::setGradientDescentParameters(scalar deltaT, scalar _forceCutoff)
     {
     setDeltaT(deltaT);
-    setForceCutoff(forceCutoff);
+    setForceCutoff(_forceCutoff);
     };
+
+#ifdef ENABLE_CUDA
+/*!
+ * Perform a GD minimization step on the GPU
+ */
+void energyMinimizerGradientDescent::gradientDescentGPU()
+    {
+    sim->moveParticles(model->returnForces(),deltaT);
+    sim->computeForces();
+    scalar forceNorm = gpu_gpuarray_dVec_dot_products(model->returnForces(),model->returnForces(),
+                                                sumReductionIntermediate,sumReductionIntermediate2,Ndof);
+    updaterData[0] = forceNorm;
+    sim->sumUpdaterData(updaterData);
+    forceNorm = updaterData[0];
+    forceMax = sqrt(forceNorm) / ((scalar)nTotal);
+    };
+#endif
+

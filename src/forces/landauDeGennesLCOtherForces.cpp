@@ -1,7 +1,9 @@
 #include "landauDeGennesLC.h"
-#include "landauDeGennesLC.cuh"
-#include "qTensorFunctions.h"
+
+#ifdef ENABLE_CUDA
 #include "utilities.cuh"
+#include "landauDeGennesLC.cuh"
+#endif
 /*! \file landauDeGennesLCOtherForces.cpp */
 
 /*
@@ -15,24 +17,26 @@ void landauDeGennesLC::computeFirstDerivatives()
     int N = lattice->getNumberOfParticles();
     if(forceCalculationAssist.getNumElements() < N)
         forceCalculationAssist.resize(N);
-    if(useGPU)
-        {
-        ArrayHandle<cubicLatticeDerivativeVector> d_derivatives(forceCalculationAssist,access_location::device,access_mode::readwrite);
-        ArrayHandle<dVec> d_spins(lattice->returnPositions(),access_location::device,access_mode::read);
-        ArrayHandle<int>  d_latticeTypes(lattice->returnTypes(),access_location::device,access_mode::read);
-        ArrayHandle<int> latticeNeighbors(lattice->neighboringSites,access_location::device,access_mode::read);
-        forceAssistTuner->begin();
-        gpu_qTensor_firstDerivatives(d_derivatives.data,
-                                     d_spins.data,
-                                     d_latticeTypes.data,
-                                     latticeNeighbors.data,
-                                     lattice->neighborIndex,
-                                     N,
-                                     forceAssistTuner->getParameter()
-                                     );
-        forceAssistTuner->end();
-        }
-    else
+    #ifdef ENABLE_CUDA
+        if(useGPU)
+            {
+            ArrayHandle<cubicLatticeDerivativeVector> d_derivatives(forceCalculationAssist,access_location::device,access_mode::readwrite);
+            ArrayHandle<dVec> d_spins(lattice->returnPositions(),access_location::device,access_mode::read);
+            ArrayHandle<int>  d_latticeTypes(lattice->returnTypes(),access_location::device,access_mode::read);
+            ArrayHandle<int> latticeNeighbors(lattice->neighboringSites,access_location::device,access_mode::read);
+            forceAssistTuner->begin();
+            gpu_qTensor_firstDerivatives(d_derivatives.data,
+                                         d_spins.data,
+                                         d_latticeTypes.data,
+                                         latticeNeighbors.data,
+                                         lattice->neighborIndex,
+                                         N,
+                                         forceAssistTuner->getParameter()
+                                         );
+            forceAssistTuner->end();
+            }
+        else
+    #endif
         {
         ArrayHandle<cubicLatticeDerivativeVector> h_derivatives(forceCalculationAssist);
         ArrayHandle<dVec> Qtensors(lattice->returnPositions(),access_location::host,access_mode::read);
@@ -176,29 +180,31 @@ void landauDeGennesLC::computeObjectForces(int objectIdx)
             lattice->boundaryForce[objectIdx] = lattice->boundaryForce[objectIdx]+ surfaceArea*stress.data[ii];
             }
         }
-    else
-        {
-        int nSites = lattice->surfaceSites[objectIdx].getNumElements();
-        if(objectForceArray.getNumElements() < nSites)
-            objectForceArray.resize(nSites);
-        {
-        ArrayHandle<int> sites(lattice->surfaceSites[objectIdx],access_location::device,access_mode::read);
-        ArrayHandle<int>  latticeTypes(lattice->returnTypes(),access_location::device,access_mode::read);
-        ArrayHandle<int> latticeNeighbors(lattice->neighboringSites,access_location::device,access_mode::read);
-        ArrayHandle<Matrix3x3> stress(stressTensors,access_location::device,access_mode::read);
-        ArrayHandle<scalar3> objectForces(objectForceArray,access_location::device,access_mode::overwrite);
-        gpu_qTensor_computeObjectForceFromStresses(sites.data,
-                                           latticeTypes.data,
-                                           latticeNeighbors.data,
-                                           stress.data,
-                                           objectForces.data,
-                                           lattice->neighborIndex,
-                                           nSites,512);//temp maxBlockSize
-        }//scope for device call
-        ArrayHandle<scalar3> objectForces(objectForceArray,access_location::host,access_mode::read);
-        for (int ii = 0; ii < nSites; ++ii)
-            lattice->boundaryForce[objectIdx] = lattice->boundaryForce[objectIdx] + objectForces.data[ii];
-        }
+    #ifdef ENABLE_CUDA
+        else
+            {
+            int nSites = lattice->surfaceSites[objectIdx].getNumElements();
+            if(objectForceArray.getNumElements() < nSites)
+                objectForceArray.resize(nSites);
+            {
+            ArrayHandle<int> sites(lattice->surfaceSites[objectIdx],access_location::device,access_mode::read);
+            ArrayHandle<int>  latticeTypes(lattice->returnTypes(),access_location::device,access_mode::read);
+            ArrayHandle<int> latticeNeighbors(lattice->neighboringSites,access_location::device,access_mode::read);
+            ArrayHandle<Matrix3x3> stress(stressTensors,access_location::device,access_mode::read);
+            ArrayHandle<scalar3> objectForces(objectForceArray,access_location::device,access_mode::overwrite);
+            gpu_qTensor_computeObjectForceFromStresses(sites.data,
+                                               latticeTypes.data,
+                                               latticeNeighbors.data,
+                                               stress.data,
+                                               objectForces.data,
+                                               lattice->neighborIndex,
+                                               nSites,512);//temp maxBlockSize
+            }//scope for device call
+            ArrayHandle<scalar3> objectForces(objectForceArray,access_location::host,access_mode::read);
+            for (int ii = 0; ii < nSites; ++ii)
+                lattice->boundaryForce[objectIdx] = lattice->boundaryForce[objectIdx] + objectForces.data[ii];
+            }
+    #endif
     printf("%f\t%f\t%f\n",lattice->boundaryForce[objectIdx].x,lattice->boundaryForce[objectIdx].y,lattice->boundaryForce[objectIdx].z);
     }
 
@@ -244,34 +250,6 @@ void landauDeGennesLC::computeStressTensors(GPUArray<int> &sites,GPUArray<Matrix
         }//if oneConstant
     };
 
-void landauDeGennesLC::computeEorHFieldForcesGPU(GPUArray<dVec> &forces,bool zeroOutForce,
-                        scalar3 field, scalar anisotropicSusceptibility,scalar vacuumPermeability)
-    {
-    int N = lattice->getNumberOfParticles();
-    ArrayHandle<dVec> d_force(forces,access_location::device,access_mode::readwrite);
-    ArrayHandle<int>  d_latticeTypes(lattice->returnTypes(),access_location::device,access_mode::read);
-    fieldForceTuner->begin();
-    gpu_qTensor_computeUniformFieldForcesGPU(d_force.data,
-                              d_latticeTypes.data,
-                              N,field,anisotropicSusceptibility,vacuumPermeability,zeroOutForce,
-                              boundaryForceTuner->getParameter());
-    fieldForceTuner->end();
-    };
-
-void landauDeGennesLC::computeSpatiallyVaryingFieldGPU(GPUArray<dVec> &forces,bool zeroOutForce,
-                        GPUArray<scalar3> field, scalar anisotropicSusceptibility,scalar vacuumPermeability)
-    {
-    int N = lattice->getNumberOfParticles();
-    ArrayHandle<dVec> d_force(forces,access_location::device,access_mode::readwrite);
-    ArrayHandle<int>  d_latticeTypes(lattice->returnTypes(),access_location::device,access_mode::read);
-    ArrayHandle<scalar3> d_field(field,access_location::device,access_mode::read);
-    fieldForceTuner->begin();
-    gpu_qTensor_computeSpatiallyVaryingFieldForcesGPU(d_force.data,
-                              d_latticeTypes.data,
-                              N,d_field.data,anisotropicSusceptibility,vacuumPermeability,zeroOutForce,
-                              boundaryForceTuner->getParameter());
-    fieldForceTuner->end();
-    };
 
 void landauDeGennesLC::computeSpatiallyVaryingFieldCPU(GPUArray<dVec> &forces,bool zeroOutForce,GPUArray<scalar3> externalField, scalar anisotropicSusceptibility, scalar vacuumPermeability)
     {
@@ -331,26 +309,6 @@ void landauDeGennesLC::computeEorHFieldForcesCPU(GPUArray<dVec> &forces,bool zer
             continue;
         h_f.data[currentIndex] -= fieldForce;
         };
-    };
-
-void landauDeGennesLC::computeBoundaryForcesGPU(GPUArray<dVec> &forces,bool zeroOutForce)
-    {
-    int N = lattice->getNumberOfParticles();
-    ArrayHandle<dVec> d_force(forces,access_location::device,access_mode::readwrite);
-    ArrayHandle<dVec> d_spins(lattice->returnPositions(),access_location::device,access_mode::read);
-    ArrayHandle<int>  d_latticeTypes(lattice->returnTypes(),access_location::device,access_mode::read);
-    ArrayHandle<boundaryObject> d_bounds(lattice->boundaries,access_location::device,access_mode::read);
-    boundaryForceTuner->begin();
-    gpu_qTensor_computeBoundaryForcesGPU(d_force.data,
-                              d_spins.data,
-                              d_latticeTypes.data,
-                              d_bounds.data,
-                              lattice->latticeIndex,
-                              N,
-                              zeroOutForce,
-                              boundaryForceTuner->getParameter()
-                              );
-    boundaryForceTuner->end();
     };
 
 void landauDeGennesLC::computeBoundaryForcesCPU(GPUArray<dVec> &forces,bool zeroOutForce)
@@ -421,3 +379,56 @@ void landauDeGennesLC::setNumberOfConstants(distortionEnergyType _type)
 //        printf("\n\n ***WARNING*** \nSome users have reported that the expressions used in multi-constant expressions for the distortion free energy forces may have an error in them. We are currently investigating\n***WARNING***\n\n");
 //      DMS, Feb 22, 2021: I believe I have resolved the error in the lcForces.h file that gave rise to the problems with the multi-constant expressions
     };
+
+#ifdef ENABLE_CUDA
+
+void landauDeGennesLC::computeBoundaryForcesGPU(GPUArray<dVec> &forces,bool zeroOutForce)
+    {
+    int N = lattice->getNumberOfParticles();
+    ArrayHandle<dVec> d_force(forces,access_location::device,access_mode::readwrite);
+    ArrayHandle<dVec> d_spins(lattice->returnPositions(),access_location::device,access_mode::read);
+    ArrayHandle<int>  d_latticeTypes(lattice->returnTypes(),access_location::device,access_mode::read);
+    ArrayHandle<boundaryObject> d_bounds(lattice->boundaries,access_location::device,access_mode::read);
+    boundaryForceTuner->begin();
+    gpu_qTensor_computeBoundaryForcesGPU(d_force.data,
+                              d_spins.data,
+                              d_latticeTypes.data,
+                              d_bounds.data,
+                              lattice->latticeIndex,
+                              N,
+                              zeroOutForce,
+                              boundaryForceTuner->getParameter()
+                              );
+    boundaryForceTuner->end();
+    };
+
+void landauDeGennesLC::computeEorHFieldForcesGPU(GPUArray<dVec> &forces,bool zeroOutForce,
+                        scalar3 field, scalar anisotropicSusceptibility,scalar vacuumPermeability)
+    {
+    int N = lattice->getNumberOfParticles();
+    ArrayHandle<dVec> d_force(forces,access_location::device,access_mode::readwrite);
+    ArrayHandle<int>  d_latticeTypes(lattice->returnTypes(),access_location::device,access_mode::read);
+    fieldForceTuner->begin();
+    gpu_qTensor_computeUniformFieldForcesGPU(d_force.data,
+                              d_latticeTypes.data,
+                              N,field,anisotropicSusceptibility,vacuumPermeability,zeroOutForce,
+                              boundaryForceTuner->getParameter());
+    fieldForceTuner->end();
+    };
+
+void landauDeGennesLC::computeSpatiallyVaryingFieldGPU(GPUArray<dVec> &forces,bool zeroOutForce,
+                        GPUArray<scalar3> field, scalar anisotropicSusceptibility,scalar vacuumPermeability)
+    {
+    int N = lattice->getNumberOfParticles();
+    ArrayHandle<dVec> d_force(forces,access_location::device,access_mode::readwrite);
+    ArrayHandle<int>  d_latticeTypes(lattice->returnTypes(),access_location::device,access_mode::read);
+    ArrayHandle<scalar3> d_field(field,access_location::device,access_mode::read);
+    fieldForceTuner->begin();
+    gpu_qTensor_computeSpatiallyVaryingFieldForcesGPU(d_force.data,
+                              d_latticeTypes.data,
+                              N,d_field.data,anisotropicSusceptibility,vacuumPermeability,zeroOutForce,
+                              boundaryForceTuner->getParameter());
+    fieldForceTuner->end();
+    };
+
+#endif

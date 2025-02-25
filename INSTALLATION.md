@@ -1,21 +1,43 @@
 # Installation {#install}
 
-# Requirements
+## Requirements
 
-The current iteration of the code was written using some features of C++11, and was compiled using CUDA-8.0.
-Default compilation is via QT, so you need that, and CMake, too. Multirank simulations tested with openMPI 4.0.0
+The current iteration of the code was written using some features of C++17, and was compiled using CUDA-10.0 and CUDA 12, with a relatively modern version of cmake
 
-Note that there is a non-GUI version of the code (particularly intended for running on clusters), in which all 
-of the QT dependencies have been stripped out. This is the "noQT" branch of the code in the git repository
+Multirank simulations tested with openMPI 4.0.0 (`sudo apt-get install libopenmpi-dev`, e.g.)
 
-# Basic compilation
+The GUI needs Qt6 (e.g., `apt-get install qt6-base-dev`) and also openGL.
 
-* cd into build/ directory. 
-* $ cmake ..
-* $ make
+A flag during the cmake phase can be used to not compile the GUI (particularly useful when you just want to run the command-line code on a cluster), and another flag can be used to build the entire project *without* any of the GPU / CUDA stuff (particularly useful, e.g., on a mac now that Apple has stopped supporting cuda). See below for those options.
 
-Note: by default the code will compile gpu code targeted at the (old, but still used in some XSEDE facilities) Tesla K40 cards... if you have newer GPUs, it is highly recommended to go to 
-line 6 of the CMakeLists.txt file and set the CUDA_ARCH variable appropriately
+## Basic compilation
+
+Basic compilation (with CUDA support, and with the graphical user interface also being compiled):
+
+    $ cd build/ 
+    $ cmake -DENABLE_QT=ON ..
+    $ make
+
+### Compilation without the GUI
+
+    $ cd build/ 
+    $ cmake ..
+    $ make
+
+### Compilation without cuda
+
+    $ cd build/ 
+    $ cmake -DDISABLE_CUDA=ON ..
+    $ make
+
+(And of course, the cuda and QT flags are independent, so `cmake -DDISABLE_CUDA=ON -DENABLE_QT=ON ..` will work as expected).
+Please note that on modern macOS, you might have to explicitly specify the location of the mpi cxx compiler, along the lines of 
+    
+    $ cmake -DCMAKE_CXX_COMPILER=/opt/homebrew/bin/mpicxx -DDISABLE_CUDA=ON ..
+
+Specifying the MacOSX15 SDK via the SDKROOT environment variable (and then setting the CMAKE_CXX_COMPILER to clang++) may also work.
+
+### Compilation 
 
 ## executables created
 
@@ -33,7 +55,7 @@ To make additional executables on compilation, copy a cpp file into the base dir
 cpp file to the base CMakeList.txt file in the "foreach()" line immediately following the comment that says
 "list the names of cpp files cooresponding to linked executables you'd like..."
 
-# Helpful websites
+## Helpful websites
 The requirements can be obtained by looking at the info on the following:
 
 CUDA: https://developer.nvidia.com/cuda-downloads

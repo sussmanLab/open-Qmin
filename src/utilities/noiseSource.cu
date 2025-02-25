@@ -1,4 +1,3 @@
-#define ENABLE_CUDA
 #include <cuda_runtime.h>
 #include "curand_kernel.h"
 #include "noiseSource.cuh"

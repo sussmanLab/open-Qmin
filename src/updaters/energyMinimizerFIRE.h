@@ -5,7 +5,6 @@
 #include "gpuarray.h"
 #include "simpleModel.h"
 #include "velocityVerlet.h"
-#include "kernelTuner.h"
 
 
 /*! \file energyMinimizerFIRE.h */
@@ -52,10 +51,12 @@ class energyMinimizerFIRE : public velocityVerlet
 
         //!an interface to call either the CPU or GPU FIRE algorithm
         void fireStep();
-        //!Perform a velocity Verlet step on the CPU
+        //!Perform a fire step on the CPU
         void fireStepCPU();
-        //!Perform a velocity Verlet step on the GPU
+        //!Perform a fire step on the GPU
+#ifdef ENABLE_CUDA
         void fireStepGPU();
+#endif
 
         //!Minimize to either the force tolerance or the maximum number of iterations
         void minimize();
@@ -68,7 +69,7 @@ class energyMinimizerFIRE : public velocityVerlet
         virtual scalar getClassSize()
             {
             scalar thisClassSize = 0.000000001*(sizeof(scalar)*(sumReductions.getNumElements() + sumReductionIntermediate.getNumElements()+sumReductionIntermediate2.getNumElements()+ 12)
-                +2*sizeof(int)+sizeof(kernelTuner));
+                    );
             return thisClassSize+equationOfMotion::getClassSize();
             }
 
@@ -107,9 +108,6 @@ class energyMinimizerFIRE : public velocityVerlet
         GPUArray<scalar> sumReductionIntermediate2;
         //!Utility array for simple reductions
         GPUArray<scalar> sumReductions;
-
-        //!kernel tuner for performance
-        shared_ptr<kernelTuner> dotProductTuner;
 
     };
 #endif
