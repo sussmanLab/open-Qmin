@@ -4,6 +4,8 @@ Daniel M. Sussman -- Lead developer
 
 Daniel A. Beller -- Extensive technical consultation on all things liquid crystalline; developer for Python wrappers
 
+Tomilola Obadiya -- Implementation of 2D active nematic simulations
+
 -------------------------------------------------------------------------------------
 Community contributions:
 
