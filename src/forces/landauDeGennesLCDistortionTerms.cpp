@@ -1,8 +1,10 @@
 #include "landauDeGennesLC.h"
-#include "landauDeGennesLC.cuh"
 #include "qTensorFunctions.h"
-#include "utilities.cuh"
 #include "lcForces.h"
+#ifdef ENABLE_CUDA
+#include "utilities.cuh"
+#include "landauDeGennesLC.cuh"
+#endif
 /*! \file landauDeGennesLCDistortionTerms.cpp */
 
 /*

@@ -1,6 +1,10 @@
 #include "neighborList.h"
+
+#ifdef ENABLE_CUDA
 #include "utilities.cuh"
 #include "neighborList.cuh"
+#endif
+
 /*! \file neighborList.cpp */
 
 neighborList::neighborList(scalar range, BoxPtr _box, int subGridReduction)
@@ -14,39 +18,9 @@ neighborList::neighborList(scalar range, BoxPtr _box, int subGridReduction)
     cellList->computeAdjacentCells(width);
     Nmax = 4;
     maxRange = range;
-    nlistTuner = make_shared<kernelTuner>(16,1024,16,5,200000);
+    nlistTuner = kernelTuner(16,1024,16,5,200000);
     };
 
-void neighborList::resetNeighborsGPU(int size,int _nmax)
-    {
-NVTXPUSH("resetting neighbor structures1");
-    if(neighborsPerParticle.getNumElements() != size)
-        neighborsPerParticle.resize(size);
-    ArrayHandle<unsigned int> d_npp(neighborsPerParticle,access_location::device,access_mode::overwrite);
-    unsigned int zero = 0;
-    gpu_set_array(d_npp.data,zero,size,512);
-
-    Nmax = _nmax;
-    neighborIndexer = Index2D(_nmax,size);
-    if(particleIndices.getNumElements() != neighborIndexer.getNumElements())
-        {
-        particleIndices.resize(neighborIndexer.getNumElements());
-        if(saveDistanceData)
-            {
-            neighborVectors.resize(neighborIndexer.getNumElements());
-            neighborDistances.resize(neighborIndexer.getNumElements());
-            };
-        };
-
-NVTXPOP();
-NVTXPUSH("resetting neighbor structures2");
-    if(assist.getNumElements()!= 2)
-        assist.resize(2);
-    ArrayHandle<int> h_assist(assist,access_location::host,access_mode::overwrite);
-    h_assist.data[0]=_nmax;
-    h_assist.data[1] = 0;
-NVTXPOP();
-    };
 
 void neighborList::resetNeighborsCPU(int size, int _nmax)
     {
@@ -157,14 +131,14 @@ void neighborList::computeCPU(GPUArray<dVec> &points)
         neighborIndexer = Index2D(Nmax,Np);
     };
 
+
 /*!
 \param points the set of points to find neighbors for
  */
+#ifdef ENABLE_CUDA
 void neighborList::computeGPU(GPUArray<dVec> &points)
     {
-NVTXPUSH("cell list");
     cellList->computeCellList(points);
-NVTXPOP();
     ArrayHandle<unsigned int> particlesPerCell(cellList->elementsPerCell,access_location::device,access_mode::read);
     ArrayHandle<int> indices(cellList->particleIndices,access_location::device,access_mode::read);
     ArrayHandle<dVec> cellParticlePos(cellList->particlePositions,access_location::device,access_mode::read);
@@ -176,7 +150,6 @@ NVTXPOP();
     int nmax = Nmax;
     while(recompute)
         {
-NVTXPUSH("primary neighborlist computation");
         resetNeighborsGPU(Np,nmax);
         {//scope
         ArrayHandle<unsigned int> d_npp(neighborsPerParticle,access_location::device,access_mode::readwrite);
@@ -184,7 +157,7 @@ NVTXPUSH("primary neighborlist computation");
         ArrayHandle<dVec> d_vec(neighborVectors,access_location::device,access_mode::overwrite);
         ArrayHandle<int> d_assist(assist,access_location::device,access_mode::readwrite);
         //!call gpu function
-        nlistTuner->begin();
+        nlistTuner.begin();
         gpu_compute_neighbor_list(d_idx.data,
                                   d_npp.data,
                                   d_vec.data,
@@ -206,11 +179,9 @@ NVTXPUSH("primary neighborlist computation");
                                   maxRange,
                                   nmax,
                                   Np,
-                                  nlistTuner->getParameter());
-        nlistTuner->end();
+                                  nlistTuner.getParameter());
+        nlistTuner.end();
         }//scope
-NVTXPOP();
-NVTXPUSH("neighborList assist checking");
         {
         ArrayHandle<int> h_assist(assist,access_location::host,access_mode::readwrite);
 //        printf("h[0]=%i, h[1]=%i\n",h_assist.data[0],h_assist.data[1]);
@@ -224,7 +195,34 @@ NVTXPUSH("neighborList assist checking");
         else
             recompute = false;
         };
-NVTXPOP();
         };
     };
 
+void neighborList::resetNeighborsGPU(int size,int _nmax)
+    {
+    if(neighborsPerParticle.getNumElements() != size)
+        neighborsPerParticle.resize(size);
+    ArrayHandle<unsigned int> d_npp(neighborsPerParticle,access_location::device,access_mode::overwrite);
+    unsigned int zero = 0;
+    gpu_set_array(d_npp.data,zero,size,512);
+
+    Nmax = _nmax;
+    neighborIndexer = Index2D(_nmax,size);
+    if(particleIndices.getNumElements() != neighborIndexer.getNumElements())
+        {
+        particleIndices.resize(neighborIndexer.getNumElements());
+        if(saveDistanceData)
+            {
+            neighborVectors.resize(neighborIndexer.getNumElements());
+            neighborDistances.resize(neighborIndexer.getNumElements());
+            };
+        };
+
+    if(assist.getNumElements()!= 2)
+        assist.resize(2);
+    ArrayHandle<int> h_assist(assist,access_location::host,access_mode::overwrite);
+    h_assist.data[0]=_nmax;
+    h_assist.data[1] = 0;
+    };
+
+#endif

@@ -1,4 +1,6 @@
 #include "multirankSimulation.h"
+#include "qTensorFunctions.h"
+#include "cudaDataTypes.h"
 /*! \file multrankSimulationBoundaries.cpp */
 
 /*!
@@ -49,7 +51,7 @@ void multirankSimulation::createBoundaryFromFile(string fname, bool verbose)
     istringstream ss(line);
     ss >> nObjects;
     if(verbose)
-        cout << "reading file with "<< nObjects << "objects" << endl;
+        cout << "reading file with "<< nObjects << " objects" << endl;
 
     for (int ii = 0; ii < nObjects;++ii)
         {
@@ -67,7 +69,7 @@ void multirankSimulation::createBoundaryFromFile(string fname, bool verbose)
         else
             bound = boundaryType::degeneratePlanar;
         if(verbose)
-            printf("reading boudary type %i with %f %f and %i entries\n",iVar1,sVar1,sVar2,iVar2);
+            printf("reading boundary type %i with %f %f and %i entries\n",iVar1,sVar1,sVar2,iVar2);
 
         dVec Qtensor;
         vector<int3> boundSites;
@@ -528,7 +530,10 @@ void multirankSimulation::createMultirankBoundaryObject(vector<int3> &latticeSit
         //check if it is within control of this rank
         if(currentSite >=latticeMinPosition && currentSite < latticeMax)
             {
-            int3 currentLatticePos = currentSite - latticeMinPosition;
+            int3 currentLatticePos;
+            currentLatticePos.x = currentSite.x - latticeMinPosition.x;
+            currentLatticePos.y = currentSite.y - latticeMinPosition.y;
+            currentLatticePos.z = currentSite.z - latticeMinPosition.z;
             int currentLatticeSite = Conf->positionToIndex(currentLatticePos);
             latticeSitesToEmploy.push_back(currentLatticeSite);
             pos.data[currentLatticeSite] = qTensors[ii];

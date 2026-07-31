@@ -7,7 +7,9 @@
 class velocityVerlet : public equationOfMotion
     {
     public:
-        virtual void integrateEOMGPU();
         virtual void integrateEOMCPU();
+        #ifdef ENABLE_CUDA
+                virtual void integrateEOMGPU();
+        #endif
     };
 #endif

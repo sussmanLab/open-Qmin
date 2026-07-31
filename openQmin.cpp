@@ -1,3 +1,4 @@
+#include "initializationFunctions.h"
 #include "functions.h"
 #include "multirankSimulation.h"
 #include "multirankQTensorLatticeModel.h"
@@ -15,13 +16,17 @@
 #include <tclap/CmdLine.h>
 #include <mpi.h>
 #include "logSpacedIntegers.h"
+#include "kernelTuner.h"
+#include "std_include.h"
 
+#ifdef ENABLE_CUDA
 #include "cuda_profiler_api.h"
+#endif
 
 int3 partitionProcessors(int numberOfProcesses)
     {
     int3 ans;
-    ans.z = floor(pow(numberOfProcesses,1./3.));
+    ans.z = floor(cbrt(numberOfProcesses));
     int nLeft = floor(numberOfProcesses/ans.z);
     ans.y = floor(sqrt(nLeft));
     ans.x = floor(nLeft / ans.y);
@@ -31,7 +36,8 @@ int3 partitionProcessors(int numberOfProcesses)
 using namespace TCLAP;
 int main(int argc, char*argv[])
     {
-    int myRank,worldSize;
+    int myRank=0;
+    int worldSize =0;
     int tag=99;
     char message[20];
     MPI_Status status;
@@ -50,7 +56,7 @@ int main(int argc, char*argv[])
     //printf("processes rank %i, local rank %i\n",myRank,myLocalRank);
 
     //First, we set up a basic command line parser with some message and version
-    CmdLine cmd("openQmin simulation!",' ',"V0.8");
+    CmdLine cmd("open-Qmin simulation!",' ',"V0.10");
 
     //define the various command line strings that can be passed in...
     //ValueArg<T> variableName("shortflag","longFlag","description",required or not, default value,"value type",CmdLine object to add to
@@ -73,10 +79,10 @@ int main(int argc, char*argv[])
 
     scalar defaultL=4.64;
     ValueArg<scalar> l1SwitchArg("","L1","value of L1 term",false,defaultL,"scalar",cmd);
-    ValueArg<scalar> l2SwitchArg("","L2","value of L2 term",false,defaultL,"scalar",cmd);
-    ValueArg<scalar> l3SwitchArg("","L3","value of L3 term",false,defaultL,"scalar",cmd);
-    ValueArg<scalar> l4SwitchArg("","L4","value of L4 term",false,defaultL,"scalar",cmd);
-    ValueArg<scalar> l6SwitchArg("","L6","value of L6 term",false,defaultL,"scalar",cmd);
+    ValueArg<scalar> l2SwitchArg("","L2","value of L2 term",false,0.,"scalar",cmd);
+    ValueArg<scalar> l3SwitchArg("","L3","value of L3 term",false,0.,"scalar",cmd);
+    ValueArg<scalar> l4SwitchArg("","L4","value of L4 term",false,0.,"scalar",cmd);
+    ValueArg<scalar> l6SwitchArg("","L6","value of L6 term",false,0.,"scalar",cmd);
 
     ValueArg<int> lSwitchArg("l","boxL","number of lattice sites for cubic box",false,50,"int",cmd);
     ValueArg<int> lxSwitchArg("","Lx","number of lattice sites in x direction",false,50,"int",cmd);
@@ -124,8 +130,10 @@ int main(int argc, char*argv[])
     bool verbose= verboseSwitch.getValue();
     int gpu = gpuSwitchArg.getValue();
     int initializationSwitch = initializationSwitchArg.getValue();
-    int nDev;
+    int nDev = 0;
+#ifdef ENABLE_CUDA
     cudaGetDeviceCount(&nDev);
+#endif
     if(nDev == 0)
         gpu = -1;
     scalar phaseA = aSwitchArg.getValue();
@@ -174,7 +182,7 @@ int main(int argc, char*argv[])
     if(verbose) printf("setting a rectilinear lattice of size (%i,%i,%i)\n",boxLx,boxLy,boxLz);
     profiler pInit("initialization");
     bool useOneConstantApprox = true;
-    if(L2 != defaultL || L3 != defaultL || L4 != defaultL || L6 != defaultL)
+    if(L2 != 0. || L3 != 0. || L4 != 0. || L6 != 0.)
         useOneConstantApprox = false;
     pInit.start();
     bool xH = (rankTopology.x >1) ? true : false;
@@ -183,7 +191,6 @@ int main(int argc, char*argv[])
     bool edges = ((rankTopology.y >1) && !useOneConstantApprox) ? true : false;
     bool corners = ((rankTopology.z >1) && !useOneConstantApprox) ? true : false;
     bool neverGPU = !GPU;
-
     shared_ptr<multirankQTensorLatticeModel> Configuration = make_shared<multirankQTensorLatticeModel>(boxLx,boxLy,boxLz,xH,yH,zH,false,neverGPU);
     shared_ptr<multirankSimulation> sim = make_shared<multirankSimulation>(myRank,rankTopology.x,rankTopology.y,rankTopology.z,edges,corners);
     shared_ptr<landauDeGennesLC> landauLCForce = make_shared<landauDeGennesLC>(neverGPU);
@@ -253,7 +260,7 @@ int main(int argc, char*argv[])
 
     sim->setCPUOperation(true);//have cpu and gpu initialized the same...for debugging
     /*
-    The following header file includes various common ways you might want to set the inital state of the lattice of Qtensors. 
+    The following header file includes various common ways you might want to set the inital state of the lattice of Qtensors.
     It is controlled by the "initializationSwitch" command line option (-z integer); by default (-z 0) the lattice will be set to a different random Q-tensor at every lattice site (with uniform s0)
     */
     scalar S0 = (-b+sqrt(b*b-24*a*c))/(6*c);

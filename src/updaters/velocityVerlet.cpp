@@ -1,5 +1,7 @@
 #include "velocityVerlet.h"
+#ifdef ENABLE_CUDA
 #include "velocityVerlet.cuh"
+#endif
 /*! \file velocityVerlet.cpp */
 
 
@@ -37,6 +39,7 @@ void velocityVerlet::integrateEOMCPU()
 
     };
 
+#ifdef ENABLE_CUDA
 void velocityVerlet::integrateEOMGPU()
     {
     //ArrayHandle<scalar> d_m(model->returnMasses(),access_location::device,access_mode::read);
@@ -61,3 +64,4 @@ void velocityVerlet::integrateEOMGPU()
                         //d_m.data,
                         deltaT,Ndof);
     };
+#endif

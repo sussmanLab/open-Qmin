@@ -2,8 +2,6 @@
 #define qTensorLatticeModel_H
 
 #include "cubicLattice.h"
-#include "qTensorFunctions.h"
-#include "qTensorLatticeModel.cuh"
 
 /*! \file qTensorLatticeModel.h */
 

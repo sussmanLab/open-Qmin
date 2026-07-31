@@ -1,18 +1,18 @@
 #ifndef kernelTuner_H
 #define kernelTuner_H
 
-#include "std_include.h"
 #include <chrono>
+#include <iostream>
+#include <vector>
 /*!\file kernelTuner.h */
 
 //!A class that tries to dynamically optimize a kernel parameter
 class kernelTuner
     {
     public:
+        kernelTuner(){};
         //!Base constructor takes (start,end,step) values to scan, sample number, and period
         kernelTuner(int start, int end, int step, int nSamples, int _period);
-        //!destroy the cuda events
-        ~kernelTuner();
 
         void begin();
         void end();
@@ -25,10 +25,10 @@ class kernelTuner
         //! print timing data to screen
         void printTimingData()
             {
-            cout << "parameter used: " << parameterValue << endl;
+                std::cout << "parameter used: " << parameterValue << std::endl;
             for (int ii = 1; ii < possibleParameters.size();++ii)
                 {
-                cout <<"tuner value " << possibleParameters[ii] << " median time " << sampleMedian[ii]  << endl;
+                    std::cout <<"tuner value " << possibleParameters[ii] << " median time " << sampleMedian[ii]  << std::endl;
                 }
             };
 
@@ -52,18 +52,18 @@ class kernelTuner
         int parameterValue;
         int samplesPerValue;
         int period;
-        vector<int> possibleParameters;
+        std::vector<int> possibleParameters;
         State internalState;
         int currentSample;
         int currentParameterIndex;
         int callsSinceLastSample;
-        vector<vector< float> > sampleData;
-        vector<float> sampleMedian;
+        std::vector<std::vector< float> > sampleData;
+        std::vector<float> sampleMedian;
 
         //cudaEvent_t startEvent;
         //cudaEvent_t stopEvent;
-        chrono::time_point<chrono::high_resolution_clock>  startTime;
-        chrono::time_point<chrono::high_resolution_clock>  endTime;
+        std::chrono::time_point<std::chrono::high_resolution_clock>  startTime;
+        std::chrono::time_point<std::chrono::high_resolution_clock>  endTime;
 
     };
 #endif

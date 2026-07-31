@@ -1,0 +1,669 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>Running open-Qmin (Python interface) &#8212; User Guide to open-Qmin</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=5b4479735964841361fd" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" href="_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-thebe.css" />
+    <link rel="stylesheet" type="text/css" href="_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=5b4479735964841361fd" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd" />
+  <script src="_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=5b4479735964841361fd"></script>
+
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/clipboard.min.js"></script>
+    <script src="_static/copybutton.js"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="_static/togglebutton.js"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="_static/design-tabs.js"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"
+const thebe_selector = ".thebe,.cell"
+const thebe_selector_input = "pre"
+const thebe_selector_output = ".output, .cell_output"
+</script>
+    <script async="async" src="_static/sphinx-thebe.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'py-run';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Saved output" href="Saved-output.html" />
+    <link rel="prev" title="Initialization (Python interface)" href="py-initialization.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+
+<a class="navbar-brand logo" href="Overview.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/Sa_cumin.jpg" class="logo__image only-light" alt="User Guide to open-Qmin - Home"/>
+    <script>document.write(`<img src="_static/Sa_cumin.jpg" class="logo__image only-dark" alt="User Guide to open-Qmin - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="Overview.html">
+                    open-Qmin
+                </a>
+            </li>
+        </ul>
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="Installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Landau-de-Gennes.html">Landau-de Gennes Theory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Non-dimensionalization.html">Non-dimensionalization</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="Command-Line-Usage.html">Command-line usage</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="Command-Line-Options.html">Command-Line Options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Boundary-conditions.html">Boundary conditions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="External-fields.html">External fields</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="Python-interface.html">Python interface</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="py-boundaries.html">Boundary conditions (Python interface)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="py-initialization.html">Initialization (Python interface)</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Running open-Qmin (Python interface)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Saved-output.html">Saved output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Change-log.html">Change log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="License.html">Licensing information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="References.html">References</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/sussmanLab/open-Qmin" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/sussmanLab/open-Qmin/issues/new?title=Issue%20on%20page%20%2Fpy-run.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/py-run.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Running open-Qmin (Python interface)</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="running-open-qmin-python-interface">
+<h1>Running open-Qmin (Python interface)<a class="headerlink" href="#running-open-qmin-python-interface" title="Permalink to this heading">#</a></h1>
+<p>Using <em>tools/runHelper.py</em>, you can define command-line parameters through a Python dictionary <code class="docutils literal notranslate"><span class="pre">runHelper.params</span></code>. These, along with any default parameters you didn’t change, are converted by <code class="docutils literal notranslate"><span class="pre">runHelper.get_runcmd()</span></code> into a command-line string that calls <em>build/openQmin.out</em>.</p>
+<p>The dictionary keys of <code class="docutils literal notranslate"><span class="pre">runHelper.params</span></code> are the same as the long forms (appearing after the <code class="docutils literal notranslate"><span class="pre">--</span></code>s) of the command-line flags seen when you run <code class="docutils literal notranslate"><span class="pre">build/openQmin.out</span> <span class="pre">--help</span></code>, with the following exceptions:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">help</span></code> itself is not a key in <code class="docutils literal notranslate"><span class="pre">runHelper.params</span></code></p></li>
+<li><p>Parameters <code class="docutils literal notranslate"><span class="pre">'whole_Lx'</span></code>, <code class="docutils literal notranslate"><span class="pre">'whole_Ly'</span></code>, and <code class="docutils literal notranslate"><span class="pre">'whole_Lz'</span></code>, which define the system size <strong>before</strong> subdivision over MPI ranks, override <code class="docutils literal notranslate"><span class="pre">'Lx'</span></code>, <code class="docutils literal notranslate"><span class="pre">'Ly'</span></code>, and <code class="docutils literal notranslate"><span class="pre">'Lz'</span></code> by default. If you want to use <code class="docutils literal notranslate"><span class="pre">'Lx'</span></code>, <code class="docutils literal notranslate"><span class="pre">'Ly'</span></code>, <code class="docutils literal notranslate"><span class="pre">'Lz'</span></code> instead (which give the system size on each rank), you can pass <code class="docutils literal notranslate"><span class="pre">do_partition=False</span></code> to <code class="docutils literal notranslate"><span class="pre">runHelper.get_runcmd()</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--boxL</span></code> (or <code class="docutils literal notranslate"><span class="pre">-l</span></code>) for specifying cubic box size is not used here to avoid ambiguity.</p></li>
+</ul>
+<p>In the example below, we’ll make use of an example boundaryFile that we created in the page on <a class="reference internal" href="py-boundaries.html"><span class="doc std std-doc">Boundary conditions (Python interface)</span></a> and the example initialConfigurationFiles that we created in the page on <a class="reference internal" href="py-initialization.html"><span class="doc std std-doc">Initialization (Python interface)</span></a>.</p>
+<p>Notice that the main open-Qmin directory path, assigned to <code class="docutils literal notranslate"><span class="pre">runHelper.directory</span></code>, is automatically prepended to the filepaths for imported and exported data. This directory path should be either an absolute path or relative to where you’ll be running the command.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sys</span> <span class="kn">import</span> <span class="n">path</span>
+<span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;../tools/&quot;</span><span class="p">)</span>  <span class="c1"># &lt;-- replace with your path to runHelper.py</span>
+
+<span class="kn">import</span> <span class="nn">runHelper</span>
+
+<span class="n">runHelper</span><span class="o">.</span><span class="n">directory</span> <span class="o">=</span> <span class="s2">&quot;../&quot;</span> <span class="c1"># path to open-Qmin main directory</span>
+<span class="n">runHelper</span><span class="o">.</span><span class="n">mpi_num_processes</span> <span class="o">=</span> <span class="mi">4</span>  <span class="c1"># set to 1 for non-MPI run</span>
+
+<span class="n">runHelper</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;boundaryFile&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;ceiling_and_wavy_floor.txt&quot;</span>
+<span class="n">runHelper</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;initialConfigurationFile&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;my_init_file&quot;</span>
+
+<span class="c1"># choose a location and filename-prefix for this run&#39;s results</span>
+<span class="n">runHelper</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;saveFile&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;data/my_example_run&quot;</span>
+<span class="n">runHelper</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;iterations&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">500</span>  <span class="c1"># max number of minimization timesteps</span>
+
+<span class="c1"># system size BEFORE subdivision across MPI ranks:</span>
+<span class="n">runHelper</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;whole_Lx&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">50</span>
+<span class="n">runHelper</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;whole_Ly&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">50</span>
+<span class="n">runHelper</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;whole_Lz&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">50</span>
+
+<span class="n">runcmd</span> <span class="o">=</span> <span class="n">runHelper</span><span class="o">.</span><span class="n">get_runcmd</span><span class="p">()</span>  <span class="c1"># generate command-line string</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">runcmd</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>mpirun -n 4 ../build/openQmin.out --initializationSwitch 0 --GPU -1 --phaseConstantA -0.172 --phaseConstantB -2.12 --phaseConstantC 1.73 --deltaT 0.0005 --fTarget 1e-12 --iterations 500 --randomSeed -1 --L1 4.64 --L2 0.0 --L3 0.0 --L4 0.0 --L6 0.0 --Lx 25 --Ly 25 --Lz 50 --initialConfigurationFile ../my_init_file --boundaryFile ../ceiling_and_wavy_floor.txt --saveFile ../data/my_example_run --linearSpacedSaving -1 --logSpacedSaving -1 --stride 1 --hFieldX 0 --hFieldY 0 --hFieldZ 0 --hFieldMu0 1 --hFieldChi 1 --hFieldDeltaChi 0.5 --eFieldX 0 --eFieldY 0 --eFieldZ 0 --eFieldEpsilon0 1 --eFieldEpsilon 1 --eFieldDeltaEpsilon 0.5
+</pre></div>
+</div>
+</div>
+</div>
+<p>We can run open-Qmin with these options by any of the following routes:</p>
+<ul class="simple">
+<li><p>Call <code class="docutils literal notranslate"><span class="pre">runHelper.run()</span></code>, which executes the result of <code class="docutils literal notranslate"><span class="pre">runHelper.get_runcmd()</span></code></p></li>
+<li><p>Copy and paste the string into a terminal</p></li>
+<li><p>Use the <code class="docutils literal notranslate"><span class="pre">runcmd</span></code> string in a Python script via <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">os;</span> <span class="pre">os.system(runcmd)</span></code></p></li>
+<li><p>Run as shell command in a Jupyter notebook with <code class="docutils literal notranslate"><span class="pre">!{runcmd}</span></code></p></li>
+</ul>
+<div class="cell tag_output_scroll docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">runHelper</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>lattice divisions: {2, 2, 1}
+loading state...
+loading state...
+loading state...
+loading state...
+reading file with 2 objects
+reading boundary type 0 with 5.300000 0.530000 and 26307 entries
+reading file with 2 objects
+reading boundary type 0 with 5.300000 0.530000 and 26307 entries
+reading file with 2 objects
+reading boundary type 0 with 5.300000 0.530000 and 26307 entries
+reading file with 2 objects
+reading boundary type 0 with 5.300000 0.530000 and 26307 entries
+object with 26307 sites created
+object with 26307 sites created
+object with 26307 sites created
+object with 26307 sites created
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>there are now 1 boundary objects known to the configuration... last object had 6577 sites and 1898 surface sites 
+there are now 1 boundary objects known to the configuration... last object had 6577 sites and 1898 surface sites 
+reading boundary type 1 with 5.300000 0.530000 and 2500 entries
+reading boundary type 1 with 5.300000 0.530000 and 2500 entries
+there are now 1 boundary objects known to the configuration... last object had 6577 sites and 1898 surface sites 
+reading boundary type 1 with 5.300000 0.530000 and 2500 entries
+there are now 1 boundary objects known to the configuration... last object had 6576 sites and 1895 surface sites 
+reading boundary type 1 with 5.300000 0.530000 and 2500 entries
+object with 2500 sites created
+object with 2500 sites created
+there are now 2 boundary objects known to the configuration... last object had 625 sites and 725 surface sites 
+there are now 2 boundary objects known to the configuration... last object had 625 sites and 725 surface sites 
+object with 2500 sites created
+there are now 2 boundary objects known to the configuration... last object had 625 sites and 725 surface sites 
+object with 2500 sites created
+there are now 2 boundary objects known to the configuration... last object had 625 sites and 726 surface sites 
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>fire finished: step 500 max force:3.91e-05 	power: 2.36	 alpha 0.99	 dt 0.045125 	scaling 0.249 
+fire finished: step 500 max force:3.91e-05 	power: 2.36	 alpha 0.99	 dt 0.045125 	scaling 0.249 
+fire finished: step 500 max force:3.91e-05 	power: 2.36	 alpha 0.99	 dt 0.045125 	scaling 0.249 
+fire finished: step 500 max force:3.91e-05 	power: 2.36	 alpha 0.99	 dt 0.045125 	scaling 0.249 
+-5236.933788 581.235202 69.360335 0.000000 0.000000
+-5237.066075 581.634041 74.221093 0.000000 0.000000
+-5236.936485 581.264815 69.360692 0.000000 0.000000
+-5236.937263 581.229330 69.360224 0.000000 0.000000
+minimized to 3.91031e-05	 E=-0.190661	
+minimized to 3.91031e-05	 E=-0.190661	
+minimized to 3.91031e-05	 E=-0.190661	
+minimized to 3.91031e-05	 E=-0.190661	
+</pre></div>
+</div>
+</div>
+</div>
+<p>Let’s take a look at the result. Here we’re using <a class="reference external" href="https://open-viewmin.gitlab.io/">open-ViewMin</a>, a visualization environment under development for use with open-Qmin. This project is publicly available at <a class="gitlab reference external" href="https://gitlab.com/open-viewmin/open-viewmin.gitlab.io">open-viewmin/open-viewmin.gitlab.io</a>. Feedback and bug reports will be gratefully received there or at d.a.beller [at] jhu.edu.</p>
+<div class="cell tag_hide-cell docutils container">
+<details class="hide above-input">
+<summary aria-label="Toggle hidden content">
+<span class="collapsed">Show code cell content</span>
+<span class="expanded">Hide code cell content</span>
+</summary>
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;../../openviewmin/&quot;</span><span class="p">)</span> <span class="c1"># &lt;-- replace with your path to openViewMin</span>
+
+<span class="kn">import</span> <span class="nn">open_viewmin</span>
+<span class="kn">import</span> <span class="nn">glob</span>
+
+<span class="c1"># collect all files from this run</span>
+<span class="n">savedFiles</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;../data/my_example_run*&quot;</span><span class="p">)</span> 
+<span class="c1"># generate plot off-screen</span>
+<span class="n">nplot</span> <span class="o">=</span> <span class="n">open_viewmin</span><span class="o">.</span><span class="n">NematicPlot</span><span class="p">(</span><span class="n">savedFiles</span><span class="p">,</span> <span class="n">off_screen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="c1"># rotate plane of director glyphs to y-normal</span>
+<span class="n">nplot</span><span class="p">[</span><span class="s2">&quot;director_plane&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">normal</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+<span class="c1"># set surface colors</span>
+<span class="n">nplot</span><span class="p">[</span><span class="s2">&quot;defects&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+<span class="n">nplot</span><span class="p">[</span><span class="s2">&quot;boundaries&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">));</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[&#39;../data/my_example_run_x0y1z0.txt&#39;, &#39;../data/my_example_run_x1y0z0.txt&#39;, &#39;../data/my_example_run_x1y1z0.txt&#39;, &#39;../data/my_example_run_x0y0z0.txt&#39;] -&gt; ../data/my_example_run.txt
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Imported ../data/my_example_run.txt as frame # 0.
+</pre></div>
+</div>
+</div>
+</details>
+</div>
+<div class="cell tag_hide-input docutils container">
+<details class="hide above-input">
+<summary aria-label="Toggle hidden content">
+<span class="collapsed">Show code cell source</span>
+<span class="expanded">Hide code cell source</span>
+</summary>
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># display result in browser</span>
+
+<span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">IFrame</span>
+<span class="n">nplot</span><span class="o">.</span><span class="n">export_html</span><span class="p">(</span><span class="s2">&quot;py-run-example.html&quot;</span><span class="p">)</span>
+<span class="n">IFrame</span><span class="p">(</span><span class="s1">&#39;../../py-run-example.html&#39;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
+<span class="c1"># note: delete the &quot;../../&quot; in the line above if you run this yourself</span>
+</pre></div>
+</div>
+</div>
+</details>
+<div class="cell_output docutils container">
+<div class="output text_html">
+        <iframe
+            width="500"
+            height="500"
+            src="../../py-run-example.html"
+            frameborder="0"
+            allowfullscreen
+            
+        ></iframe>
+        </div></div>
+</div>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "viewmin"
+        },
+        kernelOptions: {
+            name: "viewmin",
+            path: "./."
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'viewmin'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="py-initialization.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Initialization (Python interface)</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="Saved-output.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Saved output</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Daniel Sussman and Daniel Beller
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2022.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=5b4479735964841361fd"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

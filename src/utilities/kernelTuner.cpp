@@ -1,4 +1,5 @@
 #include "kernelTuner.h"
+#include "std_include.h"
 /*!\file kernelTuner.cpp */
 
 kernelTuner::kernelTuner(int start, int end, int step, int nSamples, int _period)
@@ -26,16 +27,10 @@ kernelTuner::kernelTuner(int start, int end, int step, int nSamples, int _period
 
     };
 
-kernelTuner::~kernelTuner()
-    {
-    //cudaEventDestroy(startEvent);
-    //cudaEventDestroy(stopEvent);
-    };
-
 void kernelTuner::begin()
     {
     if (internalState != IDLE)
-        startTime = chrono::high_resolution_clock::now();
+        startTime = std::chrono::high_resolution_clock::now();
         //cudaEventRecord(startEvent,0);
     };
 
@@ -105,7 +100,7 @@ void kernelTuner::end()
 int kernelTuner::computeOptimalParameter()
     {
     //compute the median time for each parameter value
-    vector<float> times;
+    std::vector<float> times;
     for (int ii  = 0; ii < possibleParameters.size(); ++ii)
         {
         times = sampleData[ii];
