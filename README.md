@@ -58,7 +58,7 @@ To do the same thing but using a GPU in slot 0:
 `build/openQmin.out -i 100 -l 250 -g 0`
 
 
-To load a file, e.g. "asests/boundaryInput.txt"  with custom boundaries prepared for a cubic lattice of side length 80  
+To load a file, e.g. "assets/boundaryInput.txt"  with custom boundaries prepared for a cubic lattice of side length 80  
 `build/openQmin.out -i 100 -l 80 --boundaryFile assets/boundaryInput.txt`
 
 
