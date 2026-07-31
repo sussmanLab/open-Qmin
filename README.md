@@ -51,11 +51,11 @@ client, or alternatively using [VcXserv](https://sourceforge.net/projects/vcxsrv
 
 `build/openQmin` options...
 
-For example, to run 100 FIRE minimization steps on a cubic lattice of side length 250:  
-`build/openQmin -i 100 -l 250`
+For example, to run 100 FIRE minimization steps on a cubic lattice of side length 50:  
+`build/openQmin -i 100 -l 50`
 
 To do the same thing but using a GPU in slot 0:  
-`build/openQmin -i 100 -l 250 -g 0`
+`build/openQmin -i 100 -l 50 -g 0`
 
 
 To load a file, e.g. "assets/boundaryInput.txt"  with custom boundaries prepared for a cubic lattice of side length 80  
@@ -70,10 +70,10 @@ To do the above, but also save the post-minimization state:
 ## using the command line to specify how the RNG will be used
 
 First, by default the executable compiled from openQmin.cpp will use a reproducible random number generator with a fixed initial seed. To use a random number as the seed to the random number generator, use the -r flag, eg:
-`build/openQmin -i 100 -l 250 -r`
+`build/openQmin -i 100 -l 50 -r`
 
 To specify a specific seed to use (so that, eg., you can reproducibly study an ensemble of different random conditions), use the --randomSeed command line option, eg:
-`build/openQmin -i 100 -l 250 --randomSeed 123456234`
+`build/openQmin -i 100 -l 50 --randomSeed 123456234`
 
 
 ## Using the command line to specify MPI jobs
