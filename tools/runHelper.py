@@ -1,6 +1,6 @@
 
 """
-This Python script simply calls openQmin in command-line mode, 
+This Python script simply calls the openQmin executable in command-line mode, 
 with all available command-line arguments presented as a Python dictionary.
 Variables with empty-string values are ignored, as are commented-out lines. 
 """

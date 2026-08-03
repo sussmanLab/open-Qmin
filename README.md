@@ -51,29 +51,29 @@ client, or alternatively using [VcXserv](https://sourceforge.net/projects/vcxsrv
 
 `build/openQmin` options...
 
-For example, to run 100 FIRE minimization steps on a cubic lattice of side length 250:  
-`build/openQmin.out -i 100 -l 250`
+For example, to run 100 FIRE minimization steps on a cubic lattice of side length 50:  
+`build/openQmin -i 100 -l 50`
 
 To do the same thing but using a GPU in slot 0:  
-`build/openQmin.out -i 100 -l 250 -g 0`
+`build/openQmin -i 100 -l 50 -g 0`
 
 
-To load a file, e.g. "asests/boundaryInput.txt"  with custom boundaries prepared for a cubic lattice of side length 80  
-`build/openQmin.out -i 100 -l 80 --boundaryFile assets/boundaryInput.txt`
+To load a file, e.g. "assets/boundaryInput.txt"  with custom boundaries prepared for a cubic lattice of side length 80  
+`build/openQmin -i 100 -l 80 --boundaryFile assets/boundaryInput.txt`
 
 
 To do the above, but also save the post-minimization state:  
-`./build/openQmin.out -i 80 --boundaryFile assets/boundaryInput.txt -l 80 --saveFile data/saveTesting`
+`./build/openQmin -i 80 --boundaryFile assets/boundaryInput.txt -l 80 --saveFile data/saveTesting`
 
 (for the above two lines, note that the file path is relative to where you currently are.)
 
 ## using the command line to specify how the RNG will be used
 
 First, by default the executable compiled from openQmin.cpp will use a reproducible random number generator with a fixed initial seed. To use a random number as the seed to the random number generator, use the -r flag, eg:
-`build/openQmin.out -i 100 -l 250 -r`
+`build/openQmin -i 100 -l 50 -r`
 
 To specify a specific seed to use (so that, eg., you can reproducibly study an ensemble of different random conditions), use the --randomSeed command line option, eg:
-`build/openQmin.out -i 100 -l 250 --randomSeed 123456234`
+`build/openQmin -i 100 -l 50 --randomSeed 123456234`
 
 
 ## Using the command line to specify MPI jobs
@@ -85,18 +85,18 @@ MPI RANK. (One could imagine an alternate default behavior in which the command 
 simulation domain, which was then divided among the different processors).
 
 So, for example, the command:  
-`mpirun -n 1 build/openQmin.out -l 100`  
+`mpirun -n 1 build/openQmin -l 100`  
 will run execute a simulation domain of total size (100x100x100) lattice sites, on a single rank.
 
 
 Moving to two processors, the command:  
-`mpirun -n 2 build/openQmin.out -l 100`  
+`mpirun -n 2 build/openQmin -l 100`  
 will run execute a simulation domain of total size (200x100x100) lattice sites, on two ranks (that
 is, each rank will control a 100x100x100 domain). 
 
 
 Similarly the command:  
-`mpirun -n 8 build/openQmin.out -l 100`  
+`mpirun -n 8 build/openQmin -l 100`  
 will run execute a simulation domain of total size (200x200x200) lattice sites, where each of the
 eight ranks continues to control a block of 100x100x100 lattice sites.
 
