@@ -146,7 +146,7 @@ struct dVecDotProduct
 //!component-wise multiplication of two dVecs
 HOSTDEVICE scalar operator*(const dVec &a, const dVec &b)
     {
-    scalar ans;
+    scalar ans = 0.;
     for (int dd = 0; dd < DIMENSION; ++dd)
         ans += a.x[dd]*b.x[dd];
     return ans;
