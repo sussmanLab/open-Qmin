@@ -1,6 +1,6 @@
 
 """
-This Python script simply calls openQmin.out in command-line mode, 
+This Python script simply calls openQmin in command-line mode, 
 with all available command-line arguments presented as a Python dictionary.
 Variables with empty-string values are ignored, as are commented-out lines. 
 """
@@ -82,7 +82,7 @@ def get_runcmd(do_partition=True):
             # if file name doesn't begin with directory, prepend directory
             if not filename[:len(directory)] == directory:
                 params[filenamekey] = directory + filename
-    runcmd += f'{directory}build/openQmin.out ' + ' '.join([
+    runcmd += f'{directory}build/openQmin ' + ' '.join([
         f'--{key} {val}' for key, val in zip(
             params.keys(), params.values()
         )
