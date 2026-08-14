@@ -59,6 +59,13 @@ else()
         add_definitions(-DENABLE_CUDA)
         enable_language(CUDA)
         include_directories(${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES})
+        #CUDA 12 moved nvToolsExt.h into an nvtx3/ subdirectory
+        find_path(openQmin_NVTX3_INCLUDE_DIR nvToolsExt.h
+            HINTS ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}
+            PATH_SUFFIXES nvtx3)
+        if(openQmin_NVTX3_INCLUDE_DIR)
+            include_directories(${openQmin_NVTX3_INCLUDE_DIR})
+        endif()
         set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -diag-suppress 20040 -diag-suppress 20015 -diag-suppress 20013")
 	set(CMAKE_CUDA_ARCHITECTURES "50;52;70")
 	message(STATUS "setting cuda compilation of gpuarray file")
