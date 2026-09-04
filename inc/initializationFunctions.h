@@ -26,9 +26,11 @@ bool chooseGPU(int USE_GPU,bool verbose = false)
             {
             cudaDeviceProp prop;
             cudaGetDeviceProperties(&prop,ii);
+            int memoryClockRate = 0;
+            cudaDeviceGetAttribute(&memoryClockRate, cudaDevAttrMemoryClockRate, ii);
             if (ii == USE_GPU) std::cout << "********************************" << std::endl;
             if (ii == USE_GPU) std::cout << "****Using the following gpu ****" << std::endl;
-            std::cout << ii <<"\t\t\t" << prop.name << "\t\t" << prop.memoryClockRate << "\t\t" << prop.memoryBusWidth << std::endl;
+            std::cout << ii <<"\t\t\t" << prop.name << "\t\t" << memoryClockRate << "\t\t" << prop.memoryBusWidth << std::endl;
             if (ii == USE_GPU) std::cout << "*******************************" << std::endl;
             };
         }
@@ -36,7 +38,9 @@ bool chooseGPU(int USE_GPU,bool verbose = false)
         {
         cudaDeviceProp prop;
         cudaGetDeviceProperties(&prop,USE_GPU);
-        std::cout << "using " << prop.name << "\t ClockRate = " << prop.memoryClockRate << " memBusWidth = " << prop.memoryBusWidth << std::endl << std::endl;
+        int memoryClockRate = 0;
+        cudaDeviceGetAttribute(&memoryClockRate, cudaDevAttrMemoryClockRate, USE_GPU);
+        std::cout << "using " << prop.name << "\t ClockRate = " << memoryClockRate << " memBusWidth = " << prop.memoryBusWidth << std::endl << std::endl;
         };
     return true;
     }
