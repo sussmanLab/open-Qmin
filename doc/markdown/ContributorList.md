@@ -10,3 +10,5 @@ Tomilola Obadiya -- Implementation of 2D active nematic simulations
 Community contributions:
 
 Guilhem Poy -- suggestions for modernizing CMAKE system
+
+Alejandro J. Soto Franco -- CUDA 12 and 13 build compatibility
